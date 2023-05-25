@@ -82,8 +82,10 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
   ): void {
     throw new Error("Method not implemented.");
   }
-  drawCircle(_cx: number, _cy: number, _radius: number, _paint: Paint): void {
-    throw new Error("Method not implemented.");
+  drawCircle(cx: number, cy: number, radius: number, paint: PaintLite) {
+    paint.apply(this.ctx, () => {
+      this.ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
+    });
   }
   drawColor(
     _color: InputColor,
@@ -197,11 +199,10 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
   drawOval(_oval: InputRect, _paint: Paint): void {
     throw new Error("Method not implemented.");
   }
-  drawPaint(paint: PaintLite): void {
-    this.ctx.save();
-    paint.apply(this.ctx);
-    this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-    this.ctx.restore();
+  drawPaint(paint: PaintLite) {
+    paint.apply(this.ctx, () => {
+      this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+    });
   }
   drawParagraph(_p: Paragraph, _x: number, _y: number): void {
     throw new Error("Method not implemented.");
