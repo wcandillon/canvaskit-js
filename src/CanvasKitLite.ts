@@ -1,11 +1,12 @@
+/* eslint-disable no-bitwise */
 /* eslint-disable camelcase */
+import type { CanvasKit } from "canvaskit-wasm";
 import type {
   AffinityEnumValues,
   AlphaTypeEnumValues,
   AnimatedImage,
   BlendModeEnumValues,
   BlurStyleEnumValues,
-  CanvasKit,
   ClipOpEnumValues,
   ColorChannelEnumValues,
   ColorFilterFactory,
@@ -90,14 +91,11 @@ import type {
   WebGPUCanvasOptions,
 } from "canvaskit-wasm";
 
+import { clampColorComp } from "./math";
+
 export class CanvasKitLite implements CanvasKit {
-  Color(
-    _r: number,
-    _g: number,
-    _b: number,
-    _a?: number | undefined
-  ): Float32Array {
-    throw new Error("Method not implemented.");
+  Color(r: number, g: number, b: number, a = 1): Float32Array {
+    return new Float32Array([r / 255, g / 255, b / 255, a]);
   }
   Color4f(
     r: number,
@@ -107,63 +105,82 @@ export class CanvasKitLite implements CanvasKit {
   ): Float32Array {
     return Float32Array.of(r, g, b, a ?? 1);
   }
-  ColorAsInt(
-    _r: number,
-    _g: number,
-    _b: number,
-    _a?: number | undefined
-  ): number {
-    throw new Error("Method not implemented.");
+  ColorAsInt(r: number, g: number, b: number, a = 1): number {
+    // default to opaque
+    if (a === undefined) {
+      a = 255;
+    }
+    // This is consistent with how Skia represents colors in C++, as an unsigned int.
+    // This is also consistent with how Flutter represents colors:
+    return (
+      ((clampColorComp(a) << 24) |
+        (clampColorComp(r) << 16) |
+        (clampColorComp(g) << 8) |
+        ((clampColorComp(b) << 0) & 0xfffffff)) >>>
+      0
+    ); // This makes the value an unsigned int.
   }
-  getColorComponents(_c: Float32Array): number[] {
-    throw new Error("Method not implemented.");
+  getColorComponents(color: Float32Array): number[] {
+    return [
+      Math.floor(color[0] * 255),
+      Math.floor(color[1] * 255),
+      Math.floor(color[2] * 255),
+      color[3],
+    ];
   }
   parseColorString(
-    _color: string,
+    _colorStr: string,
     _colorMap?: Record<string, Float32Array> | undefined
   ): Float32Array {
     throw new Error("Method not implemented.");
   }
-  multiplyByAlpha(_c: Float32Array, _alpha: number): Float32Array {
-    throw new Error("Method not implemented.");
+  multiplyByAlpha(c: Float32Array, alpha: number): Float32Array {
+    return this.Color4f(c[0], c[1], c[2], c[3] * alpha);
   }
   computeTonalColors(_colors: TonalColorsInput): TonalColorsOutput {
     throw new Error("Method not implemented.");
   }
   LTRBRect(
-    _left: number,
-    _top: number,
-    _right: number,
-    _bottom: number
+    left: number,
+    top: number,
+    right: number,
+    bottom: number
   ): Float32Array {
-    throw new Error("Method not implemented.");
+    return new Float32Array([left, top, right, bottom]);
   }
-  XYWHRect(
-    _x: number,
-    _y: number,
-    _width: number,
-    _height: number
-  ): Float32Array {
-    throw new Error("Method not implemented.");
+  XYWHRect(x: number, y: number, width: number, height: number): Float32Array {
+    return this.LTRBRect(x, y, x + width, y + height);
   }
   LTRBiRect(
-    _left: number,
-    _top: number,
-    _right: number,
-    _bottom: number
+    left: number,
+    top: number,
+    right: number,
+    bottom: number
   ): Int32Array {
-    throw new Error("Method not implemented.");
+    return new Int32Array([left, top, right, bottom]);
   }
-  XYWHiRect(
-    _x: number,
-    _y: number,
-    _width: number,
-    _height: number
-  ): Int32Array {
-    throw new Error("Method not implemented.");
+  XYWHiRect(x: number, y: number, width: number, height: number): Int32Array {
+    return this.LTRBiRect(x, y, x + width, y + height);
   }
-  RRectXY(_rect: InputRect, _rx: number, _ry: number): Float32Array {
-    throw new Error("Method not implemented.");
+  RRectXY(
+    rect: Exclude<InputRect, MallocObj>,
+    rx: number,
+    ry: number
+  ): Float32Array {
+    return Float32Array.of(
+      rect[0],
+      rect[1],
+      rect[2],
+      rect[3],
+      rx,
+      ry,
+      rx,
+      ry,
+      rx,
+      ry,
+      rx,
+      ry
+    );
   }
   getShadowLocalBounds(
     _ctm: InputMatrix,
@@ -373,15 +390,15 @@ export class CanvasKitLite implements CanvasKit {
   StrokeJoin!: StrokeJoinEnumValues;
   TileMode!: TileModeEnumValues;
   VertexMode!: VertexModeEnumValues;
-  TRANSPARENT!: Float32Array;
-  BLACK!: Float32Array;
-  WHITE!: Float32Array;
-  RED!: Float32Array;
-  GREEN!: Float32Array;
-  BLUE!: Float32Array;
-  YELLOW!: Float32Array;
-  CYAN!: Float32Array;
-  MAGENTA!: Float32Array;
+  TRANSPARENT = new Float32Array([0, 0, 0, 0]);
+  BLACK = new Float32Array([0, 0, 0, 1]);
+  WHITE = new Float32Array([1, 1, 1, 1]);
+  RED = new Float32Array([1, 0, 0, 1]);
+  GREEN = new Float32Array([0, 1, 0, 1]);
+  BLUE = new Float32Array([0, 0, 1, 1]);
+  YELLOW = new Float32Array([1, 1, 0, 1]);
+  CYAN = new Float32Array([0, 1, 1, 1]);
+  MAGENTA = new Float32Array([1, 0, 1, 1]);
   MOVE_VERB!: number;
   LINE_VERB!: number;
   QUAD_VERB!: number;

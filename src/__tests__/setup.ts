@@ -28,7 +28,13 @@ export const testCanvasKitMethod = (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ...args: any[]
 ) => {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  expect(CanvasKitLite[fn.name](...args)).toEqual(CanvasKit[fn.name](...args));
+  it(`${fn.name}(${args.join(", ")})`, () => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    expect(CanvasKitLite[fn.name](...args)).toEqual(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      CanvasKit[fn.name](...args)
+    );
+  });
 };
