@@ -23,8 +23,8 @@ jobs:
       - name: TypeScript
         run: yarn tsc
 
-      - name: Test
+      - name: Lint
         run: yarn lint;
 
-      - name: Lint
+      - name: Test
         run: yarn test;
