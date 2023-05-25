@@ -1,6 +1,5 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable camelcase */
-import type { CanvasKit } from "canvaskit-wasm";
 import type {
   AffinityEnumValues,
   AlphaTypeEnumValues,
@@ -92,6 +91,7 @@ import type {
 } from "canvaskit-wasm";
 
 import { clampColorComp } from "./math";
+import { BlendMode, PaintStyle, StrokeCap, StrokeJoin } from "./Contants";
 
 export class CanvasKitLite implements CanvasKit {
   Color(r: number, g: number, b: number, a = 1): Float32Array {
@@ -369,7 +369,7 @@ export class CanvasKitLite implements CanvasKit {
   M44!: Matrix4x4Helpers;
   Vector!: VectorHelpers;
   AlphaType!: AlphaTypeEnumValues;
-  BlendMode!: BlendModeEnumValues;
+  BlendMode = BlendMode;
   BlurStyle!: BlurStyleEnumValues;
   ClipOp!: ClipOpEnumValues;
   ColorChannel!: ColorChannelEnumValues;
@@ -381,13 +381,13 @@ export class CanvasKitLite implements CanvasKit {
   GlyphRunFlags!: GlyphRunFlagValues;
   ImageFormat!: ImageFormatEnumValues;
   MipmapMode!: MipmapModeEnumValues;
-  PaintStyle!: PaintStyleEnumValues;
+  PaintStyle = PaintStyle;
   Path1DEffect!: Path1DEffectStyleEnumValues;
   PathOp!: PathOpEnumValues;
   PointMode!: PointModeEnumValues;
   ColorSpace!: ColorSpaceEnumValues;
-  StrokeCap!: StrokeCapEnumValues;
-  StrokeJoin!: StrokeJoinEnumValues;
+  StrokeCap = StrokeCap;
+  StrokeJoin = StrokeJoin;
   TileMode!: TileModeEnumValues;
   VertexMode!: VertexModeEnumValues;
   TRANSPARENT = new Float32Array([0, 0, 0, 0]);

@@ -8,7 +8,9 @@
     "test": "jest"
   },
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "tsc": "tsc --noEmit",
+    "lint": "eslint . --ext .ts,.tsx  --max-warnings 0 --cache"
   },
   "repository": {
     "type": "git",
