@@ -4,7 +4,6 @@ import type {
   AffinityEnumValues,
   AlphaTypeEnumValues,
   AnimatedImage,
-  BlendModeEnumValues,
   BlurStyleEnumValues,
   ClipOpEnumValues,
   ColorChannelEnumValues,
@@ -47,7 +46,6 @@ import type {
   Matrix4x4Helpers,
   MipmapModeEnumValues,
   Paint,
-  PaintStyleEnumValues,
   ParagraphBuilderFactory,
   ParagraphStyleConstructor,
   PartialImageInfo,
@@ -66,8 +64,6 @@ import type {
   SkPicture,
   SkottieAnimation,
   SoundMap,
-  StrokeCapEnumValues,
-  StrokeJoinEnumValues,
   Surface,
   TextAlignEnumValues,
   TextBaselineEnumValues,
@@ -88,10 +84,13 @@ import type {
   WebGLOptions,
   WebGPUCanvasContext,
   WebGPUCanvasOptions,
+  CanvasKit,
 } from "canvaskit-wasm";
 
 import { clampColorComp } from "./math";
 import { BlendMode, PaintStyle, StrokeCap, StrokeJoin } from "./Contants";
+import { SurfaceLite } from "./Surface";
+import { PaintLite } from "./Paint";
 
 export class CanvasKitLite implements CanvasKit {
   Color(r: number, g: number, b: number, a = 1): Float32Array {
@@ -202,8 +201,15 @@ export class CanvasKitLite implements CanvasKit {
   Free(_m: MallocObj): void {
     throw new Error("Method not implemented.");
   }
-  MakeCanvasSurface(_canvas: string | HTMLCanvasElement): Surface | null {
-    throw new Error("Method not implemented.");
+  MakeCanvasSurface(canvas: string | HTMLCanvasElement): Surface | null {
+    if (typeof canvas === "string") {
+      throw new Error("Method not implemented");
+    }
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      throw new Error("Unable to get 2d context from canvas");
+    }
+    return new SurfaceLite(ctx);
   }
   MakeRasterDirectSurface(
     _ii: ImageInfo,
@@ -348,7 +354,7 @@ export class CanvasKitLite implements CanvasKit {
   ParagraphStyle!: ParagraphStyleConstructor;
   ContourMeasureIter!: ContourMeasureIterConstructor;
   Font!: FontConstructor;
-  Paint!: DefaultConstructor<Paint>;
+  Paint: DefaultConstructor<Paint> = PaintLite;
   Path!: PathConstructorAndFactory;
   PictureRecorder!: DefaultConstructor<PictureRecorder>;
   TextStyle!: TextStyleConstructor;

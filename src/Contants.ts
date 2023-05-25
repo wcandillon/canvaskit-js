@@ -17,7 +17,7 @@ const makeEnum = <T>(values: Record<Exclude<keyof T, "values">, number>): T => {
     {
       values: Object.values(values),
     },
-    ...mapKeys(values).map((k) => ({ [k]: values[k] }))
+    ...mapKeys(values).map((k) => ({ [k]: { value: values[k] } }))
   );
 };
 

@@ -1,6 +1,6 @@
 import type {
-  Canvas,
   Image,
+  Canvas,
   ImageInfo,
   InputIRect,
   PartialImageInfo,
@@ -9,6 +9,8 @@ import type {
 } from "canvaskit-wasm";
 
 import { HostObject } from "./HostObject";
+import { CanvasLite } from "./Canvas";
+import { ImageLite } from "./Image";
 
 export class SurfaceLite extends HostObject<Surface> implements Surface {
   constructor(private readonly ctx: CanvasRenderingContext2D) {
@@ -19,7 +21,9 @@ export class SurfaceLite extends HostObject<Surface> implements Surface {
   }
   dispose(): void {}
   flush(): void {}
-  getCanvas(): Canvas {}
+  getCanvas(): Canvas {
+    return new CanvasLite(this.ctx);
+  }
   height(): number {
     return this.ctx.canvas.width;
   }
@@ -37,8 +41,7 @@ export class SurfaceLite extends HostObject<Surface> implements Surface {
     throw new Error("Method not implemented.");
   }
   makeImageSnapshot(_bounds?: InputIRect | undefined): Image {
-    //this.ctx.canvas.toDataURL("image/jpeg");
-    throw new Error("Method not implemented.");
+    return new ImageLite(this.ctx.canvas.toDataURL());
   }
   makeSurface(_info: ImageInfo): Surface {
     throw new Error("Method not implemented.");

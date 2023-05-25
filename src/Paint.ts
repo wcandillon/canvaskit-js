@@ -134,6 +134,9 @@ export class PaintLite extends HostObject<Paint> implements Paint {
       ? this.imageFilter.toFilter(context)
       : "none";
     context.globalCompositeOperation = blendMode(this.blendMode);
+    if (this.colorFilter) {
+      console.log(this.colorFilter);
+    }
   }
 
   copy(): Paint {
