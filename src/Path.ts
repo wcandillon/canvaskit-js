@@ -10,9 +10,16 @@ import type {
   StrokeOpts,
 } from "canvaskit-wasm";
 
+/// <reference path="typings.d.ts" />
+import parseSVG from "parse-svg-path";
+import absSVG from "abs-svg-path";
+import serializeSVG from "serialize-svg-path";
+
+import { PathVerb as CKPathVerb } from "./Contants";
 import { HostObject } from "./HostObject";
 import type { Matrix3x3 } from "./Matrix3";
 import { Matrix3, transformPoint } from "./Matrix3";
+import { inputCmds, rrectToXYWH } from "./Values";
 
 enum PathVerb {
   Move = "M",
@@ -25,20 +32,45 @@ enum PathVerb {
 
 type PathCommand = [string, ...number[]];
 
+const unflattenCmds = (cmds: number[]): PathCommand[] => {
+  const result: PathCommand[] = [];
+  let i = 0;
+  while (i < cmds.length) {
+    const cmd = cmds[i++];
+    if (cmd === CKPathVerb.Move) {
+      result.push([PathVerb.Move, cmds[i++], cmds[i++]]);
+    } else if (cmd === CKPathVerb.Line) {
+      result.push([PathVerb.Line, cmds[i++], cmds[i++]]);
+    } else if (cmd === CKPathVerb.Cubic) {
+      result.push([
+        PathVerb.Cubic,
+        cmds[i++],
+        cmds[i++],
+        cmds[i++],
+        cmds[i++],
+        cmds[i++],
+        cmds[i++],
+      ]);
+    } else if (cmd === CKPathVerb.Quad) {
+      result.push([PathVerb.Quad, cmds[i++], cmds[i++], cmds[i++], cmds[i++]]);
+    } else if (cmd === CKPathVerb.Close) {
+      i++;
+      result.push([PathVerb.Close]);
+    }
+  }
+  return result;
+};
+
 export class PathLite extends HostObject<Path> implements Path {
   private path: PathCommand[] = [];
-  private fPts: [number, number][] = [];
+  private lastPoint: [number, number] = [0, 0];
 
-  get lastPoint() {
-    return this.fPts[this.fPts.length - 1];
-  }
-
-  set lastPoint(pt: [number, number]) {
-    this.fPts.push(pt);
-  }
-
-  constructor() {
+  constructor(cmds?: PathCommand[]) {
     super();
+    if (cmds) {
+      this.path = cmds;
+      this.lastPoint = cmds[cmds.length - 1].slice(-2) as [number, number];
+    }
   }
 
   draw(ctx: CanvasRenderingContext2D) {
@@ -104,8 +136,43 @@ export class PathLite extends HostObject<Path> implements Path {
   addRect(_rect: InputRect, _isCCW?: boolean | undefined): Path {
     throw new Error("Method not implemented.");
   }
-  addRRect(_rrect: InputRRect, _isCCW?: boolean | undefined): Path {
-    throw new Error("Method not implemented.");
+  addRRect(_rrect: InputRRect, isCCW?: boolean): Path {
+    const rrect = rrectToXYWH(_rrect);
+    const corners = [
+      { x: rrect.x + rrect.rx, y: rrect.y },
+      { x: rrect.x + rrect.width - rrect.rx, y: rrect.y },
+      { x: rrect.x + rrect.width, y: rrect.y + rrect.ry },
+      { x: rrect.x + rrect.width, y: rrect.y + rrect.height - rrect.ry },
+      { x: rrect.x + rrect.width - rrect.rx, y: rrect.y + rrect.height },
+      { x: rrect.x + rrect.rx, y: rrect.y + rrect.height },
+      { x: rrect.x, y: rrect.y + rrect.height - rrect.ry },
+      { x: rrect.x, y: rrect.y + rrect.ry },
+    ];
+
+    if (isCCW) {
+      corners.reverse();
+    }
+
+    this.ensureMove();
+    corners.forEach((corner, index) => {
+      if (index % 2 === 0) {
+        this.lineTo(corner.x, corner.y);
+      } else {
+        this.nativeArc(
+          rrect.rx,
+          rrect.ry,
+          0,
+          0,
+          isCCW ? 0 : 1,
+          corner.x,
+          corner.y
+        );
+      }
+    });
+
+    this.close();
+
+    return this;
   }
   addVerbsPointsWeights(
     _verbs: VerbList,
@@ -164,32 +231,50 @@ export class PathLite extends HostObject<Path> implements Path {
     if (r === 0) {
       return this.lineTo(x1, y1);
     }
-    return this.nativeArc(x2, y2, r, 0, 0, 1);
+    // Compute middle point between (x1, y1) and (x2, y2)
+    const mx = (x1 + x2) / 2;
+    const my = (y1 + y2) / 2;
+
+    // Compute angle between (x1, y1) and (x2, y2)
+    const angle = Math.atan2(y2 - y1, x2 - x1);
+
+    // Compute rotation
+    const xRotation = angle * (180 / Math.PI);
+
+    // Compute flags
+    const largeArcFlag = 0; // Choose 0 or 1 depending on your specific case
+    const sweepFlag = 1; // Choose 0 or 1 depending on your specific case
+
+    return this.nativeArc(r, r, xRotation, largeArcFlag, sweepFlag, mx, my);
   }
+  // A rx ry x-axis-rotation large-arc-flag sweep-flag x y
 
   private nativeArc(
+    rx: number,
+    ry: number,
+    xRotation: number,
+    largeArcFlag: number,
+    sweepFlat: number,
     x: number,
-    y: number,
-    radius: number,
-    startAngle: number,
-    endAngle: number,
-    counterclockwise = 0
+    y: number
   ) {
     this.path.push([
       PathVerb.Arc,
+      rx,
+      ry,
+      xRotation,
+      largeArcFlag,
+      sweepFlat,
       x,
       y,
-      radius,
-      startAngle,
-      endAngle,
-      counterclockwise,
     ]);
     this.lastPoint = [x, y];
     return this;
   }
 
   close(): Path {
-    throw new Error("Method not implemented.");
+    this.path.push([PathVerb.Close]);
+    return this;
   }
   computeTightBounds(_outputArray?: Float32Array | undefined): Float32Array {
     throw new Error("Method not implemented.");
@@ -332,10 +417,32 @@ export class PathLite extends HostObject<Path> implements Path {
     throw new Error("Method not implemented.");
   }
   toCmds(): Float32Array {
-    throw new Error("Method not implemented.");
+    const cmds: number[][] = [];
+    this.path.forEach(([verb, ...cmd]) => {
+      if (verb === PathVerb.Move) {
+        cmds.push([CKPathVerb.Move, cmd[0], cmd[1]]);
+      } else if (verb === PathVerb.Line) {
+        cmds.push([CKPathVerb.Line, cmd[0], cmd[1]]);
+      } else if (verb === PathVerb.Cubic) {
+        cmds.push([
+          CKPathVerb.Cubic,
+          cmd[0],
+          cmd[1],
+          cmd[2],
+          cmd[3],
+          cmd[4],
+          cmd[5],
+        ]);
+      } else if (verb === PathVerb.Quad) {
+        cmds.push([CKPathVerb.Cubic, cmd[0], cmd[1], cmd[2], cmd[3]]);
+      } else if (verb === PathVerb.Close) {
+        cmds.push([CKPathVerb.Close]);
+      }
+    });
+    return new Float32Array(cmds.flat());
   }
   toSVGString(): string {
-    throw new Error("Method not implemented.");
+    return serializeSVG(this.path);
   }
   transform(m: Matrix3x3): Path {
     this.path = this.path.map((cmd) => {
@@ -350,8 +457,8 @@ export class PathLite extends HostObject<Path> implements Path {
   static CanInterpolate(_path1: Path, _path2: Path): boolean {
     throw new Error("Function not implemented.");
   }
-  static MakeFromCmd(_cmds: InputCommands): Path | null {
-    throw new Error("Function not implemented.");
+  static MakeFromCmds(cmds: InputCommands): Path | null {
+    return new PathLite(unflattenCmds(inputCmds(cmds)));
   }
   static MakeFromOp(
     _one: Path,
@@ -367,8 +474,9 @@ export class PathLite extends HostObject<Path> implements Path {
   ): Path | null {
     throw new Error("Function not implemented.");
   }
-  static MakeFromSVGString(_str: string): Path | null {
-    throw new Error("Function not implemented.");
+  static MakeFromSVGString(d: string): Path | null {
+    const cmds = absSVG(parseSVG(d));
+    return new PathLite(cmds);
   }
   static MakeFromVerbsPointsWeights(
     _verbs: VerbList,

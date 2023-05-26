@@ -1,5 +1,12 @@
 /* eslint-disable no-bitwise */
-import type { Color, InputRect, MallocObj, TypedArray } from "canvaskit-wasm";
+import type {
+  Color,
+  InputCommands,
+  InputRRect,
+  InputRect,
+  MallocObj,
+  TypedArray,
+} from "canvaskit-wasm";
 
 export const vec = (x: number, y: number) => Float32Array.of(x, y);
 
@@ -42,6 +49,15 @@ export class MallocObjLite<T extends TypedArray> implements MallocObj {
   }
 }
 
+export const inputCmds = (input: InputCommands) => {
+  if (Array.isArray(input)) {
+    return input;
+  } else if (input instanceof Float32Array) {
+    return Array.from(input);
+  }
+  return Array.from(input.toTypedArray());
+};
+
 const isMalloc = (v: unknown): v is MallocObj => {
   return typeof v === "object" && v !== null && "toTypedArray" in v;
 };
@@ -53,5 +69,17 @@ export const rectToXYWH = (r: InputRect) => {
     y: rect[1],
     width: rect[2] - rect[0],
     height: rect[3] - rect[1],
+  };
+};
+
+export const rrectToXYWH = (r: InputRRect) => {
+  const rect = isMalloc(r) ? r.toTypedArray() : r;
+  return {
+    x: rect[0],
+    y: rect[1],
+    width: rect[2] - rect[0],
+    height: rect[3] - rect[1],
+    rx: rect[4],
+    ry: rect[5],
   };
 };

@@ -99,7 +99,7 @@ interface CheckImageOptions {
 // all tests that show the oslo.jpg have small differences but look ok
 const defaultCheckImageOptions = {
   maxPixelDiff: 200,
-  threshold: 0.1,
+  threshold: 0.05,
   overwrite: false,
   mute: false,
   shouldFail: false,
