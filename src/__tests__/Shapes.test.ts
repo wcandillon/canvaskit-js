@@ -89,15 +89,16 @@ describe("Shapes", () => {
     canvas.translate(center[0], center[1]);
     canvas.translate(x, y);
     canvas.scale(scale, scale);
-    canvas.drawCircle(center[0], center[1], r, index % 2 ? c1 : c2);
     canvas.translate(-center[0], -center[1]);
+    canvas.drawCircle(center[0], center[1], r, index % 2 ? c1 : c2);
     canvas.restore();
   };
 
-  it("should draw the apple breathe example", () => {
-    const { surface, center } = setupSkia();
+  const drawDemo = (progress: number, surface: Surface) => {
     const canvas = surface.getCanvas();
-    const progress = 1;
+    const width = surface.width();
+    const height = surface.height();
+    const center = vec(width / 2, height / 2);
     const bgColor = CanvasKit.parseColorString("#242b38");
     canvas.drawColor(bgColor);
     const rotate = mix(progress, -Math.PI, 0);
@@ -109,6 +110,26 @@ describe("Shapes", () => {
       drawRing(surface, index, progress);
     });
     canvas.restore();
-    processResult(surface, "snapshots/breathe.png", true);
+  };
+
+  it("should draw the apple breathe example at progress=0", () => {
+    const { surface } = setupSkia();
+    const progress = 0;
+    drawDemo(progress, surface);
+    processResult(surface, "snapshots/breathe0.png");
+  });
+
+  it("should draw the apple breathe example at progress=half", () => {
+    const { surface } = setupSkia();
+    const progress = 0.5;
+    drawDemo(progress, surface);
+    processResult(surface, "snapshots/breathe-half.png");
+  });
+
+  it("should draw the apple breathe example at progress=1", () => {
+    const { surface } = setupSkia();
+    const progress = 1;
+    drawDemo(progress, surface);
+    processResult(surface, "snapshots/breathe1.png");
   });
 });
