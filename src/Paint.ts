@@ -158,13 +158,13 @@ export class PaintLite extends HostObject<Paint> implements Paint {
       colorFilter,
     } = this;
     const paint = new PaintLite();
-    paint.style = style;
-    paint.color = color;
-    paint.strokeWidth = strokeWidth;
-    paint.strokeMiter = strokeMiter;
-    paint.strokeJoin = strokeJoin;
-    paint.strokeCap = strokeCap;
-    paint.blendMode = blendMode;
+    paint.setStyle(style);
+    paint.setColor(color);
+    paint.setStrokeWidth(strokeWidth);
+    paint.setStrokeMiter(strokeMiter);
+    paint.setStrokeJoin(strokeJoin);
+    paint.setStrokeCap(strokeCap);
+    paint.setBlendMode(blendMode);
     if (shader) {
       paint.setShader(shader);
     }

@@ -1,27 +1,25 @@
 import type { Surface } from "canvaskit-wasm";
 
 import { vec } from "../Values";
-import { polar2Canvas, mix } from "../math";
+import { mix, polar2Canvas } from "../math";
 
 import { processResult, setupSkia } from "./setup";
 
-//const root = new CanvasKit.Paint();
-//root.setBlendMode(CanvasKit.BlendMode.Screen);
+const root = new CanvasKit.Paint();
+root.setBlendMode(CanvasKit.BlendMode.Screen);
 
-const c1 = new CanvasKit.Paint();
+const c1 = root.copy();
 c1.setColor(CanvasKit.parseColorString("#61bea2"));
-c1.setAlphaf(0.2);
 
-const c2 = new CanvasKit.Paint();
+const c2 = root.copy();
 c2.setColor(CanvasKit.parseColorString("#529ca0"));
-c2.setAlphaf(0.2);
 
 const drawRing = (surface: Surface, index: number, progress: number) => {
   const width = surface.width();
   const height = surface.height();
   const canvas = surface.getCanvas();
   const r = width / 4;
-  const center = vec(width / 2, height / 2 - 64);
+  const center = vec(width / 2, height / 2);
   const theta = (index * (2 * Math.PI)) / 6;
   const [x, y] = polar2Canvas({ theta, radius: progress * r }, vec(0, 0));
   const scale = mix(progress, 0.3, 1);
@@ -97,14 +95,16 @@ describe("Shapes", () => {
   });
 
   it("should draw the apple breathe example", () => {
-    const { surface, center } = setupSkia(1024, 1024);
+    const { surface, center } = setupSkia();
     const canvas = surface.getCanvas();
     const progress = 1;
     const bgColor = CanvasKit.parseColorString("#242b38");
     canvas.drawColor(bgColor);
     const rotate = mix(progress, -Math.PI, 0);
     canvas.save();
+    canvas.translate(center[0], center[1]);
     canvas.rotate(rotate, center[0], center[1]);
+    canvas.translate(-center[0], -center[1]);
     new Array(6).fill(0).map((_, index) => {
       drawRing(surface, index, progress);
     });
