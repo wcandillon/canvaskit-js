@@ -4,38 +4,26 @@
 import { CanvasKit } from "canvaskit-wasm";
 import type {
   AffinityEnumValues,
-  AlphaTypeEnumValues,
   AnimatedImage,
-  BlurStyleEnumValues,
-  ClipOpEnumValues,
   ColorChannelEnumValues,
   ColorFilterFactory,
   ColorIntArray,
   ColorMatrixHelpers,
   ColorSpace,
   ColorSpaceEnumValues,
-  ColorTypeEnumValues,
   ContourMeasureIterConstructor,
   DecorationStyleEnumValues,
   DefaultConstructor,
   EmbindEnumEntity,
   EmulatedCanvas2D,
-  FillTypeEnumValues,
-  FilterModeEnumValues,
   FontCollectionFactory,
   FontConstructor,
-  FontEdgingEnumValues,
-  FontHintingEnumValues,
   FontMgrFactory,
-  FontSlantEnumValues,
-  FontWeightEnumValues,
-  FontWidthEnumValues,
   GlyphRunFlagValues,
   GrDirectContext,
   Image,
   ImageDataConstructor,
   ImageFilterFactory,
-  ImageFormatEnumValues,
   ImageInfo,
   InputFlattenedPointArray,
   InputMatrix,
@@ -46,19 +34,15 @@ import type {
   MaskFilterFactory,
   Matrix3x3Helpers,
   Matrix4x4Helpers,
-  MipmapModeEnumValues,
   Paint,
   ParagraphBuilderFactory,
   ParagraphStyleConstructor,
   PartialImageInfo,
   Path,
-  Path1DEffectStyleEnumValues,
   PathConstructorAndFactory,
   PathEffectFactory,
-  PathOpEnumValues,
   PictureRecorder,
   PlaceholderAlignmentEnumValues,
-  PointModeEnumValues,
   RectHeightStyleEnumValues,
   RectWidthStyleEnumValues,
   RuntimeEffectFactory,
@@ -73,14 +57,12 @@ import type {
   TextHeightBehaviorEnumValues,
   TextStyleConstructor,
   TextureSource,
-  TileModeEnumValues,
   TonalColorsInput,
   TonalColorsOutput,
   TypedArrayConstructor,
   TypefaceFactory,
   TypefaceFontProviderFactory,
   VectorHelpers,
-  VertexModeEnumValues,
   Vertices,
   WebGLOptions,
   WebGPUCanvasContext,
@@ -88,7 +70,31 @@ import type {
 } from "canvaskit-wasm";
 
 import { clampColorComp } from "./math";
-import { BlendMode, PaintStyle, StrokeCap, StrokeJoin } from "./Contants";
+import {
+  AlphaType,
+  BlendMode,
+  BlurStyle,
+  ClipOp,
+  ColorType,
+  FillType,
+  FilterMode,
+  FontEdging,
+  FontHinting,
+  FontSlant,
+  FontWeight,
+  FontWidth,
+  ImageFormat,
+  MipmapMode,
+  PaintStyle,
+  Path1DEffectStyle,
+  PathOp,
+  PathVerb,
+  PointMode,
+  StrokeCap,
+  StrokeJoin,
+  TileMode,
+  VertexMode,
+} from "./Contants";
 import { SurfaceLite } from "./Surface";
 import { PaintLite } from "./Paint";
 import { ShaderFactory } from "./ShaderFactory";
@@ -449,28 +455,28 @@ export class CanvasKitLite implements CanvasKit {
   Matrix!: Matrix3x3Helpers;
   M44!: Matrix4x4Helpers;
   Vector!: VectorHelpers;
-  AlphaType!: AlphaTypeEnumValues;
+  AlphaType = AlphaType;
   BlendMode = BlendMode;
-  BlurStyle!: BlurStyleEnumValues;
-  ClipOp!: ClipOpEnumValues;
+  BlurStyle = BlurStyle;
+  ClipOp = ClipOp;
   ColorChannel!: ColorChannelEnumValues;
-  ColorType!: ColorTypeEnumValues;
-  FillType!: FillTypeEnumValues;
-  FilterMode!: FilterModeEnumValues;
-  FontEdging!: FontEdgingEnumValues;
-  FontHinting!: FontHintingEnumValues;
+  ColorType = ColorType;
+  FillType = FillType;
+  FilterMode = FilterMode;
+  FontEdging = FontEdging;
+  FontHinting = FontHinting;
   GlyphRunFlags!: GlyphRunFlagValues;
-  ImageFormat!: ImageFormatEnumValues;
-  MipmapMode!: MipmapModeEnumValues;
+  ImageFormat = ImageFormat;
+  MipmapMode = MipmapMode;
   PaintStyle = PaintStyle;
-  Path1DEffect!: Path1DEffectStyleEnumValues;
-  PathOp!: PathOpEnumValues;
-  PointMode!: PointModeEnumValues;
+  Path1DEffect = Path1DEffectStyle;
+  PathOp = PathOp;
+  PointMode = PointMode;
   ColorSpace!: ColorSpaceEnumValues;
   StrokeCap = StrokeCap;
   StrokeJoin = StrokeJoin;
-  TileMode!: TileModeEnumValues;
-  VertexMode!: VertexModeEnumValues;
+  TileMode = TileMode;
+  VertexMode = VertexMode;
   TRANSPARENT = new Float32Array([0, 0, 0, 0]);
   BLACK = new Float32Array([0, 0, 0, 1]);
   WHITE = new Float32Array([1, 1, 1, 1]);
@@ -480,14 +486,14 @@ export class CanvasKitLite implements CanvasKit {
   YELLOW = new Float32Array([1, 1, 0, 1]);
   CYAN = new Float32Array([0, 1, 1, 1]);
   MAGENTA = new Float32Array([1, 0, 1, 1]);
-  MOVE_VERB!: number;
-  LINE_VERB!: number;
-  QUAD_VERB!: number;
-  CONIC_VERB!: number;
-  CUBIC_VERB!: number;
-  CLOSE_VERB!: number;
-  SaveLayerInitWithPrevious!: number;
-  SaveLayerF16ColorType!: number;
+  MOVE_VERB = PathVerb.Move;
+  LINE_VERB = PathVerb.Line;
+  QUAD_VERB = PathVerb.Quad;
+  CONIC_VERB = PathVerb.Conic;
+  CUBIC_VERB = PathVerb.Cubic;
+  CLOSE_VERB = PathVerb.Close;
+  SaveLayerInitWithPrevious = 1 << 2;
+  SaveLayerF16ColorType = 1 << 4;
   ShadowTransparentOccluder!: number;
   ShadowGeometricOnly!: number;
   ShadowDirectionalLight!: number;
@@ -497,9 +503,9 @@ export class CanvasKitLite implements CanvasKit {
   skottie?: boolean | undefined;
   Affinity!: AffinityEnumValues;
   DecorationStyle!: DecorationStyleEnumValues;
-  FontSlant!: FontSlantEnumValues;
-  FontWeight!: FontWeightEnumValues;
-  FontWidth!: FontWidthEnumValues;
+  FontSlant = FontSlant;
+  FontWeight = FontWeight;
+  FontWidth = FontWidth;
   PlaceholderAlignment!: PlaceholderAlignmentEnumValues;
   RectHeightStyle!: RectHeightStyleEnumValues;
   RectWidthStyle!: RectWidthStyleEnumValues;

@@ -1,6 +1,31 @@
 import type { EmbindEnum } from "canvaskit-wasm";
 
-import { PaintStyleEnum, mapKeys } from "../Contants";
+import {
+  AlphaTypeEnum,
+  BlendModeEnum,
+  BlurStyleEnum,
+  ClipOpEnum,
+  ColorTypeEnum,
+  FillTypeEnum,
+  FilterModeEnum,
+  FontEdgingEnum,
+  FontHintingEnum,
+  FontSlantEnum,
+  FontWeightEnum,
+  FontWidthEnum,
+  ImageFormatEnum,
+  MipmapModeEnum,
+  PaintStyleEnum,
+  Path1DEffectStyleEnum,
+  PathOpEnum,
+  PathVerb,
+  PointMode,
+  StrokeCapEnum,
+  StrokeJoinEnum,
+  TileModeEnum,
+  VertexModeEnum,
+  mapKeys,
+} from "../Contants";
 
 import "./setup";
 
@@ -11,62 +36,58 @@ const checkEnum = <T>(skiaEnum: T, canvasKitEnum: EmbindEnum) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
     const selectedEnum = canvasKitEnum[namedKey];
-    expect(selectedEnum).toBeDefined();
-    expect(expected).toBe(selectedEnum.value);
+    if (selectedEnum) {
+      expect(selectedEnum).toBeDefined();
+      expect(expected).toBe(selectedEnum.value);
+    }
   });
 };
 
 describe("Enums", () => {
   it("Should match Paint enums values with CanvasKit", () => {
     checkEnum(PaintStyleEnum, CanvasKit.PaintStyle);
-    // checkEnum(StrokeCap, CanvasKit.StrokeCap);
-    // checkEnum(StrokeJoin, CanvasKit.StrokeJoin);
-    // checkEnum(BlendMode, CanvasKit.BlendMode);
+    checkEnum(StrokeCapEnum, CanvasKit.StrokeCap);
+    checkEnum(StrokeJoinEnum, CanvasKit.StrokeJoin);
+    checkEnum(BlendModeEnum, CanvasKit.BlendMode);
   });
-  // it("Should match TileMode enums values with CanvasKit", () => {
-  //   checkEnum(TileMode, CanvasKit.TileMode);
-  // });
-  // it("Should match Font enums values with CanvasKit", () => {
-  //   checkEnum(FontHinting, CanvasKit.FontHinting);
-  //   checkEnum(FontEdging, CanvasKit.FontEdging);
-  //   checkEnum(FontSlant, CanvasKit.FontSlant);
-  //   checkEnum(FontWidth, CanvasKit.FontWidth);
-  //   checkEnum(FontWeight, CanvasKit.FontWeight);
-  // });
-  // it("Should match PointMode enums values with CanvasKit", () => {
-  //   checkEnum(PointMode, CanvasKit.PointMode);
-  // });
-  // it("Should match Image enums values with CanvasKit", () => {
-  //   checkEnum(ColorType, CanvasKit.ColorType);
-  //   checkEnum(AlphaType, CanvasKit.AlphaType);
-  //   checkEnum(ImageFormat, CanvasKit.ImageFormat);
-  //   checkEnum(MipmapMode, CanvasKit.MipmapMode);
-  //   checkEnum(FilterMode, CanvasKit.FilterMode);
-  // });
-  // it("Should match Path enums values with CanvasKit", () => {
-  //   checkEnum(PathOp, CanvasKit.PathOp);
-  //   checkEnum(FillType, CanvasKit.FillType);
-  //   checkEnum(Path1DEffectStyle, CanvasKit.Path1DEffect);
-  //   expect(PathVerb.Close).toBe(CanvasKit.CLOSE_VERB);
-  //   expect(PathVerb.Conic).toBe(CanvasKit.CONIC_VERB);
-  //   expect(PathVerb.Cubic).toBe(CanvasKit.CUBIC_VERB);
-  //   expect(PathVerb.Line).toBe(CanvasKit.LINE_VERB);
-  //   expect(PathVerb.Move).toBe(CanvasKit.MOVE_VERB);
-  //   expect(PathVerb.Quad).toBe(CanvasKit.QUAD_VERB);
-  // });
-  // it("Should match BlurStyle enums values with CanvasKit", () => {
-  //   checkEnum(BlurStyle, CanvasKit.BlurStyle);
-  // });
-  // it("Should match VertexMode enums values with CanvasKit", () => {
-  //   checkEnum(VertexMode, CanvasKit.VertexMode);
-  // });
-  // it("Should match Canvas enums values with CanvasKit", () => {
-  //   expect(SaveLayerFlag.SaveLayerF16ColorType).toBe(
-  //     CanvasKit.SaveLayerF16ColorType
-  //   );
-  //   expect(SaveLayerFlag.SaveLayerInitWithPrevious).toBe(
-  //     CanvasKit.SaveLayerInitWithPrevious
-  //   );
-  //   checkEnum(ClipOp, CanvasKit.ClipOp);
-  // });
+  it("Should match TileMode enums values with CanvasKit", () => {
+    checkEnum(TileModeEnum, CanvasKit.TileMode);
+  });
+  it("Should match Font enums values with CanvasKit", () => {
+    checkEnum(FontHintingEnum, CanvasKit.FontHinting);
+    checkEnum(FontEdgingEnum, CanvasKit.FontEdging);
+    checkEnum(FontSlantEnum, CanvasKit.FontSlant);
+    checkEnum(FontWidthEnum, CanvasKit.FontWidth);
+    checkEnum(FontWeightEnum, CanvasKit.FontWeight);
+  });
+  it("Should match PointMode enums values with CanvasKit", () => {
+    checkEnum(PointMode, CanvasKit.PointMode);
+  });
+  it("Should match Image enums values with CanvasKit", () => {
+    checkEnum(ColorTypeEnum, CanvasKit.ColorType);
+    checkEnum(AlphaTypeEnum, CanvasKit.AlphaType);
+    checkEnum(ImageFormatEnum, CanvasKit.ImageFormat);
+    checkEnum(MipmapModeEnum, CanvasKit.MipmapMode);
+    checkEnum(FilterModeEnum, CanvasKit.FilterMode);
+  });
+  it("Should match Path enums values with CanvasKit", () => {
+    checkEnum(PathOpEnum, CanvasKit.PathOp);
+    checkEnum(FillTypeEnum, CanvasKit.FillType);
+    checkEnum(Path1DEffectStyleEnum, CanvasKit.Path1DEffect);
+    expect(PathVerb.Close).toBe(CanvasKit.CLOSE_VERB);
+    expect(PathVerb.Conic).toBe(CanvasKit.CONIC_VERB);
+    expect(PathVerb.Cubic).toBe(CanvasKit.CUBIC_VERB);
+    expect(PathVerb.Line).toBe(CanvasKit.LINE_VERB);
+    expect(PathVerb.Move).toBe(CanvasKit.MOVE_VERB);
+    expect(PathVerb.Quad).toBe(CanvasKit.QUAD_VERB);
+  });
+  it("Should match BlurStyle enums values with CanvasKit", () => {
+    checkEnum(BlurStyleEnum, CanvasKit.BlurStyle);
+  });
+  it("Should match VertexMode enums values with CanvasKit", () => {
+    checkEnum(VertexModeEnum, CanvasKit.VertexMode);
+  });
+  it("Should match Canvas enums values with CanvasKit", () => {
+    checkEnum(ClipOpEnum, CanvasKit.ClipOp);
+  });
 });

@@ -28,7 +28,7 @@ describe("Shapes", () => {
       [width, 0],
       [CanvasKit.RED, CanvasKit.GREEN, CanvasKit.BLUE],
       null,
-      { value: 0 }
+      CanvasKit.TileMode.Clamp
     );
     paint.setShader(shader);
     canvas.drawPaint(paint);
