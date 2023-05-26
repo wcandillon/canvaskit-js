@@ -111,7 +111,9 @@ export class PaintLite extends HostObject<Paint> implements Paint {
 
   apply(
     context: CanvasRenderingContext2D,
-    draw: (ctx: CanvasRenderingContext2D) => void
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    draw: (ctx: CanvasRenderingContext2D) => any,
+    path?: boolean
   ) {
     context.save();
     const style = this.shader
@@ -133,13 +135,22 @@ export class PaintLite extends HostObject<Paint> implements Paint {
     if (this.colorFilter) {
       console.log(this.colorFilter);
     }
-    context.beginPath();
-    draw(context);
-    context.closePath();
-    if (this.style === PaintStyle.Fill) {
-      context.fill();
+    if (!path) {
+      context.beginPath();
+      draw(context);
+      context.closePath();
+      if (this.style === PaintStyle.Fill) {
+        context.fill();
+      } else {
+        context.stroke();
+      }
     } else {
-      context.stroke();
+      const p = draw(context);
+      if (this.style === PaintStyle.Fill) {
+        context.fill(p);
+      } else {
+        context.stroke(p);
+      }
     }
     context.restore();
   }

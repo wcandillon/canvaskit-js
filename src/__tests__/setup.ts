@@ -12,7 +12,10 @@ import type {
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import CanvasKitInit from "canvaskit-wasm/bin/full/canvaskit";
-import { createCanvas } from "canvas";
+import { CanvasRenderingContext2D, createCanvas } from "canvas";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
+import { polyfillPath2D } from "path2d-polyfill";
 
 import { CanvasKitLite } from "../CanvasKit";
 import { vec } from "../Values";
@@ -25,6 +28,11 @@ declare global {
 global.CanvasKit = CanvasKitLite.getInstance();
 
 beforeAll(async () => {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error
+  global.CanvasRenderingContext2D = CanvasRenderingContext2D;
+  polyfillPath2D(global);
+
   const CanvasKit = await CanvasKitInit({});
   // The CanvasKit API is stored on the global object and used
   // to create the JsiSKApi in the Skia.web.ts file.

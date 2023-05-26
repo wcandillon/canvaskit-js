@@ -214,9 +214,13 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
     throw new Error("Method not implemented.");
   }
   drawPath(path: PathLite, paint: PaintLite): void {
-    paint.apply(this.ctx, () => {
-      path.draw(this.ctx);
-    });
+    paint.apply(
+      this.ctx,
+      () => {
+        return path.getPath2D();
+      },
+      true
+    );
   }
   drawPatch(
     _cubics: InputFlattenedPointArray,

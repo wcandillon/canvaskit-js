@@ -73,34 +73,8 @@ export class PathLite extends HostObject<Path> implements Path {
     }
   }
 
-  draw(ctx: CanvasRenderingContext2D) {
-    this.path.forEach(([cmd, ...points]) => {
-      if (cmd === PathVerb.Move) {
-        ctx.moveTo(points[0], points[1]);
-      } else if (cmd === PathVerb.Line) {
-        ctx.lineTo(points[0], points[1]);
-      } else if (cmd === PathVerb.Cubic) {
-        ctx.bezierCurveTo(
-          points[0],
-          points[1],
-          points[2],
-          points[3],
-          points[4],
-          points[5]
-        );
-      } else if (cmd === PathVerb.Quad) {
-        ctx.quadraticCurveTo(points[0], points[1], points[2], points[3]);
-      } else if (cmd === PathVerb.Arc) {
-        ctx.arc(
-          points[0],
-          points[1],
-          points[2],
-          points[3],
-          points[4],
-          !!points[5]
-        );
-      }
-    });
+  getPath2D() {
+    return new Path2D(serializeSVG(this.path));
   }
 
   getNativePath() {
@@ -152,9 +126,11 @@ export class PathLite extends HostObject<Path> implements Path {
     if (isCCW) {
       corners.reverse();
     }
-
-    this.ensureMove();
+    this.moveTo(corners[0].x, corners[0].y);
     corners.forEach((corner, index) => {
+      if (index === 0) {
+        return;
+      }
       if (index % 2 === 0) {
         this.lineTo(corner.x, corner.y);
       } else {
@@ -182,14 +158,33 @@ export class PathLite extends HostObject<Path> implements Path {
     throw new Error("Method not implemented.");
   }
   arc(
-    _x: number,
-    _y: number,
-    _radius: number,
-    _startAngle: number,
-    _endAngle: number,
-    _isCCW?: boolean | undefined
+    x: number,
+    y: number,
+    radius: number,
+    startAngle: number,
+    endAngle: number,
+    isCCW?: boolean | undefined
   ): Path {
-    throw new Error("Method not implemented.");
+    startAngle = startAngle * (180 / Math.PI);
+    endAngle = endAngle * (180 / Math.PI);
+
+    // Ensure angles are positive and <= 360
+    startAngle = ((startAngle % 360) + 360) % 360;
+    endAngle = ((endAngle % 360) + 360) % 360;
+
+    const largeArcFlag = endAngle - startAngle <= 180 ? 0 : 1;
+    const sweepFlag = isCCW ? 0 : 1;
+
+    // SVG uses elliptical arcs, so we need two radii (rx, ry)
+    const rx = radius;
+    const ry = radius;
+
+    // Calculate end point in polar coordinates, and then translate to cartesian
+    const endX = x + radius * Math.cos((endAngle * Math.PI) / 180);
+    const endY = y + radius * Math.sin((endAngle * Math.PI) / 180);
+
+    this.moveTo(x, y);
+    return this.nativeArc(rx, ry, 0, largeArcFlag, sweepFlag, endX, endY);
   }
   arcToOval(
     _oval: InputRect,
@@ -211,15 +206,6 @@ export class PathLite extends HostObject<Path> implements Path {
     throw new Error("Method not implemented.");
   }
 
-  private ensureMove() {
-    if (
-      this.path.length > 0 &&
-      this.path[this.path.length - 1][0] !== PathVerb.Move
-    ) {
-      this.moveTo(this.lastPoint[0], this.lastPoint[1]);
-    }
-  }
-
   arcToTangent(
     x1: number,
     y1: number,
@@ -227,7 +213,7 @@ export class PathLite extends HostObject<Path> implements Path {
     y2: number,
     r: number
   ): Path {
-    this.ensureMove();
+    this.moveTo(x1, y1);
     if (r === 0) {
       return this.lineTo(x1, y1);
     }
@@ -395,8 +381,8 @@ export class PathLite extends HostObject<Path> implements Path {
   rewind(): void {
     throw new Error("Method not implemented.");
   }
-  rLineTo(_x: number, _y: number): Path {
-    throw new Error("Method not implemented.");
+  rLineTo(x: number, y: number): Path {
+    return this.lineTo(this.lastPoint[0] + x, this.lastPoint[1] + y);
   }
   rMoveTo(_x: number, _y: number): Path {
     throw new Error("Method not implemented.");
