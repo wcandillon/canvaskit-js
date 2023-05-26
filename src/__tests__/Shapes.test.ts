@@ -78,7 +78,7 @@ describe("Shapes", () => {
     const { surface, width, height } = setupSkia();
     const canvas = surface.getCanvas();
     const paint = new CanvasKit.Paint();
-    //paint.setBlendMode(CanvasKit.BlendMode.Multiply);
+    paint.setBlendMode(CanvasKit.BlendMode.Multiply);
 
     const cyan = paint.copy();
     const r = 92;
@@ -92,7 +92,7 @@ describe("Shapes", () => {
     const yellow = paint.copy();
     yellow.setColor(CanvasKit.YELLOW);
     canvas.drawCircle(width / 2, height - r, r, yellow);
-    processResult(surface, "snapshots/helloworld.png", true);
+    processResult(surface, "snapshots/helloworld.png");
   });
 
   it("should draw the apple breathe example", () => {

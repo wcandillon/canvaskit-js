@@ -133,7 +133,9 @@ export class PaintLite extends HostObject<Paint> implements Paint {
     if (this.colorFilter) {
       console.log(this.colorFilter);
     }
+    context.beginPath();
     draw(context);
+    context.closePath();
     if (this.style === PaintStyle.Fill) {
       context.fill();
     } else {
