@@ -1,4 +1,4 @@
-import "./setup";
+import { processResult, setupRealSkia, setupSkia } from "./setup";
 
 describe("PathKit's SVG Behavior", () => {
   it("can create a path from an SVG string", () => {
@@ -43,68 +43,58 @@ describe("PathKit's SVG Behavior", () => {
     expect(svgStr).toEqual("M205,5L795,5L595,295L5,295L205,5Z");
   });
 
-  //   it("can create an SVG string from hex values", function (done) {
-  //     LoadPathKit.then(
-  //       catchException(done, () => {
-  //         const cmds = [
-  //           [PathKit.MOVE_VERB, "0x15e80300", "0x400004dc"], // 9.37088e-26f, 2.0003f
-  //           [PathKit.LINE_VERB, 795, 5],
-  //           [PathKit.LINE_VERB, 595, 295],
-  //           [PathKit.LINE_VERB, 5, 295],
-  //           [PathKit.LINE_VERB, "0x15e80300", "0x400004dc"], // 9.37088e-26f, 2.0003f
-  //           [PathKit.CLOSE_VERB],
-  //         ];
-  //         const path = PathKit.FromCmds(cmds);
+  it("can create an SVG string from hex values", () => {
+    const cmds = [
+      [CanvasKit.MOVE_VERB, 9.37088e-26, 2.0003], // 9.37088e-26f, 2.0003f
+      [CanvasKit.LINE_VERB, 795, 5],
+      [CanvasKit.LINE_VERB, 595, 295],
+      [CanvasKit.LINE_VERB, 5, 295],
+      [CanvasKit.LINE_VERB, 9.37088e-26, 2.0003], // 9.37088e-26f, 2.0003f
+      [CanvasKit.CLOSE_VERB],
+    ].flat();
+    const path = CanvasKit.Path.MakeFromCmds(cmds)!;
+    expect(path).toBeTruthy();
+    const svgStr = path.toSVGString();
+    expect(svgStr).toEqual(
+      "M9.37088e-26,2.0003L795,5L595,295L5,295L9.37088e-26,2.0003Z"
+    );
+  });
 
-  //         const svgStr = path.toSVGString();
-  //         expect(svgStr).toEqual(
-  //           "M9.37088e-26 2.0003L795 5L595 295L5 295L9.37088e-26 2.0003Z"
-  //         );
-  //         path.delete();
-  //         done();
-  //       })
-  //     );
-  //   });
+  it("should have input and the output be the same", () => {
+    const testCases = ["M0,0L1075,0L1075,242L0,242L0,0Z"];
 
-  //   it("should have input and the output be the same", function (done) {
-  //     LoadPathKit.then(
-  //       catchException(done, () => {
-  //         const testCases = ["M0 0L1075 0L1075 242L0 242L0 0Z"];
+    for (const svg of testCases) {
+      const path = CanvasKit.Path.MakeFromSVGString(svg)!;
+      expect(path).toBeTruthy();
+      const output = path.toSVGString();
 
-  //         for (const svg of testCases) {
-  //           const path = PathKit.FromSVGString(svg);
-  //           const output = path.toSVGString();
+      expect(svg).toEqual(output);
 
-  //           expect(svg).toEqual(output);
+      path.delete();
+    }
+  });
 
-  //           path.delete();
-  //         }
-  //         done();
-  //       })
-  //     );
-  //   });
+  it("approximates arcs reference", () => {
+    const { surface, canvas } = setupRealSkia();
+    const path = new RealCanvasKit.Path();
+    path.moveTo(50, 120);
+    path.arc(50, 120, 45, 0, 1.75 * Math.PI);
+    path.lineTo(50, 120);
+    const paint = new RealCanvasKit.Paint();
+    canvas.drawPath(path, paint);
+    processResult(surface, "snapshots/arc.png");
+  });
 
-  //   it("approximates arcs (conics) with quads", function (done) {
-  //     LoadPathKit.then(
-  //       catchException(done, () => {
-  //         const path = PathKit.NewPath();
-  //         path.moveTo(50, 120);
-  //         path.arc(50, 120, 45, 0, 1.75 * Math.PI);
-  //         path.lineTo(50, 120);
-  //         const svgStr = path.toSVGString();
-  //         // Q stands for quad.  No need to check the whole path, as that's more
-  //         // what the gold correctness tests are for (can account for changes we make
-  //         // to the approximation algorithms).
-  //         expect(svgStr).toContain("Q");
-  //         path.delete();
-
-  //         reportSVGString(svgStr, "conics_quads_approx")
-  //           .then(() => {
-  //             done();
-  //           })
-  //           .catch(reportError(done));
-  //       })
-  //     );
-  //   });
-  // });
+  it("approximates arcs", () => {
+    const { surface, canvas } = setupSkia();
+    const path = new CanvasKit.Path();
+    path.moveTo(50, 120);
+    path.arc(50, 120, 45, 0, 1.75 * Math.PI);
+    path.lineTo(50, 120);
+    const svgStr = path.toSVGString();
+    console.log({ svgStr });
+    const paint = new RealCanvasKit.Paint();
+    canvas.drawPath(path, paint);
+    processResult(surface, "snapshots/arc.png");
+  });
 });
