@@ -31,6 +31,7 @@ import type {
 import { PaintLite } from "./Paint";
 import type { InputColor } from "./Contants";
 import { HostObject } from "./HostObject";
+import { rectToXYWH } from "./Values";
 
 export class CanvasLite extends HostObject<Canvas> implements Canvas {
   constructor(private readonly ctx: CanvasRenderingContext2D) {
@@ -200,9 +201,7 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
     throw new Error("Method not implemented.");
   }
   drawPaint(paint: PaintLite) {
-    paint.apply(this.ctx, () => {
-      this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-    });
+    this.drawRect([0, 0, this.ctx.canvas.width, this.ctx.canvas.height], paint);
   }
   drawParagraph(_p: Paragraph, _x: number, _y: number): void {
     throw new Error("Method not implemented.");
@@ -229,8 +228,11 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
   ): void {
     throw new Error("Method not implemented.");
   }
-  drawRect(_rect: InputRect, _paint: Paint): void {
-    throw new Error("Method not implemented.");
+  drawRect(rect: InputRect, paint: PaintLite): void {
+    paint.apply(this.ctx, () => {
+      const { x, y, w, h } = rectToXYWH(rect);
+      this.ctx.rect(x, y, w, h);
+    });
   }
   drawRect4f(
     _left: number,
@@ -300,8 +302,10 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
   restoreToCount(_saveCount: number): void {
     throw new Error("Method not implemented.");
   }
-  rotate(_rot: number, _rx: number, _ry: number): void {
-    throw new Error("Method not implemented.");
+  rotate(rot: number, rx: number, ry: number): void {
+    this.ctx.translate(rx, ry);
+    this.ctx.rotate(rot);
+    this.ctx.translate(-rx, -ry);
   }
   save(): number {
     throw new Error("Method not implemented.");
@@ -314,8 +318,8 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
   ): number {
     throw new Error("Method not implemented.");
   }
-  scale(_sx: number, _sy: number): void {
-    throw new Error("Method not implemented.");
+  scale(sx: number, sy: number): void {
+    this.ctx.scale(sx, sy);
   }
   skew(_sx: number, _sy: number): void {
     throw new Error("Method not implemented.");

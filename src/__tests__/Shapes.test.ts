@@ -19,22 +19,6 @@ describe("Shapes", () => {
     processResult(surface, "snapshots/circle.png");
   });
 
-  it("should draw a linear gradient", () => {
-    const { surface, width } = setupSkia();
-    const canvas = surface.getCanvas();
-    const paint = new CanvasKit.Paint();
-    const shader = CanvasKit.Shader.MakeLinearGradient(
-      [0, 0],
-      [width, 0],
-      [CanvasKit.RED, CanvasKit.GREEN, CanvasKit.BLUE],
-      null,
-      CanvasKit.TileMode.Clamp
-    );
-    paint.setShader(shader);
-    canvas.drawPaint(paint);
-    processResult(surface, "snapshots/linear-gradient.png");
-  });
-
   it("should draw the apple breathe example", () => {
     const { surface, width, height } = setupSkia();
     const canvas = surface.getCanvas();

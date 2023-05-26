@@ -6,7 +6,7 @@ import type {
 } from "canvaskit-wasm";
 
 import { HostObject } from "./HostObject";
-import { NativeColor } from "./Values";
+import { NativeColor, uIntColorToCanvasKitColor } from "./Values";
 
 export abstract class ShaderLite extends HostObject<Shader> implements Shader {
   abstract toGradient(ctx: CanvasRenderingContext2D): CanvasGradient;
@@ -20,7 +20,9 @@ const normalizeInputColorArray = (input: InputFlexibleColorArray) => {
       if (result instanceof Float32Array) {
         colors.push(result);
       } else {
-        colors.push(Float32Array.of(...result));
+        colors.push(
+          ...Array.from(result).map((c) => uIntColorToCanvasKitColor(c))
+        );
       }
     }
     return colors;

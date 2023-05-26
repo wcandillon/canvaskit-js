@@ -54,7 +54,8 @@ export const setupSkia = () => {
     height
   ) as unknown as HTMLCanvasElement;
   const surface = CanvasKit.MakeCanvasSurface(htmlCanvas)!;
-  return { surface, width, height, htmlCanvas };
+  const canvas = surface.getCanvas();
+  return { surface, width, height, htmlCanvas, canvas };
 };
 
 export const processResult = (
