@@ -91,8 +91,6 @@ describe("PathKit's SVG Behavior", () => {
     path.moveTo(50, 120);
     path.arc(50, 120, 45, 0, 1.75 * Math.PI);
     path.lineTo(50, 120);
-    const svgStr = path.toSVGString();
-    console.log({ svgStr });
     const paint = new CanvasKit.Paint();
     canvas.drawPath(path, paint);
     processResult(surface, "snapshots/arc.png");

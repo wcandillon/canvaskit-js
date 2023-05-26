@@ -81,8 +81,24 @@ export class PathLite extends HostObject<Path> implements Path {
     return this.path;
   }
 
-  addArc(_bounds: InputRect, _startAngle: number, _sweepAngle: number): Path {
-    throw new Error("Method not implemented.");
+  addArc(bounds: InputRect, startAngle: number, sweepAngle: number): Path {
+    const oval = rrectToXYWH(bounds);
+    const rx = oval.width / 2;
+    const ry = oval.height / 2;
+
+    const startX = oval.x + rx * Math.cos((startAngle * Math.PI) / 180);
+    const startY = oval.y + ry * Math.sin((startAngle * Math.PI) / 180);
+
+    const endX =
+      oval.x + rx * Math.cos(((startAngle + sweepAngle) * Math.PI) / 180);
+    const endY =
+      oval.y + ry * Math.sin(((startAngle + sweepAngle) * Math.PI) / 180);
+
+    const largeArcFlag = Math.abs(sweepAngle) <= 180 ? 0 : 1;
+    const sweepFlag = sweepAngle >= 0 ? 1 : 0;
+
+    this.moveTo(startX, startY);
+    return this.nativeArc(rx, ry, 0, largeArcFlag, sweepFlag, endX, endY);
   }
 
   addCircle(x: number, y: number, r: number, isCCW?: boolean): Path {
@@ -100,8 +116,9 @@ export class PathLite extends HostObject<Path> implements Path {
     throw new Error("Method not implemented.");
   }
 
-  addPath(_newPath: PathLite, _matrix: Matrix3x3): Path | null {
-    throw new Error("Method not implemented.");
+  addPath(newPath: PathLite, _matrix: Matrix3x3): Path | null {
+    this.path.push(...newPath.path);
+    return this;
   }
 
   addPoly(_points: InputFlattenedPointArray, _close: boolean): Path {
@@ -158,33 +175,14 @@ export class PathLite extends HostObject<Path> implements Path {
     throw new Error("Method not implemented.");
   }
   arc(
-    x: number,
-    y: number,
-    radius: number,
-    startAngle: number,
-    endAngle: number,
-    isCCW?: boolean | undefined
+    _x: number,
+    _y: number,
+    _radius: number,
+    _startAngle: number,
+    _endAngle: number,
+    _isCCW?: boolean | undefined
   ): Path {
-    startAngle = startAngle * (180 / Math.PI);
-    endAngle = endAngle * (180 / Math.PI);
-
-    // Ensure angles are positive and <= 360
-    startAngle = ((startAngle % 360) + 360) % 360;
-    endAngle = ((endAngle % 360) + 360) % 360;
-
-    const largeArcFlag = endAngle - startAngle <= 180 ? 0 : 1;
-    const sweepFlag = isCCW ? 0 : 1;
-
-    // SVG uses elliptical arcs, so we need two radii (rx, ry)
-    const rx = radius;
-    const ry = radius;
-
-    // Calculate end point in polar coordinates, and then translate to cartesian
-    const endX = x + radius * Math.cos((endAngle * Math.PI) / 180);
-    const endY = y + radius * Math.sin((endAngle * Math.PI) / 180);
-
-    this.moveTo(x, y);
-    return this.nativeArc(rx, ry, 0, largeArcFlag, sweepFlag, endX, endY);
+    throw new Error("Method not implemented.");
   }
   arcToOval(
     _oval: InputRect,
@@ -278,7 +276,7 @@ export class PathLite extends HostObject<Path> implements Path {
     throw new Error("Method not implemented.");
   }
   copy(): Path {
-    throw new Error("Method not implemented.");
+    return new PathLite(this.path.slice());
   }
   countPoints(): number {
     throw new Error("Method not implemented.");
