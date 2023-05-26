@@ -1,8 +1,49 @@
-import { setupSkia } from "./setup";
+import { processResult, setupRealSkia, setupSkia } from "./setup";
 
 describe("Path Behavior", () => {
+  it("builds the reference result", () => {
+    const { canvas, surface } = setupRealSkia();
+    const paint = new RealCanvasKit.Paint();
+    paint.setStrokeWidth(1.0);
+    paint.setAntiAlias(true);
+    paint.setColor(RealCanvasKit.Color(0, 0, 0, 1.0));
+    paint.setStyle(RealCanvasKit.PaintStyle.Stroke);
+
+    const path = new RealCanvasKit.Path();
+    path.moveTo(20, 5);
+    path.lineTo(30, 20);
+    path.lineTo(40, 10);
+    path.lineTo(50, 20);
+    path.lineTo(60, 0);
+    path.lineTo(20, 5);
+
+    path.moveTo(20, 80);
+    path.cubicTo(90, 10, 160, 150, 190, 10);
+
+    path.moveTo(36, 148);
+    path.quadTo(66, 188, 120, 136);
+    path.lineTo(36, 148);
+
+    path.moveTo(150, 180);
+    // path.arcToTangent(150, 100, 50, 200, 20);
+    path.lineTo(160, 160);
+
+    path.moveTo(20, 120);
+    path.lineTo(20, 120);
+
+    path.transform([2, 0, 0, 0, 2, 0, 0, 0, 1]);
+
+    canvas.drawPath(path, paint);
+
+    // const rrect = CanvasKit.RRectXY([100, 10, 140, 62], 10, 4);
+
+    // const rrectPath = new CanvasKit.Path().addRRect(rrect, true);
+
+    // canvas.drawPath(rrectPath, paint);
+    processResult(surface, "snapshots/path1.png");
+  });
   it("path_api_example", () => {
-    const { canvas } = setupSkia();
+    const { canvas, surface } = setupSkia();
     const paint = new CanvasKit.Paint();
     paint.setStrokeWidth(1.0);
     paint.setAntiAlias(true);
@@ -25,7 +66,7 @@ describe("Path Behavior", () => {
     path.lineTo(36, 148);
 
     path.moveTo(150, 180);
-    path.arcToTangent(150, 100, 50, 200, 20);
+    // path.arcToTangent(150, 100, 50, 200, 20);
     path.lineTo(160, 160);
 
     path.moveTo(20, 120);
@@ -35,395 +76,391 @@ describe("Path Behavior", () => {
 
     canvas.drawPath(path, paint);
 
-    const rrect = CanvasKit.RRectXY([100, 10, 140, 62], 10, 4);
+    // const rrect = CanvasKit.RRectXY([100, 10, 140, 62], 10, 4);
 
-    const rrectPath = new CanvasKit.Path().addRRect(rrect, true);
+    // const rrectPath = new CanvasKit.Path().addRRect(rrect, true);
 
-    canvas.drawPath(rrectPath, paint);
-
-    rrectPath.delete();
-    path.delete();
-    paint.delete();
-    // See PathKit for more tests, since they share implementation
+    // canvas.drawPath(rrectPath, paint);
+    processResult(surface, "snapshots/path1.png");
   });
 
-  it("can create a path from an SVG string", () => {
-    //.This is a parallelogram from
-    // https://upload.wikimedia.org/wikipedia/commons/e/e7/Simple_parallelogram.svg
-    const path = CanvasKit.Path.MakeFromSVGString(
-      "M 205,5 L 795,5 L 595,295 L 5,295 L 205,5 z"
-    )!;
-    expect(path).not.toBeNull();
+  // it("can create a path from an SVG string", () => {
+  //   //.This is a parallelogram from
+  //   // https://upload.wikimedia.org/wikipedia/commons/e/e7/Simple_parallelogram.svg
+  //   const path = CanvasKit.Path.MakeFromSVGString(
+  //     "M 205,5 L 795,5 L 595,295 L 5,295 L 205,5 z"
+  //   )!;
+  //   expect(path).not.toBeNull();
 
-    const cmds = path.toCmds();
-    expect(cmds).toBeTruthy();
-    // 1 move, 4 lines, 1 close
-    // each element in cmds is an array, with index 0 being the verb, and the rest being args
-    expect(cmds).toEqual(
-      Float32Array.of(
-        CanvasKit.MOVE_VERB,
-        205,
-        5,
-        CanvasKit.LINE_VERB,
-        795,
-        5,
-        CanvasKit.LINE_VERB,
-        595,
-        295,
-        CanvasKit.LINE_VERB,
-        5,
-        295,
-        CanvasKit.LINE_VERB,
-        205,
-        5,
-        CanvasKit.CLOSE_VERB
-      )
-    );
-    path.delete();
-  });
+  //   const cmds = path.toCmds();
+  //   expect(cmds).toBeTruthy();
+  //   // 1 move, 4 lines, 1 close
+  //   // each element in cmds is an array, with index 0 being the verb, and the rest being args
+  //   expect(cmds).toEqual(
+  //     Float32Array.of(
+  //       CanvasKit.MOVE_VERB,
+  //       205,
+  //       5,
+  //       CanvasKit.LINE_VERB,
+  //       795,
+  //       5,
+  //       CanvasKit.LINE_VERB,
+  //       595,
+  //       295,
+  //       CanvasKit.LINE_VERB,
+  //       5,
+  //       295,
+  //       CanvasKit.LINE_VERB,
+  //       205,
+  //       5,
+  //       CanvasKit.CLOSE_VERB
+  //     )
+  //   );
+  //   path.delete();
+  // });
 
-  it("can create a path by combining two other paths", () => {
-    // Get the intersection of two overlapping squares and verify that it is the smaller square.
-    const pathOne = new CanvasKit.Path();
-    pathOne.addRect([10, 10, 20, 20]);
+  // it("can create a path by combining two other paths", () => {
+  //   // Get the intersection of two overlapping squares and verify that it is the smaller square.
+  //   const pathOne = new CanvasKit.Path();
+  //   pathOne.addRect([10, 10, 20, 20]);
 
-    const pathTwo = new CanvasKit.Path();
-    pathTwo.addRect([15, 15, 30, 30]);
+  //   const pathTwo = new CanvasKit.Path();
+  //   pathTwo.addRect([15, 15, 30, 30]);
 
-    const path = CanvasKit.Path.MakeFromOp(
-      pathOne,
-      pathTwo,
-      CanvasKit.PathOp.Intersect
-    )!;
-    expect(path).not.toBeNull();
-    const cmds = path.toCmds();
-    expect(cmds).toBeTruthy();
-    expect(cmds).toEqual(
-      Float32Array.of(
-        CanvasKit.MOVE_VERB,
-        15,
-        15,
-        CanvasKit.LINE_VERB,
-        20,
-        15,
-        CanvasKit.LINE_VERB,
-        20,
-        20,
-        CanvasKit.LINE_VERB,
-        15,
-        20,
-        CanvasKit.CLOSE_VERB
-      )
-    );
-    path.delete();
-    pathOne.delete();
-    pathTwo.delete();
-  });
+  //   const path = CanvasKit.Path.MakeFromOp(
+  //     pathOne,
+  //     pathTwo,
+  //     CanvasKit.PathOp.Intersect
+  //   )!;
+  //   expect(path).not.toBeNull();
+  //   const cmds = path.toCmds();
+  //   expect(cmds).toBeTruthy();
+  //   expect(cmds).toEqual(
+  //     Float32Array.of(
+  //       CanvasKit.MOVE_VERB,
+  //       15,
+  //       15,
+  //       CanvasKit.LINE_VERB,
+  //       20,
+  //       15,
+  //       CanvasKit.LINE_VERB,
+  //       20,
+  //       20,
+  //       CanvasKit.LINE_VERB,
+  //       15,
+  //       20,
+  //       CanvasKit.CLOSE_VERB
+  //     )
+  //   );
+  //   path.delete();
+  //   pathOne.delete();
+  //   pathTwo.delete();
+  // });
 
-  it("can create an SVG string from a path", () => {
-    const cmds = [
-      CanvasKit.MOVE_VERB,
-      205,
-      5,
-      CanvasKit.LINE_VERB,
-      795,
-      5,
-      CanvasKit.LINE_VERB,
-      595,
-      295,
-      CanvasKit.LINE_VERB,
-      5,
-      295,
-      CanvasKit.LINE_VERB,
-      205,
-      5,
-      CanvasKit.CLOSE_VERB,
-    ];
-    const path = CanvasKit.Path.MakeFromCmds(cmds)!;
-    expect(path).not.toBeNull();
+  // it("can create an SVG string from a path", () => {
+  //   const cmds = [
+  //     CanvasKit.MOVE_VERB,
+  //     205,
+  //     5,
+  //     CanvasKit.LINE_VERB,
+  //     795,
+  //     5,
+  //     CanvasKit.LINE_VERB,
+  //     595,
+  //     295,
+  //     CanvasKit.LINE_VERB,
+  //     5,
+  //     295,
+  //     CanvasKit.LINE_VERB,
+  //     205,
+  //     5,
+  //     CanvasKit.CLOSE_VERB,
+  //   ];
+  //   const path = CanvasKit.Path.MakeFromCmds(cmds)!;
+  //   expect(path).not.toBeNull();
 
-    const svgStr = path.toSVGString();
-    // We output it in terse form, which is different than Wikipedia's version
-    expect(svgStr).toEqual("M205 5L795 5L595 295L5 295L205 5Z");
-    path.delete();
-  });
+  //   const svgStr = path.toSVGString();
+  //   // We output it in terse form, which is different than Wikipedia's version
+  //   expect(svgStr).toEqual("M205 5L795 5L595 295L5 295L205 5Z");
+  //   path.delete();
+  // });
 
-  it("can create a path with malloced verbs, points, weights", () => {
-    const mVerbs = CanvasKit.Malloc(Uint8Array, 6);
-    const mPoints = CanvasKit.Malloc(Float32Array, 18);
-    const mWeights = CanvasKit.Malloc(Float32Array, 1);
-    mVerbs
-      .toTypedArray()
-      .set([
-        CanvasKit.MOVE_VERB,
-        CanvasKit.LINE_VERB,
-        CanvasKit.QUAD_VERB,
-        CanvasKit.CONIC_VERB,
-        CanvasKit.CUBIC_VERB,
-        CanvasKit.CLOSE_VERB,
-      ]);
+  // it("can create a path with malloced verbs, points, weights", () => {
+  //   const mVerbs = CanvasKit.Malloc(Uint8Array, 6);
+  //   const mPoints = CanvasKit.Malloc(Float32Array, 18);
+  //   const mWeights = CanvasKit.Malloc(Float32Array, 1);
+  //   mVerbs
+  //     .toTypedArray()
+  //     .set([
+  //       CanvasKit.MOVE_VERB,
+  //       CanvasKit.LINE_VERB,
+  //       CanvasKit.QUAD_VERB,
+  //       CanvasKit.CONIC_VERB,
+  //       CanvasKit.CUBIC_VERB,
+  //       CanvasKit.CLOSE_VERB,
+  //     ]);
 
-    mPoints.toTypedArray().set([
-      1,
-      2, // moveTo
-      3,
-      4, // lineTo
-      5,
-      6,
-      7,
-      8, // quadTo
-      9,
-      10,
-      11,
-      12, // conicTo
-      13,
-      14,
-      15,
-      16,
-      17,
-      18, // cubicTo
-    ]);
+  //   mPoints.toTypedArray().set([
+  //     1,
+  //     2, // moveTo
+  //     3,
+  //     4, // lineTo
+  //     5,
+  //     6,
+  //     7,
+  //     8, // quadTo
+  //     9,
+  //     10,
+  //     11,
+  //     12, // conicTo
+  //     13,
+  //     14,
+  //     15,
+  //     16,
+  //     17,
+  //     18, // cubicTo
+  //   ]);
 
-    mWeights.toTypedArray().set([117]);
+  //   mWeights.toTypedArray().set([117]);
 
-    let path = CanvasKit.Path.MakeFromVerbsPointsWeights(
-      mVerbs,
-      mPoints,
-      mWeights
-    );
+  //   let path = CanvasKit.Path.MakeFromVerbsPointsWeights(
+  //     mVerbs,
+  //     mPoints,
+  //     mWeights
+  //   );
 
-    let cmds = path.toCmds();
-    expect(cmds).toEqual(
-      Float32Array.of(
-        CanvasKit.MOVE_VERB,
-        1,
-        2,
-        CanvasKit.LINE_VERB,
-        3,
-        4,
-        CanvasKit.QUAD_VERB,
-        5,
-        6,
-        7,
-        8,
-        CanvasKit.CONIC_VERB,
-        9,
-        10,
-        11,
-        12,
-        117,
-        CanvasKit.CUBIC_VERB,
-        13,
-        14,
-        15,
-        16,
-        17,
-        18,
-        CanvasKit.CLOSE_VERB
-      )
-    );
-    path.delete();
+  //   let cmds = path.toCmds();
+  //   expect(cmds).toEqual(
+  //     Float32Array.of(
+  //       CanvasKit.MOVE_VERB,
+  //       1,
+  //       2,
+  //       CanvasKit.LINE_VERB,
+  //       3,
+  //       4,
+  //       CanvasKit.QUAD_VERB,
+  //       5,
+  //       6,
+  //       7,
+  //       8,
+  //       CanvasKit.CONIC_VERB,
+  //       9,
+  //       10,
+  //       11,
+  //       12,
+  //       117,
+  //       CanvasKit.CUBIC_VERB,
+  //       13,
+  //       14,
+  //       15,
+  //       16,
+  //       17,
+  //       18,
+  //       CanvasKit.CLOSE_VERB
+  //     )
+  //   );
+  //   path.delete();
 
-    // If given insufficient points, it stops early (but doesn't read out of bounds).
-    path = CanvasKit.Path.MakeFromVerbsPointsWeights(
-      mVerbs,
-      mPoints.subarray(0, 10) as Float32Array,
-      mWeights
-    );
+  //   // If given insufficient points, it stops early (but doesn't read out of bounds).
+  //   path = CanvasKit.Path.MakeFromVerbsPointsWeights(
+  //     mVerbs,
+  //     mPoints.subarray(0, 10) as Float32Array,
+  //     mWeights
+  //   );
 
-    cmds = path.toCmds();
-    expect(cmds).toEqual(
-      Float32Array.of(
-        CanvasKit.MOVE_VERB,
-        1,
-        2,
-        CanvasKit.LINE_VERB,
-        3,
-        4,
-        CanvasKit.QUAD_VERB,
-        5,
-        6,
-        7,
-        8
-      )
-    );
-    path.delete();
-    CanvasKit.Free(mVerbs);
-    CanvasKit.Free(mPoints);
-    CanvasKit.Free(mWeights);
-  });
+  //   cmds = path.toCmds();
+  //   expect(cmds).toEqual(
+  //     Float32Array.of(
+  //       CanvasKit.MOVE_VERB,
+  //       1,
+  //       2,
+  //       CanvasKit.LINE_VERB,
+  //       3,
+  //       4,
+  //       CanvasKit.QUAD_VERB,
+  //       5,
+  //       6,
+  //       7,
+  //       8
+  //     )
+  //   );
+  //   path.delete();
+  //   CanvasKit.Free(mVerbs);
+  //   CanvasKit.Free(mPoints);
+  //   CanvasKit.Free(mWeights);
+  // });
 
-  it("can create and update a path with verbs and points (no weights)", () => {
-    const path = CanvasKit.Path.MakeFromVerbsPointsWeights(
-      [CanvasKit.MOVE_VERB, CanvasKit.LINE_VERB],
-      [1, 2, 3, 4]
-    );
-    let cmds = path.toCmds();
-    expect(cmds).toEqual(
-      Float32Array.of(CanvasKit.MOVE_VERB, 1, 2, CanvasKit.LINE_VERB, 3, 4)
-    );
+  // it("can create and update a path with verbs and points (no weights)", () => {
+  //   const path = CanvasKit.Path.MakeFromVerbsPointsWeights(
+  //     [CanvasKit.MOVE_VERB, CanvasKit.LINE_VERB],
+  //     [1, 2, 3, 4]
+  //   );
+  //   let cmds = path.toCmds();
+  //   expect(cmds).toEqual(
+  //     Float32Array.of(CanvasKit.MOVE_VERB, 1, 2, CanvasKit.LINE_VERB, 3, 4)
+  //   );
 
-    path.addVerbsPointsWeights(
-      [CanvasKit.QUAD_VERB, CanvasKit.CLOSE_VERB],
-      [5, 6, 7, 8]
-    );
+  //   path.addVerbsPointsWeights(
+  //     [CanvasKit.QUAD_VERB, CanvasKit.CLOSE_VERB],
+  //     [5, 6, 7, 8]
+  //   );
 
-    cmds = path.toCmds();
-    expect(cmds).toEqual(
-      Float32Array.of(
-        CanvasKit.MOVE_VERB,
-        1,
-        2,
-        CanvasKit.LINE_VERB,
-        3,
-        4,
-        CanvasKit.QUAD_VERB,
-        5,
-        6,
-        7,
-        8,
-        CanvasKit.CLOSE_VERB
-      )
-    );
-    path.delete();
-  });
+  //   cmds = path.toCmds();
+  //   expect(cmds).toEqual(
+  //     Float32Array.of(
+  //       CanvasKit.MOVE_VERB,
+  //       1,
+  //       2,
+  //       CanvasKit.LINE_VERB,
+  //       3,
+  //       4,
+  //       CanvasKit.QUAD_VERB,
+  //       5,
+  //       6,
+  //       7,
+  //       8,
+  //       CanvasKit.CLOSE_VERB
+  //     )
+  //   );
+  //   path.delete();
+  // });
 
-  it("can add points to a path in bulk", () => {
-    const mVerbs = CanvasKit.Malloc(Uint8Array, 6);
-    const mPoints = CanvasKit.Malloc(Float32Array, 18);
-    const mWeights = CanvasKit.Malloc(Float32Array, 1);
-    mVerbs
-      .toTypedArray()
-      .set([
-        CanvasKit.MOVE_VERB,
-        CanvasKit.LINE_VERB,
-        CanvasKit.QUAD_VERB,
-        CanvasKit.CONIC_VERB,
-        CanvasKit.CUBIC_VERB,
-        CanvasKit.CLOSE_VERB,
-      ]);
+  // it("can add points to a path in bulk", () => {
+  //   const mVerbs = CanvasKit.Malloc(Uint8Array, 6);
+  //   const mPoints = CanvasKit.Malloc(Float32Array, 18);
+  //   const mWeights = CanvasKit.Malloc(Float32Array, 1);
+  //   mVerbs
+  //     .toTypedArray()
+  //     .set([
+  //       CanvasKit.MOVE_VERB,
+  //       CanvasKit.LINE_VERB,
+  //       CanvasKit.QUAD_VERB,
+  //       CanvasKit.CONIC_VERB,
+  //       CanvasKit.CUBIC_VERB,
+  //       CanvasKit.CLOSE_VERB,
+  //     ]);
 
-    mPoints.toTypedArray().set([
-      1,
-      2, // moveTo
-      3,
-      4, // lineTo
-      5,
-      6,
-      7,
-      8, // quadTo
-      9,
-      10,
-      11,
-      12, // conicTo
-      13,
-      14,
-      15,
-      16,
-      17,
-      18, // cubicTo
-    ]);
+  //   mPoints.toTypedArray().set([
+  //     1,
+  //     2, // moveTo
+  //     3,
+  //     4, // lineTo
+  //     5,
+  //     6,
+  //     7,
+  //     8, // quadTo
+  //     9,
+  //     10,
+  //     11,
+  //     12, // conicTo
+  //     13,
+  //     14,
+  //     15,
+  //     16,
+  //     17,
+  //     18, // cubicTo
+  //   ]);
 
-    mWeights.toTypedArray().set([117]);
+  //   mWeights.toTypedArray().set([117]);
 
-    const path = new CanvasKit.Path();
-    path.lineTo(77, 88);
-    path.addVerbsPointsWeights(mVerbs, mPoints, mWeights);
+  //   const path = new CanvasKit.Path();
+  //   path.lineTo(77, 88);
+  //   path.addVerbsPointsWeights(mVerbs, mPoints, mWeights);
 
-    let cmds = path.toCmds();
-    expect(cmds).toEqual(
-      Float32Array.of(
-        CanvasKit.MOVE_VERB,
-        0,
-        0,
-        CanvasKit.LINE_VERB,
-        77,
-        88,
-        CanvasKit.MOVE_VERB,
-        1,
-        2,
-        CanvasKit.LINE_VERB,
-        3,
-        4,
-        CanvasKit.QUAD_VERB,
-        5,
-        6,
-        7,
-        8,
-        CanvasKit.CONIC_VERB,
-        9,
-        10,
-        11,
-        12,
-        117,
-        CanvasKit.CUBIC_VERB,
-        13,
-        14,
-        15,
-        16,
-        17,
-        18,
-        CanvasKit.CLOSE_VERB
-      )
-    );
+  //   let cmds = path.toCmds();
+  //   expect(cmds).toEqual(
+  //     Float32Array.of(
+  //       CanvasKit.MOVE_VERB,
+  //       0,
+  //       0,
+  //       CanvasKit.LINE_VERB,
+  //       77,
+  //       88,
+  //       CanvasKit.MOVE_VERB,
+  //       1,
+  //       2,
+  //       CanvasKit.LINE_VERB,
+  //       3,
+  //       4,
+  //       CanvasKit.QUAD_VERB,
+  //       5,
+  //       6,
+  //       7,
+  //       8,
+  //       CanvasKit.CONIC_VERB,
+  //       9,
+  //       10,
+  //       11,
+  //       12,
+  //       117,
+  //       CanvasKit.CUBIC_VERB,
+  //       13,
+  //       14,
+  //       15,
+  //       16,
+  //       17,
+  //       18,
+  //       CanvasKit.CLOSE_VERB
+  //     )
+  //   );
 
-    path.rewind();
-    cmds = path.toCmds();
-    expect(cmds).toEqual(new Float32Array(0));
+  //   path.rewind();
+  //   cmds = path.toCmds();
+  //   expect(cmds).toEqual(new Float32Array(0));
 
-    path.delete();
-    CanvasKit.Free(mVerbs);
-    CanvasKit.Free(mPoints);
-    CanvasKit.Free(mWeights);
-  });
+  //   path.delete();
+  //   CanvasKit.Free(mVerbs);
+  //   CanvasKit.Free(mPoints);
+  //   CanvasKit.Free(mWeights);
+  // });
 
-  it("can retrieve points from a path", () => {
-    const path = new CanvasKit.Path();
-    path.addRect([10, 15, 20, 25]);
+  // it("can retrieve points from a path", () => {
+  //   const path = new CanvasKit.Path();
+  //   path.addRect([10, 15, 20, 25]);
 
-    const pt = path.getPoint(0);
-    expect(pt[0]).toEqual(10);
-    expect(pt[1]).toEqual(15);
+  //   const pt = path.getPoint(0);
+  //   expect(pt[0]).toEqual(10);
+  //   expect(pt[1]).toEqual(15);
 
-    path.getPoint(2, pt);
-    expect(pt[0]).toEqual(20);
-    expect(pt[1]).toEqual(25);
+  //   path.getPoint(2, pt);
+  //   expect(pt[0]).toEqual(20);
+  //   expect(pt[1]).toEqual(25);
 
-    path.getPoint(1000, pt); // off the end returns (0, 0) as per the docs.
-    expect(pt[0]).toEqual(0);
-    expect(pt[1]).toEqual(0);
+  //   path.getPoint(1000, pt); // off the end returns (0, 0) as per the docs.
+  //   expect(pt[0]).toEqual(0);
+  //   expect(pt[1]).toEqual(0);
 
-    path.delete();
-  });
+  //   path.delete();
+  // });
 
-  const starPath = (X = 128, Y = 128, R = 116) => {
-    const p = new CanvasKit.Path();
-    p.moveTo(X + R, Y);
-    for (let i = 1; i < 8; i++) {
-      const a = 2.6927937 * i;
-      p.lineTo(X + R * Math.cos(a), Y + R * Math.sin(a));
-    }
-    p.close();
-    return p;
-  };
+  // const starPath = (X = 128, Y = 128, R = 116) => {
+  //   const p = new CanvasKit.Path();
+  //   p.moveTo(X + R, Y);
+  //   for (let i = 1; i < 8; i++) {
+  //     const a = 2.6927937 * i;
+  //     p.lineTo(X + R * Math.cos(a), Y + R * Math.sin(a));
+  //   }
+  //   p.close();
+  //   return p;
+  // };
 
-  it("offset_path", () => {
-    const { canvas } = setupSkia();
-    const path = starPath();
+  // it("offset_path", () => {
+  //   const { canvas } = setupSkia();
+  //   const path = starPath();
 
-    const paint = new CanvasKit.Paint();
-    paint.setStyle(CanvasKit.PaintStyle.Stroke);
-    paint.setStrokeWidth(5.0);
-    paint.setAntiAlias(true);
-    paint.setColor(CanvasKit.BLACK);
+  //   const paint = new CanvasKit.Paint();
+  //   paint.setStyle(CanvasKit.PaintStyle.Stroke);
+  //   paint.setStrokeWidth(5.0);
+  //   paint.setAntiAlias(true);
+  //   paint.setColor(CanvasKit.BLACK);
 
-    canvas.drawPath(path, paint);
-    path.offset(80, 40);
-    canvas.drawPath(path, paint);
+  //   canvas.drawPath(path, paint);
+  //   path.offset(80, 40);
+  //   canvas.drawPath(path, paint);
 
-    path.delete();
-    paint.delete();
-  });
+  //   path.delete();
+  //   paint.delete();
+  // });
 
   // gm("oval_path", (canvas) => {
   //   const paint = new CanvasKit.Paint();

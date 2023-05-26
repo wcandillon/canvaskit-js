@@ -34,6 +34,7 @@ import { HostObject } from "./HostObject";
 import { rectToXYWH } from "./Values";
 import { convertDOMMatrixTo3x3 } from "./Matrix3";
 import { toRad } from "./math";
+import type { PathLite } from "./Path";
 
 export class CanvasLite extends HostObject<Canvas> implements Canvas {
   private saveCount = 0;
@@ -212,8 +213,10 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
   drawParagraph(_p: Paragraph, _x: number, _y: number): void {
     throw new Error("Method not implemented.");
   }
-  drawPath(_path: Path, _paint: Paint): void {
-    throw new Error("Method not implemented.");
+  drawPath(path: PathLite, paint: PaintLite): void {
+    paint.apply(this.ctx, () => {
+      path.draw(this.ctx);
+    });
   }
   drawPatch(
     _cubics: InputFlattenedPointArray,

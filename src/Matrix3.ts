@@ -45,6 +45,16 @@ export const convertDOMMatrixTo3x3 = (matrix: DOMMatrix) => {
   ];
 };
 
+export const transformPoint = (
+  matrix: Matrix3x3,
+  point: number[]
+): number[] => {
+  const x = matrix[0] * point[0] + matrix[1] * point[1] + matrix[2] * point[2];
+  const y = matrix[3] * point[0] + matrix[4] * point[1] + matrix[5] * point[2];
+  const w = matrix[6] * point[0] + matrix[7] * point[1] + matrix[8] * point[2];
+  return [x / w, y / w];
+};
+
 export const Matrix3: Matrix3x3Helpers = {
   identity(): Matrix3x3 {
     return [1, 0, 0, 0, 1, 0, 0, 0, 1];

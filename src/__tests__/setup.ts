@@ -47,6 +47,18 @@ export const testCanvasKitMethod = (
   });
 };
 
+export const setupRealSkia = (width = 256, height = 256) => {
+  const surface = RealCanvasKit.MakeSurface(width, height)!;
+  const canvas = surface.getCanvas();
+  return {
+    surface,
+    width,
+    height,
+    canvas,
+    center: vec(width / 2, height / 2),
+  };
+};
+
 export const setupSkia = (width = 256, height = 256) => {
   const htmlCanvas = createCanvas(
     width,
