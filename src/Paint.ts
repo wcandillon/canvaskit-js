@@ -12,15 +12,7 @@ import { BlendMode, StrokeCap, PaintStyle, StrokeJoin } from "./Contants";
 import type { ShaderLite } from "./Shader";
 import type { ImageFilterLite } from "./ImageFilter";
 import { HostObject } from "./HostObject";
-
-const cssColor = (color: Float32Array) => {
-  return `rgba(${[
-    color[0] * 255,
-    color[1] * 255,
-    color[2] * 255,
-    color[3],
-  ].join(", ")})`;
-};
+import { NativeColor } from "./Values";
 
 const lineCap = (cap: EmbindEnumEntity) => {
   switch (cap.value) {
@@ -48,7 +40,7 @@ const lineJoin = (join: EmbindEnumEntity) => {
   }
 };
 
-const blendMode = (mode: EmbindEnumEntity) => {
+const getBlendMode = (mode: EmbindEnumEntity) => {
   switch (mode.value) {
     case 2:
       return "copy";
@@ -121,7 +113,7 @@ export class PaintLite extends HostObject<Paint> implements Paint {
     context.save();
     const style = this.shader
       ? this.shader.toGradient(context)
-      : cssColor(this.color);
+      : NativeColor(this.color);
     if (this.style === PaintStyle.Fill) {
       context.fillStyle = style;
     } else {
@@ -134,7 +126,7 @@ export class PaintLite extends HostObject<Paint> implements Paint {
     context.filter = this.imageFilter
       ? this.imageFilter.toFilter(context)
       : "none";
-    context.globalCompositeOperation = blendMode(this.blendMode);
+    context.globalCompositeOperation = getBlendMode(this.blendMode);
     if (this.colorFilter) {
       console.log(this.colorFilter);
     }
@@ -148,7 +140,36 @@ export class PaintLite extends HostObject<Paint> implements Paint {
   }
 
   copy(): Paint {
-    throw new Error("Method not implemented.");
+    const {
+      style,
+      color,
+      strokeWidth,
+      strokeMiter,
+      strokeJoin,
+      strokeCap,
+      blendMode,
+      shader,
+      imageFilter,
+      colorFilter,
+    } = this;
+    const paint = new PaintLite();
+    paint.style = style;
+    paint.color = color;
+    paint.strokeWidth = strokeWidth;
+    paint.strokeMiter = strokeMiter;
+    paint.strokeJoin = strokeJoin;
+    paint.strokeCap = strokeCap;
+    paint.blendMode = blendMode;
+    if (shader) {
+      paint.setShader(shader);
+    }
+    if (imageFilter) {
+      paint.setImageFilter(imageFilter);
+    }
+    if (colorFilter) {
+      paint.setColorFilter(colorFilter);
+    }
+    return paint;
   }
   getColor(): Float32Array {
     return this.color;
@@ -168,9 +189,7 @@ export class PaintLite extends HostObject<Paint> implements Paint {
   setAlphaf(alpha: number): void {
     this.color[3] = alpha;
   }
-  setAntiAlias(_aa: boolean): void {
-    throw new Error("Method not implemented.");
-  }
+  setAntiAlias(_aa: boolean): void {}
   setBlendMode(mode: EmbindEnumEntity): void {
     this.blendMode = mode;
   }

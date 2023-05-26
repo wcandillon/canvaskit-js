@@ -14,37 +14,34 @@ import type {
 import CanvasKitInit from "canvaskit-wasm/bin/full/canvaskit";
 import { createCanvas } from "canvas";
 
-import { CanvasKitLite as CanvasKitLiteStatic } from "../CanvasKitLite";
+import { CanvasKitLite } from "../CanvasKit";
 
 declare global {
   var CanvasKit: CanvasKitType;
-  var CanvasKitLite: CanvasKitType;
+  var RealCanvasKit: CanvasKitType;
 }
 
+global.CanvasKit = new CanvasKitLite();
+
 beforeAll(async () => {
-  if (global.CanvasKit !== undefined) {
-    return;
-  }
   const CanvasKit = await CanvasKitInit({});
   // The CanvasKit API is stored on the global object and used
   // to create the JsiSKApi in the Skia.web.ts file.
-  global.CanvasKit = CanvasKit;
-  global.CanvasKitLite = new CanvasKitLiteStatic();
+  global.RealCanvasKit = CanvasKit;
 });
 
 export const testCanvasKitMethod = (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  fn: (...args: any[]) => any,
+  name: keyof CanvasKitType,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ...args: any[]
 ) => {
-  it(`${fn.name}(${args.join(", ")})`, () => {
+  it(`${name}(${args.join(", ")})`, () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    expect(CanvasKitLite[fn.name](...args)).toEqual(
+    expect(global.CanvasKit[name](...args)).toEqual(
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      CanvasKit[fn.name](...args)
+      global.RealCanvasKit[name](...args)
     );
   });
 };
@@ -56,7 +53,7 @@ export const setupSkia = () => {
     width,
     height
   ) as unknown as HTMLCanvasElement;
-  const surface = CanvasKitLite.MakeCanvasSurface(htmlCanvas)!;
+  const surface = CanvasKit.MakeCanvasSurface(htmlCanvas)!;
   return { surface, width, height, htmlCanvas };
 };
 

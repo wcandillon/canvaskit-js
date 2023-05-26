@@ -1,5 +1,7 @@
+/* eslint-disable no-fallthrough */
 /* eslint-disable no-bitwise */
 /* eslint-disable camelcase */
+import { CanvasKit } from "canvaskit-wasm";
 import type {
   AffinityEnumValues,
   AlphaTypeEnumValues,
@@ -60,7 +62,6 @@ import type {
   RectHeightStyleEnumValues,
   RectWidthStyleEnumValues,
   RuntimeEffectFactory,
-  ShaderFactory,
   SkPicture,
   SkottieAnimation,
   SoundMap,
@@ -84,13 +85,24 @@ import type {
   WebGLOptions,
   WebGPUCanvasContext,
   WebGPUCanvasOptions,
-  CanvasKit,
 } from "canvaskit-wasm";
 
 import { clampColorComp } from "./math";
 import { BlendMode, PaintStyle, StrokeCap, StrokeJoin } from "./Contants";
 import { SurfaceLite } from "./Surface";
 import { PaintLite } from "./Paint";
+import { ShaderFactory } from "./ShaderFactory";
+
+function valueOrPercent(aStr: string) {
+  if (aStr === undefined) {
+    return 1; // default to opaque.
+  }
+  const a = parseFloat(aStr);
+  if (aStr && aStr.indexOf("%") !== -1) {
+    return a / 100;
+  }
+  return a;
+}
 
 export class CanvasKitLite implements CanvasKit {
   Color(r: number, g: number, b: number, a = 1): Float32Array {
@@ -128,10 +140,73 @@ export class CanvasKitLite implements CanvasKit {
     ];
   }
   parseColorString(
-    _colorStr: string,
-    _colorMap?: Record<string, Float32Array> | undefined
+    colorStr: string,
+    colorMap?: Record<string, Float32Array> | undefined
   ): Float32Array {
-    throw new Error("Method not implemented.");
+    colorStr = colorStr.toLowerCase();
+    // See https://drafts.csswg.org/css-color/#typedef-hex-color
+    if (colorStr.startsWith("#")) {
+      let r,
+        g,
+        b,
+        a = 255;
+      switch (colorStr.length) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+        case 9: // 8 hex chars #RRGGBBAA
+          a = parseInt(colorStr.slice(7, 9), 16);
+        case 7: // 6 hex chars #RRGGBB
+          r = parseInt(colorStr.slice(1, 3), 16);
+          g = parseInt(colorStr.slice(3, 5), 16);
+          b = parseInt(colorStr.slice(5, 7), 16);
+          break;
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+        case 5: // 4 hex chars #RGBA
+          // multiplying by 17 is the same effect as
+          // appending another character of the same value
+          // e.g. e => ee == 14 => 238
+          a = parseInt(colorStr.slice(4, 5), 16) * 17;
+        case 4: // 6 hex chars #RGB
+          r = parseInt(colorStr.slice(1, 2), 16) * 17;
+          g = parseInt(colorStr.slice(2, 3), 16) * 17;
+          b = parseInt(colorStr.slice(3, 4), 16) * 17;
+          break;
+      }
+      return CanvasKit.Color(r as number, g as number, b as number, a / 255);
+    } else if (colorStr.startsWith("rgba")) {
+      // Trim off rgba( and the closing )
+      colorStr = colorStr.slice(5, -1);
+      const nums = colorStr.split(",");
+      return CanvasKit.Color(
+        +nums[0],
+        +nums[1],
+        +nums[2],
+        valueOrPercent(nums[3])
+      );
+    } else if (colorStr.startsWith("rgb")) {
+      // Trim off rgba( and the closing )
+      colorStr = colorStr.slice(4, -1);
+      const nums = colorStr.split(",");
+      // rgb can take 3 or 4 arguments
+      return CanvasKit.Color(
+        +nums[0],
+        +nums[1],
+        +nums[2],
+        valueOrPercent(nums[3])
+      );
+    } else if (colorStr.startsWith("gray(")) {
+      // TODO(kjlubick)
+    } else if (colorStr.startsWith("hsl")) {
+      // TODO(kjlubick)
+    } else if (colorMap) {
+      // Try for named color
+      const nc = colorMap[colorStr];
+      if (nc !== undefined) {
+        return nc;
+      }
+    }
+    return this.BLACK;
   }
   multiplyByAlpha(c: Float32Array, alpha: number): Float32Array {
     return this.Color4f(c[0], c[1], c[2], c[3] * alpha);
@@ -366,7 +441,7 @@ export class CanvasKitLite implements CanvasKit {
   MaskFilter!: MaskFilterFactory;
   PathEffect!: PathEffectFactory;
   RuntimeEffect!: RuntimeEffectFactory;
-  Shader!: ShaderFactory;
+  Shader = ShaderFactory;
   TextBlob!: TextBlobFactory;
   Typeface!: TypefaceFactory;
   TypefaceFontProvider!: TypefaceFontProviderFactory;

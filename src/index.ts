@@ -1,1 +1,1 @@
-export * from "./CanvasKitLite";
+export * from "./CanvasKit";
