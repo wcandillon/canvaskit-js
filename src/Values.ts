@@ -1,11 +1,17 @@
 /* eslint-disable no-bitwise */
 import type { Color, InputRect, MallocObj } from "canvaskit-wasm";
 
+export const vec = (x: number, y: number) => Float32Array.of(x, y);
+
+export const clampColorComp = (c: number) => {
+  return Math.round(Math.max(0, Math.min(c || 0, 255)));
+};
+
 export const NativeColor = (color: Color) => {
   return `rgba(${[
-    color[0] * 255,
-    color[1] * 255,
-    color[2] * 255,
+    Math.round(color[0] * 255),
+    Math.round(color[1] * 255),
+    Math.round(color[2] * 255),
     color[3],
   ].join(", ")})`;
 };

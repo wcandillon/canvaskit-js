@@ -109,7 +109,10 @@ export class PaintLite extends HostObject<Paint> implements Paint {
   private strokeCap = StrokeCap.Square;
   private blendMode = BlendMode.SrcOver;
 
-  apply(context: CanvasRenderingContext2D, draw: () => void) {
+  apply(
+    context: CanvasRenderingContext2D,
+    draw: (ctx: CanvasRenderingContext2D) => void
+  ) {
     context.save();
     const style = this.shader
       ? this.shader.toGradient(context)
@@ -130,7 +133,7 @@ export class PaintLite extends HostObject<Paint> implements Paint {
     if (this.colorFilter) {
       console.log(this.colorFilter);
     }
-    draw();
+    draw(context);
     if (this.style === PaintStyle.Fill) {
       context.fill();
     } else {

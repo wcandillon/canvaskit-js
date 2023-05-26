@@ -32,8 +32,11 @@ import { PaintLite } from "./Paint";
 import type { InputColor } from "./Contants";
 import { HostObject } from "./HostObject";
 import { rectToXYWH } from "./Values";
+import { convertDOMMatrixTo3x3 } from "./Matrix3";
 
 export class CanvasLite extends HostObject<Canvas> implements Canvas {
+  private saveCount = 0;
+
   constructor(private readonly ctx: CanvasRenderingContext2D) {
     super();
   }
@@ -88,11 +91,13 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
       this.ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
     });
   }
-  drawColor(
-    _color: InputColor,
-    _blendMode?: EmbindEnumEntity | undefined
-  ): void {
-    throw new Error("Method not implemented.");
+  drawColor(color: InputColor, blendMode?: EmbindEnumEntity | undefined): void {
+    const paint = new PaintLite();
+    paint.setColor(color);
+    if (blendMode) {
+      paint.setBlendMode(blendMode);
+    }
+    this.drawPaint(paint);
   }
   drawColorComponents(
     _r: number,
@@ -279,10 +284,10 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
     throw new Error("Method not implemented.");
   }
   getSaveCount(): number {
-    throw new Error("Method not implemented.");
+    return this.saveCount;
   }
   getTotalMatrix(): number[] {
-    throw new Error("Method not implemented.");
+    return convertDOMMatrixTo3x3(this.ctx.getTransform());
   }
   makeSurface(_info: ImageInfo): Surface | null {
     throw new Error("Method not implemented.");
@@ -297,10 +302,13 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
     throw new Error("Method not implemented.");
   }
   restore(): void {
-    throw new Error("Method not implemented.");
+    this.ctx.restore();
+    this.saveCount--;
   }
-  restoreToCount(_saveCount: number): void {
-    throw new Error("Method not implemented.");
+  restoreToCount(saveCount: number): void {
+    for (let i = 1; i <= saveCount; i++) {
+      this.restore();
+    }
   }
   rotate(rot: number, rx: number, ry: number): void {
     this.ctx.translate(rx, ry);
@@ -308,7 +316,9 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
     this.ctx.translate(-rx, -ry);
   }
   save(): number {
-    throw new Error("Method not implemented.");
+    this.ctx.save();
+    this.saveCount++;
+    return this.saveCount;
   }
   saveLayer(
     _paint?: Paint | undefined,
@@ -321,11 +331,13 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
   scale(sx: number, sy: number): void {
     this.ctx.scale(sx, sy);
   }
-  skew(_sx: number, _sy: number): void {
-    throw new Error("Method not implemented.");
+  skew(sx: number, sy: number): void {
+    const rSx = Math.tan(sx);
+    const rSy = Math.tan(sy);
+    this.ctx.transform(1, rSy, rSx, 1, 0, 0);
   }
-  translate(_dx: number, _dy: number): void {
-    throw new Error("Method not implemented.");
+  translate(dx: number, dy: number): void {
+    this.ctx.translate(dx, dy);
   }
   writePixels(
     _pixels: number[] | Uint8Array,

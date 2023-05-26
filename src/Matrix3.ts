@@ -2,6 +2,20 @@ import type { AngleInRadians, Matrix3x3Helpers } from "canvaskit-wasm";
 
 export type Matrix3x3 = number[];
 
+export const convertDOMMatrixTo3x3 = (matrix: DOMMatrix) => {
+  return [
+    matrix.m11,
+    matrix.m12,
+    matrix.m13,
+    matrix.m21,
+    matrix.m22,
+    matrix.m23,
+    matrix.m41,
+    matrix.m42,
+    matrix.m44,
+  ];
+};
+
 export const Matrix3: Matrix3x3Helpers = {
   identity(): Matrix3x3 {
     return [1, 0, 0, 0, 1, 0, 0, 0, 1];

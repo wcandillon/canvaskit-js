@@ -46,9 +46,7 @@ export const testCanvasKitMethod = (
   });
 };
 
-export const setupSkia = () => {
-  const width = 256;
-  const height = 256;
+export const setupSkia = (width = 256, height = 256) => {
   const htmlCanvas = createCanvas(
     width,
     height

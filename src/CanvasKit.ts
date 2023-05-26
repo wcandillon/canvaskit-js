@@ -68,7 +68,6 @@ import type {
   WebGPUCanvasOptions,
 } from "canvaskit-wasm";
 
-import { clampColorComp } from "./math";
 import { Matrix3 } from "./Matrix3";
 import {
   AlphaType,
@@ -98,6 +97,7 @@ import {
 import { SurfaceLite } from "./Surface";
 import { PaintLite } from "./Paint";
 import { ShaderFactory } from "./ShaderFactory";
+import { clampColorComp } from "./Values";
 
 function valueOrPercent(aStr: string) {
   if (aStr === undefined) {
