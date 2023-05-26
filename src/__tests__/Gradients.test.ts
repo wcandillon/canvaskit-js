@@ -83,6 +83,6 @@ describe("Gradients", () => {
     r = CanvasKit.LTRBRect(100, 100, 200, 200);
     canvas.drawRect(r, paint);
     canvas.drawRect(r, strokePaint);
-    processResult(surface, "snapshots/linear-gradient2.png");
+    processResult(surface, "snapshots/linear-gradient2.png", true);
   });
 });

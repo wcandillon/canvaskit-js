@@ -33,6 +33,7 @@ import type { InputColor } from "./Contants";
 import { HostObject } from "./HostObject";
 import { rectToXYWH } from "./Values";
 import { convertDOMMatrixTo3x3 } from "./Matrix3";
+import { toRad } from "./math";
 
 export class CanvasLite extends HostObject<Canvas> implements Canvas {
   private saveCount = 0;
@@ -312,7 +313,7 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
   }
   rotate(rot: number, rx: number, ry: number): void {
     this.ctx.translate(rx, ry);
-    this.ctx.rotate(rot);
+    this.ctx.rotate(toRad(rot));
     this.ctx.translate(-rx, -ry);
   }
   save(): number {

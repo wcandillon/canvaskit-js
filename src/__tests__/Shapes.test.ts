@@ -23,14 +23,15 @@ const drawRing = (surface: Surface, index: number, progress: number) => {
   const r = width / 4;
   const center = vec(width / 2, height / 2 - 64);
   const theta = (index * (2 * Math.PI)) / 6;
-  // const transform = useComputedValue(() => {
   const [x, y] = polar2Canvas({ theta, radius: progress * r }, vec(0, 0));
   const scale = mix(progress, 0.3, 1);
+  canvas.save();
   canvas.translate(center[0], center[1]);
   canvas.translate(x, y);
   canvas.scale(scale, scale);
   canvas.drawCircle(center[0], center[1], r, index % 2 ? c1 : c2);
   canvas.translate(-center[0], -center[1]);
+  canvas.restore();
 };
 
 describe("Shapes", () => {
@@ -96,13 +97,18 @@ describe("Shapes", () => {
   });
 
   it("should draw the apple breathe example", () => {
-    const { surface } = setupSkia(1024, 1024);
+    const { surface, center } = setupSkia(1024, 1024);
     const canvas = surface.getCanvas();
+    const progress = 1;
     const bgColor = CanvasKit.parseColorString("#242b38");
     canvas.drawColor(bgColor);
+    const rotate = mix(progress, -Math.PI, 0);
+    canvas.save();
+    canvas.rotate(rotate, center[0], center[1]);
     new Array(6).fill(0).map((_, index) => {
-      drawRing(surface, index, 1);
+      drawRing(surface, index, progress);
     });
+    canvas.restore();
     processResult(surface, "snapshots/breathe.png", true);
   });
 });

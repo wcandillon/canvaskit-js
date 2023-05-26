@@ -13,16 +13,19 @@ import { CanvasLite } from "./Canvas";
 import { ImageLite } from "./Image";
 
 export class SurfaceLite extends HostObject<Surface> implements Surface {
+  private canvas: Canvas;
+
   constructor(private readonly ctx: CanvasRenderingContext2D) {
     super();
+    this.canvas = new CanvasLite(this.ctx);
   }
-  drawOnce(_drawFrame: (_: Canvas) => void): void {
-    throw new Error("Method not implemented.");
+  drawOnce(drawFrame: (_: Canvas) => void): void {
+    this.requestAnimationFrame(drawFrame);
   }
   dispose(): void {}
   flush(): void {}
   getCanvas(): Canvas {
-    return new CanvasLite(this.ctx);
+    return this.canvas;
   }
   height(): number {
     return this.ctx.canvas.width;
@@ -47,10 +50,12 @@ export class SurfaceLite extends HostObject<Surface> implements Surface {
     throw new Error("Method not implemented.");
   }
   reportBackendTypeIsGPU(): boolean {
-    throw new Error("Method not implemented.");
+    return true;
   }
   requestAnimationFrame(_drawFrame: (_: Canvas) => void): number {
-    throw new Error("Method not implemented.");
+    return requestAnimationFrame(() => {
+      _drawFrame(this.canvas);
+    });
   }
   sampleCnt(): number {
     throw new Error("Method not implemented.");

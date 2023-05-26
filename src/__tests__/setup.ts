@@ -15,6 +15,7 @@ import CanvasKitInit from "canvaskit-wasm/bin/full/canvaskit";
 import { createCanvas } from "canvas";
 
 import { CanvasKitLite } from "../CanvasKit";
+import { vec } from "../Values";
 
 declare global {
   var CanvasKit: CanvasKitType;
@@ -53,7 +54,14 @@ export const setupSkia = (width = 256, height = 256) => {
   ) as unknown as HTMLCanvasElement;
   const surface = CanvasKit.MakeCanvasSurface(htmlCanvas)!;
   const canvas = surface.getCanvas();
-  return { surface, width, height, htmlCanvas, canvas };
+  return {
+    surface,
+    width,
+    height,
+    htmlCanvas,
+    canvas,
+    center: vec(width / 2, height / 2),
+  };
 };
 
 export const processResult = (
