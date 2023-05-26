@@ -25,7 +25,7 @@ describe("Path Behavior", () => {
     path.lineTo(36, 148);
 
     path.moveTo(150, 180);
-    // path.arcToTangent(150, 100, 50, 200, 20);
+    path.arcToTangent(150, 100, 50, 200, 20);
     path.lineTo(160, 160);
 
     path.moveTo(20, 120);
@@ -66,7 +66,7 @@ describe("Path Behavior", () => {
     path.lineTo(36, 148);
 
     path.moveTo(150, 180);
-    // path.arcToTangent(150, 100, 50, 200, 20);
+    path.arcToTangent(150, 100, 50, 200, 20);
     path.lineTo(160, 160);
 
     path.moveTo(20, 120);

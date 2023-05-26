@@ -13,21 +13,29 @@ import type {
 import { HostObject } from "./HostObject";
 import type { Matrix3x3 } from "./Matrix3";
 import { Matrix3, transformPoint } from "./Matrix3";
-import { PathVerb } from "./Contants";
 
-// const CommandCount = {
-//   [PathVerb.Move]: 3,
-//   [PathVerb.Line]: 3,
-//   [PathVerb.Quad]: 5,
-//   [PathVerb.Conic]: 6,
-//   [PathVerb.Cubic]: 7,
-//   [PathVerb.Close]: 1,
-// };
+enum PathVerb {
+  Move = "M",
+  Line = "L",
+  Cubic = "C",
+  Quad = "Q",
+  Close = "Z",
+  Arc = "A",
+}
 
-type PathCommand = number[];
+type PathCommand = [string, ...number[]];
 
 export class PathLite extends HostObject<Path> implements Path {
   private path: PathCommand[] = [];
+  private fPts: [number, number][] = [];
+
+  get lastPoint() {
+    return this.fPts[this.fPts.length - 1];
+  }
+
+  set lastPoint(pt: [number, number]) {
+    this.fPts.push(pt);
+  }
 
   constructor() {
     super();
@@ -50,6 +58,15 @@ export class PathLite extends HostObject<Path> implements Path {
         );
       } else if (cmd === PathVerb.Quad) {
         ctx.quadraticCurveTo(points[0], points[1], points[2], points[3]);
+      } else if (cmd === PathVerb.Arc) {
+        ctx.arc(
+          points[0],
+          points[1],
+          points[2],
+          points[3],
+          points[4],
+          !!points[5]
+        );
       }
     });
   }
@@ -126,15 +143,51 @@ export class PathLite extends HostObject<Path> implements Path {
   ): Path {
     throw new Error("Method not implemented.");
   }
-  arcToTangent(
-    _x1: number,
-    _y1: number,
-    _x2: number,
-    _y2: number,
-    _radius: number
-  ): Path {
-    throw new Error("Method not implemented.");
+
+  private ensureMove() {
+    if (
+      this.path.length > 0 &&
+      this.path[this.path.length - 1][0] !== PathVerb.Move
+    ) {
+      this.moveTo(this.lastPoint[0], this.lastPoint[1]);
+    }
   }
+
+  arcToTangent(
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    r: number
+  ): Path {
+    this.ensureMove();
+    if (r === 0) {
+      return this.lineTo(x1, y1);
+    }
+    return this.nativeArc(x2, y2, r, 0, 0, 1);
+  }
+
+  private nativeArc(
+    x: number,
+    y: number,
+    radius: number,
+    startAngle: number,
+    endAngle: number,
+    counterclockwise = 0
+  ) {
+    this.path.push([
+      PathVerb.Arc,
+      x,
+      y,
+      radius,
+      startAngle,
+      endAngle,
+      counterclockwise,
+    ]);
+    this.lastPoint = [x, y];
+    return this;
+  }
+
   close(): Path {
     throw new Error("Method not implemented.");
   }
@@ -168,6 +221,7 @@ export class PathLite extends HostObject<Path> implements Path {
     y: number
   ): Path {
     this.path.push([PathVerb.Cubic, cpx1, cpy1, cpx2, cpy2, x, y]);
+    this.lastPoint = [x, y];
     return this;
   }
   dash(_on: number, _off: number, _phase: number): boolean {
@@ -196,6 +250,7 @@ export class PathLite extends HostObject<Path> implements Path {
   }
   lineTo(x: number, y: number): Path {
     this.path.push([PathVerb.Line, x, y]);
+    this.lastPoint = [x, y];
     return this;
   }
   makeAsWinding(): Path | null {
@@ -203,6 +258,7 @@ export class PathLite extends HostObject<Path> implements Path {
   }
   moveTo(x: number, y: number): Path {
     this.path.push([PathVerb.Move, x, y]);
+    this.lastPoint = [x, y];
     return this;
   }
   offset(dx: number, dy: number): Path {
@@ -215,6 +271,7 @@ export class PathLite extends HostObject<Path> implements Path {
   }
   quadTo(x1: number, y1: number, x2: number, y2: number): Path {
     this.path.push([PathVerb.Quad, x1, y1, x2, y2]);
+    this.lastPoint = [x2, y2];
     return this;
   }
   rArcTo(

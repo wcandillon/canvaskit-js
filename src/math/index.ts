@@ -1,4 +1,5 @@
 export * from "./Coordinates";
+export * from "./Vectors";
 
 export const mix = (value: number, x: number, y: number) =>
   x * (1 - value) + y * value;
