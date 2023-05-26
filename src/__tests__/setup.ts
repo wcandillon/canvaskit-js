@@ -22,7 +22,7 @@ declare global {
   var RealCanvasKit: CanvasKitType;
 }
 
-global.CanvasKit = new CanvasKitLite();
+global.CanvasKit = CanvasKitLite.getInstance();
 
 beforeAll(async () => {
   const CanvasKit = await CanvasKitInit({});

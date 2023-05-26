@@ -236,8 +236,8 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
   }
   drawRect(rect: InputRect, paint: PaintLite): void {
     paint.apply(this.ctx, () => {
-      const { x, y, w, h } = rectToXYWH(rect);
-      this.ctx.rect(x, y, w, h);
+      const { x, y, width, height } = rectToXYWH(rect);
+      this.ctx.rect(x, y, width, height);
     });
   }
   drawRect4f(

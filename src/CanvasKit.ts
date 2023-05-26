@@ -97,7 +97,8 @@ import {
 import { SurfaceLite } from "./Surface";
 import { PaintLite } from "./Paint";
 import { ShaderFactory } from "./ShaderFactory";
-import { clampColorComp } from "./Values";
+import { MallocObjLite, clampColorComp } from "./Values";
+import { PathLite } from "./Path";
 
 function valueOrPercent(aStr: string) {
   if (aStr === undefined) {
@@ -111,6 +112,16 @@ function valueOrPercent(aStr: string) {
 }
 
 export class CanvasKitLite implements CanvasKit {
+  private static instance: CanvasKit | null = null;
+  private constructor() {}
+
+  static getInstance() {
+    if (this.instance === null) {
+      this.instance = new CanvasKitLite();
+    }
+    return this.instance;
+  }
+
   Color(r: number, g: number, b: number, a = 1): Float32Array {
     return new Float32Array([r / 255, g / 255, b / 255, a]);
   }
@@ -273,15 +284,13 @@ export class CanvasKitLite implements CanvasKit {
   ): Float32Array | null {
     throw new Error("Method not implemented.");
   }
-  Malloc(_typedArray: TypedArrayConstructor, _len: number): MallocObj {
-    throw new Error("Method not implemented.");
+  Malloc(TypedArray: TypedArrayConstructor, len: number): MallocObj {
+    return new MallocObjLite(new TypedArray(len));
   }
   MallocGlyphIDs(_len: number): MallocObj {
     throw new Error("Method not implemented.");
   }
-  Free(_m: MallocObj): void {
-    throw new Error("Method not implemented.");
-  }
+  Free(_m: MallocObj): void {}
   MakeCanvasSurface(canvas: string | HTMLCanvasElement): Surface | null {
     if (typeof canvas === "string") {
       throw new Error("Method not implemented");
@@ -436,7 +445,7 @@ export class CanvasKitLite implements CanvasKit {
   ContourMeasureIter!: ContourMeasureIterConstructor;
   Font!: FontConstructor;
   Paint: DefaultConstructor<Paint> = PaintLite;
-  Path!: PathConstructorAndFactory;
+  Path = PathLite as unknown as PathConstructorAndFactory;
   PictureRecorder!: DefaultConstructor<PictureRecorder>;
   TextStyle!: TextStyleConstructor;
   ParagraphBuilder!: ParagraphBuilderFactory;

@@ -1,5 +1,5 @@
 /* eslint-disable no-bitwise */
-import type { Color, InputRect, MallocObj } from "canvaskit-wasm";
+import type { Color, InputRect, MallocObj, TypedArray } from "canvaskit-wasm";
 
 export const vec = (x: number, y: number) => Float32Array.of(x, y);
 
@@ -25,11 +25,33 @@ export const uIntColorToCanvasKitColor = (c: number) => {
   );
 };
 
+export class MallocObjLite<T extends TypedArray> implements MallocObj {
+  byteOffset = 0;
+
+  constructor(private arr: T) {}
+
+  get length(): number {
+    return this.arr.length;
+  }
+
+  subarray(start: number, end: number): TypedArray {
+    return this.arr.subarray(start, end);
+  }
+  toTypedArray(): TypedArray {
+    return this.arr;
+  }
+}
+
 const isMalloc = (v: unknown): v is MallocObj => {
   return typeof v === "object" && v !== null && "toTypedArray" in v;
 };
 
 export const rectToXYWH = (r: InputRect) => {
   const rect = isMalloc(r) ? r.toTypedArray() : r;
-  return { x: rect[0], y: rect[1], w: rect[2] - rect[0], h: rect[3] - rect[1] };
+  return {
+    x: rect[0],
+    y: rect[1],
+    width: rect[2] - rect[0],
+    height: rect[3] - rect[1],
+  };
 };
