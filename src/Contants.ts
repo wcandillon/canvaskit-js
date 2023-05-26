@@ -13,11 +13,14 @@ export const mapKeys = <T extends object>(obj: T) =>
   Object.keys(obj) as (keyof T)[];
 
 const makeEnum = <T>(values: Record<Exclude<keyof T, "values">, number>): T => {
+  const vals = Object.values(values).filter((v) => typeof v !== "number");
   return Object.assign(
     {
-      values: Object.values(values),
+      values: vals,
     },
-    ...mapKeys(values).map((k) => ({ [k]: { value: values[k] } }))
+    ...mapKeys(values)
+      .slice(vals.length)
+      .map((k) => ({ [k]: { value: values[k] } }))
   );
 };
 
@@ -33,10 +36,12 @@ export const StrokeJoin = makeEnum<StrokeJoinEnumValues>({
   Bevel: 2,
 });
 
-export const PaintStyle = makeEnum<PaintStyleEnumValues>({
-  Fill: 0,
-  Stroke: 1,
-});
+export enum PaintStyleEnum {
+  Fill,
+  Stroke,
+}
+
+export const PaintStyle = makeEnum<PaintStyleEnumValues>(PaintStyleEnum);
 
 export const BlendMode = makeEnum<BlendModeEnumValues>({
   Clear: 0, //!< r = 0

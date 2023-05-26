@@ -28,7 +28,7 @@ describe("Shapes", () => {
       [width, 0],
       [CanvasKit.RED, CanvasKit.GREEN, CanvasKit.BLUE],
       null,
-      CanvasKit.TileMode.Clamp
+      { value: 0 }
     );
     paint.setShader(shader);
     canvas.drawPaint(paint);
@@ -49,6 +49,6 @@ describe("Shapes", () => {
     canvas.drawPaint(bg);
     canvas.drawCircle(width / 4, height / 2, width / 2, c1);
     canvas.drawCircle(width - width / 4, height / 2, width / 2, c2);
-    processResult(surface, "snapshots/breathe.png");
+    processResult(surface, "snapshots/breathe.png", true);
   });
 });
