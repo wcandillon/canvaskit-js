@@ -32,7 +32,6 @@ import type {
   MallocObj,
   ManagedSkottieAnimation,
   MaskFilterFactory,
-  Matrix3x3Helpers,
   Matrix4x4Helpers,
   Paint,
   ParagraphBuilderFactory,
@@ -70,6 +69,7 @@ import type {
 } from "canvaskit-wasm";
 
 import { clampColorComp } from "./math";
+import { Matrix3 } from "./Matrix3";
 import {
   AlphaType,
   BlendMode,
@@ -452,7 +452,7 @@ export class CanvasKitLite implements CanvasKit {
   Typeface!: TypefaceFactory;
   TypefaceFontProvider!: TypefaceFontProviderFactory;
   ColorMatrix!: ColorMatrixHelpers;
-  Matrix!: Matrix3x3Helpers;
+  Matrix = Matrix3;
   M44!: Matrix4x4Helpers;
   Vector!: VectorHelpers;
   AlphaType = AlphaType;

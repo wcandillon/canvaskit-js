@@ -62,7 +62,7 @@ describe("Gradients", () => {
       Float32Array.of(...transparentGreen, ...CanvasKit.BLUE, ...CanvasKit.RED),
       [0, 0.65, 1.0],
       CanvasKit.TileMode.Mirror,
-      undefined //CanvasKit.Matrix.rotated(Math.PI / 4, 0, 100)
+      CanvasKit.Matrix.rotated(Math.PI / 4, 0, 100)
     );
     paint.setShader(lgs45);
     r = CanvasKit.LTRBRect(0, 100, 100, 200);
@@ -76,7 +76,7 @@ describe("Gradients", () => {
       [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
       [0, 0.65, 1.0],
       CanvasKit.TileMode.Mirror,
-      undefined, //CanvasKit.Matrix.rotated(Math.PI / 4, 100, 100),
+      CanvasKit.Matrix.rotated(Math.PI / 4, 100, 100),
       1 // interpolate colors in premul
     );
     paint.setShader(lgs45Premul);
