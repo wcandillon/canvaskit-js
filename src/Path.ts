@@ -81,24 +81,8 @@ export class PathLite extends HostObject<Path> implements Path {
     return this.path;
   }
 
-  addArc(bounds: InputRect, startAngle: number, sweepAngle: number): Path {
-    const oval = rrectToXYWH(bounds);
-    const rx = oval.width / 2;
-    const ry = oval.height / 2;
-
-    const startX = oval.x + rx * Math.cos((startAngle * Math.PI) / 180);
-    const startY = oval.y + ry * Math.sin((startAngle * Math.PI) / 180);
-
-    const endX =
-      oval.x + rx * Math.cos(((startAngle + sweepAngle) * Math.PI) / 180);
-    const endY =
-      oval.y + ry * Math.sin(((startAngle + sweepAngle) * Math.PI) / 180);
-
-    const largeArcFlag = Math.abs(sweepAngle) <= 180 ? 0 : 1;
-    const sweepFlag = sweepAngle >= 0 ? 1 : 0;
-
-    this.moveTo(startX, startY);
-    return this.nativeArc(rx, ry, 0, largeArcFlag, sweepFlag, endX, endY);
+  addArc(_bounds: InputRect, _startAngle: number, _sweepAngle: number): Path {
+    throw new Error("Method not implemented.");
   }
 
   addCircle(x: number, y: number, r: number, isCCW?: boolean): Path {
@@ -175,14 +159,18 @@ export class PathLite extends HostObject<Path> implements Path {
     throw new Error("Method not implemented.");
   }
   arc(
-    _x: number,
-    _y: number,
-    _radius: number,
-    _startAngle: number,
-    _endAngle: number,
-    _isCCW?: boolean | undefined
+    x: number,
+    y: number,
+    r: number,
+    startAngle: number,
+    endAngle: number,
+    _isCCW?: boolean
   ): Path {
-    throw new Error("Method not implemented.");
+    return this.addArc(
+      Float32Array.of(x - r, y - r, x + r, y + r),
+      startAngle,
+      endAngle - startAngle
+    );
   }
   arcToOval(
     _oval: InputRect,
@@ -364,29 +352,42 @@ export class PathLite extends HostObject<Path> implements Path {
     throw new Error("Method not implemented.");
   }
   rCubicTo(
-    _cpx1: number,
-    _cpy1: number,
-    _cpx2: number,
-    _cpy2: number,
-    _x: number,
-    _y: number
+    cpx1: number,
+    cpy1: number,
+    cpx2: number,
+    cpy2: number,
+    x: number,
+    y: number
   ): Path {
-    throw new Error("Method not implemented.");
+    return this.cubicTo(
+      cpx1 + this.lastPoint[0],
+      cpy1 + this.lastPoint[1],
+      cpx2 + this.lastPoint[0],
+      cpy2 + this.lastPoint[1],
+      x + this.lastPoint[0],
+      y + this.lastPoint[1]
+    );
   }
   reset(): void {
-    throw new Error("Method not implemented.");
+    this.path = [];
+    this.lastPoint = [0, 0];
   }
   rewind(): void {
-    throw new Error("Method not implemented.");
+    this.reset();
   }
   rLineTo(x: number, y: number): Path {
     return this.lineTo(this.lastPoint[0] + x, this.lastPoint[1] + y);
   }
-  rMoveTo(_x: number, _y: number): Path {
-    throw new Error("Method not implemented.");
+  rMoveTo(x: number, y: number): Path {
+    return this.moveTo(this.lastPoint[0] + x, this.lastPoint[1] + y);
   }
-  rQuadTo(_x1: number, _y1: number, _x2: number, _y2: number): Path {
-    throw new Error("Method not implemented.");
+  rQuadTo(x1: number, y1: number, x2: number, y2: number): Path {
+    return this.quadTo(
+      this.lastPoint[0] + x1,
+      this.lastPoint[1] + y1,
+      this.lastPoint[0] + x2,
+      this.lastPoint[1] + y2
+    );
   }
   setFillType(_fill: EmbindEnumEntity): void {
     throw new Error("Method not implemented.");

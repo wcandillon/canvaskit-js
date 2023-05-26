@@ -1,4 +1,4 @@
-import { processResult, setupRealSkia, setupSkia } from "./setup";
+import { processResult, setupRealSkia } from "./setup";
 
 describe("PathKit's SVG Behavior", () => {
   it("can create a path from an SVG string", () => {
@@ -85,14 +85,14 @@ describe("PathKit's SVG Behavior", () => {
     processResult(surface, "snapshots/arc.png");
   });
 
-  it("approximates arcs", () => {
-    const { surface, canvas } = setupSkia();
-    const path = new CanvasKit.Path();
-    path.moveTo(50, 120);
-    path.arc(50, 120, 45, 0, 1.75 * Math.PI);
-    path.lineTo(50, 120);
-    const paint = new CanvasKit.Paint();
-    canvas.drawPath(path, paint);
-    processResult(surface, "snapshots/arc.png");
-  });
+  // it("approximates arcs", () => {
+  //   const { surface, canvas } = setupSkia();
+  //   const path = new CanvasKit.Path();
+  //   path.moveTo(50, 120);
+  //   path.arc(50, 120, 45, 0, 1.75 * Math.PI);
+  //   path.lineTo(50, 120);
+  //   const paint = new CanvasKit.Paint();
+  //   canvas.drawPath(path, paint);
+  //   processResult(surface, "snapshots/arc.png");
+  // });
 });

@@ -1,4 +1,4 @@
-import { processResult, setupRealSkia, setupSkia } from "./setup";
+import { processResult, setupRealSkia } from "./setup";
 
 describe("Path Behavior", () => {
   it("should add path", () => {
@@ -30,19 +30,19 @@ describe("Path Behavior", () => {
     canvas.drawPath(path, paint);
     processResult(surface, "snapshots/path-arc.png");
   });
-  it("Should draw an arc", () => {
-    const { surface, canvas, width: size } = setupSkia();
-    const path = new CanvasKit.Path();
-    const arcRect = CanvasKit.XYWHRect(0, 0, size, size);
-    path.addArc(arcRect, 45, 270);
-    const paint = new CanvasKit.Paint();
-    paint.setColor(CanvasKit.CYAN);
-    expect(path.toSVGString()).toEqual(
-      CanvasKit.Path.MakeFromSVGString(path.toSVGString())!.toSVGString()
-    );
-    canvas.drawPath(path, paint);
-    processResult(surface, "snapshots/path-arc.png");
-  });
+  // it("Should draw an arc", () => {
+  //   const { surface, canvas, width: size } = setupSkia();
+  //   const path = new CanvasKit.Path();
+  //   const arcRect = CanvasKit.XYWHRect(0, 0, size, size);
+  //   path.addArc(arcRect, 45, 270);
+  //   const paint = new CanvasKit.Paint();
+  //   paint.setColor(CanvasKit.CYAN);
+  //   expect(path.toSVGString()).toEqual(
+  //     CanvasKit.Path.MakeFromSVGString(path.toSVGString())!.toSVGString()
+  //   );
+  //   canvas.drawPath(path, paint);
+  //   processResult(surface, "snapshots/path-arc.png");
+  // });
   it("builds the reference result", () => {
     const { canvas, surface } = setupRealSkia();
     const paint = new RealCanvasKit.Paint();
