@@ -1,7 +1,6 @@
-import type { Matrix3x3Helpers } from "canvaskit-wasm";
+import type { AngleInRadians, Matrix3x3Helpers } from "canvaskit-wasm";
 
 export type Matrix3x3 = number[];
-export type AngleInRadians = number;
 
 export const Matrix3: Matrix3x3Helpers = {
   identity(): Matrix3x3 {
