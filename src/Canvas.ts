@@ -337,8 +337,8 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
     const rSy = Math.tan(sy);
     this.ctx.transform(1, rSy, rSx, 1, 0, 0);
   }
-  translate(dx: number, dy: number): void {
-    this.ctx.translate(dx, dy);
+  translate(x: number, y: number): void {
+    this.ctx.translate(x, y);
   }
   writePixels(
     _pixels: number[] | Uint8Array,
