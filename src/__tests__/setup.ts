@@ -29,13 +29,6 @@ class RemoteSurface {
     const browser = await puppeteer.launch({ headless: "new" });
     const page = await browser.newPage();
     await page.evaluate(fs.readFileSync("./dist/index.global.js", "utf8"));
-    await page.evaluate(`function blobToBase64(blob) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });}`);
     this.browser = browser;
     this.page = page;
   }
