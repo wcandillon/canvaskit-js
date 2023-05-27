@@ -12,10 +12,6 @@ import type {
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import CanvasKitInit from "canvaskit-wasm/bin/full/canvaskit";
-import { CanvasRenderingContext2D, createCanvas } from "canvas";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-import { polyfillPath2D } from "path2d-polyfill";
 
 import { CanvasKitLite } from "../CanvasKit";
 import { vec } from "../Values";
@@ -28,11 +24,6 @@ declare global {
 global.CanvasKit = CanvasKitLite.getInstance();
 
 beforeAll(async () => {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-expect-error
-  global.CanvasRenderingContext2D = CanvasRenderingContext2D;
-  polyfillPath2D(global);
-
   const CanvasKit = await CanvasKitInit({});
   // The CanvasKit API is stored on the global object and used
   // to create the JsiSKApi in the Skia.web.ts file.
@@ -68,11 +59,9 @@ export const setupRealSkia = (width = 256, height = 256) => {
 };
 
 export const setupSkia = (width = 256, height = 256) => {
-  const htmlCanvas = createCanvas(
-    width,
-    height
-  ) as unknown as HTMLCanvasElement;
-  const surface = CanvasKit.MakeCanvasSurface(htmlCanvas)!;
+  const htmlCanvas = new OffscreenCanvas(width, height);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const surface = CanvasKit.MakeCanvasSurface(htmlCanvas as any)!;
   const canvas = surface.getCanvas();
   return {
     surface,

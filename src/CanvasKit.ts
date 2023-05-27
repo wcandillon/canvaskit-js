@@ -1,8 +1,8 @@
 /* eslint-disable no-fallthrough */
 /* eslint-disable no-bitwise */
 /* eslint-disable camelcase */
-import { CanvasKit } from "canvaskit-wasm";
 import type {
+  CanvasKit as ICanvasKit,
   AffinityEnumValues,
   AnimatedImage,
   ColorChannelEnumValues,
@@ -111,8 +111,8 @@ function valueOrPercent(aStr: string) {
   return a;
 }
 
-export class CanvasKitLite implements CanvasKit {
-  private static instance: CanvasKit | null = null;
+export class CanvasKitLite implements ICanvasKit {
+  private static instance: ICanvasKit | null = null;
   private constructor() {}
 
   static getInstance() {

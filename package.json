@@ -8,8 +8,9 @@
     "test": "jest"
   },
   "scripts": {
-    "test": "jest --detectOpenHandles",
+    "test": "yarn build && jest --detectOpenHandles",
     "tsc": "tsc --noEmit",
+    "build": "tsup src/index.ts --format esm,cjs,iife",
     "lint": "eslint . --ext .ts,.tsx  --max-warnings 0 --cache"
   },
   "repository": {
@@ -36,6 +37,7 @@
     "tsup": "^6.7.0"
   },
   "dependencies": {
+    "@swc/core": "^1.3.60",
     "abs-svg-path": "^0.1.1",
     "normalize-svg-path": "^1.1.0",
     "parse-svg-path": "^0.1.2",
