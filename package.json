@@ -26,7 +26,6 @@
     "@types/jest": "^29.5.1",
     "@types/pixelmatch": "^5.2.4",
     "@types/pngjs": "^6.0.1",
-    "canvas": "^2.11.2",
     "canvaskit-wasm": "^0.38.1",
     "eslint": "^8.41.0",
     "eslint-config-react-native-wcandillon": "^3.10.0",
@@ -40,7 +39,7 @@
     "abs-svg-path": "^0.1.1",
     "normalize-svg-path": "^1.1.0",
     "parse-svg-path": "^0.1.2",
-    "path2d-polyfill": "^2.0.1",
+    "puppeteer": "^20.4.0",
     "serialize-svg-path": "^0.1.0",
     "svg-arc-to-cubic-bezier": "^3.2.0",
     "svg-path-properties": "^1.2.0"
