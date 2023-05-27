@@ -10,8 +10,39 @@ import type {
 
 export const vec = (x: number, y: number) => Float32Array.of(x, y);
 
-export const clampColorComp = (c: number) => {
+const clampColorComp = (c: number) => {
   return Math.round(Math.max(0, Math.min(c || 0, 255)));
+};
+
+export const IntAsColor = (colorInt: number) => {
+  let a = (colorInt >>> 24) & 255;
+  let r = (colorInt >>> 16) & 255;
+  let g = (colorInt >>> 8) & 255;
+  let b = (colorInt >>> 0) & 255;
+
+  //We might convert these to floating point values in the range [0,1] if necessary
+  a = a / 255;
+  r = r / 255;
+  g = g / 255;
+  b = b / 255;
+
+  return Float32Array.of(r, g, b, a);
+};
+
+export const ColorAsInt = (r: number, g: number, b: number, a = 1) => {
+  // default to opaque
+  if (a === undefined) {
+    a = 255;
+  }
+  // This is consistent with how Skia represents colors in C++, as an unsigned int.
+  // This is also consistent with how Flutter represents colors:
+  return (
+    ((clampColorComp(a) << 24) |
+      (clampColorComp(r) << 16) |
+      (clampColorComp(g) << 8) |
+      ((clampColorComp(b) << 0) & 0xfffffff)) >>>
+    0
+  ); // This makes the value an unsigned int.
 };
 
 export const NativeColor = (color: Color) => {
@@ -79,7 +110,6 @@ export const rrectToXYWH = (r: InputRRect) => {
     y: rect[1],
     width: rect[2] - rect[0],
     height: rect[3] - rect[1],
-    rx: rect[4],
-    ry: rect[5],
+    radii: Array.from(rect.slice(4)),
   };
 };

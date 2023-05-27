@@ -111,16 +111,17 @@ export class PathLite extends HostObject<Path> implements Path {
     throw new Error("Method not implemented.");
   }
   addRRect(_rrect: InputRRect, isCCW?: boolean): Path {
-    const rrect = rrectToXYWH(_rrect);
+    const { radii, ...rrect } = rrectToXYWH(_rrect);
+    const [rx, ry] = radii;
     const corners = [
-      { x: rrect.x + rrect.rx, y: rrect.y },
-      { x: rrect.x + rrect.width - rrect.rx, y: rrect.y },
-      { x: rrect.x + rrect.width, y: rrect.y + rrect.ry },
-      { x: rrect.x + rrect.width, y: rrect.y + rrect.height - rrect.ry },
-      { x: rrect.x + rrect.width - rrect.rx, y: rrect.y + rrect.height },
-      { x: rrect.x + rrect.rx, y: rrect.y + rrect.height },
-      { x: rrect.x, y: rrect.y + rrect.height - rrect.ry },
-      { x: rrect.x, y: rrect.y + rrect.ry },
+      { x: rrect.x + rx, y: rrect.y },
+      { x: rrect.x + rrect.width - rx, y: rrect.y },
+      { x: rrect.x + rrect.width, y: rrect.y + ry },
+      { x: rrect.x + rrect.width, y: rrect.y + rrect.height - ry },
+      { x: rrect.x + rrect.width - rx, y: rrect.y + rrect.height },
+      { x: rrect.x + rx, y: rrect.y + rrect.height },
+      { x: rrect.x, y: rrect.y + rrect.height - ry },
+      { x: rrect.x, y: rrect.y + ry },
     ];
 
     if (isCCW) {
@@ -134,15 +135,7 @@ export class PathLite extends HostObject<Path> implements Path {
       if (index % 2 === 0) {
         this.lineTo(corner.x, corner.y);
       } else {
-        this.nativeArc(
-          rrect.rx,
-          rrect.ry,
-          0,
-          0,
-          isCCW ? 0 : 1,
-          corner.x,
-          corner.y
-        );
+        this.nativeArc(rx, ry, 0, 0, isCCW ? 0 : 1, corner.x, corner.y);
       }
     });
 

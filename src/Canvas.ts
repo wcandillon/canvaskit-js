@@ -31,7 +31,7 @@ import type {
 import { PaintLite } from "./Paint";
 import type { InputColor } from "./Contants";
 import { HostObject } from "./HostObject";
-import { rectToXYWH } from "./Values";
+import { IntAsColor, rectToXYWH, rrectToXYWH } from "./Values";
 import { convertDOMMatrixTo3x3 } from "./Matrix3";
 import { toRad } from "./math";
 import type { PathLite } from "./Path";
@@ -102,19 +102,16 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
     this.drawPaint(paint);
   }
   drawColorComponents(
-    _r: number,
-    _g: number,
-    _b: number,
-    _a: number,
-    _blendMode?: EmbindEnumEntity | undefined
+    r: number,
+    g: number,
+    b: number,
+    a: number,
+    blendMode?: EmbindEnumEntity | undefined
   ): void {
-    throw new Error("Method not implemented.");
+    this.drawColor(Float32Array.of(r, g, b, a), blendMode);
   }
-  drawColorInt(
-    _color: number,
-    _blendMode?: EmbindEnumEntity | undefined
-  ): void {
-    throw new Error("Method not implemented.");
+  drawColorInt(color: number, blendMode?: EmbindEnumEntity | undefined): void {
+    this.drawColor(IntAsColor(color), blendMode);
   }
   drawDRRect(_outer: InputRRect, _inner: InputRRect, _paint: Paint): void {
     throw new Error("Method not implemented.");
@@ -248,16 +245,23 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
     });
   }
   drawRect4f(
-    _left: number,
-    _top: number,
-    _right: number,
-    _bottom: number,
-    _paint: Paint
+    left: number,
+    top: number,
+    right: number,
+    bottom: number,
+    paint: PaintLite
   ): void {
-    throw new Error("Method not implemented.");
+    const width = right - left;
+    const height = bottom - top;
+    paint.apply(this.ctx, () => {
+      this.ctx.rect(left, top, width, height);
+    });
   }
-  drawRRect(_rrect: InputRRect, _paint: Paint): void {
-    throw new Error("Method not implemented.");
+  drawRRect(rrect: InputRRect, paint: PaintLite): void {
+    paint.apply(this.ctx, () => {
+      const { x, y, width, height, radii } = rrectToXYWH(rrect);
+      this.ctx.roundRect(x, y, width, height, radii);
+    });
   }
   drawShadow(
     _path: Path,

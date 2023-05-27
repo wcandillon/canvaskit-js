@@ -1,4 +1,3 @@
-/* eslint-disable no-fallthrough */
 /* eslint-disable no-bitwise */
 /* eslint-disable camelcase */
 import type {
@@ -95,21 +94,10 @@ import {
 import { SurfaceLite } from "./Surface";
 import { PaintLite } from "./Paint";
 import { ShaderFactory } from "./ShaderFactory";
-import { MallocObjLite, clampColorComp } from "./Values";
+import { ColorAsInt, MallocObjLite } from "./Values";
 import { PathLite } from "./Path";
 import { ImageFilterFactory } from "./ImageFilterFactory";
 import { MaskFilterFactory } from "./MaskFilterFactory";
-
-function valueOrPercent(aStr: string) {
-  if (aStr === undefined) {
-    return 1; // default to opaque.
-  }
-  const a = parseFloat(aStr);
-  if (aStr && aStr.indexOf("%") !== -1) {
-    return a / 100;
-  }
-  return a;
-}
 
 export class CanvasKitLite implements ICanvasKit {
   private static instance: ICanvasKit | null = null;
@@ -134,19 +122,7 @@ export class CanvasKitLite implements ICanvasKit {
     return Float32Array.of(r, g, b, a ?? 1);
   }
   ColorAsInt(r: number, g: number, b: number, a = 1): number {
-    // default to opaque
-    if (a === undefined) {
-      a = 255;
-    }
-    // This is consistent with how Skia represents colors in C++, as an unsigned int.
-    // This is also consistent with how Flutter represents colors:
-    return (
-      ((clampColorComp(a) << 24) |
-        (clampColorComp(r) << 16) |
-        (clampColorComp(g) << 8) |
-        ((clampColorComp(b) << 0) & 0xfffffff)) >>>
-      0
-    ); // This makes the value an unsigned int.
+    return ColorAsInt(r, g, b, a);
   }
   getColorComponents(color: Float32Array): number[] {
     return [
@@ -158,72 +134,16 @@ export class CanvasKitLite implements ICanvasKit {
   }
   parseColorString(
     colorStr: string,
-    colorMap?: Record<string, Float32Array> | undefined
+    _colorMap?: Record<string, Float32Array> | undefined
   ): Float32Array {
-    colorStr = colorStr.toLowerCase();
-    // See https://drafts.csswg.org/css-color/#typedef-hex-color
-    if (colorStr.startsWith("#")) {
-      let r,
-        g,
-        b,
-        a = 255;
-      switch (colorStr.length) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
-        case 9: // 8 hex chars #RRGGBBAA
-          a = parseInt(colorStr.slice(7, 9), 16);
-        case 7: // 6 hex chars #RRGGBB
-          r = parseInt(colorStr.slice(1, 3), 16);
-          g = parseInt(colorStr.slice(3, 5), 16);
-          b = parseInt(colorStr.slice(5, 7), 16);
-          break;
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
-        case 5: // 4 hex chars #RGBA
-          // multiplying by 17 is the same effect as
-          // appending another character of the same value
-          // e.g. e => ee == 14 => 238
-          a = parseInt(colorStr.slice(4, 5), 16) * 17;
-        case 4: // 6 hex chars #RGB
-          r = parseInt(colorStr.slice(1, 2), 16) * 17;
-          g = parseInt(colorStr.slice(2, 3), 16) * 17;
-          b = parseInt(colorStr.slice(3, 4), 16) * 17;
-          break;
-      }
-      return CanvasKit.Color(r as number, g as number, b as number, a / 255);
-    } else if (colorStr.startsWith("rgba")) {
-      // Trim off rgba( and the closing )
-      colorStr = colorStr.slice(5, -1);
-      const nums = colorStr.split(",");
-      return CanvasKit.Color(
-        +nums[0],
-        +nums[1],
-        +nums[2],
-        valueOrPercent(nums[3])
-      );
-    } else if (colorStr.startsWith("rgb")) {
-      // Trim off rgba( and the closing )
-      colorStr = colorStr.slice(4, -1);
-      const nums = colorStr.split(",");
-      // rgb can take 3 or 4 arguments
-      return CanvasKit.Color(
-        +nums[0],
-        +nums[1],
-        +nums[2],
-        valueOrPercent(nums[3])
-      );
-    } else if (colorStr.startsWith("gray(")) {
-      // TODO(kjlubick)
-    } else if (colorStr.startsWith("hsl")) {
-      // TODO(kjlubick)
-    } else if (colorMap) {
-      // Try for named color
-      const nc = colorMap[colorStr];
-      if (nc !== undefined) {
-        return nc;
-      }
-    }
-    return this.BLACK;
+    const canvas = document.createElement("canvas");
+    canvas.height = 1;
+    canvas.width = 1;
+    const ctx = canvas.getContext("2d")!;
+    ctx.fillStyle = colorStr;
+    ctx.fillRect(0, 0, 1, 1);
+    const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data;
+    return Float32Array.of(r / 255, g / 255, b / 255, a / 255);
   }
   multiplyByAlpha(c: Float32Array, alpha: number): Float32Array {
     return this.Color4f(c[0], c[1], c[2], c[3] * alpha);
@@ -293,7 +213,11 @@ export class CanvasKitLite implements ICanvasKit {
   Free(_m: MallocObj): void {}
   MakeCanvasSurface(canvas: string | HTMLCanvasElement): Surface | null {
     if (typeof canvas === "string") {
-      throw new Error("Method not implemented");
+      const el = document.getElementById(canvas);
+      if (!el) {
+        throw new Error(`No element with id ${canvas} exists`);
+      }
+      canvas = document.getElementById(canvas) as HTMLCanvasElement;
     }
     const ctx = canvas.getContext("2d");
     if (!ctx) {
