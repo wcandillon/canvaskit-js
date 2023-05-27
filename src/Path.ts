@@ -9,8 +9,6 @@ import type {
   InputRect,
   StrokeOpts,
 } from "canvaskit-wasm";
-
-/// <reference path="typings.d.ts" />
 import parseSVG from "parse-svg-path";
 import absSVG from "abs-svg-path";
 import serializeSVG from "serialize-svg-path";
