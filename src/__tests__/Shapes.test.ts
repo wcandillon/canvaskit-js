@@ -1,11 +1,13 @@
 import type { Point } from "canvaskit-wasm";
 
-import type { PolarPoint } from "../math/Coordinates";
-
 import type { DrawingContext } from "./setup";
 import { checkImage, skia } from "./setup";
 
 type Vector = Point;
+export interface PolarPoint {
+  theta: number;
+  radius: number;
+}
 
 describe("Shapes", () => {
   it("should draw a paint", async () => {
