@@ -21,9 +21,19 @@ import { CanvasKitLite } from "../CanvasKit";
 import { vec } from "../Values";
 import { ImageLite } from "../Image";
 
+export interface DrawingContext {
+  CanvasKit: CanvasKit;
+  surface: Surface;
+  width: number;
+  height: number;
+  canvas: Canvas;
+  center: { x: number; y: number };
+}
+
 class RemoteSurface {
   private browser: Browser | null = null;
   private page: Page | null = null;
+  private functions: { [name: string]: string } = {};
 
   async init() {
     const browser = await puppeteer.launch({ headless: "new" });
@@ -39,18 +49,12 @@ class RemoteSurface {
     }
   }
 
-  async eval(
-    fn: (opts: {
-      CanvasKit: CanvasKit;
-      surface: Surface;
-      width: number;
-      height: number;
-      canvas: Canvas;
-      center: { x: number; y: number };
-    }) => unknown,
-    width = 256,
-    height = 256
-  ) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  addFunction(name: string, fn: any) {
+    this.functions[name] = fn.toString();
+  }
+
+  async eval(fn: (opts: DrawingContext) => unknown, width = 256, height = 256) {
     if (!this.page) {
       throw new Error("RemoteSurface not initialized");
     }
@@ -66,6 +70,11 @@ class RemoteSurface {
         const ctx = { 
           CanvasKit, surface, width, height, canvas: surface.getCanvas(), center: {x: width/2, y: height/2}
         };
+        ${Object.keys(this.functions)
+          .map((name) => {
+            return `const ${name} = ${this.functions[name]}`;
+          })
+          .join("\n")}
         (${fn.toString()})(ctx);
         return canvas.toDataURL();
       })();`
