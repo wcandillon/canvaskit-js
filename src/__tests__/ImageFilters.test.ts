@@ -4,6 +4,10 @@ import type { CanvasKit, Surface } from "canvaskit-wasm";
 import type { Browser, Page } from "puppeteer";
 import puppeteer from "puppeteer";
 
+import { ImageLite } from "../Image";
+
+import { checkImage } from "./setup";
+
 // import { processResult, setupSkia } from "./setup";
 class RemoteSurface {
   private browser: Browser | null = null;
@@ -38,7 +42,7 @@ class RemoteSurface {
     if (!this.page) {
       throw new Error("RemoteSurface not initialized");
     }
-    const result = await this.page.evaluate(
+    const dataURL = await this.page.evaluate(
       `(async function Main(){ 
         const canvas = document.createElement("canvas");
         canvas.width = ${width};
@@ -50,7 +54,7 @@ class RemoteSurface {
         return canvas.toDataURL();
       })();`
     );
-    console.log(result);
+    return new ImageLite(dataURL as string);
   }
 }
 
@@ -93,6 +97,6 @@ describe("ImageFilters", () => {
       canvas.drawCircle(width / 2, height - r, r, yellow);
     });
 
-    // processResult(surface, "snapshots/image-filters/blur.png");
+    checkImage(image, "snapshots/image-filters/blur.png");
   });
 });
