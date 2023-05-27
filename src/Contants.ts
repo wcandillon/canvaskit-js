@@ -31,7 +31,9 @@ export const mapKeys = <T extends object>(obj: T) =>
   Object.keys(obj) as (keyof T)[];
 
 const makeEnum = <T>(values: Record<Exclude<keyof T, "values">, number>): T => {
-  const vals = Object.values(values).filter((v) => typeof v !== "number");
+  const vals = Object.values(values).filter(
+    (v) => typeof v !== "number"
+  ) as (keyof T)[];
   return Object.assign(
     {
       values: vals,

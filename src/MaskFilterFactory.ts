@@ -5,6 +5,8 @@ import type {
 } from "canvaskit-wasm";
 
 import { HostObject } from "./HostObject";
+import { BlurStyleEnum } from "./Contants";
+import { addFilters, blur, merge } from "./Filters";
 
 export abstract class MaskFilterLite
   extends HostObject<MaskFilter>
@@ -14,33 +16,30 @@ export abstract class MaskFilterLite
 }
 
 export class BlurMaskFilterLite extends MaskFilterLite {
-  constructor(_style: number, private readonly sigma: number) {
+  private static count = 0;
+  private readonly id: string;
+
+  constructor(
+    private readonly style: BlurStyleEnum,
+    private readonly sigma: number
+  ) {
     super();
+    BlurMaskFilterLite.count++;
+    this.id = `blur-mask-filter-${BlurMaskFilterLite.count}`;
   }
 
   toFilter(): string {
-    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
-
-    const filter = document.createElementNS(
-      "http://www.w3.org/2000/svg",
-      "filter"
-    );
-    filter.id = "myFilter";
-
-    // Adding some filter effect (like feGaussianBlur)
-    const blur = document.createElementNS(
-      "http://www.w3.org/2000/svg",
-      "feGaussianBlur"
-    );
-    blur.setAttribute("in", "SourceGraphic");
-    blur.setAttribute("stdDeviation", `${this.sigma}`);
-
-    filter.appendChild(blur);
-    defs.appendChild(filter);
-    svg.appendChild(defs);
-    document.body.appendChild(svg);
-    return `url(#${filter.id})`;
+    const blurName = "blurred";
+    const fblur = blur(this.sigma, blurName);
+    const fmerge = merge(blurName, "SourceGraphic");
+    if (this.style === BlurStyleEnum.Solid) {
+      addFilters(this.id, fblur, fmerge);
+    } else if (this.style === BlurStyleEnum.Normal) {
+      addFilters(this.id, blur(this.sigma));
+    } else {
+      // addFilters(this.id, this.sigma);
+    }
+    return `url(#${this.id})`;
   }
 }
 
