@@ -42,6 +42,7 @@
     "parse-svg-path": "^0.1.2",
     "path2d-polyfill": "^2.0.1",
     "serialize-svg-path": "^0.1.0",
-    "svg-arc-to-cubic-bezier": "^3.2.0"
+    "svg-arc-to-cubic-bezier": "^3.2.0",
+    "svg-path-properties": "^1.2.0"
   }
 }

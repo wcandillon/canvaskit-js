@@ -23,7 +23,6 @@ import type {
   GrDirectContext,
   Image,
   ImageDataConstructor,
-  ImageFilterFactory,
   ImageInfo,
   InputFlattenedPointArray,
   InputMatrix,
@@ -99,6 +98,7 @@ import { PaintLite } from "./Paint";
 import { ShaderFactory } from "./ShaderFactory";
 import { MallocObjLite, clampColorComp } from "./Values";
 import { PathLite } from "./Path";
+import { ImageFilterFactory } from "./ImageFilterFactory";
 
 function valueOrPercent(aStr: string) {
   if (aStr === undefined) {
@@ -452,7 +452,7 @@ export class CanvasKitLite implements CanvasKit {
   ColorFilter!: ColorFilterFactory;
   FontCollection!: FontCollectionFactory;
   FontMgr!: FontMgrFactory;
-  ImageFilter!: ImageFilterFactory;
+  ImageFilter = ImageFilterFactory;
   MaskFilter!: MaskFilterFactory;
   PathEffect!: PathEffectFactory;
   RuntimeEffect!: RuntimeEffectFactory;
@@ -506,7 +506,7 @@ export class CanvasKitLite implements CanvasKit {
   ShadowTransparentOccluder!: number;
   ShadowGeometricOnly!: number;
   ShadowDirectionalLight!: number;
-  gpu?: boolean | undefined;
+  gpu = true;
   managed_skottie?: boolean | undefined = undefined;
   rt_effect?: boolean | undefined = undefined;
   skottie?: boolean | undefined;

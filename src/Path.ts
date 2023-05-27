@@ -14,6 +14,7 @@ import type {
 import parseSVG from "parse-svg-path";
 import absSVG from "abs-svg-path";
 import serializeSVG from "serialize-svg-path";
+import { svgPathProperties as SvgPathProperties } from "svg-path-properties";
 
 import { PathVerb as CKPathVerb } from "./Contants";
 import { HostObject } from "./HostObject";
@@ -435,8 +436,24 @@ export class PathLite extends HostObject<Path> implements Path {
     });
     return this;
   }
-  trim(_startT: number, _stopT: number, _isComplement: boolean): Path | null {
-    throw new Error("Method not implemented.");
+  trim(startT: number, stopT: number, isComplement: boolean): Path | null {
+    const properties = new SvgPathProperties(this.toSVGString());
+    const newPath = new PathLite();
+    const length = properties.getTotalLength();
+    let t = 0;
+    properties.getParts().forEach((part) => {
+      if (t >= startT && t <= stopT && !isComplement) {
+        newPath.lineTo(part.end.x, part.end.y);
+      }
+      t += part.length / length;
+    });
+    return this.swap(newPath);
+  }
+
+  private swap(newPath: PathLite): Path | null {
+    this.path = newPath.path;
+    this.lastPoint = newPath.lastPoint;
+    return newPath;
   }
 
   static CanInterpolate(_path1: Path, _path2: Path): boolean {

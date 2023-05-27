@@ -128,9 +128,7 @@ export class PaintLite extends HostObject<Paint> implements Paint {
     context.lineWidth = this.strokeWidth;
     context.lineCap = lineCap(this.strokeCap);
     context.lineJoin = lineJoin(this.strokeJoin);
-    context.filter = this.imageFilter
-      ? this.imageFilter.toFilter(context)
-      : "none";
+    context.filter = this.imageFilter ? this.imageFilter.toFilter() : "none";
     context.globalCompositeOperation = getBlendMode(this.blendMode);
     if (this.colorFilter) {
       console.log(this.colorFilter);

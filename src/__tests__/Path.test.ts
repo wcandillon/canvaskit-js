@@ -1,4 +1,8 @@
+import type { Path } from "canvaskit-wasm";
+
 import { processResult, setupRealSkia } from "./setup";
+
+const roundtrip = (path: Path) => CanvasKit.Path.MakeFromCmds(path.toCmds())!;
 
 describe("Path Behavior", () => {
   it("should add path", () => {
@@ -11,6 +15,8 @@ describe("Path Behavior", () => {
     path2.moveTo(60, 60);
     path2.lineTo(80, 60);
     path2.lineTo(80, 40);
+    roundtrip(path);
+    roundtrip(path2);
     for (let j = 0; j < 2; j++) {
       const p = path.copy().addPath(path2)!;
       results.push(p.toSVGString());
