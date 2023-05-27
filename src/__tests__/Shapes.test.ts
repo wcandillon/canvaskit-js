@@ -83,6 +83,9 @@ describe("Shapes", () => {
     const vec = (x: number, y: number) => Float32Array.of(x, y);
     const root = new CanvasKit.Paint();
     root.setBlendMode(CanvasKit.BlendMode.Screen);
+    root.setMaskFilter(
+      CanvasKit.MaskFilter.MakeBlur(CanvasKit.BlurStyle.Solid, 10, false)
+    );
 
     const c1 = root.copy();
     c1.setColor(CanvasKit.parseColorString("#61bea2"));
