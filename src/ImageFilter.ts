@@ -51,6 +51,6 @@ export class BlurImageFilter extends ImageFilterLite {
   }
 
   toFilter(): string {
-    return "blur(10px)";
+    return `blur(${this.sigmaX}px)`;
   }
 }
