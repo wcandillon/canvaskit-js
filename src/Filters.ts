@@ -8,6 +8,20 @@ export const blur = (sigma: number, result = "result") => {
   return feGaussianBlur;
 };
 
+type CompositeOperator = "over" | "in" | "out" | "atop" | "xor" | "arithmetic";
+
+export const composite = (
+  in1: string,
+  in2: string,
+  operator: CompositeOperator
+) => {
+  const feComposite = document.createElementNS(ns, "feComposite");
+  feComposite.setAttribute("in", in1);
+  feComposite.setAttribute("in2", in2);
+  feComposite.setAttribute("operator", operator);
+  return feComposite;
+};
+
 export const merge = (in1: string, in2: string) => {
   // Create feMerge
   const feMerge = document.createElementNS(ns, "feMerge");

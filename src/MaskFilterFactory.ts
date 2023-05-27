@@ -6,7 +6,7 @@ import type {
 
 import { HostObject } from "./HostObject";
 import { BlurStyleEnum } from "./Contants";
-import { addFilters, blur, merge } from "./Filters";
+import { addFilters, blur, composite, merge } from "./Filters";
 
 export abstract class MaskFilterLite
   extends HostObject<MaskFilter>
@@ -36,8 +36,10 @@ export class BlurMaskFilterLite extends MaskFilterLite {
       addFilters(this.id, fblur, fmerge);
     } else if (this.style === BlurStyleEnum.Normal) {
       addFilters(this.id, blur(this.sigma));
+    } else if (this.style === BlurStyleEnum.Outer) {
+      addFilters(this.id, fblur, composite(blurName, "SourceGraphic", "out"));
     } else {
-      // addFilters(this.id, this.sigma);
+      addFilters(this.id, fblur, composite(blurName, "SourceGraphic", "in"));
     }
     return `url(#${this.id})`;
   }
