@@ -1,83 +1,8 @@
-import fs from "fs";
-
-import type { CanvasKit, Surface } from "canvaskit-wasm";
-import type { Browser, Page } from "puppeteer";
-import puppeteer from "puppeteer";
-
-import { ImageLite } from "../Image";
-
-import { checkImage } from "./setup";
-
-// import { processResult, setupSkia } from "./setup";
-class RemoteSurface {
-  private browser: Browser | null = null;
-  private page: Page | null = null;
-
-  async init() {
-    const browser = await puppeteer.launch({ headless: "new" });
-    const page = await browser.newPage();
-    await page.evaluate(fs.readFileSync("./dist/index.global.js", "utf8"));
-    await page.evaluate(`function blobToBase64(blob) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });}`);
-    this.browser = browser;
-    this.page = page;
-  }
-
-  async dispose() {
-    if (this.browser) {
-      this.browser.close();
-    }
-  }
-
-  async eval(
-    width: number,
-    height: number,
-    fn: (Skia: CanvasKit, surface: Surface) => unknown
-  ) {
-    if (!this.page) {
-      throw new Error("RemoteSurface not initialized");
-    }
-    const dataURL = await this.page.evaluate(
-      `(async function Main(){ 
-        const canvas = document.createElement("canvas");
-        canvas.width = ${width};
-        canvas.height = ${height};
-        document.body.appendChild(canvas);
-
-        const surface = CanvasKit.MakeCanvasSurface(canvas);
-        (${fn.toString()})(CanvasKit, surface);
-        return canvas.toDataURL();
-      })();`
-    );
-    return new ImageLite(dataURL as string);
-  }
-}
-
-declare global {
-  // eslint-disable-next-line no-var
-  var surface: RemoteSurface;
-}
-
-beforeAll(async () => {
-  global.surface = new RemoteSurface();
-  await global.surface.init();
-});
-
-afterAll(async () => {
-  await global.surface.dispose();
-});
+import { checkImage, skia } from "./setup";
 
 describe("ImageFilters", () => {
   it("should blur the hello world example", async () => {
-    const image = await global.surface.eval(256, 256, (CanvasKit, surface) => {
-      const width = 256;
-      const height = 256;
-      const canvas = surface.getCanvas();
+    const image = await skia.eval(({ CanvasKit, width, height, canvas }) => {
       const paint = new CanvasKit.Paint();
       paint.setBlendMode(CanvasKit.BlendMode.Multiply);
       paint.setImageFilter(

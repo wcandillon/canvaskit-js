@@ -5,16 +5,91 @@ import { PNG } from "pngjs";
 import pixelmatch from "pixelmatch";
 /* eslint-disable no-var */
 import type {
+  CanvasKit,
   CanvasKit as CanvasKitType,
   Image,
   Surface,
+  Canvas,
 } from "canvaskit-wasm";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import CanvasKitInit from "canvaskit-wasm/bin/full/canvaskit";
+import type { Browser, Page } from "puppeteer";
+import puppeteer from "puppeteer";
 
 import { CanvasKitLite } from "../CanvasKit";
 import { vec } from "../Values";
+import { ImageLite } from "../Image";
+
+class RemoteSurface {
+  private browser: Browser | null = null;
+  private page: Page | null = null;
+
+  async init() {
+    const browser = await puppeteer.launch({ headless: "new" });
+    const page = await browser.newPage();
+    await page.evaluate(fs.readFileSync("./dist/index.global.js", "utf8"));
+    await page.evaluate(`function blobToBase64(blob) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });}`);
+    this.browser = browser;
+    this.page = page;
+  }
+
+  async dispose() {
+    if (this.browser) {
+      this.browser.close();
+    }
+  }
+
+  async eval(
+    fn: (opts: {
+      CanvasKit: CanvasKit;
+      surface: Surface;
+      width: number;
+      height: number;
+      canvas: Canvas;
+      center: { x: number; y: number };
+    }) => unknown,
+    width = 256,
+    height = 256
+  ) {
+    if (!this.page) {
+      throw new Error("RemoteSurface not initialized");
+    }
+    const dataURL = await this.page.evaluate(
+      `(async function Main(){ 
+        const canvas = document.createElement("canvas");
+        canvas.width = ${width};
+        canvas.height = ${height};
+        document.body.appendChild(canvas);
+        const surface = CanvasKit.MakeCanvasSurface(canvas);
+        const width = ${width};
+        const height = ${height};
+        const ctx = { 
+          CanvasKit, surface, width, height, canvas: surface.getCanvas(), center: {x: width/2, y: height/2}
+        };
+        (${fn.toString()})(ctx);
+        return canvas.toDataURL();
+      })();`
+    );
+    return new ImageLite(dataURL as string);
+  }
+}
+
+export const skia = new RemoteSurface();
+
+beforeAll(async () => {
+  await skia.init();
+});
+
+afterAll(async () => {
+  await skia.dispose();
+});
 
 declare global {
   var CanvasKit: CanvasKitType;
@@ -53,21 +128,6 @@ export const setupRealSkia = (width = 256, height = 256) => {
     surface,
     width,
     height,
-    canvas,
-    center: vec(width / 2, height / 2),
-  };
-};
-
-export const setupSkia = (width = 256, height = 256) => {
-  const htmlCanvas = new OffscreenCanvas(width, height);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const surface = CanvasKit.MakeCanvasSurface(htmlCanvas as any)!;
-  const canvas = surface.getCanvas();
-  return {
-    surface,
-    width,
-    height,
-    htmlCanvas,
     canvas,
     center: vec(width / 2, height / 2),
   };
