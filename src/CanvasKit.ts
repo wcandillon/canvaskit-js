@@ -30,7 +30,6 @@ import type {
   InputVector3,
   MallocObj,
   ManagedSkottieAnimation,
-  MaskFilterFactory,
   Matrix4x4Helpers,
   Paint,
   ParagraphBuilderFactory,
@@ -99,6 +98,7 @@ import { ShaderFactory } from "./ShaderFactory";
 import { MallocObjLite, clampColorComp } from "./Values";
 import { PathLite } from "./Path";
 import { ImageFilterFactory } from "./ImageFilterFactory";
+import { MaskFilterFactory } from "./MaskFilterFactory";
 
 function valueOrPercent(aStr: string) {
   if (aStr === undefined) {
@@ -453,7 +453,7 @@ export class CanvasKitLite implements ICanvasKit {
   FontCollection!: FontCollectionFactory;
   FontMgr!: FontMgrFactory;
   ImageFilter = ImageFilterFactory;
-  MaskFilter!: MaskFilterFactory;
+  MaskFilter = MaskFilterFactory;
   PathEffect!: PathEffectFactory;
   RuntimeEffect!: RuntimeEffectFactory;
   Shader = ShaderFactory;

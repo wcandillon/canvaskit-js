@@ -2,7 +2,6 @@ import type {
   ColorFilter,
   ColorSpace,
   EmbindEnumEntity,
-  MaskFilter,
   Paint,
   PathEffect,
 } from "canvaskit-wasm";
@@ -13,6 +12,7 @@ import type { ShaderLite } from "./Shader";
 import type { ImageFilterLite } from "./ImageFilter";
 import { HostObject } from "./HostObject";
 import { NativeColor } from "./Values";
+import type { MaskFilterLite } from "./MaskFilterFactory";
 
 const lineCap = (cap: EmbindEnumEntity) => {
   switch (cap.value) {
@@ -105,6 +105,7 @@ export class PaintLite extends HostObject<Paint> implements Paint {
   private shader: ShaderLite | null = null;
   private colorFilter: ColorFilter | null = null;
   private imageFilter: ImageFilterLite | null = null;
+  private maskFilter: MaskFilterLite | null = null;
   private strokeJoin = StrokeJoin.Bevel;
   private strokeCap = StrokeCap.Square;
   private blendMode = BlendMode.SrcOver;
@@ -128,7 +129,13 @@ export class PaintLite extends HostObject<Paint> implements Paint {
     context.lineWidth = this.strokeWidth;
     context.lineCap = lineCap(this.strokeCap);
     context.lineJoin = lineJoin(this.strokeJoin);
-    context.filter = this.imageFilter ? this.imageFilter.toFilter() : "none";
+    if (this.maskFilter || this.imageFilter) {
+      let filter = "";
+      filter += this.imageFilter ? this.imageFilter.toFilter() : "";
+      filter += this.maskFilter ? this.maskFilter.toFilter() : "";
+      context.filter = filter;
+    }
+
     context.globalCompositeOperation = getBlendMode(this.blendMode);
     if (this.colorFilter) {
       console.log(this.colorFilter);
@@ -165,6 +172,7 @@ export class PaintLite extends HostObject<Paint> implements Paint {
       shader,
       imageFilter,
       colorFilter,
+      maskFilter,
     } = this;
     const paint = new PaintLite();
     paint.setStyle(style);
@@ -182,6 +190,9 @@ export class PaintLite extends HostObject<Paint> implements Paint {
     }
     if (colorFilter) {
       paint.setColorFilter(colorFilter);
+    }
+    if (maskFilter) {
+      paint.setMaskFilter(maskFilter);
     }
     return paint;
   }
@@ -235,8 +246,8 @@ export class PaintLite extends HostObject<Paint> implements Paint {
   setImageFilter(filter: ImageFilterLite | null): void {
     this.imageFilter = filter;
   }
-  setMaskFilter(_filter: MaskFilter | null): void {
-    throw new Error("Method not implemented.");
+  setMaskFilter(filter: MaskFilterLite | null): void {
+    this.maskFilter = filter;
   }
   setPathEffect(_effect: PathEffect | null): void {
     throw new Error("Method not implemented.");

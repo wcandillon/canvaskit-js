@@ -38,6 +38,10 @@ class RemoteSurface {
   async init() {
     const browser = await puppeteer.launch({ headless: "new" });
     const page = await browser.newPage();
+    page.on("console", (msg) => console.log(msg.text()));
+    page.on("pageerror", (error) => {
+      console.error(error.message);
+    });
     await page.evaluate(fs.readFileSync("./dist/index.global.js", "utf8"));
     this.browser = browser;
     this.page = page;
