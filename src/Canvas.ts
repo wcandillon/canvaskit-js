@@ -169,13 +169,25 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
     throw new Error("Method not implemented.");
   }
   drawImageRect(
-    _img: Image,
+    img: ImageLite,
     _src: InputRect,
     _dest: InputRect,
-    _paint: Paint,
-    _fastSample?: boolean | undefined
+    paint: PaintLite,
+    _fastSample?: boolean
   ): void {
-    throw new Error("Method not implemented.");
+    //const src = rectToXYWH(_src);
+    const dest = rectToXYWH(_dest);
+    paint.apply(this.ctx, () => {
+      this.ctx.putImageData(
+        img.getImageData(),
+        0,
+        0,
+        dest.x,
+        dest.y,
+        dest.width,
+        dest.height
+      );
+    });
   }
   drawImageRectCubic(
     _img: Image,
