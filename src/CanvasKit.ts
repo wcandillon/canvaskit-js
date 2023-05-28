@@ -2,6 +2,7 @@
 /* eslint-disable camelcase */
 import type { EmulatedCanvas2D } from "canvaskit-wasm";
 import type { ColorSpace } from "canvaskit-wasm";
+import type { Image } from "canvaskit-wasm";
 import type {
   CanvasKit as ICanvasKit,
   AffinityEnumValues,
@@ -20,7 +21,6 @@ import type {
   FontMgrFactory,
   GlyphRunFlagValues,
   GrDirectContext,
-  Image,
   ImageDataConstructor,
   ImageInfo,
   InputFlattenedPointArray,
@@ -154,7 +154,7 @@ export class CanvasKitLite implements ICanvasKit {
     colorStr: string,
     _colorMap?: Record<string, Float32Array> | undefined
   ): Float32Array {
-    const canvas = document.createElement("canvas");
+    const { canvas } = this;
     canvas.height = 1;
     canvas.width = 1;
     const ctx = canvas.getContext("2d")!;
@@ -380,21 +380,21 @@ export class CanvasKitLite implements ICanvasKit {
         data instanceof Uint8ClampedArray ? data : new Uint8ClampedArray(data),
     });
   }
-  MakeImageFromEncoded(_bytes: Uint8Array | ArrayBuffer): Image | null {
-    throw new Error("Method not implemented.");
+  MakeImageFromEncoded(bytes: Uint8Array | ArrayBuffer): Image | null {
+    const blob = new Blob([bytes]);
+    const imageUrl = URL.createObjectURL(blob);
+    const img = new window.Image();
+    img.src = imageUrl;
+    img.width = 3648;
+    img.height = 4560;
+    return this.MakeImageFromCanvasImageSource(img);
   }
   MakeImageFromCanvasImageSource(src: CanvasImageSource): Image {
     const { canvas } = this;
-    if (typeof src.width === "number") {
-      canvas.width = src.width;
-    } else if (src.width instanceof SVGAnimatedLength) {
-      canvas.width = src.width.animVal.value;
-    }
-    if (typeof src.height === "number") {
-      canvas.height = src.height;
-    } else if (src.height instanceof SVGAnimatedLength) {
-      canvas.height = src.height.animVal.value;
-    }
+    canvas.width =
+      typeof src.width === "number" ? src.width : src.width.animVal.value;
+    canvas.height =
+      typeof src.height === "number" ? src.height : src.height.animVal.value;
     const { width, height } = canvas;
     const ctx = canvas.getContext("2d", {
       willReadFrequently: true,

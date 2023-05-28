@@ -36,8 +36,10 @@ import { IntAsColor, rectToXYWH, rrectToXYWH } from "./Values";
 import { convertDOMMatrixTo3x3 } from "./Matrix3";
 import { toRad } from "./math";
 import type { PathLite } from "./Path";
+import type { ImageLite } from "./Image";
 
 export class CanvasLite extends HostObject<Canvas> implements Canvas {
+  private defaultPaint = new PaintLite();
   private saveCount = 0;
 
   constructor(private readonly ctx: SkiaRenderingContext) {
@@ -128,12 +130,14 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
     throw new Error("Method not implemented.");
   }
   drawImage(
-    _img: Image,
-    _left: number,
-    _top: number,
-    _paint?: Paint | null | undefined
+    img: ImageLite,
+    left: number,
+    top: number,
+    paint?: PaintLite
   ): void {
-    throw new Error("Method not implemented.");
+    (paint ?? this.defaultPaint).apply(this.ctx, () => {
+      this.ctx.drawImage(img.getNativeImage(), left, top);
+    });
   }
   drawImageCubic(
     _img: Image,

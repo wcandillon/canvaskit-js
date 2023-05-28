@@ -37,6 +37,16 @@ export class ImageLite extends HostObject<Image> implements Image {
     super();
   }
 
+  getNativeImage() {
+    const image = new window.Image();
+    const blob = new Blob([this.data.data]);
+    const imageUrl = URL.createObjectURL(blob);
+    image.src = imageUrl;
+    image.width = 3648;
+    image.height = 4560;
+    return image;
+  }
+
   encodeToBytes(fmt?: EncodedImageFormat, quality?: number): Uint8Array | null {
     // Create a new canvas.
     const canvas = document.createElement("canvas");

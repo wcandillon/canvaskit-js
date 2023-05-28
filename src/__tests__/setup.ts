@@ -9,6 +9,7 @@ import type {
   CanvasKit as CanvasKitType,
   Surface,
   Canvas,
+  Image,
 } from "canvaskit-wasm";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -26,6 +27,7 @@ export interface DrawingContext {
   height: number;
   canvas: Canvas;
   center: { x: number; y: number };
+  assets: { zurich: Image };
 }
 
 class RemoteSurface {
@@ -41,6 +43,10 @@ class RemoteSurface {
       console.error(error.message);
     });
     await page.evaluate(fs.readFileSync("./dist/index.global.js", "utf8"));
+    const img = fs.readFileSync("./src/__tests__/assets/zurich.jpg");
+    await page.evaluate(
+      `const zurichRaw = new Uint8Array([${img.join(",")}]);`
+    );
     this.browser = browser;
     this.page = page;
   }
@@ -69,8 +75,10 @@ class RemoteSurface {
         const surface = CanvasKit.MakeCanvasSurface(canvas);
         const width = ${width};
         const height = ${height};
+        const zurich = CanvasKit.MakeImageFromEncoded(zurichRaw);
+        const assets = { zurich };
         const ctx = { 
-          CanvasKit, surface, width, height, canvas: surface.getCanvas(), center: {x: width/2, y: height/2}
+          CanvasKit, surface, width, height, canvas: surface.getCanvas(), center: {x: width/2, y: height/2}, assets
         };
         ${Object.keys(this.functions)
           .map((name) => {
