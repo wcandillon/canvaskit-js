@@ -1,6 +1,7 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable camelcase */
 import type { EmulatedCanvas2D } from "canvaskit-wasm";
+import type { ColorSpace } from "canvaskit-wasm";
 import type {
   CanvasKit as ICanvasKit,
   AffinityEnumValues,
@@ -9,7 +10,6 @@ import type {
   ColorFilterFactory,
   ColorIntArray,
   ColorMatrixHelpers,
-  ColorSpace,
   ColorSpaceEnumValues,
   ContourMeasureIterConstructor,
   DecorationStyleEnumValues,
@@ -100,13 +100,22 @@ import { ImageFilterFactory } from "./ImageFilterFactory";
 import { MaskFilterFactory } from "./MaskFilterFactory";
 import { GrDirectContextLite } from "./GrDirectContext";
 import { EmulatedCanvas2DLite } from "./EmulatedCanvas2D";
+import { ImageLite } from "./Image";
 
 export class CanvasKitLite implements ICanvasKit {
   private static instance: ICanvasKit | null = null;
 
+  private memoizedCanvas: HTMLCanvasElement | null = null;
   private contextes: CanvasRenderingContext2D[] = [];
 
   private constructor() {}
+
+  get canvas() {
+    if (this.memoizedCanvas === null) {
+      this.memoizedCanvas = document.createElement("canvas");
+    }
+    return this.memoizedCanvas;
+  }
 
   static getInstance() {
     if (this.instance === null) {
@@ -357,17 +366,49 @@ export class CanvasKitLite implements ICanvasKit {
     return new EmulatedCanvas2DLite(canvas);
   }
   MakeImage(
-    _info: ImageInfo,
-    _bytes: number[] | Uint8Array | Uint8ClampedArray,
+    { width, height, colorSpace }: ImageInfo,
+    data: number[] | Uint8Array | Uint8ClampedArray,
     _bytesPerRow: number
   ): Image | null {
-    throw new Error("Method not implemented.");
+    return new ImageLite({
+      width,
+      height,
+      colorSpace: this.ColorSpace.Equals(colorSpace, this.ColorSpace.SRGB)
+        ? "srgb"
+        : "display-p3",
+      data:
+        data instanceof Uint8ClampedArray ? data : new Uint8ClampedArray(data),
+    });
   }
   MakeImageFromEncoded(_bytes: Uint8Array | ArrayBuffer): Image | null {
     throw new Error("Method not implemented.");
   }
-  MakeImageFromCanvasImageSource(_src: CanvasImageSource): Image {
-    throw new Error("Method not implemented.");
+  MakeImageFromCanvasImageSource(src: CanvasImageSource): Image {
+    const { canvas } = this;
+    if (typeof src.width === "number") {
+      canvas.width = src.width;
+    } else if (src.width instanceof SVGAnimatedLength) {
+      canvas.width = src.width.animVal.value;
+    }
+    if (typeof src.height === "number") {
+      canvas.height = src.height;
+    } else if (src.height instanceof SVGAnimatedLength) {
+      canvas.height = src.height.animVal.value;
+    }
+    const { width, height } = canvas;
+    const ctx = canvas.getContext("2d", {
+      willReadFrequently: true,
+    });
+    if (!ctx) {
+      throw new Error("Unable to get 2d context from canvas");
+    }
+    ctx.drawImage(src, 0, 0);
+    const imageData = ctx.getImageData(0, 0, width, height);
+    const image = new ImageLite(imageData);
+    if (!image) {
+      throw new Error("Unable to create image from source");
+    }
+    return image;
   }
   MakePicture(_bytes: Uint8Array | ArrayBuffer): SkPicture | null {
     throw new Error("Method not implemented.");

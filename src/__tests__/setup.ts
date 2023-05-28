@@ -212,7 +212,7 @@ export const checkImage = (
     }
     return diffPixelsCount;
   } else {
-    fs.writeFileSync(p, toTest.data);
+    fs.writeFileSync(p, PNG.sync.write(toTest));
   }
   return 0;
 };

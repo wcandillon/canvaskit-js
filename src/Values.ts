@@ -115,6 +115,6 @@ export const rrectToXYWH = (r: InputRRect) => {
     y: rect[1],
     width: rect[2] - rect[0],
     height: rect[3] - rect[1],
-    radii: Array.from(rect.slice(4)),
+    radii: Array.from(rect.slice(4, 8)),
   };
 };
