@@ -2,11 +2,16 @@
 import type {
   Color,
   InputCommands,
+  InputIRect,
   InputRRect,
   InputRect,
   MallocObj,
   TypedArray,
 } from "canvaskit-wasm";
+
+export type SkiaRenderingContext =
+  | CanvasRenderingContext2D
+  | OffscreenCanvasRenderingContext2D;
 
 export const vec = (x: number, y: number) => Float32Array.of(x, y);
 
@@ -93,7 +98,7 @@ const isMalloc = (v: unknown): v is MallocObj => {
   return typeof v === "object" && v !== null && "toTypedArray" in v;
 };
 
-export const rectToXYWH = (r: InputRect) => {
+export const rectToXYWH = (r: InputRect | InputIRect) => {
   const rect = isMalloc(r) ? r.toTypedArray() : r;
   return {
     x: rect[0],

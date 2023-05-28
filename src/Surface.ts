@@ -11,11 +11,13 @@ import type {
 import { HostObject } from "./HostObject";
 import { CanvasLite } from "./Canvas";
 import { ImageLite } from "./Image";
+import type { SkiaRenderingContext } from "./Values";
+import { rectToXYWH } from "./Values";
 
 export class SurfaceLite extends HostObject<Surface> implements Surface {
   private canvas: Canvas;
 
-  constructor(private readonly ctx: CanvasRenderingContext2D) {
+  constructor(private readonly ctx: SkiaRenderingContext) {
     super();
     this.canvas = new CanvasLite(this.ctx);
   }
@@ -44,10 +46,25 @@ export class SurfaceLite extends HostObject<Surface> implements Surface {
     throw new Error("Method not implemented.");
   }
   makeImageSnapshot(_bounds?: InputIRect | undefined): Image {
-    return new ImageLite(this.ctx.canvas.toDataURL());
+    const bounds = _bounds
+      ? rectToXYWH(_bounds)
+      : {
+          x: 0,
+          y: 0,
+          width: this.ctx.canvas.width,
+          height: this.ctx.canvas.height,
+        };
+    const data = this.ctx.getImageData(
+      bounds.x,
+      bounds.y,
+      bounds.width,
+      bounds.height
+    );
+    return new ImageLite(data);
   }
-  makeSurface(_info: ImageInfo): Surface {
-    throw new Error("Method not implemented.");
+  makeSurface(info: ImageInfo): Surface {
+    const ctx = new OffscreenCanvas(info.width, info.height).getContext("2d")!;
+    return new SurfaceLite(ctx);
   }
   reportBackendTypeIsGPU(): boolean {
     return true;

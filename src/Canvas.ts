@@ -31,6 +31,7 @@ import type {
 import { PaintLite } from "./Paint";
 import type { InputColor } from "./Contants";
 import { HostObject } from "./HostObject";
+import type { SkiaRenderingContext } from "./Values";
 import { IntAsColor, rectToXYWH, rrectToXYWH } from "./Values";
 import { convertDOMMatrixTo3x3 } from "./Matrix3";
 import { toRad } from "./math";
@@ -39,7 +40,7 @@ import type { PathLite } from "./Path";
 export class CanvasLite extends HostObject<Canvas> implements Canvas {
   private saveCount = 0;
 
-  constructor(private readonly ctx: CanvasRenderingContext2D) {
+  constructor(private readonly ctx: SkiaRenderingContext) {
     super();
   }
 

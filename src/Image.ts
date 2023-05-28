@@ -1,6 +1,7 @@
 import type {
   ColorSpace,
   EmbindEnumEntity,
+  EncodedImageFormat,
   Image,
   ImageInfo,
   InputMatrix,
@@ -10,6 +11,7 @@ import type {
 } from "canvaskit-wasm";
 
 import { HostObject } from "./HostObject";
+import { ImageFormatEnum } from "./Contants";
 
 const dataURLToByteArray = (dataUrl: string) => {
   // split the data URL at the comma to separate the metadata from the data
@@ -31,28 +33,45 @@ const dataURLToByteArray = (dataUrl: string) => {
 };
 
 export class ImageLite extends HostObject<Image> implements Image {
-  constructor(private readonly data: string) {
+  constructor(private readonly data: ImageData) {
     super();
   }
 
-  encodeToBytes(
-    _fmt?: EmbindEnumEntity | undefined,
-    _quality?: number | undefined
-  ): Uint8Array | null {
-    return dataURLToByteArray(this.data);
+  encodeToBytes(fmt?: EncodedImageFormat, quality?: number): Uint8Array | null {
+    // Create a new canvas.
+    const canvas = document.createElement("canvas");
+    canvas.width = this.data.width;
+    canvas.height = this.data.height;
+    const ctx = canvas.getContext("2d")!;
+    // Put the ImageData onto the new canvas.
+    ctx.putImageData(this.data, 0, 0);
+    // Get a data URL.
+    let mime = "image/png";
+    if (fmt?.value === ImageFormatEnum.JPEG) {
+      mime = "image/jpeg";
+    } else if (fmt?.value === ImageFormatEnum.WEBP) {
+      mime = "image/webp";
+    }
+    const dataUrl = canvas.toDataURL(mime, quality);
+    return dataURLToByteArray(dataUrl);
   }
 
   getColorSpace(): ColorSpace {
     throw new Error("Method not implemented.");
   }
   getImageInfo(): PartialImageInfo {
-    throw new Error("Method not implemented.");
+    return {
+      alphaType: { value: 2 },
+      colorType: { value: 2 },
+      height: this.data.height,
+      width: this.data.width,
+    };
   }
   height(): number {
-    throw new Error("Method not implemented.");
+    return this.data.height;
   }
   makeCopyWithDefaultMipmaps(): Image {
-    throw new Error("Method not implemented.");
+    return new ImageLite(this.data);
   }
   makeShaderCubic(
     _tx: EmbindEnumEntity,
@@ -82,6 +101,6 @@ export class ImageLite extends HostObject<Image> implements Image {
     throw new Error("Method not implemented.");
   }
   width(): number {
-    throw new Error("Method not implemented.");
+    return this.data.width;
   }
 }

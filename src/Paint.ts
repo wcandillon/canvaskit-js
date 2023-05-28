@@ -11,6 +11,7 @@ import { BlendMode, StrokeCap, PaintStyle, StrokeJoin } from "./Contants";
 import type { ShaderLite } from "./Shader";
 import type { ImageFilterLite } from "./ImageFilter";
 import { HostObject } from "./HostObject";
+import type { SkiaRenderingContext } from "./Values";
 import { NativeColor } from "./Values";
 import type { MaskFilterLite } from "./MaskFilterFactory";
 
@@ -111,9 +112,9 @@ export class PaintLite extends HostObject<Paint> implements Paint {
   private blendMode = BlendMode.SrcOver;
 
   apply(
-    context: CanvasRenderingContext2D,
+    context: SkiaRenderingContext,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    draw: (ctx: CanvasRenderingContext2D) => any,
+    draw: (ctx: SkiaRenderingContext) => any,
     path?: boolean
   ) {
     context.save();

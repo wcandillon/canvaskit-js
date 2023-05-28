@@ -6,10 +6,11 @@ import type {
 } from "canvaskit-wasm";
 
 import { HostObject } from "./HostObject";
+import type { SkiaRenderingContext } from "./Values";
 import { NativeColor, uIntColorToCanvasKitColor } from "./Values";
 
 export abstract class ShaderLite extends HostObject<Shader> implements Shader {
-  abstract toGradient(ctx: CanvasRenderingContext2D): CanvasGradient;
+  abstract toGradient(ctx: SkiaRenderingContext): CanvasGradient;
 }
 
 const normalizeInputColorArray = (input: InputFlexibleColorArray) => {

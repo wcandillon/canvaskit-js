@@ -1,5 +1,6 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable camelcase */
+import type { EmulatedCanvas2D } from "canvaskit-wasm";
 import type {
   CanvasKit as ICanvasKit,
   AffinityEnumValues,
@@ -14,7 +15,6 @@ import type {
   DecorationStyleEnumValues,
   DefaultConstructor,
   EmbindEnumEntity,
-  EmulatedCanvas2D,
   FontCollectionFactory,
   FontConstructor,
   FontMgrFactory,
@@ -98,9 +98,14 @@ import { ColorAsInt, MallocObjLite } from "./Values";
 import { PathLite } from "./Path";
 import { ImageFilterFactory } from "./ImageFilterFactory";
 import { MaskFilterFactory } from "./MaskFilterFactory";
+import { GrDirectContextLite } from "./GrDirectContext";
+import { EmulatedCanvas2DLite } from "./EmulatedCanvas2D";
 
 export class CanvasKitLite implements ICanvasKit {
   private static instance: ICanvasKit | null = null;
+
+  private contextes: CanvasRenderingContext2D[] = [];
+
   private constructor() {}
 
   static getInstance() {
@@ -113,6 +118,7 @@ export class CanvasKitLite implements ICanvasKit {
   Color(r: number, g: number, b: number, a = 1): Float32Array {
     return new Float32Array([r / 255, g / 255, b / 255, a]);
   }
+
   Color4f(
     r: number,
     g: number,
@@ -121,9 +127,11 @@ export class CanvasKitLite implements ICanvasKit {
   ): Float32Array {
     return Float32Array.of(r, g, b, a ?? 1);
   }
+
   ColorAsInt(r: number, g: number, b: number, a = 1): number {
     return ColorAsInt(r, g, b, a);
   }
+
   getColorComponents(color: Float32Array): number[] {
     return [
       Math.floor(color[0] * 255),
@@ -132,6 +140,7 @@ export class CanvasKitLite implements ICanvasKit {
       color[3],
     ];
   }
+
   parseColorString(
     colorStr: string,
     _colorMap?: Record<string, Float32Array> | undefined
@@ -145,12 +154,15 @@ export class CanvasKitLite implements ICanvasKit {
     const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data;
     return Float32Array.of(r / 255, g / 255, b / 255, a / 255);
   }
+
   multiplyByAlpha(c: Float32Array, alpha: number): Float32Array {
     return this.Color4f(c[0], c[1], c[2], c[3] * alpha);
   }
+
   computeTonalColors(_colors: TonalColorsInput): TonalColorsOutput {
     throw new Error("Method not implemented.");
   }
+
   LTRBRect(
     left: number,
     top: number,
@@ -221,7 +233,7 @@ export class CanvasKitLite implements ICanvasKit {
     }
     const ctx = canvas.getContext("2d");
     if (!ctx) {
-      throw new Error("Unable to get 2d context from canvas");
+      return null;
     }
     return new SurfaceLite(ctx);
   }
@@ -232,30 +244,40 @@ export class CanvasKitLite implements ICanvasKit {
   ): Surface | null {
     throw new Error("Method not implemented.");
   }
-  MakeSWCanvasSurface(_canvas: string | HTMLCanvasElement): Surface | null {
-    throw new Error("Method not implemented.");
+  MakeSWCanvasSurface(canvas: string | HTMLCanvasElement): Surface | null {
+    return this.MakeCanvasSurface(canvas);
   }
   MakeWebGLCanvasSurface(
-    _canvas: string | HTMLCanvasElement,
+    canvas: string | HTMLCanvasElement,
     _colorSpace?: ColorSpace | undefined,
     _opts?: WebGLOptions | undefined
   ): Surface | null {
-    throw new Error("Method not implemented.");
+    return this.MakeCanvasSurface(canvas);
   }
-  MakeSurface(_width: number, _height: number): Surface | null {
-    throw new Error("Method not implemented.");
+  MakeSurface(width: number, height: number): Surface | null {
+    const offscreen = new OffscreenCanvas(width, height);
+    const ctx = offscreen.getContext("2d");
+    if (!ctx) {
+      return null;
+    }
+    return new SurfaceLite(ctx);
   }
   GetWebGLContext(
-    _canvas: HTMLCanvasElement,
+    canvas: HTMLCanvasElement,
     _opts?: WebGLOptions | undefined
   ): number {
-    throw new Error("Method not implemented.");
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      throw new Error("Unable to get 2d context from canvas");
+    }
+    this.contextes.push(ctx);
+    return this.contextes.length - 1;
   }
-  MakeGrContext(_ctx: number): GrDirectContext | null {
-    throw new Error("Method not implemented.");
+  MakeGrContext(ctx: number): GrDirectContext | null {
+    return new GrDirectContextLite(this.contextes[ctx]);
   }
-  MakeWebGLContext(_ctx: number): GrDirectContext | null {
-    throw new Error("Method not implemented.");
+  MakeWebGLContext(ctx: number): GrDirectContext | null {
+    return new GrDirectContextLite(this.contextes[ctx]);
   }
   MakeOnScreenGLSurface(
     _ctx: GrDirectContext,
@@ -296,9 +318,11 @@ export class CanvasKitLite implements ICanvasKit {
   ): Surface | null {
     throw new Error("Method not implemented.");
   }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  MakeRenderTarget(..._args: any[]): Surface | null {
-    throw new Error("Method not implemented.");
+  MakeRenderTarget(
+    grCtx: GrDirectContextLite,
+    ..._args: [number, number] | [ImageInfo]
+  ): Surface | null {
+    return new SurfaceLite(grCtx.ctx);
   }
   MakeLazyImageFromTextureSource(
     _src: TextureSource,
@@ -324,8 +348,13 @@ export class CanvasKitLite implements ICanvasKit {
   ): AnimatedImage | null {
     throw new Error("Method not implemented.");
   }
-  MakeCanvas(_width: number, _height: number): EmulatedCanvas2D {
-    throw new Error("Method not implemented.");
+  MakeCanvas(width: number, height: number): EmulatedCanvas2D {
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    canvas.style.display = "none";
+    document.body.appendChild(canvas);
+    return new EmulatedCanvas2DLite(canvas);
   }
   MakeImage(
     _info: ImageInfo,

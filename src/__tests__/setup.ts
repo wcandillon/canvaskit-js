@@ -7,7 +7,6 @@ import pixelmatch from "pixelmatch";
 import type {
   CanvasKit,
   CanvasKit as CanvasKitType,
-  Image,
   Surface,
   Canvas,
 } from "canvaskit-wasm";
@@ -19,7 +18,6 @@ import puppeteer from "puppeteer";
 
 import { CanvasKitLite } from "../CanvasKit";
 import { vec } from "../Values";
-import { ImageLite } from "../Image";
 
 export interface DrawingContext {
   CanvasKit: CanvasKit;
@@ -62,7 +60,7 @@ class RemoteSurface {
     if (!this.page) {
       throw new Error("RemoteSurface not initialized");
     }
-    const dataURL = await this.page.evaluate(
+    const data = await this.page.evaluate(
       `(async function Main(){ 
         const canvas = document.createElement("canvas");
         canvas.width = ${width};
@@ -80,10 +78,14 @@ class RemoteSurface {
           })
           .join("\n")}
         (${fn.toString()})(ctx);
-        return canvas.toDataURL();
+        return surface.makeImageSnapshot().encodeToBytes();
       })();`
     );
-    return new ImageLite(dataURL as string);
+    return PNG.sync.read(
+      Buffer.from(
+        new Uint8Array(Object.values(data as { [s: string]: number }))
+      )
+    );
   }
 }
 
@@ -147,7 +149,11 @@ export const processResult = (
   surface.flush();
   const image = surface.makeImageSnapshot();
   surface.getCanvas().clear(Float32Array.of(0, 0, 0, 0));
-  return checkImage(image, relPath, { overwrite });
+  return checkImage(
+    PNG.sync.read(Buffer.from(image.encodeToBytes()!)),
+    relPath,
+    { overwrite }
+  );
 };
 
 interface CheckImageOptions {
@@ -169,22 +175,17 @@ const defaultCheckImageOptions = {
 };
 
 export const checkImage = (
-  image: Image,
+  toTest: PNG,
   relPath: string,
   opts?: CheckImageOptions
 ) => {
   const options = { ...defaultCheckImageOptions, ...opts };
   const { overwrite, threshold, mute, maxPixelDiff, shouldFail } = options;
-  const png = image.encodeToBytes();
-  if (!png) {
-    throw new Error("Unable to encode image");
-  }
   const p = path.resolve(__dirname, relPath);
   if (fs.existsSync(p) && !overwrite) {
     const ref = fs.readFileSync(p);
     const baseline = PNG.sync.read(ref);
 
-    const toTest = PNG.sync.read(Buffer.from(image.encodeToBytes()!));
     const diffImage = new PNG({
       width: baseline.width,
       height: baseline.height,
@@ -211,7 +212,7 @@ export const checkImage = (
     }
     return diffPixelsCount;
   } else {
-    fs.writeFileSync(p, png);
+    fs.writeFileSync(p, toTest.data);
   }
   return 0;
 };
