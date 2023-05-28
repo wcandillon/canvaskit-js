@@ -1,9 +1,8 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable camelcase */
-import type { EmulatedCanvas2D } from "canvaskit-wasm";
-import type { ColorSpace } from "canvaskit-wasm";
-import type { Image } from "canvaskit-wasm";
 import type {
+  Image,
+  EmulatedCanvas2D,
   CanvasKit as ICanvasKit,
   AffinityEnumValues,
   AnimatedImage,
@@ -63,6 +62,7 @@ import type {
   WebGLOptions,
   WebGPUCanvasContext,
   WebGPUCanvasOptions,
+  ColorSpace,
 } from "canvaskit-wasm";
 
 import { Matrix3 } from "./Matrix3";
