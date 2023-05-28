@@ -136,7 +136,7 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
     paint?: PaintLite
   ): void {
     (paint ?? this.defaultPaint).apply(this.ctx, () => {
-      this.ctx.drawImage(img.getNativeImage(), left, top);
+      this.ctx.putImageData(img.getImageData(), left, top);
     });
   }
   drawImageCubic(

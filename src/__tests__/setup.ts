@@ -45,7 +45,12 @@ class RemoteSurface {
     await page.evaluate(fs.readFileSync("./dist/index.global.js", "utf8"));
     const img = fs.readFileSync("./src/__tests__/assets/zurich.jpg");
     await page.evaluate(
-      `const zurichRaw = new Uint8Array([${img.join(",")}]);`
+      `const zurichRaw = new Uint8Array([${img.join(",")}]);
+       const assets = {};
+       CanvasKit.MakeImageFromEncodedAsync(zurichRaw).then((zurich) => {
+          assets.zurich = zurich;
+       });
+      `
     );
     this.browser = browser;
     this.page = page;
@@ -75,10 +80,9 @@ class RemoteSurface {
         const surface = CanvasKit.MakeCanvasSurface(canvas);
         const width = ${width};
         const height = ${height};
-        const zurich = CanvasKit.MakeImageFromEncoded(zurichRaw);
-        const assets = { zurich };
+        const center = { x: width/2, y: height/2 };
         const ctx = { 
-          CanvasKit, surface, width, height, canvas: surface.getCanvas(), center: {x: width/2, y: height/2}, assets
+          CanvasKit, surface, width, height, canvas: surface.getCanvas(), center, assets
         };
         ${Object.keys(this.functions)
           .map((name) => {

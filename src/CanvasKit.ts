@@ -380,14 +380,29 @@ export class CanvasKitLite implements ICanvasKit {
         data instanceof Uint8ClampedArray ? data : new Uint8ClampedArray(data),
     });
   }
-  MakeImageFromEncoded(bytes: Uint8Array | ArrayBuffer): Image | null {
-    const blob = new Blob([bytes]);
-    const imageUrl = URL.createObjectURL(blob);
+  MakeImageFromEncodedAsync(bytes: Uint8Array | ArrayBuffer) {
+    const blob = new Blob([bytes], { type: "image/png" });
+    const url = URL.createObjectURL(blob);
     const img = new window.Image();
-    img.src = imageUrl;
-    img.width = 3648;
-    img.height = 4560;
-    return this.MakeImageFromCanvasImageSource(img);
+    img.src = url;
+    return new Promise((resolve, reject) => {
+      img.onload = () => {
+        img.width = img.naturalWidth;
+        img.height = img.naturalHeight;
+        const result = this.MakeImageFromCanvasImageSource(img);
+        if (!result) {
+          reject();
+        }
+        resolve(result);
+      };
+    });
+  }
+  MakeImageFromEncoded(_bytes: Uint8Array | ArrayBuffer): Image | null {
+    throw new Error(
+      `MakeImageFromEncoded in CanvasKit is synchronous and not supported on Web.
+      Use MakeImageFromEncodedAsync instead.
+      `
+    );
   }
   MakeImageFromCanvasImageSource(src: CanvasImageSource): Image {
     const { canvas } = this;
