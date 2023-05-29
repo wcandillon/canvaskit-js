@@ -2,7 +2,7 @@ name: Tests
 on: [push]
 jobs:
   build:
-    runs-on: macos-12
+    runs-on: ubuntu-latest
     env:
       WORKING_DIRECTORY: ./
     concurrency:
