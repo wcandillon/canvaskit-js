@@ -15,15 +15,15 @@ void main() {
 
 export const createContext = (
   shaderCode: string,
-  callback?: ((err: string) => void) | undefined
+  error?: ((err: string) => void) | undefined
 ) => {
   const canvas = document.createElement("canvas");
   canvas.width = 256;
   canvas.height = 256;
   const gl = canvas.getContext("webgl2");
   if (!gl) {
-    if (callback) {
-      callback(
+    if (error) {
+      error(
         "Failed to get WebGL2 context. Your browser or machine may not support it."
       );
     }
@@ -39,10 +39,27 @@ export const createContext = (
   gl.shaderSource(fragmentShader, shaderCode);
   gl.compileShader(fragmentShader);
 
+  if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+    if (error) {
+      const info = gl.getShaderInfoLog(fragmentShader);
+      error("Could not compile fragment shader. \n\n" + info);
+    }
+    return null;
+  }
+
   const program = gl.createProgram()!;
   gl.attachShader(program, vertexShader);
   gl.attachShader(program, fragmentShader);
   gl.linkProgram(program);
+
+  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    if (error) {
+      const info = gl.getShaderInfoLog(fragmentShader);
+      error("Could not link WebGL program. \n\n" + info);
+    }
+    return null;
+  }
+
   gl.useProgram(program);
 
   const buffer = gl.createBuffer();
@@ -58,8 +75,6 @@ export const createContext = (
   const positionLocation = gl.getAttribLocation(program, "a_position");
   gl.enableVertexAttribArray(positionLocation);
   gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
-
-  //gl.drawArrays(gl.TRIANGLES, 0, 6);
 
   return { gl, canvas, program };
 };

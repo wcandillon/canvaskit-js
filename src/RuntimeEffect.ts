@@ -32,14 +32,14 @@ class RuntimeEffectLite
     localMatrix?: InputMatrix | undefined
   ): Shader {
     const { gl, program } = this.ctx;
-    gl.useProgram(program);
     let uniformIndex = 0;
     const uniforms = normalizeArray(_uniforms);
+
     const uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
     for (let i = 0; i < uniformCount; i++) {
       const uniformInfo = gl.getActiveUniform(program, i)!;
       const location = gl.getUniformLocation(program, uniformInfo.name);
-
+      console.log(`uniformInfo.type: ${uniformInfo.type}=${gl.FLOAT_VEC4}`);
       if (uniformInfo.type === gl.FLOAT) {
         gl.uniform1f(location, uniforms[uniformIndex]);
         uniformIndex++;
