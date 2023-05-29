@@ -39,7 +39,6 @@ class RuntimeEffectLite
     for (let i = 0; i < uniformCount; i++) {
       const uniformInfo = gl.getActiveUniform(program, i)!;
       const location = gl.getUniformLocation(program, uniformInfo.name);
-      console.log(`uniformInfo.type: ${uniformInfo.type}=${gl.FLOAT_VEC4}`);
       if (uniformInfo.type === gl.FLOAT) {
         gl.uniform1f(location, uniforms[uniformIndex]);
         uniformIndex++;

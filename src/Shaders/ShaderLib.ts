@@ -13,21 +13,32 @@ void main() {
 }
 `;
 
+const handleError = (
+  err: string,
+  error: ((err: string) => void) | undefined
+) => {
+  if (error) {
+    error(err);
+  } else {
+    console.error(err);
+  }
+  return null;
+};
+
 export const createContext = (
   shaderCode: string,
-  error?: ((err: string) => void) | undefined
+  _error?: ((err: string) => void) | undefined
 ) => {
   const canvas = document.createElement("canvas");
   canvas.width = 256;
   canvas.height = 256;
   const gl = canvas.getContext("webgl2");
+  const error = _error || console.error.bind(console);
   if (!gl) {
-    if (error) {
-      error(
-        "Failed to get WebGL2 context. Your browser or machine may not support it."
-      );
-    }
-    return null;
+    return handleError(
+      "Failed to get WebGL2 context. Your browser or machine may not support it.",
+      error
+    );
   }
 
   const vertexShader = gl.createShader(gl.VERTEX_SHADER)!;
@@ -40,11 +51,9 @@ export const createContext = (
   gl.compileShader(fragmentShader);
 
   if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
-    if (error) {
-      const info = gl.getShaderInfoLog(fragmentShader);
-      error("Could not compile fragment shader. \n\n" + info);
-    }
-    return null;
+    const info = gl.getShaderInfoLog(fragmentShader);
+    const msg = "Could not compile fragment shader. \n\n" + info;
+    return handleError(msg, error);
   }
 
   const program = gl.createProgram()!;
@@ -53,11 +62,9 @@ export const createContext = (
   gl.linkProgram(program);
 
   if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-    if (error) {
-      const info = gl.getShaderInfoLog(fragmentShader);
-      error("Could not link WebGL program. \n\n" + info);
-    }
-    return null;
+    const info = gl.getShaderInfoLog(fragmentShader);
+    const msg = "Could not link WebGL program. \n\n" + info;
+    return handleError(msg, error);
   }
 
   gl.useProgram(program);
