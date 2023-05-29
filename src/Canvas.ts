@@ -1,7 +1,6 @@
 import type {
   Canvas,
   ColorIntArray,
-  ColorSpace,
   CubicResampler,
   EmbindEnumEntity,
   FilterOptions,
@@ -29,7 +28,7 @@ import type {
 } from "canvaskit-wasm";
 
 import { PaintLite } from "./Paint";
-import type { InputColor } from "./Contants";
+import type { ColorSpaceLite, InputColor } from "./Contants";
 import { HostObject } from "./HostObject";
 import type { SkiaRenderingContext } from "./Values";
 import { IntAsColor, rectToXYWH, rrectToXYWH } from "./Values";
@@ -380,15 +379,25 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
     this.ctx.translate(x, y);
   }
   writePixels(
-    _pixels: number[] | Uint8Array,
-    _srcWidth: number,
-    _srcHeight: number,
-    _destX: number,
-    _destY: number,
+    pixels: number[] | Uint8Array,
+    width: number,
+    height: number,
+    destX: number,
+    destY: number,
     _alphaType?: EmbindEnumEntity | undefined,
     _colorType?: EmbindEnumEntity | undefined,
-    _colorSpace?: ColorSpace | undefined
+    colorSpace?: ColorSpaceLite | undefined
   ): boolean {
-    throw new Error("Method not implemented.");
+    this.ctx.putImageData(
+      {
+        data: new Uint8ClampedArray(pixels),
+        width,
+        height,
+        colorSpace: colorSpace ? colorSpace.getNativeValue() : "srgb",
+      },
+      destX,
+      destY
+    );
+    return true;
   }
 }

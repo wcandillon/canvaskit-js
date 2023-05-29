@@ -1,6 +1,7 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable camelcase */
 import type {
+  ColorSpace,
   Image,
   EmulatedCanvas2D,
   CanvasKit as ICanvasKit,
@@ -10,7 +11,6 @@ import type {
   ColorFilterFactory,
   ColorIntArray,
   ColorMatrixHelpers,
-  ColorSpaceEnumValues,
   ContourMeasureIterConstructor,
   DecorationStyleEnumValues,
   DefaultConstructor,
@@ -62,15 +62,16 @@ import type {
   WebGLOptions,
   WebGPUCanvasContext,
   WebGPUCanvasOptions,
-  ColorSpace,
 } from "canvaskit-wasm";
 
 import { Matrix3 } from "./Matrix3";
+import type { ColorSpaceLite } from "./Contants";
 import {
   AlphaType,
   BlendMode,
   BlurStyle,
   ClipOp,
+  ColorSpaceEnumLite,
   ColorType,
   FillType,
   FilterMode,
@@ -373,7 +374,10 @@ export class CanvasKitLite implements ICanvasKit {
     return new ImageLite({
       width,
       height,
-      colorSpace: this.ColorSpace.Equals(colorSpace, this.ColorSpace.SRGB)
+      colorSpace: this.ColorSpace.Equals(
+        colorSpace as ColorSpaceLite,
+        this.ColorSpace.SRGB
+      )
         ? "srgb"
         : "display-p3",
       data:
@@ -490,7 +494,7 @@ export class CanvasKitLite implements ICanvasKit {
   Path1DEffect = Path1DEffectStyle;
   PathOp = PathOp;
   PointMode = PointMode;
-  ColorSpace!: ColorSpaceEnumValues;
+  ColorSpace = new ColorSpaceEnumLite();
   StrokeCap = StrokeCap;
   StrokeJoin = StrokeJoin;
   TileMode = TileMode;

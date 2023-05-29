@@ -23,7 +23,11 @@ import type {
   BlurStyleEnumValues,
   VertexModeEnumValues,
   ClipOpEnumValues,
+  ColorSpaceEnumValues,
+  ColorSpace,
 } from "canvaskit-wasm";
+
+import { HostObject } from "./HostObject";
 
 export type InputColor = Exclude<CKInputColor, MallocObj>;
 
@@ -161,6 +165,35 @@ export enum PointModeEnum {
   Polygon,
 }
 export const PointMode = makeEnum<PointModeEnumValues>(PointModeEnum);
+
+export class ColorSpaceLite
+  extends HostObject<ColorSpace>
+  implements ColorSpace
+{
+  constructor(public readonly value: "srgb" | "display-p3" | "adobe-rgb") {
+    super();
+  }
+
+  getNativeValue() {
+    if (this.value === "adobe-rgb") {
+      console.warn(
+        "adobe_rgb is not supported on the web, falling back to srgb"
+      );
+      return "srgb";
+    } else {
+      return this.value;
+    }
+  }
+}
+
+export class ColorSpaceEnumLite implements ColorSpaceEnumValues {
+  SRGB = new ColorSpaceLite("srgb");
+  DISPLAY_P3 = new ColorSpaceLite("display-p3");
+  ADOBE_RGB = new ColorSpaceLite("adobe-rgb");
+  Equals(a: ColorSpaceLite, b: ColorSpaceLite): boolean {
+    return a.value === b.value;
+  }
+}
 
 export enum AlphaTypeEnum {
   Unknown,
