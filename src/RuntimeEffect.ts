@@ -37,7 +37,7 @@ const processUniform = (
   if (!location) {
     console.error("Could not find uniform location for " + name);
   }
-  setter.bind(gl)(
+  setter(
     gl.getUniformLocation(program, name),
     uniforms.subarray(
       state.uniformIndex,
@@ -65,22 +65,33 @@ class RuntimeEffectLite
     const uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
     for (let i = 0; i < uniformCount; i++) {
       const uniformInfo = gl.getActiveUniform(program, i)!;
-      const location = gl.getUniformLocation(program, uniformInfo.name);
       if (uniformInfo.type === gl.FLOAT) {
-        gl.uniform1f(location, uniforms[state.uniformIndex]);
-        state.uniformIndex++;
+        processUniform(
+          this.ctx,
+          state,
+          uniforms,
+          uniformInfo,
+          1,
+          gl.uniform1fv.bind(gl)
+        );
       } else if (uniformInfo.type === gl.FLOAT_VEC2) {
-        gl.uniform2fv(
-          location,
-          uniforms.subarray(state.uniformIndex, state.uniformIndex + 2)
+        processUniform(
+          this.ctx,
+          state,
+          uniforms,
+          uniformInfo,
+          2,
+          gl.uniform2fv.bind(gl)
         );
-        state.uniformIndex += 2;
       } else if (uniformInfo.type === gl.FLOAT_VEC3) {
-        gl.uniform3fv(
-          location,
-          uniforms.subarray(state.uniformIndex, state.uniformIndex + 3)
+        processUniform(
+          this.ctx,
+          state,
+          uniforms,
+          uniformInfo,
+          3,
+          gl.uniform3fv.bind(gl)
         );
-        state.uniformIndex += 3;
       } else if (uniformInfo.type === gl.FLOAT_VEC4) {
         processUniform(
           this.ctx,
@@ -88,29 +99,35 @@ class RuntimeEffectLite
           uniforms,
           uniformInfo,
           4,
-          gl.uniform4fv
+          gl.uniform4fv.bind(gl)
         );
       } else if (uniformInfo.type === gl.FLOAT_MAT2) {
-        gl.uniformMatrix2fv(
-          location,
-          false,
-          uniforms.subarray(state.uniformIndex, state.uniformIndex + 4)
+        processUniform(
+          this.ctx,
+          state,
+          uniforms,
+          uniformInfo,
+          4,
+          (loc, subarr) => gl.uniformMatrix2fv(loc, false, subarr)
         );
-        state.uniformIndex += 4;
       } else if (uniformInfo.type === gl.FLOAT_MAT3) {
-        gl.uniformMatrix3fv(
-          location,
-          false,
-          uniforms.subarray(state.uniformIndex, state.uniformIndex + 9)
+        processUniform(
+          this.ctx,
+          state,
+          uniforms,
+          uniformInfo,
+          9,
+          (loc, subarr) => gl.uniformMatrix3fv(loc, false, subarr)
         );
-        state.uniformIndex += 9;
       } else if (uniformInfo.type === gl.FLOAT_MAT4) {
-        gl.uniformMatrix4fv(
-          location,
-          false,
-          uniforms.subarray(state.uniformIndex, state.uniformIndex + 16)
+        processUniform(
+          this.ctx,
+          state,
+          uniforms,
+          uniformInfo,
+          16,
+          (loc, subarr) => gl.uniformMatrix4fv(loc, false, subarr)
         );
-        state.uniformIndex += 16;
       }
       // Add more cases if your shader uses more types of uniforms
     }

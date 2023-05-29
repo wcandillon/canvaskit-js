@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import { processResult, setupRealSkia } from "./setup";
 
 describe("PathKit's SVG Behavior", () => {
