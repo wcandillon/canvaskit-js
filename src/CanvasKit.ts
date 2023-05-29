@@ -40,7 +40,6 @@ import type {
   PlaceholderAlignmentEnumValues,
   RectHeightStyleEnumValues,
   RectWidthStyleEnumValues,
-  RuntimeEffectFactory,
   SkPicture,
   SkottieAnimation,
   SoundMap,
@@ -102,6 +101,7 @@ import { MaskFilterFactory } from "./MaskFilterFactory";
 import { GrDirectContextLite } from "./GrDirectContext";
 import { EmulatedCanvas2DLite } from "./EmulatedCanvas2D";
 import { ImageLite } from "./Image";
+import { RuntimeEffectFactory } from "./RuntimeEffect";
 
 export class CanvasKitLite implements ICanvasKit {
   private static instance: ICanvasKit | null = null;
@@ -158,7 +158,7 @@ export class CanvasKitLite implements ICanvasKit {
     const { canvas } = this;
     canvas.height = 1;
     canvas.width = 1;
-    const ctx = canvas.getContext("2d")!;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true })!;
     ctx.fillStyle = colorStr;
     ctx.fillRect(0, 0, 1, 1);
     const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data;
@@ -449,7 +449,7 @@ export class CanvasKitLite implements ICanvasKit {
   ImageFilter = ImageFilterFactory;
   MaskFilter = MaskFilterFactory;
   PathEffect!: PathEffectFactory;
-  RuntimeEffect!: RuntimeEffectFactory;
+  RuntimeEffect = RuntimeEffectFactory;
   Shader = ShaderFactory;
   TextBlob!: TextBlobFactory;
   Typeface!: TypefaceFactory;

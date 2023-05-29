@@ -119,7 +119,7 @@ export class PaintLite extends HostObject<Paint> implements Paint {
   ) {
     context.save();
     const style = this.shader
-      ? this.shader.toGradient(context)
+      ? this.shader.shade(context)
       : NativeColor(this.color);
     if (this.style === PaintStyle.Fill) {
       context.fillStyle = style;

@@ -118,3 +118,12 @@ export const rrectToXYWH = (r: InputRRect) => {
     radii: Array.from(rect.slice(4, 8)),
   };
 };
+
+export const normalizeArray = <T>(arr: MallocObj | T | number[]) => {
+  if (isMalloc(arr)) {
+    return arr.toTypedArray() as T;
+  } else if (Array.isArray(arr)) {
+    return new Float32Array(arr);
+  }
+  return arr;
+};

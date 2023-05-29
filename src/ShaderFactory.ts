@@ -9,7 +9,6 @@ import type {
   Shader,
 } from "canvaskit-wasm";
 
-import { LinearGradientLite } from "./Shader";
 export const ShaderFactory: CKShaderFactory = {
   MakeBlend: function (
     _mode: EmbindEnumEntity,
@@ -32,16 +31,16 @@ export const ShaderFactory: CKShaderFactory = {
     throw new Error("Function not implemented.");
   },
   MakeLinearGradient: function (
-    start: InputPoint,
-    end: InputPoint,
-    colors: InputFlexibleColorArray,
-    pos: number[] | null,
+    _start: InputPoint,
+    _end: InputPoint,
+    _colors: InputFlexibleColorArray,
+    _pos: number[] | null,
     _mode: EmbindEnumEntity,
     _localMatrix?: InputMatrix | undefined,
     _flags?: number | undefined,
     _colorSpace?: ColorSpace | undefined
   ): Shader {
-    return new LinearGradientLite(start, end, colors, pos);
+    throw new Error("Function not implemented.");
   },
   MakeRadialGradient: function (
     _center: InputPoint,
