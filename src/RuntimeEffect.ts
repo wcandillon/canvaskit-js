@@ -19,6 +19,34 @@ export interface RTContext {
   program: WebGLProgram;
 }
 
+interface UniformProcessingState {
+  uniformIndex: number;
+}
+
+const processUniform = (
+  ctx: RTContext,
+  state: UniformProcessingState,
+  uniforms: Float32Array,
+  uniformInfo: WebGLActiveInfo,
+  size: number,
+  setter: (loc: WebGLUniformLocation | null, subarr: Float32Array) => void
+) => {
+  const { gl, program } = ctx;
+  const { name } = uniformInfo;
+  const location = gl.getUniformLocation(program, name);
+  if (!location) {
+    console.error("Could not find uniform location for " + name);
+  }
+  setter.bind(gl)(
+    gl.getUniformLocation(program, name),
+    uniforms.subarray(
+      state.uniformIndex,
+      state.uniformIndex + size * uniformInfo.size
+    )
+  );
+  state.uniformIndex += size;
+};
+
 class RuntimeEffectLite
   extends HostObject<RuntimeEffect>
   implements RuntimeEffect
@@ -32,55 +60,57 @@ class RuntimeEffectLite
     localMatrix?: InputMatrix | undefined
   ): Shader {
     const { gl, program } = this.ctx;
-    let uniformIndex = 0;
     const uniforms = normalizeArray(_uniforms);
-
+    const state = { uniformIndex: 0 };
     const uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
     for (let i = 0; i < uniformCount; i++) {
       const uniformInfo = gl.getActiveUniform(program, i)!;
       const location = gl.getUniformLocation(program, uniformInfo.name);
       if (uniformInfo.type === gl.FLOAT) {
-        gl.uniform1f(location, uniforms[uniformIndex]);
-        uniformIndex++;
+        gl.uniform1f(location, uniforms[state.uniformIndex]);
+        state.uniformIndex++;
       } else if (uniformInfo.type === gl.FLOAT_VEC2) {
         gl.uniform2fv(
           location,
-          uniforms.subarray(uniformIndex, uniformIndex + 2)
+          uniforms.subarray(state.uniformIndex, state.uniformIndex + 2)
         );
-        uniformIndex += 2;
+        state.uniformIndex += 2;
       } else if (uniformInfo.type === gl.FLOAT_VEC3) {
         gl.uniform3fv(
           location,
-          uniforms.subarray(uniformIndex, uniformIndex + 3)
+          uniforms.subarray(state.uniformIndex, state.uniformIndex + 3)
         );
-        uniformIndex += 3;
+        state.uniformIndex += 3;
       } else if (uniformInfo.type === gl.FLOAT_VEC4) {
-        gl.uniform4fv(
-          location,
-          uniforms.subarray(uniformIndex, uniformIndex + 4)
+        processUniform(
+          this.ctx,
+          state,
+          uniforms,
+          uniformInfo,
+          4,
+          gl.uniform4fv
         );
-        uniformIndex += 4;
       } else if (uniformInfo.type === gl.FLOAT_MAT2) {
         gl.uniformMatrix2fv(
           location,
           false,
-          uniforms.subarray(uniformIndex, uniformIndex + 4)
+          uniforms.subarray(state.uniformIndex, state.uniformIndex + 4)
         );
-        uniformIndex += 4;
+        state.uniformIndex += 4;
       } else if (uniformInfo.type === gl.FLOAT_MAT3) {
         gl.uniformMatrix3fv(
           location,
           false,
-          uniforms.subarray(uniformIndex, uniformIndex + 9)
+          uniforms.subarray(state.uniformIndex, state.uniformIndex + 9)
         );
-        uniformIndex += 9;
+        state.uniformIndex += 9;
       } else if (uniformInfo.type === gl.FLOAT_MAT4) {
         gl.uniformMatrix4fv(
           location,
           false,
-          uniforms.subarray(uniformIndex, uniformIndex + 16)
+          uniforms.subarray(state.uniformIndex, state.uniformIndex + 16)
         );
-        uniformIndex += 16;
+        state.uniformIndex += 16;
       }
       // Add more cases if your shader uses more types of uniforms
     }
