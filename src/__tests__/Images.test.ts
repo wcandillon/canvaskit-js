@@ -1,6 +1,8 @@
+import fs from "fs";
+
 import type { Rect } from "canvaskit-wasm";
 
-import { checkImage, skia } from "./setup";
+import { checkImage, processResult, setupRealSkia, skia } from "./setup";
 
 describe("Images", () => {
   it("should display an image", async () => {
@@ -31,6 +33,33 @@ describe("Images", () => {
       }
     );
     checkImage(image, "snapshots/zurich-cover.png");
+  });
+
+  it("should build a reference result", async () => {
+    const { surface, width, height, canvas } = setupRealSkia();
+    const zurich = RealCanvasKit.MakeImageFromEncoded(
+      fs.readFileSync("./src/__tests__/assets/zurich.jpg")
+    )!;
+    const input = RealCanvasKit.XYWHRect(0, 0, zurich.width(), zurich.height());
+    const output = RealCanvasKit.XYWHRect(0, 0, width, height);
+    const paint = new RealCanvasKit.Paint();
+    const { src, dst } = fitRects("contain", input, output);
+    canvas.drawImageRect(zurich, src, dst, paint);
+
+    processResult(surface, "snapshots/zurich-contain.png");
+  });
+
+  it("should display an image with contain", async () => {
+    const image = await skia.eval(
+      ({ canvas, width, height, assets: { zurich } }) => {
+        const input = CanvasKit.XYWHRect(0, 0, zurich.width(), zurich.height());
+        const output = CanvasKit.XYWHRect(0, 0, width, height);
+        const paint = new CanvasKit.Paint();
+        const { src, dst } = fitRects("contain", input, output);
+        canvas.drawImageRect(zurich, src, dst, paint);
+      }
+    );
+    checkImage(image, "snapshots/zurich-contain.png", { threshold: 0.2 });
   });
 });
 
