@@ -371,18 +371,17 @@ export class CanvasKitLite implements ICanvasKit {
     data: number[] | Uint8Array | Uint8ClampedArray,
     _bytesPerRow: number
   ): Image | null {
-    return new ImageLite({
+    const imageData = new ImageData(
+      data instanceof Uint8ClampedArray ? data : new Uint8ClampedArray(data),
       width,
       height,
-      colorSpace: this.ColorSpace.Equals(
-        colorSpace as ColorSpaceLite,
-        this.ColorSpace.SRGB
-      )
-        ? "srgb"
-        : "display-p3",
-      data:
-        data instanceof Uint8ClampedArray ? data : new Uint8ClampedArray(data),
-    });
+      {
+        colorSpace: colorSpace
+          ? (colorSpace as ColorSpaceLite).getNativeValue()
+          : "srgb",
+      }
+    );
+    return new ImageLite(imageData);
   }
   MakeImageFromEncodedAsync(bytes: Uint8Array | ArrayBuffer) {
     const blob = new Blob([bytes], { type: "image/png" });
@@ -409,25 +408,7 @@ export class CanvasKitLite implements ICanvasKit {
     );
   }
   MakeImageFromCanvasImageSource(src: CanvasImageSource): Image {
-    const { canvas } = this;
-    canvas.width =
-      typeof src.width === "number" ? src.width : src.width.animVal.value;
-    canvas.height =
-      typeof src.height === "number" ? src.height : src.height.animVal.value;
-    const { width, height } = canvas;
-    const ctx = canvas.getContext("2d", {
-      willReadFrequently: true,
-    });
-    if (!ctx) {
-      throw new Error("Unable to get 2d context from canvas");
-    }
-    ctx.drawImage(src, 0, 0);
-    const imageData = ctx.getImageData(0, 0, width, height);
-    const image = new ImageLite(imageData);
-    if (!image) {
-      throw new Error("Unable to create image from source");
-    }
-    return image;
+    return new ImageLite(src);
   }
   MakePicture(_bytes: Uint8Array | ArrayBuffer): SkPicture | null {
     throw new Error("Method not implemented.");

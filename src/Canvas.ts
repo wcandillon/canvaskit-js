@@ -135,7 +135,7 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
     paint?: PaintLite
   ): void {
     (paint ?? this.defaultPaint).apply(this.ctx, () => {
-      this.ctx.putImageData(img.getImageData(), left, top);
+      this.ctx.drawImage(img.getImage(), left, top);
     });
   }
   drawImageCubic(
@@ -176,18 +176,9 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
   ): void {
     const src = rectToXYWH(_src);
     const dest = rectToXYWH(_dest);
-    // Create a canvas and get its context
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d")!;
-    // Set the canvas dimensions to match the destination rectangle
-    canvas.width = img.width();
-    canvas.height = img.height();
-    // Draw the source part of the image on the entire canvas, which scales the image
-    const srcData = img.getImageData();
-    ctx.putImageData(srcData, 0, 0);
     paint.apply(this.ctx, () => {
       this.ctx.drawImage(
-        canvas,
+        img.getImage(),
         src.x,
         src.y,
         src.width,

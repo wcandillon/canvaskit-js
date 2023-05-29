@@ -33,22 +33,36 @@ const dataURLToByteArray = (dataUrl: string) => {
 };
 
 export class ImageLite extends HostObject<Image> implements Image {
-  constructor(private readonly data: ImageData) {
+  private image: HTMLCanvasElement;
+
+  constructor(source: CanvasImageSource | ImageData) {
     super();
+    if (source instanceof HTMLCanvasElement) {
+      this.image = source;
+    } else {
+      this.image = document.createElement("canvas");
+      this.image.width =
+        typeof source.width === "number"
+          ? source.width
+          : source.width.animVal.value;
+      this.image.height =
+        typeof source.height === "number"
+          ? source.height
+          : source.height.animVal.value;
+      const ctx = this.image.getContext("2d")!;
+      if (source instanceof ImageData) {
+        ctx.putImageData(source, 0, 0);
+      } else {
+        ctx.drawImage(source, 0, 0);
+      }
+    }
   }
 
-  getImageData() {
-    return this.data;
+  getImage() {
+    return this.image;
   }
 
   encodeToBytes(fmt?: EncodedImageFormat, quality?: number): Uint8Array | null {
-    // Create a new canvas.
-    const canvas = document.createElement("canvas");
-    canvas.width = this.data.width;
-    canvas.height = this.data.height;
-    const ctx = canvas.getContext("2d")!;
-    // Put the ImageData onto the new canvas.
-    ctx.putImageData(this.data, 0, 0);
     // Get a data URL.
     let mime = "image/png";
     if (fmt?.value === ImageFormatEnum.JPEG) {
@@ -56,7 +70,7 @@ export class ImageLite extends HostObject<Image> implements Image {
     } else if (fmt?.value === ImageFormatEnum.WEBP) {
       mime = "image/webp";
     }
-    const dataUrl = canvas.toDataURL(mime, quality);
+    const dataUrl = this.image.toDataURL(mime, quality);
     return dataURLToByteArray(dataUrl);
   }
 
@@ -67,15 +81,15 @@ export class ImageLite extends HostObject<Image> implements Image {
     return {
       alphaType: { value: 2 },
       colorType: { value: 2 },
-      height: this.data.height,
-      width: this.data.width,
+      height: this.image.height,
+      width: this.image.width,
     };
   }
   height(): number {
-    return this.data.height;
+    return this.image.height;
   }
   makeCopyWithDefaultMipmaps(): Image {
-    return new ImageLite(this.data);
+    return new ImageLite(this.image);
   }
   makeShaderCubic(
     _tx: EmbindEnumEntity,
@@ -105,6 +119,6 @@ export class ImageLite extends HostObject<Image> implements Image {
     throw new Error("Method not implemented.");
   }
   width(): number {
-    return this.data.width;
+    return this.image.width;
   }
 }
