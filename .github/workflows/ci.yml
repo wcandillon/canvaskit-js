@@ -26,5 +26,7 @@ jobs:
       - name: Lint
         run: yarn lint;
 
-      - name: Test
-        run: yarn test;
+      - name: Run tests
+        run: |
+          sudo apt-get install -y xvfb
+          xvfb-run --auto-servernum --server-args='-screen 0 1024x768x24' yarn test
