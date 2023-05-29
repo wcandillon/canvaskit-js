@@ -211,13 +211,16 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
     throw new Error("Method not implemented.");
   }
   drawLine(
-    _x0: number,
-    _y0: number,
-    _x1: number,
-    _y1: number,
-    _paint: Paint
+    x0: number,
+    y0: number,
+    x1: number,
+    y1: number,
+    paint: PaintLite
   ): void {
-    throw new Error("Method not implemented.");
+    paint.apply(this.ctx, () => {
+      this.ctx.moveTo(x0, y0);
+      this.ctx.lineTo(x1, y1);
+    });
   }
   drawOval(_oval: InputRect, _paint: Paint): void {
     throw new Error("Method not implemented.");
