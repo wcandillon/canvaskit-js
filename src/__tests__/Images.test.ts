@@ -22,6 +22,7 @@ describe("Images", () => {
     );
     checkImage(image, "snapshots/zurich-strech.png");
   });
+
   it("should display an image with cover", async () => {
     const image = await skia.eval(
       ({ canvas, width, height, assets: { zurich } }) => {
@@ -33,6 +34,29 @@ describe("Images", () => {
       }
     );
     checkImage(image, "snapshots/zurich-cover.png");
+  });
+
+  it("should display an image and clip it", async () => {
+    const image = await skia.eval(
+      ({ canvas, width, height, assets: { zurich } }) => {
+        const input = CanvasKit.XYWHRect(0, 0, zurich.width(), zurich.height());
+        const output = CanvasKit.XYWHRect(0, 0, width, height);
+        const paint = new CanvasKit.Paint();
+        const { src, dst } = fitRects("cover", input, output);
+        canvas.save();
+        canvas.clipPath(
+          CanvasKit.Path.MakeFromSVGString(
+            // eslint-disable-next-line max-len
+            "M128 200 L48.78 250.9 L61.24 158.55 L0 97.09 L92.39 84.63 L128 0 L163.61 84.63 L256 97.09 L194.76 158.55 L207.22 250.9 Z"
+          )!,
+          CanvasKit.ClipOp.Intersect,
+          true
+        );
+        canvas.drawImageRect(zurich, src, dst, paint);
+        canvas.restore();
+      }
+    );
+    checkImage(image, "snapshots/zurich-clipped.png");
   });
 
   it("should build a reference result", async () => {

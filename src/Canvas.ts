@@ -51,8 +51,8 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
     paint.setColor(color);
     this.drawPaint(paint);
   }
-  clipPath(_path: Path, _op: EmbindEnumEntity, _doAntiAlias: boolean): void {
-    throw new Error("Method not implemented.");
+  clipPath(path: PathLite, _op: EmbindEnumEntity, _doAntiAlias: boolean): void {
+    this.ctx.clip(path.getPath2D());
   }
   clipRect(
     _rect: InputRect,
