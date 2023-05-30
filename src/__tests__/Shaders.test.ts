@@ -140,11 +140,11 @@ void main() {
       const child1 = CanvasKit.Shader.MakeColor(
         [1, 0, 0, 1],
         CanvasKit.ColorSpace.SRGB
-      )!;
+      );
       const child2 = CanvasKit.Shader.MakeColor(
         [0, 0, 1, 1],
         CanvasKit.ColorSpace.SRGB
-      )!;
+      );
       const shader = `precision mediump float;
 
 uniform sampler2D child1;
@@ -161,5 +161,16 @@ void main() {
       canvas.drawCircle(width / 2, width / 2, width / 2, paint);
     });
     checkImage(image, "snapshots/shaders/children.png");
+  });
+  it("should show a fractal noise", async () => {
+    const image = await skia.eval(({ CanvasKit, canvas, width }) => {
+      const noise = CanvasKit.Shader.MakeFractalNoise(0.05, 0.05, 4, 0, 10, 10);
+      const paint = new CanvasKit.Paint();
+      paint.setShader(noise);
+      canvas.drawCircle(width / 2, width / 2, width / 2, paint);
+    });
+    checkImage(image, "snapshots/shaders/fractal-noise.png", {
+      overwrite: true,
+    });
   });
 });

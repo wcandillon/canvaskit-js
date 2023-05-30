@@ -1,5 +1,32 @@
 const ns = "http://www.w3.org/2000/svg";
 
+export const noise = (
+  baseFreqX: number,
+  baseFreqY: number,
+  octaves: number,
+  seed: number,
+  _tileW: number,
+  _tileH: number,
+  result = "result"
+) => {
+  // Create the feTurbulence element
+  const feTurbulence = document.createElementNS(ns, "feTurbulence");
+  feTurbulence.setAttribute("baseFrequency", `${baseFreqX} ${baseFreqY}`);
+  feTurbulence.setAttribute("numOctaves", `${octaves}`);
+  feTurbulence.setAttribute("seed", `${seed}`);
+  feTurbulence.setAttribute("type", "fractalNoise");
+  feTurbulence.setAttribute("result", result);
+
+  // Create the feTile element
+  // const feTile = document.createElementNS(ns, "feTile");
+  // feTile.setAttribute("in", result);
+  // feTile.setAttribute("width", `${tileW}`);
+  // feTile.setAttribute("height", `${tileH}`);
+  // feTile.setAttribute("result", result);
+
+  return feTurbulence;
+};
+
 export const blur = (sigma: number, result = "result") => {
   const feGaussianBlur = document.createElementNS(ns, "feGaussianBlur");
   feGaussianBlur.setAttribute("in", "SourceGraphic");

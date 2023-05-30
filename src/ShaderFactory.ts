@@ -10,7 +10,7 @@ import type {
 } from "canvaskit-wasm";
 
 import { NativeColor } from "./Values";
-import { ColorShader } from "./Shader";
+import { ColorShader, FractalNoise } from "./Shader";
 
 export const ShaderFactory: CKShaderFactory = {
   MakeBlend: function (
@@ -24,14 +24,14 @@ export const ShaderFactory: CKShaderFactory = {
     return new ColorShader(NativeColor(color));
   },
   MakeFractalNoise: function (
-    _baseFreqX: number,
-    _baseFreqY: number,
-    _octaves: number,
-    _seed: number,
-    _tileW: number,
-    _tileH: number
+    baseFreqX: number,
+    baseFreqY: number,
+    octaves: number,
+    seed: number,
+    tileW: number,
+    tileH: number
   ): Shader {
-    throw new Error("Function not implemented.");
+    return new FractalNoise(baseFreqX, baseFreqY, octaves, seed, tileW, tileH);
   },
   MakeLinearGradient: function (
     _start: InputPoint,
