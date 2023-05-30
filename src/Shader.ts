@@ -1,7 +1,6 @@
 import type { Shader } from "canvaskit-wasm";
 
 import { HostObject } from "./HostObject";
-import type { SkiaRenderingContext } from "./Values";
 import type { RTContext } from "./RuntimeEffect";
 
 export abstract class ShaderLite extends HostObject<Shader> implements Shader {
@@ -9,9 +8,7 @@ export abstract class ShaderLite extends HostObject<Shader> implements Shader {
     super();
   }
 
-  // TODO: Should it be offscreen canvas?
-  abstract getTexture(): OffscreenCanvas;
-  abstract shade(ctx: SkiaRenderingContext): CanvasPattern;
+  abstract getTexture(width: number, height: number): OffscreenCanvas;
 }
 
 export class RuntimeEffectShader extends ShaderLite {
@@ -20,17 +17,13 @@ export class RuntimeEffectShader extends ShaderLite {
   }
 
   // TODO: only have getTexture and delete shade
-  getTexture() {
-    return this.ctx.canvas;
-  }
-
-  shade(ctx: SkiaRenderingContext) {
+  getTexture(width: number, height: number) {
     const { gl, canvas } = this.ctx;
-    canvas.width = ctx.canvas.width;
-    canvas.height = ctx.canvas.height;
-    gl.viewport(0, 0, ctx.canvas.width, ctx.canvas.height);
+    canvas.width = width;
+    canvas.height = height;
+    gl.viewport(0, 0, width, height);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
-    return ctx.createPattern(canvas, "no-repeat")!;
+    return this.ctx.canvas;
   }
 }
 
@@ -40,24 +33,14 @@ export class ColorShader extends ShaderLite {
     super();
   }
 
-  getTexture() {
+  getTexture(width: number, height: number) {
     const { canvas } = this;
-    canvas.width = 256;
-    canvas.height = 256;
+    canvas.width = width;
+    canvas.height = height;
     const ctx2d = canvas.getContext("2d")!;
     ctx2d.fillStyle = this.color;
     ctx2d.fillRect(0, 0, canvas.width, canvas.height);
     return this.canvas;
-  }
-
-  shade(ctx: SkiaRenderingContext) {
-    const { canvas } = this;
-    canvas.width = ctx.canvas.width;
-    canvas.height = ctx.canvas.height;
-    const ctx2d = canvas.getContext("2d")!;
-    ctx2d.fillStyle = this.color;
-    ctx2d.fillRect(0, 0, canvas.width, canvas.height);
-    return ctx.createPattern(canvas, "no-repeat")!;
   }
 }
 

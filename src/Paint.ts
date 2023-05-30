@@ -118,9 +118,16 @@ export class PaintLite extends HostObject<Paint> implements Paint {
     path?: boolean
   ) {
     context.save();
-    const style = this.shader
-      ? this.shader.shade(context)
-      : NativeColor(this.color);
+    let style: CanvasPattern | string;
+    if (this.shader) {
+      const texture = this.shader.getTexture(
+        context.canvas.width,
+        context.canvas.height
+      );
+      style = context.createPattern(texture, "no-repeat")!;
+    } else {
+      style = NativeColor(this.color);
+    }
     if (this.style === PaintStyle.Fill) {
       context.fillStyle = style;
     } else {

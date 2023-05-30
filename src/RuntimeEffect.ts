@@ -175,7 +175,8 @@ class RuntimeEffectLite
           gl.RGBA,
           gl.RGBA,
           gl.UNSIGNED_BYTE,
-          child.getTexture()
+          // TODO: remove hardcoding
+          child.getTexture(256, 256)
         );
         // Use the texture
         gl.uniform1i(location, state.shaderIndex);
