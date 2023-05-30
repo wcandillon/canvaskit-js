@@ -9,6 +9,7 @@ import type {
   Shader,
 } from "canvaskit-wasm";
 
+import { NativeColor } from "./Values";
 import { ColorShader } from "./Shader";
 
 export const ShaderFactory: CKShaderFactory = {
@@ -20,7 +21,7 @@ export const ShaderFactory: CKShaderFactory = {
     throw new Error("Function not implemented.");
   },
   MakeColor: function (color: InputColor, _space: ColorSpace): Shader {
-    return new ColorShader(color);
+    return new ColorShader(NativeColor(color));
   },
   MakeFractalNoise: function (
     _baseFreqX: number,

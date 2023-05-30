@@ -98,6 +98,43 @@ void main() {
     });
     checkImage(image, "snapshots/shaders/spiral.png");
   });
+  it("should support any sizes", async () => {
+    const image = await skia.eval(
+      ({ CanvasKit, canvas, center }) => {
+        const spiral = `
+precision mediump float;
+
+uniform float scale;
+uniform vec2 center;
+uniform vec4 colors[2];
+void main() {
+    vec2 pp = gl_FragCoord.xy - center;
+    float radius = sqrt(dot(pp, pp));
+    radius = sqrt(radius);
+    float angle = atan(pp.y, pp.x);
+    float t = (angle + 3.1415926/2.0) / 3.1415926;
+    t += radius * scale;
+    t = fract(t);
+    gl_FragColor = mix(colors[0], colors[1], t);
+}`;
+        const rt = CanvasKit.RuntimeEffect.Make(spiral)!;
+        const paint = new CanvasKit.Paint();
+        paint.setShader(
+          rt.makeShader([
+            0.6,
+            center.x,
+            center.y,
+            ...CanvasKit.RED,
+            ...CanvasKit.GREEN,
+          ])
+        );
+        canvas.drawPaint(paint);
+      },
+      1024,
+      1024
+    );
+    checkImage(image, "snapshots/shaders/spiral-large.png");
+  });
   it("should support shaders as uniform", async () => {
     const image = await skia.eval(({ CanvasKit, canvas, width }) => {
       const child1 = CanvasKit.Shader.MakeColor(

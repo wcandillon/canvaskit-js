@@ -11,7 +11,8 @@ import type {
 import { HostObject } from "./HostObject";
 import { createContext } from "./Shaders";
 import { normalizeArray } from "./Values";
-import { ShaderLite } from "./Shader";
+import type { ShaderLite } from "./Shader";
+import { RuntimeEffectShader } from "./Shader";
 
 type TextureName =
   | "TEXTURE0"
@@ -187,17 +188,8 @@ class RuntimeEffectLite
     if (localMatrix) {
       throw new Error("localMatrix not implemented yet");
     }
-    // if (localMatrix && localMatrix.length === 16) {
-    //   const localMatrixLocation = gl.getUniformLocation(program, "localMatrix");
-    //   gl.uniformMatrix4fv(
-    //     localMatrixLocation,
-    //     false,
-    //     new Float32Array(localMatrix)
-    //   );
-    // }
 
-    gl.drawArrays(gl.TRIANGLES, 0, 6);
-    return new ShaderLite(this.ctx.canvas);
+    return new RuntimeEffectShader(this.ctx);
   }
   getUniform(index: number): SkSLUniform {
     const { gl, program } = this.ctx;

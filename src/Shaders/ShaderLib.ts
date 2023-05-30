@@ -30,8 +30,8 @@ export const createContext = (
   _error?: ((err: string) => void) | undefined
 ) => {
   const canvas = document.createElement("canvas");
-  canvas.width = 256;
-  canvas.height = 256;
+  // canvas.width = 256;
+  // canvas.height = 256;
   const gl = canvas.getContext("webgl2");
   const error = _error || console.error.bind(console);
   if (!gl) {

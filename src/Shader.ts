@@ -1,31 +1,57 @@
-import type { InputColor, Shader } from "canvaskit-wasm";
+import type { Shader } from "canvaskit-wasm";
 
 import { HostObject } from "./HostObject";
 import type { SkiaRenderingContext } from "./Values";
-import { NativeColor } from "./Values";
+import type { RTContext } from "./RuntimeEffect";
 
-export class ShaderLite extends HostObject<Shader> implements Shader {
-  constructor(protected readonly ctx: HTMLCanvasElement) {
+export abstract class ShaderLite extends HostObject<Shader> implements Shader {
+  constructor() {
     super();
   }
 
-  getTexture() {
-    return this.ctx;
+  // TODO: Should it be offscreen canvas?
+  abstract getTexture(): HTMLCanvasElement;
+  abstract shade(ctx: SkiaRenderingContext): CanvasPattern;
+}
+
+export class RuntimeEffectShader extends ShaderLite {
+  constructor(private readonly ctx: RTContext) {
+    super();
   }
 
-  // TODO: delete
+  // TODO: only have getTexture and delete shade
+  getTexture() {
+    return this.ctx.canvas;
+  }
+
   shade(ctx: SkiaRenderingContext) {
-    return ctx.createPattern(this.ctx, "repeat")!;
+    const { gl, canvas } = this.ctx;
+    canvas.width = ctx.canvas.width;
+    canvas.height = ctx.canvas.height;
+    gl.viewport(0, 0, ctx.canvas.width, ctx.canvas.height);
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+    return ctx.createPattern(canvas, "no-repeat")!;
   }
 }
 
 export class ColorShader extends ShaderLite {
-  constructor(color: InputColor) {
-    super(document.createElement("canvas"));
-    this.ctx.width = 256;
-    this.ctx.height = 256;
-    this.ctx.getContext("2d")!.fillStyle = NativeColor(color);
-    this.ctx.getContext("2d")!.fillRect(0, 0, this.ctx.width, this.ctx.height);
+  private canvas: HTMLCanvasElement = document.createElement("canvas");
+  constructor(private readonly color: string) {
+    super();
+  }
+
+  getTexture() {
+    return this.canvas;
+  }
+
+  shade(ctx: SkiaRenderingContext) {
+    const { canvas } = this;
+    canvas.width = ctx.canvas.width;
+    canvas.height = ctx.canvas.height;
+    const ctx2d = canvas.getContext("2d")!;
+    ctx2d.fillStyle = this.color;
+    ctx2d.fillRect(0, 0, canvas.width, canvas.height);
+    return ctx.createPattern(canvas, "no-repeat")!;
   }
 }
 
