@@ -75,7 +75,7 @@ export class FractalNoise extends ShaderLite {
   ) {
     super();
     FractalNoise.count++;
-    this.id = `blur-mask-filter-${FractalNoise.count}`;
+    this.id = `fractal-noise-${FractalNoise.count}`;
   }
 
   getTexture(width: number, height: number) {

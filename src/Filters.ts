@@ -69,6 +69,7 @@ export const merge = (in1: string, in2: string) => {
 export const addFilters = (id: string, ...filters: SVGElement[]) => {
   // Create the SVG element
   const svg = document.createElementNS(ns, "svg");
+  svg.setAttribute("style", "display: none;");
 
   // Create the defs element
   const defs = document.createElementNS(ns, "defs");
