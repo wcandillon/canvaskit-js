@@ -13,6 +13,19 @@ import { createContext } from "./Shaders";
 import { normalizeArray } from "./Values";
 import { ShaderLite } from "./Shader";
 
+type TextureName =
+  | "TEXTURE0"
+  | "TEXTURE1"
+  | "TEXTURE2"
+  | "TEXTURE3"
+  | "TEXTURE4"
+  | "TEXTURE5"
+  | "TEXTURE6"
+  | "TEXTURE7"
+  | "TEXTURE8"
+  | "TEXTURE9"
+  | "TEXTURE10";
+
 export interface RTContext {
   gl: WebGL2RenderingContext;
   canvas: HTMLCanvasElement;
@@ -21,6 +34,7 @@ export interface RTContext {
 
 interface UniformProcessingState {
   uniformIndex: number;
+  shaderIndex: number;
 }
 
 const processUniform = (
@@ -56,12 +70,20 @@ class RuntimeEffectLite
   }
 
   makeShader(
-    _uniforms: MallocObj | Float32Array | number[],
-    localMatrix?: InputMatrix | undefined
+    uniforms: MallocObj | Float32Array | number[],
+    localMatrix?: InputMatrix
+  ): Shader {
+    return this.makeShaderWithChildren(uniforms, undefined, localMatrix);
+  }
+
+  makeShaderWithChildren(
+    inputUniforms: MallocObj | Float32Array | number[],
+    children?: ShaderLite[],
+    localMatrix?: InputMatrix
   ): Shader {
     const { gl, program } = this.ctx;
-    const uniforms = normalizeArray(_uniforms);
-    const state = { uniformIndex: 0 };
+    const uniforms = normalizeArray(inputUniforms);
+    const state = { uniformIndex: 0, shaderIndex: 0 };
     const uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
     for (let i = 0; i < uniformCount; i++) {
       const uniformInfo = gl.getActiveUniform(program, i)!;
@@ -128,6 +150,35 @@ class RuntimeEffectLite
           16,
           (loc, subarr) => gl.uniformMatrix4fv(loc, false, subarr)
         );
+      } else if (uniformInfo.type === gl.SAMPLER_2D) {
+        const { name } = uniformInfo;
+        const location = gl.getUniformLocation(program, name);
+        const child = (children ?? [])[state.shaderIndex];
+        if (!child) {
+          throw new Error("No shader provided for " + name);
+        }
+        const texture = gl.createTexture();
+        gl.activeTexture(gl[`TEXTURE${state.shaderIndex}` as TextureName]);
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+
+        // Set the parameters so we can render any size image
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+        // Upload the image into the texture
+        gl.texImage2D(
+          gl.TEXTURE_2D,
+          0,
+          gl.RGBA,
+          gl.RGBA,
+          gl.UNSIGNED_BYTE,
+          child.getTexture()
+        );
+        // Use the texture
+        gl.uniform1i(location, state.shaderIndex);
+        state.shaderIndex++;
       }
       // Add more cases if your shader uses more types of uniforms
     }
@@ -147,13 +198,6 @@ class RuntimeEffectLite
 
     gl.drawArrays(gl.TRIANGLES, 0, 6);
     return new ShaderLite(this.ctx.canvas);
-  }
-  makeShaderWithChildren(
-    _uniforms: MallocObj | Float32Array | number[],
-    _children?: Shader[] | undefined,
-    _localMatrix?: InputMatrix | undefined
-  ): Shader {
-    throw new Error("Method not implemented.");
   }
   getUniform(index: number): SkSLUniform {
     const { gl, program } = this.ctx;

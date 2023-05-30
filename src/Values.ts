@@ -1,6 +1,7 @@
 /* eslint-disable no-bitwise */
 import type {
   Color,
+  InputColor,
   InputCommands,
   InputIRect,
   InputRRect,
@@ -50,7 +51,13 @@ export const ColorAsInt = (r: number, g: number, b: number, a = 1) => {
   ); // This makes the value an unsigned int.
 };
 
-export const NativeColor = (color: Color) => {
+export const NativeColor = (inputColor: InputColor) => {
+  let color: Color;
+  if (isMalloc(inputColor)) {
+    color = inputColor.toTypedArray() as Color;
+  } else {
+    color = Float32Array.of(...inputColor);
+  }
   return `rgba(${[
     Math.round(color[0] * 255),
     Math.round(color[1] * 255),

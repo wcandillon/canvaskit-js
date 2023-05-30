@@ -9,6 +9,8 @@ import type {
   Shader,
 } from "canvaskit-wasm";
 
+import { ColorShader } from "./Shader";
+
 export const ShaderFactory: CKShaderFactory = {
   MakeBlend: function (
     _mode: EmbindEnumEntity,
@@ -17,8 +19,8 @@ export const ShaderFactory: CKShaderFactory = {
   ): Shader {
     throw new Error("Function not implemented.");
   },
-  MakeColor: function (_color: InputColor, _space: ColorSpace): Shader {
-    throw new Error("Function not implemented.");
+  MakeColor: function (color: InputColor, _space: ColorSpace): Shader {
+    return new ColorShader(color);
   },
   MakeFractalNoise: function (
     _baseFreqX: number,

@@ -98,4 +98,31 @@ void main() {
     });
     checkImage(image, "snapshots/shaders/spiral.png");
   });
+  it("should support shaders as uniform", async () => {
+    const image = await skia.eval(({ CanvasKit, canvas, width }) => {
+      const child1 = CanvasKit.Shader.MakeColor(
+        [1, 0, 0, 1],
+        CanvasKit.ColorSpace.SRGB
+      )!;
+      const child2 = CanvasKit.Shader.MakeColor(
+        [0, 0, 1, 1],
+        CanvasKit.ColorSpace.SRGB
+      )!;
+      const shader = `precision mediump float;
+
+uniform sampler2D child1;
+uniform sampler2D child2;
+
+void main() {
+  vec4 c1 = texture2D(child1, vec2(0, 0));
+  vec4 c2 = texture2D(child2, vec2(0, 0));
+  gl_FragColor = mix(c1, c2, 0.5);
+}`;
+      const rt = CanvasKit.RuntimeEffect.Make(shader)!;
+      const paint = new CanvasKit.Paint();
+      paint.setShader(rt.makeShaderWithChildren([], [child1, child2]));
+      canvas.drawCircle(width / 2, width / 2, width / 2, paint);
+    });
+    checkImage(image, "snapshots/shaders/children.png", { overwrite: true });
+  });
 });
