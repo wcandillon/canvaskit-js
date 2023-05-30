@@ -29,8 +29,7 @@ export const createContext = (
   shaderCode: string,
   _error?: ((err: string) => void) | undefined
 ) => {
-  // TODO: is the default size necessary?
-  const canvas = new OffscreenCanvas(300, 150);
+  const canvas = new OffscreenCanvas(0, 0);
   const gl = canvas.getContext("webgl2");
   const error = _error || console.error.bind(console);
   if (!gl) {
