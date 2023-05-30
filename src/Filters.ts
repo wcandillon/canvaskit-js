@@ -7,6 +7,7 @@ export const noise = (
   seed: number,
   _tileW: number,
   _tileH: number,
+  type: "turbulence" | "fractalNoise" = "fractalNoise",
   result = "result"
 ) => {
   // Create the feTurbulence element
@@ -14,12 +15,12 @@ export const noise = (
   feTurbulence.setAttribute("baseFrequency", `${baseFreqX} ${baseFreqY}`);
   feTurbulence.setAttribute("numOctaves", `${octaves}`);
   feTurbulence.setAttribute("seed", `${seed}`);
-  feTurbulence.setAttribute("type", "fractalNoise");
+  feTurbulence.setAttribute("type", type);
   feTurbulence.setAttribute("result", result);
 
-  // Create the feTile element
+  //Create the feTile element
   // const feTile = document.createElementNS(ns, "feTile");
-  // feTile.setAttribute("in", result);
+  // feTile.setAttribute("in", "step1");
   // feTile.setAttribute("width", `${tileW}`);
   // feTile.setAttribute("height", `${tileH}`);
   // feTile.setAttribute("result", result);
