@@ -14,23 +14,15 @@ import { normalizeArray } from "./Values";
 import type { ShaderLite } from "./Shader";
 import { RuntimeEffectShader } from "./Shader";
 
-type TextureName =
-  | "TEXTURE0"
-  | "TEXTURE1"
-  | "TEXTURE2"
-  | "TEXTURE3"
-  | "TEXTURE4"
-  | "TEXTURE5"
-  | "TEXTURE6"
-  | "TEXTURE7"
-  | "TEXTURE8"
-  | "TEXTURE9"
-  | "TEXTURE10";
-
 export interface RTContext {
   gl: WebGL2RenderingContext;
   canvas: OffscreenCanvas;
   program: WebGLProgram;
+  children: {
+    shader: ShaderLite;
+    location: WebGLUniformLocation;
+    index: number;
+  }[];
 }
 
 interface UniformProcessingState {
@@ -154,12 +146,18 @@ class RuntimeEffectLite
       } else if (uniformInfo.type === gl.SAMPLER_2D) {
         const { name } = uniformInfo;
         const location = gl.getUniformLocation(program, name);
+        if (!location) {
+          throw new Error("Could not find uniform location for " + name);
+        }
         const child = (children ?? [])[state.shaderIndex];
         if (!child) {
           throw new Error("No shader provided for " + name);
         }
         const texture = gl.createTexture();
-        gl.activeTexture(gl[`TEXTURE${state.shaderIndex}` as TextureName]);
+        if (!texture) {
+          throw new Error("Could not create texture for " + name);
+        }
+        gl.activeTexture(gl[`TEXTURE${state.shaderIndex}` as "TEXTURE0"]);
         gl.bindTexture(gl.TEXTURE_2D, texture);
 
         // Set the parameters so we can render any size image
@@ -167,19 +165,11 @@ class RuntimeEffectLite
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-
-        // Upload the image into the texture
-        gl.texImage2D(
-          gl.TEXTURE_2D,
-          0,
-          gl.RGBA,
-          gl.RGBA,
-          gl.UNSIGNED_BYTE,
-          // TODO: remove hardcoding
-          child.getTexture(256, 256)
-        );
-        // Use the texture
-        gl.uniform1i(location, state.shaderIndex);
+        this.ctx.children.push({
+          shader: child,
+          location,
+          index: state.shaderIndex,
+        });
         state.shaderIndex++;
       }
       // Add more cases if your shader uses more types of uniforms
