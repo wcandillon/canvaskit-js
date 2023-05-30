@@ -29,7 +29,7 @@ type TextureName =
 
 export interface RTContext {
   gl: WebGL2RenderingContext;
-  canvas: HTMLCanvasElement;
+  canvas: OffscreenCanvas;
   program: WebGLProgram;
 }
 

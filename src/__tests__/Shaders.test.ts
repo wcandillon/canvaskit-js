@@ -160,6 +160,6 @@ void main() {
       paint.setShader(rt.makeShaderWithChildren([], [child1, child2]));
       canvas.drawCircle(width / 2, width / 2, width / 2, paint);
     });
-    checkImage(image, "snapshots/shaders/children.png", { overwrite: true });
+    checkImage(image, "snapshots/shaders/children.png");
   });
 });

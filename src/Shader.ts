@@ -10,7 +10,7 @@ export abstract class ShaderLite extends HostObject<Shader> implements Shader {
   }
 
   // TODO: Should it be offscreen canvas?
-  abstract getTexture(): HTMLCanvasElement;
+  abstract getTexture(): OffscreenCanvas;
   abstract shade(ctx: SkiaRenderingContext): CanvasPattern;
 }
 
@@ -35,12 +35,18 @@ export class RuntimeEffectShader extends ShaderLite {
 }
 
 export class ColorShader extends ShaderLite {
-  private canvas: HTMLCanvasElement = document.createElement("canvas");
+  private canvas = new OffscreenCanvas(300, 150);
   constructor(private readonly color: string) {
     super();
   }
 
   getTexture() {
+    const { canvas } = this;
+    canvas.width = 256;
+    canvas.height = 256;
+    const ctx2d = canvas.getContext("2d")!;
+    ctx2d.fillStyle = this.color;
+    ctx2d.fillRect(0, 0, canvas.width, canvas.height);
     return this.canvas;
   }
 
