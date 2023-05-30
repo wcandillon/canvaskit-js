@@ -9,7 +9,10 @@ export abstract class ShaderLite extends HostObject<Shader> implements Shader {
     super();
   }
 
-  abstract getTexture(width: number, height: number): OffscreenCanvas;
+  abstract getTexture(
+    width: number,
+    height: number
+  ): OffscreenCanvas | HTMLCanvasElement;
 }
 
 export class RuntimeEffectShader extends ShaderLite {
@@ -60,7 +63,8 @@ export class ColorShader extends ShaderLite {
 }
 
 export class FractalNoise extends ShaderLite {
-  private canvas = new OffscreenCanvas(0, 0);
+  // Because we use an SVG filter, we need to use a canvas element
+  private canvas = document.createElement("canvas");
 
   private static count = 0;
   private readonly id: string;
