@@ -9,17 +9,17 @@ import type {
 } from "canvaskit-wasm";
 
 import { HostObject } from "./HostObject";
-import { CanvasLite } from "./Canvas";
+import { CanvasJS } from "./Canvas";
 import { ImageJS } from "./Image";
 import type { SkiaRenderingContext } from "./Values";
 import { rectToXYWH } from "./Values";
 
-export class SurfaceLite extends HostObject<Surface> implements Surface {
+export class SurfaceJS extends HostObject<Surface> implements Surface {
   private canvas: Canvas;
 
   constructor(private readonly ctx: SkiaRenderingContext) {
     super();
-    this.canvas = new CanvasLite(this.ctx);
+    this.canvas = new CanvasJS(this.ctx);
   }
   drawOnce(drawFrame: (_: Canvas) => void): void {
     this.requestAnimationFrame(drawFrame);
@@ -64,7 +64,7 @@ export class SurfaceLite extends HostObject<Surface> implements Surface {
   }
   makeSurface(info: ImageInfo): Surface {
     const ctx = new OffscreenCanvas(info.width, info.height).getContext("2d")!;
-    return new SurfaceLite(ctx);
+    return new SurfaceJS(ctx);
   }
   reportBackendTypeIsGPU(): boolean {
     return true;

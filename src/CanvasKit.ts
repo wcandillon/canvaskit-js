@@ -64,13 +64,13 @@ import type {
 } from "canvaskit-wasm";
 
 import { Matrix3 } from "./Matrix3";
-import type { ColorSpaceLite } from "./Contants";
+import type { ColorSpaceJS } from "./Contants";
 import {
   AlphaType,
   BlendMode,
   BlurStyle,
   ClipOp,
-  ColorSpaceEnumLite,
+  ColorSpaceEnumJS,
   ColorType,
   FillType,
   FilterMode,
@@ -91,19 +91,19 @@ import {
   TileMode,
   VertexMode,
 } from "./Contants";
-import { SurfaceLite } from "./Surface";
-import { PaintLite } from "./Paint";
+import { SurfaceJS } from "./Surface";
+import { PaintJS } from "./Paint";
 import { ShaderFactory } from "./Shader";
 import { ColorAsInt, MallocObjJS } from "./Values";
 import { PathJS } from "./Path";
 import { ImageFilterFactory } from "./ImageFilter";
 import { MaskFilterFactory } from "./MaskFilter";
 import { GrDirectContextJS } from "./GrDirectContext";
-import { EmulatedCanvas2DLite } from "./EmulatedCanvas2D";
+import { EmulatedCanvas2DJS } from "./EmulatedCanvas2D";
 import { ImageJS } from "./Image";
 import { RuntimeEffectFactory } from "./RuntimeEffect";
 
-export class CanvasKitLite implements ICanvasKit {
+export class CanvasKitJS implements ICanvasKit {
   private static instance: ICanvasKit | null = null;
 
   private memoizedCanvas: HTMLCanvasElement | null = null;
@@ -120,7 +120,7 @@ export class CanvasKitLite implements ICanvasKit {
 
   static getInstance() {
     if (this.instance === null) {
-      this.instance = new CanvasKitLite();
+      this.instance = new CanvasKitJS();
     }
     return this.instance;
   }
@@ -245,7 +245,7 @@ export class CanvasKitLite implements ICanvasKit {
     if (!ctx) {
       return null;
     }
-    return new SurfaceLite(ctx);
+    return new SurfaceJS(ctx);
   }
   MakeRasterDirectSurface(
     _ii: ImageInfo,
@@ -270,7 +270,7 @@ export class CanvasKitLite implements ICanvasKit {
     if (!ctx) {
       return null;
     }
-    return new SurfaceLite(ctx);
+    return new SurfaceJS(ctx);
   }
   GetWebGLContext(
     canvas: HTMLCanvasElement,
@@ -332,7 +332,7 @@ export class CanvasKitLite implements ICanvasKit {
     grCtx: GrDirectContextJS,
     ..._args: [number, number] | [ImageInfo]
   ): Surface | null {
-    return new SurfaceLite(grCtx.ctx);
+    return new SurfaceJS(grCtx.ctx);
   }
   MakeLazyImageFromTextureSource(
     _src: TextureSource,
@@ -364,7 +364,7 @@ export class CanvasKitLite implements ICanvasKit {
     canvas.height = height;
     canvas.style.display = "none";
     document.body.appendChild(canvas);
-    return new EmulatedCanvas2DLite(canvas);
+    return new EmulatedCanvas2DJS(canvas);
   }
   MakeImage(
     { width, height, colorSpace }: ImageInfo,
@@ -377,7 +377,7 @@ export class CanvasKitLite implements ICanvasKit {
       height,
       {
         colorSpace: colorSpace
-          ? (colorSpace as ColorSpaceLite).getNativeValue()
+          ? (colorSpace as ColorSpaceJS).getNativeValue()
           : "srgb",
       }
     );
@@ -438,7 +438,7 @@ export class CanvasKitLite implements ICanvasKit {
   ParagraphStyle!: ParagraphStyleConstructor;
   ContourMeasureIter!: ContourMeasureIterConstructor;
   Font!: FontConstructor;
-  Paint: DefaultConstructor<Paint> = PaintLite;
+  Paint: DefaultConstructor<Paint> = PaintJS;
   Path = PathJS as unknown as PathConstructorAndFactory;
   PictureRecorder!: DefaultConstructor<PictureRecorder>;
   TextStyle!: TextStyleConstructor;
@@ -475,7 +475,7 @@ export class CanvasKitLite implements ICanvasKit {
   Path1DEffect = Path1DEffectStyle;
   PathOp = PathOp;
   PointMode = PointMode;
-  ColorSpace = new ColorSpaceEnumLite();
+  ColorSpace = new ColorSpaceEnumJS();
   StrokeCap = StrokeCap;
   StrokeJoin = StrokeJoin;
   TileMode = TileMode;

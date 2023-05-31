@@ -17,7 +17,7 @@ import CanvasKitInit from "canvaskit-wasm/bin/full/canvaskit";
 import type { Browser, Page } from "puppeteer";
 import puppeteer from "puppeteer";
 
-import { CanvasKitLite } from "../CanvasKit";
+import { CanvasKitJS } from "../CanvasKit";
 import { vec } from "../Values";
 
 export interface DrawingContext {
@@ -116,7 +116,7 @@ declare global {
   var RealCanvasKit: CanvasKitType;
 }
 
-global.CanvasKit = CanvasKitLite.getInstance();
+global.CanvasKit = CanvasKitJS.getInstance();
 
 beforeAll(async () => {
   const CanvasKit = await CanvasKitInit({});

@@ -1,6 +1,6 @@
 import type { EmulatedCanvas2D, Image } from "canvaskit-wasm";
 
-export class EmulatedCanvas2DLite implements EmulatedCanvas2D {
+export class EmulatedCanvas2DJS implements EmulatedCanvas2D {
   constructor(private readonly canvas: HTMLCanvasElement) {}
   dispose(): void {}
   decodeImage(_bytes: Uint8Array | ArrayBuffer): Image {

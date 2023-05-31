@@ -166,10 +166,7 @@ export enum PointModeEnum {
 }
 export const PointMode = makeEnum<PointModeEnumValues>(PointModeEnum);
 
-export class ColorSpaceLite
-  extends HostObject<ColorSpace>
-  implements ColorSpace
-{
+export class ColorSpaceJS extends HostObject<ColorSpace> implements ColorSpace {
   constructor(public readonly value: "srgb" | "display-p3" | "adobe-rgb") {
     super();
   }
@@ -186,11 +183,11 @@ export class ColorSpaceLite
   }
 }
 
-export class ColorSpaceEnumLite implements ColorSpaceEnumValues {
-  SRGB = new ColorSpaceLite("srgb");
-  DISPLAY_P3 = new ColorSpaceLite("display-p3");
-  ADOBE_RGB = new ColorSpaceLite("adobe-rgb");
-  Equals(a: ColorSpaceLite, b: ColorSpaceLite): boolean {
+export class ColorSpaceEnumJS implements ColorSpaceEnumValues {
+  SRGB = new ColorSpaceJS("srgb");
+  DISPLAY_P3 = new ColorSpaceJS("display-p3");
+  ADOBE_RGB = new ColorSpaceJS("adobe-rgb");
+  Equals(a: ColorSpaceJS, b: ColorSpaceJS): boolean {
     return a.value === b.value;
   }
 }

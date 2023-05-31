@@ -27,8 +27,8 @@ import type {
   Vertices,
 } from "canvaskit-wasm";
 
-import { PaintLite } from "./Paint";
-import type { ColorSpaceLite, InputColor } from "./Contants";
+import { PaintJS } from "./Paint";
+import type { ColorSpaceJS, InputColor } from "./Contants";
 import { HostObject } from "./HostObject";
 import type { SkiaRenderingContext } from "./Values";
 import { IntAsColor, rectToXYWH, rrectToXYWH } from "./Values";
@@ -37,8 +37,8 @@ import { toRad } from "./math";
 import type { PathJS } from "./Path";
 import type { ImageJS } from "./Image";
 
-export class CanvasLite extends HostObject<Canvas> implements Canvas {
-  private defaultPaint = new PaintLite();
+export class CanvasJS extends HostObject<Canvas> implements Canvas {
+  private defaultPaint = new PaintJS();
   private saveCount = 0;
 
   constructor(private readonly ctx: SkiaRenderingContext) {
@@ -46,7 +46,7 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
   }
 
   clear(color: InputColor): void {
-    const paint = new PaintLite();
+    const paint = new PaintJS();
     paint.setColor(color);
     this.drawPaint(paint);
   }
@@ -90,13 +90,13 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
   ): void {
     throw new Error("Method not implemented.");
   }
-  drawCircle(cx: number, cy: number, radius: number, paint: PaintLite) {
+  drawCircle(cx: number, cy: number, radius: number, paint: PaintJS) {
     paint.apply(this.ctx, () => {
       this.ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
     });
   }
   drawColor(color: InputColor, blendMode?: EmbindEnumEntity | undefined): void {
-    const paint = new PaintLite();
+    const paint = new PaintJS();
     paint.setColor(color);
     if (blendMode) {
       paint.setBlendMode(blendMode);
@@ -128,7 +128,7 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
   ): void {
     throw new Error("Method not implemented.");
   }
-  drawImage(img: ImageJS, left: number, top: number, paint?: PaintLite): void {
+  drawImage(img: ImageJS, left: number, top: number, paint?: PaintJS): void {
     (paint ?? this.defaultPaint).apply(this.ctx, () => {
       this.ctx.drawImage(img.getImage(), left, top);
     });
@@ -166,7 +166,7 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
     img: ImageJS,
     _src: InputRect,
     _dest: InputRect,
-    paint: PaintLite,
+    paint: PaintJS,
     _fastSample?: boolean
   ): void {
     const src = rectToXYWH(_src);
@@ -210,7 +210,7 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
     y0: number,
     x1: number,
     y1: number,
-    paint: PaintLite
+    paint: PaintJS
   ): void {
     paint.apply(this.ctx, () => {
       this.ctx.moveTo(x0, y0);
@@ -220,13 +220,13 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
   drawOval(_oval: InputRect, _paint: Paint): void {
     throw new Error("Method not implemented.");
   }
-  drawPaint(paint: PaintLite) {
+  drawPaint(paint: PaintJS) {
     this.drawRect([0, 0, this.ctx.canvas.width, this.ctx.canvas.height], paint);
   }
   drawParagraph(_p: Paragraph, _x: number, _y: number): void {
     throw new Error("Method not implemented.");
   }
-  drawPath(path: PathJS, paint: PaintLite): void {
+  drawPath(path: PathJS, paint: PaintJS): void {
     paint.apply(
       this.ctx,
       () => {
@@ -254,7 +254,7 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
   ): void {
     throw new Error("Method not implemented.");
   }
-  drawRect(rect: InputRect, paint: PaintLite): void {
+  drawRect(rect: InputRect, paint: PaintJS): void {
     paint.apply(this.ctx, () => {
       const { x, y, width, height } = rectToXYWH(rect);
       this.ctx.rect(x, y, width, height);
@@ -265,7 +265,7 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
     top: number,
     right: number,
     bottom: number,
-    paint: PaintLite
+    paint: PaintJS
   ): void {
     const width = right - left;
     const height = bottom - top;
@@ -273,7 +273,7 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
       this.ctx.rect(left, top, width, height);
     });
   }
-  drawRRect(rrect: InputRRect, paint: PaintLite): void {
+  drawRRect(rrect: InputRRect, paint: PaintJS): void {
     paint.apply(this.ctx, () => {
       const { x, y, width, height, radii } = rrectToXYWH(rrect);
       this.ctx.roundRect(x, y, width, height, radii);
@@ -375,7 +375,7 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
     destY: number,
     _alphaType?: EmbindEnumEntity | undefined,
     _colorType?: EmbindEnumEntity | undefined,
-    colorSpace?: ColorSpaceLite | undefined
+    colorSpace?: ColorSpaceJS | undefined
   ): boolean {
     this.ctx.putImageData(
       {

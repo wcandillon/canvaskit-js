@@ -1,7 +1,7 @@
-import { CanvasKitLite } from "./CanvasKit";
+import { CanvasKitJS } from "./CanvasKit";
 
 export * from "./CanvasKit";
 
 if (window) {
-  window.CanvasKit = CanvasKitLite.getInstance();
+  window.CanvasKit = CanvasKitJS.getInstance();
 }

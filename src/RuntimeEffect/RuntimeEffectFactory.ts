@@ -1,5 +1,5 @@
 import type {
-  RuntimeEffectFactory as CKRuntimeEffectFactory,
+  RuntimeEffectFactory as IRuntimeEffectFactory,
   RuntimeEffect,
   Shader,
   TracedShader,
@@ -7,7 +7,7 @@ import type {
 
 import { RuntimeEffectJS } from "./RuntimeEffect";
 
-export const RuntimeEffectFactory: CKRuntimeEffectFactory = {
+export const RuntimeEffectFactory: IRuntimeEffectFactory = {
   Make(
     sksl: string,
     callback?: ((err: string) => void) | undefined
