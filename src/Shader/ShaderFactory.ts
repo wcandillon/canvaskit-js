@@ -9,8 +9,10 @@ import type {
   Shader,
 } from "canvaskit-wasm";
 
-import { NativeColor } from "./Values";
-import { ColorShader, FractalNoise } from "./Shader";
+import { NativeColor } from "../Values";
+
+import { ColorShader } from "./ColorShader";
+import { FractalNoise } from "./NoiseShader";
 
 export const ShaderFactory: CKShaderFactory = {
   MakeBlend: function (

@@ -8,7 +8,7 @@ import type {
 
 import type { InputColor } from "./Contants";
 import { BlendMode, StrokeCap, PaintStyle, StrokeJoin } from "./Contants";
-import type { ShaderLite } from "./Shader";
+import type { ShaderJS } from "./Shader";
 import type { ImageFilterLite } from "./ImageFilter";
 import { HostObject } from "./HostObject";
 import type { SkiaRenderingContext } from "./Values";
@@ -103,7 +103,7 @@ export class PaintLite extends HostObject<Paint> implements Paint {
   private color = new Float32Array([0, 0, 0, 1]); // default to black color
   private strokeWidth = 1;
   private strokeMiter = 10;
-  private shader: ShaderLite | null = null;
+  private shader: ShaderJS | null = null;
   private colorFilter: ColorFilter | null = null;
   private imageFilter: ImageFilterLite | null = null;
   private maskFilter: MaskFilterLite | null = null;
@@ -260,7 +260,7 @@ export class PaintLite extends HostObject<Paint> implements Paint {
   setPathEffect(_effect: PathEffect | null): void {
     throw new Error("Method not implemented.");
   }
-  setShader(shader: ShaderLite | null): void {
+  setShader(shader: ShaderJS | null): void {
     this.shader = shader;
   }
   setStrokeCap(cap: EmbindEnumEntity): void {

@@ -1,25 +1,22 @@
 import type {
-  RuntimeEffectFactory as CKRuntimeEffectFactory,
   InputMatrix,
   MallocObj,
   RuntimeEffect,
   Shader,
   SkSLUniform,
-  TracedShader,
 } from "canvaskit-wasm";
 
-import { HostObject } from "./HostObject";
-import { createContext } from "./Shaders";
-import { normalizeArray } from "./Values";
-import type { ShaderLite } from "./Shader";
-import { RuntimeEffectShader } from "./Shader";
+import { HostObject } from "../HostObject";
+import { normalizeArray } from "../Values";
+import type { ShaderJS } from "../Shader";
+import { RuntimeEffectShader } from "../Shader/RuntimeEffectShader";
 
-export interface RTContext {
+export interface RuntimeEffectContext {
   gl: WebGL2RenderingContext;
   canvas: OffscreenCanvas;
   program: WebGLProgram;
   children: {
-    shader: ShaderLite;
+    shader: ShaderJS;
     location: WebGLUniformLocation;
     index: number;
   }[];
@@ -30,35 +27,11 @@ interface UniformProcessingState {
   shaderIndex: number;
 }
 
-const processUniform = (
-  ctx: RTContext,
-  state: UniformProcessingState,
-  uniforms: Float32Array,
-  uniformInfo: WebGLActiveInfo,
-  size: number,
-  setter: (loc: WebGLUniformLocation | null, subarr: Float32Array) => void
-) => {
-  const { gl, program } = ctx;
-  const { name } = uniformInfo;
-  const location = gl.getUniformLocation(program, name);
-  if (!location) {
-    console.error("Could not find uniform location for " + name);
-  }
-  setter(
-    gl.getUniformLocation(program, name),
-    uniforms.subarray(
-      state.uniformIndex,
-      state.uniformIndex + size * uniformInfo.size
-    )
-  );
-  state.uniformIndex += size;
-};
-
-class RuntimeEffectLite
+export class RuntimeEffectJS
   extends HostObject<RuntimeEffect>
   implements RuntimeEffect
 {
-  constructor(private readonly ctx: RTContext) {
+  constructor(private readonly ctx: RuntimeEffectContext) {
     super();
   }
 
@@ -71,7 +44,7 @@ class RuntimeEffectLite
 
   makeShaderWithChildren(
     inputUniforms: MallocObj | Float32Array | number[],
-    children?: ShaderLite[],
+    children?: ShaderJS[],
     localMatrix?: InputMatrix
   ): Shader {
     const { gl, program } = this.ctx;
@@ -172,7 +145,6 @@ class RuntimeEffectLite
         });
         state.shaderIndex++;
       }
-      // Add more cases if your shader uses more types of uniforms
     }
 
     // If a local matrix is provided, set it as a uniform
@@ -271,22 +243,26 @@ class RuntimeEffectLite
   }
 }
 
-export const RuntimeEffectFactory: CKRuntimeEffectFactory = {
-  Make(
-    sksl: string,
-    callback?: ((err: string) => void) | undefined
-  ): RuntimeEffect | null {
-    const ctx = createContext(sksl, callback);
-    if (ctx === null) {
-      return null;
-    }
-    return new RuntimeEffectLite(ctx);
-  },
-  MakeTraced(
-    _shader: Shader,
-    _traceCoordX: number,
-    _traceCoordY: number
-  ): TracedShader {
-    throw new Error("Method not implemented.");
-  },
+const processUniform = (
+  ctx: RuntimeEffectContext,
+  state: UniformProcessingState,
+  uniforms: Float32Array,
+  uniformInfo: WebGLActiveInfo,
+  size: number,
+  setter: (loc: WebGLUniformLocation | null, subarr: Float32Array) => void
+) => {
+  const { gl, program } = ctx;
+  const { name } = uniformInfo;
+  const location = gl.getUniformLocation(program, name);
+  if (!location) {
+    console.error("Could not find uniform location for " + name);
+  }
+  setter(
+    gl.getUniformLocation(program, name),
+    uniforms.subarray(
+      state.uniformIndex,
+      state.uniformIndex + size * uniformInfo.size
+    )
+  );
+  state.uniformIndex += size;
 };

@@ -18,13 +18,6 @@ export const noise = (
   feTurbulence.setAttribute("type", type);
   feTurbulence.setAttribute("result", result);
 
-  //Create the feTile element
-  // const feTile = document.createElementNS(ns, "feTile");
-  // feTile.setAttribute("in", "step1");
-  // feTile.setAttribute("width", `${tileW}`);
-  // feTile.setAttribute("height", `${tileH}`);
-  // feTile.setAttribute("result", result);
-
   return feTurbulence;
 };
 

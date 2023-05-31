@@ -1,9 +1,30 @@
-type Value = string | number;
-type Values = Value[];
+import type {
+  RuntimeEffectFactory as CKRuntimeEffectFactory,
+  RuntimeEffect,
+  Shader,
+  TracedShader,
+} from "canvaskit-wasm";
 
-export const glsl = (source: TemplateStringsArray, ...values: Values) => {
-  const processed = source.flatMap((s, i) => [s, values[i]]).filter(Boolean);
-  return processed.join("");
+import { RuntimeEffectJS } from "./RuntimeEffect";
+
+export const RuntimeEffectFactory: CKRuntimeEffectFactory = {
+  Make(
+    sksl: string,
+    callback?: ((err: string) => void) | undefined
+  ): RuntimeEffect | null {
+    const ctx = createContext(sksl, callback);
+    if (ctx === null) {
+      return null;
+    }
+    return new RuntimeEffectJS(ctx);
+  },
+  MakeTraced(
+    _shader: Shader,
+    _traceCoordX: number,
+    _traceCoordY: number
+  ): TracedShader {
+    throw new Error("Method not implemented.");
+  },
 };
 
 const vertexShaderCode = `

@@ -93,7 +93,7 @@ import {
 } from "./Contants";
 import { SurfaceLite } from "./Surface";
 import { PaintLite } from "./Paint";
-import { ShaderFactory } from "./ShaderFactory";
+import { ShaderFactory } from "./Shader";
 import { ColorAsInt, MallocObjLite } from "./Values";
 import { PathLite } from "./Path";
 import { ImageFilterFactory } from "./ImageFilterFactory";
