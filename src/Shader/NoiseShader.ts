@@ -1,4 +1,4 @@
-import { addFilters, noise } from "../Filters";
+import { SVGFilter } from "../SVG";
 
 import { ShaderJS } from "./Shader";
 
@@ -27,7 +27,8 @@ export class FractalNoise extends ShaderJS {
     canvas.width = width;
     canvas.height = height;
     const ctx = canvas.getContext("2d")!;
-    const n = noise(
+    const filter = new SVGFilter(this.id);
+    filter.addNoise(
       this.baseFreqX,
       this.baseFreqY,
       this.octaves,
@@ -35,8 +36,7 @@ export class FractalNoise extends ShaderJS {
       this.tileW,
       this.tileH
     );
-    addFilters(this.id, n);
-    ctx.filter = `url(#${this.id})`;
+    ctx.filter = filter.create();
     ctx.fillStyle = "transparent";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     return canvas;

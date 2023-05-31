@@ -1,5 +1,5 @@
 import { BlurStyleEnum } from "../Contants";
-import { addFilters, blur, composite, merge } from "../Filters";
+import { SVGFilter } from "../SVG";
 
 import { MaskFilterJS } from "./MaskFilter";
 
@@ -17,18 +17,20 @@ export class BlurMaskFilter extends MaskFilterJS {
   }
 
   getFilter(): string {
+    const filter = new SVGFilter(this.id);
     const blurName = "blurred";
-    const fblur = blur(this.sigma, blurName);
-    const fmerge = merge(blurName, "SourceGraphic");
     if (this.style === BlurStyleEnum.Solid) {
-      addFilters(this.id, fblur, fmerge);
+      filter.blur(this.sigma, blurName);
+      filter.merge(blurName, "SourceGraphic");
     } else if (this.style === BlurStyleEnum.Normal) {
-      addFilters(this.id, blur(this.sigma));
+      filter.blur(this.sigma);
     } else if (this.style === BlurStyleEnum.Outer) {
-      addFilters(this.id, fblur, composite(blurName, "SourceGraphic", "out"));
+      filter.blur(this.sigma, blurName);
+      filter.composite(blurName, "SourceGraphic", "out");
     } else {
-      addFilters(this.id, fblur, composite(blurName, "SourceGraphic", "in"));
+      filter.blur(this.sigma, blurName);
+      filter.composite(blurName, "SourceGraphic", "in");
     }
-    return `url(#${this.id})`;
+    return filter.create();
   }
 }
