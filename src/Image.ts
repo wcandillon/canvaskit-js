@@ -32,7 +32,7 @@ const dataURLToByteArray = (dataUrl: string) => {
   return byteArray;
 };
 
-export class ImageLite extends HostObject<Image> implements Image {
+export class ImageJS extends HostObject<Image> implements Image {
   private image: HTMLCanvasElement;
 
   constructor(source: CanvasImageSource | ImageData) {
@@ -89,7 +89,7 @@ export class ImageLite extends HostObject<Image> implements Image {
     return this.image.height;
   }
   makeCopyWithDefaultMipmaps(): Image {
-    return new ImageLite(this.image);
+    return new ImageJS(this.image);
   }
   makeShaderCubic(
     _tx: EmbindEnumEntity,

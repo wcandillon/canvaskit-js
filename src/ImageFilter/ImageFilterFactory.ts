@@ -10,7 +10,7 @@ import type {
   Shader,
 } from "canvaskit-wasm";
 
-import { BlurImageFilter } from "./ImageFilter";
+import { BlurImageFilter } from "./BlurImageFilter";
 
 export const ImageFilterFactory: CKImageFilterFactory = {
   MakeBlend: function (

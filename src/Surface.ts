@@ -10,7 +10,7 @@ import type {
 
 import { HostObject } from "./HostObject";
 import { CanvasLite } from "./Canvas";
-import { ImageLite } from "./Image";
+import { ImageJS } from "./Image";
 import type { SkiaRenderingContext } from "./Values";
 import { rectToXYWH } from "./Values";
 
@@ -60,7 +60,7 @@ export class SurfaceLite extends HostObject<Surface> implements Surface {
       bounds.width,
       bounds.height
     );
-    return new ImageLite(data);
+    return new ImageJS(data);
   }
   makeSurface(info: ImageInfo): Surface {
     const ctx = new OffscreenCanvas(info.width, info.height).getContext("2d")!;

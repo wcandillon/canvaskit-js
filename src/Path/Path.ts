@@ -14,11 +14,11 @@ import absSVG from "abs-svg-path";
 import serializeSVG from "serialize-svg-path";
 import { svgPathProperties as SvgPathProperties } from "svg-path-properties";
 
-import { PathVerb as CKPathVerb } from "./Contants";
-import { HostObject } from "./HostObject";
-import type { Matrix3x3 } from "./Matrix3";
-import { Matrix3, transformPoint } from "./Matrix3";
-import { inputCmds, rrectToXYWH } from "./Values";
+import { PathVerb as CKPathVerb } from "../Contants";
+import { HostObject } from "../HostObject";
+import type { Matrix3x3 } from "../Matrix3";
+import { Matrix3, transformPoint } from "../Matrix3";
+import { inputCmds, rrectToXYWH } from "../Values";
 
 enum PathVerb {
   Move = "M",
@@ -60,7 +60,7 @@ const unflattenCmds = (cmds: number[]): PathCommand[] => {
   return result;
 };
 
-export class PathLite extends HostObject<Path> implements Path {
+export class PathJS extends HostObject<Path> implements Path {
   private path: PathCommand[] = [];
   private lastPoint: [number, number] = [0, 0];
 
@@ -99,7 +99,7 @@ export class PathLite extends HostObject<Path> implements Path {
     throw new Error("Method not implemented.");
   }
 
-  addPath(newPath: PathLite, _matrix: Matrix3x3): Path | null {
+  addPath(newPath: PathJS, _matrix: Matrix3x3): Path | null {
     this.path.push(...newPath.path);
     return this;
   }
@@ -256,7 +256,7 @@ export class PathLite extends HostObject<Path> implements Path {
     throw new Error("Method not implemented.");
   }
   copy(): Path {
-    return new PathLite(this.path.slice());
+    return new PathJS(this.path.slice());
   }
   countPoints(): number {
     throw new Error("Method not implemented.");
@@ -429,7 +429,7 @@ export class PathLite extends HostObject<Path> implements Path {
   }
   trim(startT: number, stopT: number, isComplement: boolean): Path | null {
     const properties = new SvgPathProperties(this.toSVGString());
-    const newPath = new PathLite();
+    const newPath = new PathJS();
     const length = properties.getTotalLength();
     let t = 0;
     properties.getParts().forEach((part) => {
@@ -441,7 +441,7 @@ export class PathLite extends HostObject<Path> implements Path {
     return this.swap(newPath);
   }
 
-  private swap(newPath: PathLite): Path | null {
+  private swap(newPath: PathJS): Path | null {
     this.path = newPath.path;
     this.lastPoint = newPath.lastPoint;
     return newPath;
@@ -451,7 +451,7 @@ export class PathLite extends HostObject<Path> implements Path {
     throw new Error("Function not implemented.");
   }
   static MakeFromCmds(cmds: InputCommands): Path | null {
-    return new PathLite(unflattenCmds(inputCmds(cmds)));
+    return new PathJS(unflattenCmds(inputCmds(cmds)));
   }
   static MakeFromOp(
     _one: Path,
@@ -469,7 +469,7 @@ export class PathLite extends HostObject<Path> implements Path {
   }
   static MakeFromSVGString(d: string): Path | null {
     const cmds = absSVG(parseSVG(d));
-    return new PathLite(cmds);
+    return new PathJS(cmds);
   }
   static MakeFromVerbsPointsWeights(
     _verbs: VerbList,

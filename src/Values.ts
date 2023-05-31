@@ -75,7 +75,7 @@ export const uIntColorToCanvasKitColor = (c: number) => {
   );
 };
 
-export class MallocObjLite<T extends TypedArray> implements MallocObj {
+export class MallocObjJS<T extends TypedArray> implements MallocObj {
   byteOffset = 0;
 
   constructor(private arr: T) {}

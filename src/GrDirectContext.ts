@@ -2,7 +2,7 @@ import type { GrDirectContext } from "canvaskit-wasm";
 
 import { HostObject } from "./HostObject";
 
-export class GrDirectContextLite
+export class GrDirectContextJS
   extends HostObject<GrDirectContext>
   implements GrDirectContext
 {

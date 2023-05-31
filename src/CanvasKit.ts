@@ -94,13 +94,13 @@ import {
 import { SurfaceLite } from "./Surface";
 import { PaintLite } from "./Paint";
 import { ShaderFactory } from "./Shader";
-import { ColorAsInt, MallocObjLite } from "./Values";
-import { PathLite } from "./Path";
-import { ImageFilterFactory } from "./ImageFilterFactory";
+import { ColorAsInt, MallocObjJS } from "./Values";
+import { PathJS } from "./Path";
+import { ImageFilterFactory } from "./ImageFilter";
 import { MaskFilterFactory } from "./MaskFilter";
-import { GrDirectContextLite } from "./GrDirectContext";
+import { GrDirectContextJS } from "./GrDirectContext";
 import { EmulatedCanvas2DLite } from "./EmulatedCanvas2D";
-import { ImageLite } from "./Image";
+import { ImageJS } from "./Image";
 import { RuntimeEffectFactory } from "./RuntimeEffect";
 
 export class CanvasKitLite implements ICanvasKit {
@@ -227,7 +227,7 @@ export class CanvasKitLite implements ICanvasKit {
     throw new Error("Method not implemented.");
   }
   Malloc(TypedArray: TypedArrayConstructor, len: number): MallocObj {
-    return new MallocObjLite(new TypedArray(len));
+    return new MallocObjJS(new TypedArray(len));
   }
   MallocGlyphIDs(_len: number): MallocObj {
     throw new Error("Method not implemented.");
@@ -284,10 +284,10 @@ export class CanvasKitLite implements ICanvasKit {
     return this.contextes.length - 1;
   }
   MakeGrContext(ctx: number): GrDirectContext | null {
-    return new GrDirectContextLite(this.contextes[ctx]);
+    return new GrDirectContextJS(this.contextes[ctx]);
   }
   MakeWebGLContext(ctx: number): GrDirectContext | null {
-    return new GrDirectContextLite(this.contextes[ctx]);
+    return new GrDirectContextJS(this.contextes[ctx]);
   }
   MakeOnScreenGLSurface(
     _ctx: GrDirectContext,
@@ -329,7 +329,7 @@ export class CanvasKitLite implements ICanvasKit {
     throw new Error("Method not implemented.");
   }
   MakeRenderTarget(
-    grCtx: GrDirectContextLite,
+    grCtx: GrDirectContextJS,
     ..._args: [number, number] | [ImageInfo]
   ): Surface | null {
     return new SurfaceLite(grCtx.ctx);
@@ -381,7 +381,7 @@ export class CanvasKitLite implements ICanvasKit {
           : "srgb",
       }
     );
-    return new ImageLite(imageData);
+    return new ImageJS(imageData);
   }
   MakeImageFromEncodedAsync(bytes: Uint8Array | ArrayBuffer) {
     const blob = new Blob([bytes], { type: "image/png" });
@@ -408,7 +408,7 @@ export class CanvasKitLite implements ICanvasKit {
     );
   }
   MakeImageFromCanvasImageSource(src: CanvasImageSource): Image {
-    return new ImageLite(src);
+    return new ImageJS(src);
   }
   MakePicture(_bytes: Uint8Array | ArrayBuffer): SkPicture | null {
     throw new Error("Method not implemented.");
@@ -439,7 +439,7 @@ export class CanvasKitLite implements ICanvasKit {
   ContourMeasureIter!: ContourMeasureIterConstructor;
   Font!: FontConstructor;
   Paint: DefaultConstructor<Paint> = PaintLite;
-  Path = PathLite as unknown as PathConstructorAndFactory;
+  Path = PathJS as unknown as PathConstructorAndFactory;
   PictureRecorder!: DefaultConstructor<PictureRecorder>;
   TextStyle!: TextStyleConstructor;
   ParagraphBuilder!: ParagraphBuilderFactory;

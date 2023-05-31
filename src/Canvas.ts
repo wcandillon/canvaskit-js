@@ -34,8 +34,8 @@ import type { SkiaRenderingContext } from "./Values";
 import { IntAsColor, rectToXYWH, rrectToXYWH } from "./Values";
 import { convertDOMMatrixTo3x3 } from "./Matrix3";
 import { toRad } from "./math";
-import type { PathLite } from "./Path";
-import type { ImageLite } from "./Image";
+import type { PathJS } from "./Path";
+import type { ImageJS } from "./Image";
 
 export class CanvasLite extends HostObject<Canvas> implements Canvas {
   private defaultPaint = new PaintLite();
@@ -50,7 +50,7 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
     paint.setColor(color);
     this.drawPaint(paint);
   }
-  clipPath(path: PathLite, _op: EmbindEnumEntity, _doAntiAlias: boolean): void {
+  clipPath(path: PathJS, _op: EmbindEnumEntity, _doAntiAlias: boolean): void {
     this.ctx.clip(path.getPath2D());
   }
   clipRect(
@@ -128,12 +128,7 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
   ): void {
     throw new Error("Method not implemented.");
   }
-  drawImage(
-    img: ImageLite,
-    left: number,
-    top: number,
-    paint?: PaintLite
-  ): void {
+  drawImage(img: ImageJS, left: number, top: number, paint?: PaintLite): void {
     (paint ?? this.defaultPaint).apply(this.ctx, () => {
       this.ctx.drawImage(img.getImage(), left, top);
     });
@@ -168,7 +163,7 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
     throw new Error("Method not implemented.");
   }
   drawImageRect(
-    img: ImageLite,
+    img: ImageJS,
     _src: InputRect,
     _dest: InputRect,
     paint: PaintLite,
@@ -231,7 +226,7 @@ export class CanvasLite extends HostObject<Canvas> implements Canvas {
   drawParagraph(_p: Paragraph, _x: number, _y: number): void {
     throw new Error("Method not implemented.");
   }
-  drawPath(path: PathLite, paint: PaintLite): void {
+  drawPath(path: PathJS, paint: PaintLite): void {
     paint.apply(
       this.ctx,
       () => {

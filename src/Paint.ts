@@ -9,7 +9,7 @@ import type {
 import type { InputColor } from "./Contants";
 import { BlendMode, StrokeCap, PaintStyle, StrokeJoin } from "./Contants";
 import type { ShaderJS } from "./Shader";
-import type { ImageFilterLite } from "./ImageFilter";
+import type { ImageFilterJS } from "./ImageFilter";
 import { HostObject } from "./HostObject";
 import type { SkiaRenderingContext } from "./Values";
 import { NativeColor } from "./Values";
@@ -105,7 +105,7 @@ export class PaintLite extends HostObject<Paint> implements Paint {
   private strokeMiter = 10;
   private shader: ShaderJS | null = null;
   private colorFilter: ColorFilter | null = null;
-  private imageFilter: ImageFilterLite | null = null;
+  private imageFilter: ImageFilterJS | null = null;
   private maskFilter: MaskFilterJS | null = null;
   private strokeJoin = StrokeJoin.Bevel;
   private strokeCap = StrokeCap.Square;
@@ -139,7 +139,7 @@ export class PaintLite extends HostObject<Paint> implements Paint {
     context.lineJoin = lineJoin(this.strokeJoin);
     if (this.maskFilter || this.imageFilter) {
       let filter = "";
-      filter += this.imageFilter ? this.imageFilter.toFilter() : "";
+      filter += this.imageFilter ? this.imageFilter.getFilter() : "";
       filter += this.maskFilter ? this.maskFilter.getFilter() : "";
       context.filter = filter;
     }
@@ -251,7 +251,7 @@ export class PaintLite extends HostObject<Paint> implements Paint {
   setDither(_shouldDither: boolean): void {
     throw new Error("Method not implemented.");
   }
-  setImageFilter(filter: ImageFilterLite | null): void {
+  setImageFilter(filter: ImageFilterJS | null): void {
     this.imageFilter = filter;
   }
   setMaskFilter(filter: MaskFilterJS | null): void {
