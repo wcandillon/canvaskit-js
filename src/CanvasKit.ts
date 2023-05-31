@@ -97,7 +97,7 @@ import { ShaderFactory } from "./Shader";
 import { ColorAsInt, MallocObjLite } from "./Values";
 import { PathLite } from "./Path";
 import { ImageFilterFactory } from "./ImageFilterFactory";
-import { MaskFilterFactory } from "./MaskFilterFactory";
+import { MaskFilterFactory } from "./MaskFilter";
 import { GrDirectContextLite } from "./GrDirectContext";
 import { EmulatedCanvas2DLite } from "./EmulatedCanvas2D";
 import { ImageLite } from "./Image";

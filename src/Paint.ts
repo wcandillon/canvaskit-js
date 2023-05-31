@@ -13,7 +13,7 @@ import type { ImageFilterLite } from "./ImageFilter";
 import { HostObject } from "./HostObject";
 import type { SkiaRenderingContext } from "./Values";
 import { NativeColor } from "./Values";
-import type { MaskFilterLite } from "./MaskFilterFactory";
+import type { MaskFilterJS } from "./MaskFilter/MaskFilter";
 
 const lineCap = (cap: EmbindEnumEntity) => {
   switch (cap.value) {
@@ -106,7 +106,7 @@ export class PaintLite extends HostObject<Paint> implements Paint {
   private shader: ShaderJS | null = null;
   private colorFilter: ColorFilter | null = null;
   private imageFilter: ImageFilterLite | null = null;
-  private maskFilter: MaskFilterLite | null = null;
+  private maskFilter: MaskFilterJS | null = null;
   private strokeJoin = StrokeJoin.Bevel;
   private strokeCap = StrokeCap.Square;
   private blendMode = BlendMode.SrcOver;
@@ -140,7 +140,7 @@ export class PaintLite extends HostObject<Paint> implements Paint {
     if (this.maskFilter || this.imageFilter) {
       let filter = "";
       filter += this.imageFilter ? this.imageFilter.toFilter() : "";
-      filter += this.maskFilter ? this.maskFilter.toFilter() : "";
+      filter += this.maskFilter ? this.maskFilter.getFilter() : "";
       context.filter = filter;
     }
 
@@ -254,7 +254,7 @@ export class PaintLite extends HostObject<Paint> implements Paint {
   setImageFilter(filter: ImageFilterLite | null): void {
     this.imageFilter = filter;
   }
-  setMaskFilter(filter: MaskFilterLite | null): void {
+  setMaskFilter(filter: MaskFilterJS | null): void {
     this.maskFilter = filter;
   }
   setPathEffect(_effect: PathEffect | null): void {
