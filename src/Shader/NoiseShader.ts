@@ -2,7 +2,7 @@ import { SVGFilter } from "../SVG";
 
 import { ShaderJS } from "./Shader";
 
-export class FractalNoise extends ShaderJS {
+export class NoiseShader extends ShaderJS {
   // Because we use an SVG filter, we need to use a canvas element
   private canvas = document.createElement("canvas");
 
@@ -15,11 +15,12 @@ export class FractalNoise extends ShaderJS {
     private readonly octaves: number,
     private readonly seed: number,
     private readonly tileW: number,
-    private readonly tileH: number
+    private readonly tileH: number,
+    private readonly type: "turbulence" | "fractalNoise" = "fractalNoise"
   ) {
     super();
-    FractalNoise.count++;
-    this.id = `fractal-noise-${FractalNoise.count}`;
+    NoiseShader.count++;
+    this.id = `fractal-noise-${NoiseShader.count}`;
   }
 
   getTexture(width: number, height: number) {
@@ -34,7 +35,8 @@ export class FractalNoise extends ShaderJS {
       this.octaves,
       this.seed,
       this.tileW,
-      this.tileH
+      this.tileH,
+      this.type
     );
     ctx.filter = filter.create();
     ctx.fillStyle = "transparent";
