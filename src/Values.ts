@@ -10,10 +10,6 @@ import type {
   TypedArray,
 } from "canvaskit-wasm";
 
-export type SkiaRenderingContext =
-  | CanvasRenderingContext2D
-  | OffscreenCanvasRenderingContext2D;
-
 export const vec = (x: number, y: number) => Float32Array.of(x, y);
 
 const clampColorComp = (c: number) => {

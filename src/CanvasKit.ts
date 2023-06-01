@@ -1,7 +1,7 @@
 /* eslint-disable no-bitwise */
 /* eslint-disable camelcase */
 import type {
-  ColorSpace,
+  ColorSpace as CKColorSpace,
   Image,
   EmulatedCanvas2D,
   CanvasKit as ICanvasKit,
@@ -64,13 +64,13 @@ import type {
 } from "canvaskit-wasm";
 
 import { Matrix3 } from "./Matrix3";
-import type { ColorSpaceJS } from "./Contants";
+import type { ColorSpaceJS, ImageFormatEnum } from "./Contants";
 import {
+  ColorSpace,
   AlphaType,
   BlendMode,
   BlurStyle,
   ClipOp,
-  ColorSpaceEnumJS,
   ColorType,
   FillType,
   FilterMode,
@@ -102,6 +102,11 @@ import { GrDirectContextJS } from "./GrDirectContext";
 import { EmulatedCanvas2DJS } from "./EmulatedCanvas2D";
 import { ImageJS } from "./Image";
 import { RuntimeEffectFactory } from "./RuntimeEffect";
+import {
+  createTexture,
+  makeImageFromEncodedAsync,
+  resolveContext,
+} from "./Core/Platform";
 
 export class CanvasKitJS implements ICanvasKit {
   private static instance: ICanvasKit | null = null;
@@ -234,14 +239,7 @@ export class CanvasKitJS implements ICanvasKit {
   }
   Free(_m: MallocObj): void {}
   MakeCanvasSurface(canvas: string | HTMLCanvasElement): Surface | null {
-    if (typeof canvas === "string") {
-      const el = document.getElementById(canvas);
-      if (!el) {
-        throw new Error(`No element with id ${canvas} exists`);
-      }
-      canvas = document.getElementById(canvas) as HTMLCanvasElement;
-    }
-    const ctx = canvas.getContext("2d");
+    const ctx = resolveContext(canvas);
     if (!ctx) {
       return null;
     }
@@ -259,17 +257,17 @@ export class CanvasKitJS implements ICanvasKit {
   }
   MakeWebGLCanvasSurface(
     canvas: string | HTMLCanvasElement,
-    _colorSpace?: ColorSpace | undefined,
+    colorSpace?: ColorSpaceJS | undefined,
     _opts?: WebGLOptions | undefined
   ): Surface | null {
-    return this.MakeCanvasSurface(canvas);
-  }
-  MakeSurface(width: number, height: number): Surface | null {
-    const offscreen = new OffscreenCanvas(width, height);
-    const ctx = offscreen.getContext("2d");
+    const ctx = resolveContext(canvas, colorSpace?.getNativeValue());
     if (!ctx) {
       return null;
     }
+    return new SurfaceJS(ctx);
+  }
+  MakeSurface(width: number, height: number): Surface | null {
+    const ctx = createTexture(width, height);
     return new SurfaceJS(ctx);
   }
   GetWebGLContext(
@@ -293,7 +291,7 @@ export class CanvasKitJS implements ICanvasKit {
     _ctx: GrDirectContext,
     _width: number,
     _height: number,
-    _colorSpace: ColorSpace,
+    _colorSpace: CKColorSpace,
     _sampleCount?: number | undefined,
     _stencil?: number | undefined
   ): Surface | null {
@@ -309,7 +307,7 @@ export class CanvasKitJS implements ICanvasKit {
     _texture: any,
     _width: number,
     _height: number,
-    _colorSpace: ColorSpace
+    _colorSpace: CKColorSpace
   ): Surface | null {
     throw new Error("Method not implemented.");
   }
@@ -322,7 +320,7 @@ export class CanvasKitJS implements ICanvasKit {
   }
   MakeGPUCanvasSurface(
     _canvasContext: WebGPUCanvasContext,
-    _colorSpace: ColorSpace,
+    _colorSpace: CKColorSpace,
     _width?: number | undefined,
     _height?: number | undefined
   ): Surface | null {
@@ -341,8 +339,8 @@ export class CanvasKitJS implements ICanvasKit {
   ): Image {
     throw new Error("Method not implemented.");
   }
-  deleteContext(_ctx: number): void {
-    throw new Error("Method not implemented.");
+  deleteContext(ctx: number): void {
+    this.contextes.splice(ctx, 1);
   }
   getDecodeCacheLimitBytes(): number {
     throw new Error("Method not implemented.");
@@ -359,12 +357,8 @@ export class CanvasKitJS implements ICanvasKit {
     throw new Error("Method not implemented.");
   }
   MakeCanvas(width: number, height: number): EmulatedCanvas2D {
-    const canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
-    canvas.style.display = "none";
-    document.body.appendChild(canvas);
-    return new EmulatedCanvas2DJS(canvas);
+    const texture = createTexture(width, height);
+    return new EmulatedCanvas2DJS(texture.canvas);
   }
   MakeImage(
     { width, height, colorSpace }: ImageInfo,
@@ -383,22 +377,11 @@ export class CanvasKitJS implements ICanvasKit {
     );
     return new ImageJS(imageData);
   }
-  MakeImageFromEncodedAsync(bytes: Uint8Array | ArrayBuffer) {
-    const blob = new Blob([bytes], { type: "image/png" });
-    const url = URL.createObjectURL(blob);
-    const img = new window.Image();
-    img.src = url;
-    return new Promise((resolve, reject) => {
-      img.onload = () => {
-        img.width = img.naturalWidth;
-        img.height = img.naturalHeight;
-        const result = this.MakeImageFromCanvasImageSource(img);
-        if (!result) {
-          reject();
-        }
-        resolve(result);
-      };
-    });
+  MakeImageFromEncodedAsync(
+    bytes: Uint8Array | ArrayBuffer,
+    imageFormat: ImageFormatEnum
+  ) {
+    return makeImageFromEncodedAsync(bytes, imageFormat);
   }
   MakeImageFromEncoded(_bytes: Uint8Array | ArrayBuffer): Image | null {
     throw new Error(
@@ -475,7 +458,7 @@ export class CanvasKitJS implements ICanvasKit {
   Path1DEffect = Path1DEffectStyle;
   PathOp = PathOp;
   PointMode = PointMode;
-  ColorSpace = new ColorSpaceEnumJS();
+  ColorSpace = ColorSpace;
   StrokeCap = StrokeCap;
   StrokeJoin = StrokeJoin;
   TileMode = TileMode;

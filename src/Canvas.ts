@@ -30,7 +30,6 @@ import type {
 import { PaintJS } from "./Paint";
 import type { ColorSpaceJS, InputColor } from "./Contants";
 import { HostObject } from "./HostObject";
-import type { SkiaRenderingContext } from "./Values";
 import { IntAsColor, rectToXYWH, rrectToXYWH } from "./Values";
 import { convertDOMMatrixTo3x3 } from "./Matrix3";
 import { toRad } from "./math";
@@ -41,7 +40,7 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
   private defaultPaint = new PaintJS();
   private saveCount = 0;
 
-  constructor(private readonly ctx: SkiaRenderingContext) {
+  constructor(private readonly ctx: CanvasRenderingContext2D) {
     super();
   }
 

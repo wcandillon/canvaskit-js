@@ -1,4 +1,5 @@
 import type {
+  ColorSpace as CKColorSpace,
   StrokeCapEnumValues,
   MallocObj,
   InputColor as CKInputColor,
@@ -24,7 +25,6 @@ import type {
   VertexModeEnumValues,
   ClipOpEnumValues,
   ColorSpaceEnumValues,
-  ColorSpace,
 } from "canvaskit-wasm";
 
 import { HostObject } from "./HostObject";
@@ -166,7 +166,10 @@ export enum PointModeEnum {
 }
 export const PointMode = makeEnum<PointModeEnumValues>(PointModeEnum);
 
-export class ColorSpaceJS extends HostObject<ColorSpace> implements ColorSpace {
+export class ColorSpaceJS
+  extends HostObject<CKColorSpace>
+  implements CKColorSpace
+{
   constructor(public readonly value: "srgb" | "display-p3" | "adobe-rgb") {
     super();
   }
@@ -191,6 +194,8 @@ export class ColorSpaceEnumJS implements ColorSpaceEnumValues {
     return a.value === b.value;
   }
 }
+
+export const ColorSpace = new ColorSpaceEnumJS();
 
 export enum AlphaTypeEnum {
   Unknown,

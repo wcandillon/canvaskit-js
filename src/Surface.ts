@@ -11,13 +11,12 @@ import type {
 import { HostObject } from "./HostObject";
 import { CanvasJS } from "./Canvas";
 import { ImageJS } from "./Image";
-import type { SkiaRenderingContext } from "./Values";
 import { rectToXYWH } from "./Values";
 
 export class SurfaceJS extends HostObject<Surface> implements Surface {
   private canvas: Canvas;
 
-  constructor(private readonly ctx: SkiaRenderingContext) {
+  constructor(private readonly ctx: CanvasRenderingContext2D) {
     super();
     this.canvas = new CanvasJS(this.ctx);
   }
@@ -30,7 +29,7 @@ export class SurfaceJS extends HostObject<Surface> implements Surface {
     return this.canvas;
   }
   height(): number {
-    return this.ctx.canvas.width;
+    return this.ctx.canvas.height;
   }
   imageInfo(): ImageInfo {
     throw new Error("Method not implemented.");
@@ -51,8 +50,8 @@ export class SurfaceJS extends HostObject<Surface> implements Surface {
       : {
           x: 0,
           y: 0,
-          width: this.ctx.canvas.width,
-          height: this.ctx.canvas.height,
+          width: this.width(),
+          height: this.height(),
         };
     const data = this.ctx.getImageData(
       bounds.x,
@@ -62,12 +61,11 @@ export class SurfaceJS extends HostObject<Surface> implements Surface {
     );
     return new ImageJS(data);
   }
-  makeSurface(info: ImageInfo): Surface {
-    const ctx = new OffscreenCanvas(info.width, info.height).getContext("2d")!;
-    return new SurfaceJS(ctx);
+  makeSurface(_info: ImageInfo): Surface {
+    throw new Error("Method not implemented.");
   }
   reportBackendTypeIsGPU(): boolean {
-    return true;
+    return true; //-ish
   }
   requestAnimationFrame(_drawFrame: (_: Canvas) => void): number {
     return requestAnimationFrame(() => {

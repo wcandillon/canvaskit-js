@@ -12,7 +12,6 @@ import type { ShaderJS } from "../Shader";
 import type { ImageFilterJS } from "../ImageFilter";
 import { HostObject } from "../HostObject";
 import { NativeColor } from "../Values";
-import type { SkiaRenderingContext } from "../Values";
 import type { MaskFilterJS } from "../MaskFilter/MaskFilter";
 
 import { getBlendMode } from "./BlendMode";
@@ -31,9 +30,9 @@ export class PaintJS extends HostObject<Paint> implements Paint {
   private blendMode = BlendMode.SrcOver;
 
   apply(
-    context: SkiaRenderingContext,
+    context: CanvasRenderingContext2D,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    draw: (ctx: SkiaRenderingContext) => any,
+    draw: (ctx: CanvasRenderingContext2D) => any,
     path?: boolean
   ) {
     context.save();

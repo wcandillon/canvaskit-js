@@ -13,18 +13,6 @@ export class GrDirectContextJS
     super();
   }
 
-  createTexture() {
-    const canvas = document.createElement("canvas");
-    canvas.width = this.ctx.canvas.width;
-    canvas.height = this.ctx.canvas.height;
-    canvas.setAttribute("style", "display: none;");
-    const ctx = canvas.getContext("2d");
-    if (!ctx) {
-      throw new Error("Could not create 2d context");
-    }
-    return ctx;
-  }
-
   getResourceCacheLimitBytes(): number {
     return this.limit;
   }
