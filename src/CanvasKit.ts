@@ -103,6 +103,7 @@ import { EmulatedCanvas2DJS } from "./EmulatedCanvas2D";
 import { ImageJS } from "./Image";
 import { RuntimeEffectFactory } from "./RuntimeEffect";
 import {
+  createOffscreenTexture,
   createTexture,
   makeImageFromEncodedAsync,
   resolveContext,
@@ -111,16 +112,18 @@ import {
 export class CanvasKitJS implements ICanvasKit {
   private static instance: ICanvasKit | null = null;
 
-  private memoizedCanvas: HTMLCanvasElement | null = null;
   private contextes: CanvasRenderingContext2D[] = [];
+  private _colorCtx: OffscreenCanvasRenderingContext2D | null = null;
 
   private constructor() {}
 
-  get canvas() {
-    if (this.memoizedCanvas === null) {
-      this.memoizedCanvas = document.createElement("canvas");
+  get colorCtx(): OffscreenCanvasRenderingContext2D {
+    if (this._colorCtx === null) {
+      this._colorCtx = createOffscreenTexture(1, 1, {
+        willReadFrequently: true,
+      });
     }
-    return this.memoizedCanvas;
+    return this._colorCtx;
   }
 
   static getInstance() {
@@ -160,13 +163,9 @@ export class CanvasKitJS implements ICanvasKit {
     colorStr: string,
     _colorMap?: Record<string, Float32Array> | undefined
   ): Float32Array {
-    const { canvas } = this;
-    canvas.height = 1;
-    canvas.width = 1;
-    const ctx = canvas.getContext("2d", { willReadFrequently: true })!;
-    ctx.fillStyle = colorStr;
-    ctx.fillRect(0, 0, 1, 1);
-    const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data;
+    this.colorCtx.fillStyle = colorStr;
+    this.colorCtx.fillRect(0, 0, 1, 1);
+    const [r, g, b, a] = this.colorCtx.getImageData(0, 0, 1, 1).data;
     return Float32Array.of(r / 255, g / 255, b / 255, a / 255);
   }
 
@@ -260,7 +259,9 @@ export class CanvasKitJS implements ICanvasKit {
     colorSpace?: ColorSpaceJS | undefined,
     _opts?: WebGLOptions | undefined
   ): Surface | null {
-    const ctx = resolveContext(canvas, colorSpace?.getNativeValue());
+    const ctx = resolveContext(canvas, {
+      colorSpace: colorSpace?.getNativeValue(),
+    });
     if (!ctx) {
       return null;
     }
