@@ -16,6 +16,7 @@ import { ColorShader } from "./ColorShader";
 import { NoiseShader } from "./NoiseShader";
 import { BlendShader } from "./BlendShader";
 import type { ShaderJS } from "./Shader";
+import { MakeLinearGradientShader } from "./MakeLinearGradientShader";
 
 export const ShaderFactory: CKShaderFactory = {
   MakeBlend: function (mode: BlendMode, one: ShaderJS, two: ShaderJS): Shader {
@@ -35,16 +36,25 @@ export const ShaderFactory: CKShaderFactory = {
     return new NoiseShader(baseFreqX, baseFreqY, octaves, seed, tileW, tileH);
   },
   MakeLinearGradient: function (
-    _start: InputPoint,
-    _end: InputPoint,
-    _colors: InputFlexibleColorArray,
-    _pos: number[] | null,
-    _mode: EmbindEnumEntity,
-    _localMatrix?: InputMatrix | undefined,
-    _flags?: number | undefined,
-    _colorSpace?: ColorSpace | undefined
+    start: InputPoint,
+    end: InputPoint,
+    colors: InputFlexibleColorArray,
+    pos: number[] | null,
+    mode: EmbindEnumEntity,
+    localMatrix?: InputMatrix | undefined,
+    flags?: number | undefined,
+    colorSpace?: ColorSpace | undefined
   ): Shader {
-    throw new Error("Function not implemented.");
+    return new MakeLinearGradientShader(
+      start,
+      end,
+      colors,
+      pos,
+      mode,
+      localMatrix,
+      flags,
+      colorSpace
+    );
   },
   MakeRadialGradient: function (
     _center: InputPoint,

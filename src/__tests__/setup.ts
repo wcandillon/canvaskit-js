@@ -93,7 +93,6 @@ class RemoteSurface {
       (${fn.toString()})(ctx);
       return surface.makeImageSnapshot().encodeToBytes();
     })();`;
-    console.log(source);
     const data = await this.page.evaluate(source);
     return PNG.sync.read(
       Buffer.from(
