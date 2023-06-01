@@ -12,6 +12,7 @@ import type {
 
 import { HostObject } from "./HostObject";
 import { ImageFormatEnum } from "./Contants";
+import { createTexture } from "./Core/Platform";
 
 const dataURLToByteArray = (dataUrl: string) => {
   // split the data URL at the comma to separate the metadata from the data
@@ -40,16 +41,16 @@ export class ImageJS extends HostObject<Image> implements Image {
     if (source instanceof HTMLCanvasElement) {
       this.image = source;
     } else {
-      this.image = document.createElement("canvas");
-      this.image.width =
+      const width =
         typeof source.width === "number"
           ? source.width
           : source.width.animVal.value;
-      this.image.height =
+      const height =
         typeof source.height === "number"
           ? source.height
           : source.height.animVal.value;
-      const ctx = this.image.getContext("2d")!;
+      const ctx = createTexture(width, height);
+      this.image = ctx.canvas;
       if (source instanceof ImageData) {
         ctx.putImageData(source, 0, 0);
       } else {
