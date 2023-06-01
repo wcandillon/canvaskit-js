@@ -20,6 +20,8 @@ import puppeteer from "puppeteer";
 import { CanvasKitJS } from "../CanvasKit";
 import { vec } from "../Values";
 
+const DEBUG = false;
+
 export interface DrawingContext {
   CanvasKit: CanvasKit;
   surface: Surface;
@@ -36,7 +38,7 @@ class RemoteSurface {
   private functions: { [name: string]: string } = {};
 
   async init() {
-    const browser = await puppeteer.launch({ headless: "new" });
+    const browser = await puppeteer.launch({ headless: DEBUG ? false : "new" });
     const page = await browser.newPage();
     page.on("console", (msg) => console.log(msg.text()));
     page.on("pageerror", (error) => {
@@ -57,7 +59,7 @@ class RemoteSurface {
   }
 
   async dispose() {
-    if (this.browser) {
+    if (this.browser && !DEBUG) {
       this.browser.close();
     }
   }
@@ -71,28 +73,28 @@ class RemoteSurface {
     if (!this.page) {
       throw new Error("RemoteSurface not initialized");
     }
-    const data = await this.page.evaluate(
-      `(async function Main(){ 
-        const canvas = document.createElement("canvas");
-        canvas.width = ${width};
-        canvas.height = ${height};
-        document.body.appendChild(canvas);
-        const surface = CanvasKit.MakeCanvasSurface(canvas);
-        const width = ${width};
-        const height = ${height};
-        const center = { x: width/2, y: height/2 };
-        const ctx = { 
-          CanvasKit, surface, width, height, canvas: surface.getCanvas(), center, assets
-        };
-        ${Object.keys(this.functions)
-          .map((name) => {
-            return `const ${name} = ${this.functions[name]}`;
-          })
-          .join("\n")}
-        (${fn.toString()})(ctx);
-        return surface.makeImageSnapshot().encodeToBytes();
-      })();`
-    );
+    const source = `(async function Main(){ 
+      const canvas = document.createElement("canvas");
+      canvas.width = ${width};
+      canvas.height = ${height};
+      document.body.appendChild(canvas);
+      const surface = CanvasKit.MakeCanvasSurface(canvas);
+      const width = ${width};
+      const height = ${height};
+      const center = { x: width/2, y: height/2 };
+      const ctx = { 
+        CanvasKit, surface, width, height, canvas: surface.getCanvas(), center, assets
+      };
+      ${Object.keys(this.functions)
+        .map((name) => {
+          return `const ${name} = ${this.functions[name]}`;
+        })
+        .join("\n")}
+      (${fn.toString()})(ctx);
+      return surface.makeImageSnapshot().encodeToBytes();
+    })();`;
+    console.log(source);
+    const data = await this.page.evaluate(source);
     return PNG.sync.read(
       Buffer.from(
         new Uint8Array(Object.values(data as { [s: string]: number }))

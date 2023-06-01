@@ -1,4 +1,5 @@
 import type {
+  BlendMode,
   ShaderFactory as CKShaderFactory,
   ColorSpace,
   EmbindEnumEntity,
@@ -13,14 +14,12 @@ import { NativeColor } from "../Values";
 
 import { ColorShader } from "./ColorShader";
 import { NoiseShader } from "./NoiseShader";
+import { BlendShader } from "./BlendShader";
+import type { ShaderJS } from "./Shader";
 
 export const ShaderFactory: CKShaderFactory = {
-  MakeBlend: function (
-    _mode: EmbindEnumEntity,
-    _one: Shader,
-    _two: Shader
-  ): Shader {
-    throw new Error("Function not implemented.");
+  MakeBlend: function (mode: BlendMode, one: ShaderJS, two: ShaderJS): Shader {
+    return new BlendShader(mode, one, two);
   },
   MakeColor: function (color: InputColor, _space: ColorSpace): Shader {
     return new ColorShader(NativeColor(color));

@@ -1,6 +1,6 @@
 import { checkImage, skia } from "./setup";
 
-describe("Shaders", () => {
+describe("Runtime Effects", () => {
   it("should draw a simple color", async () => {
     const image = await skia.eval(({ CanvasKit, canvas }) => {
       const color = `

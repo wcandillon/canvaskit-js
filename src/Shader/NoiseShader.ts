@@ -3,7 +3,7 @@ import { SVGFilter } from "../SVG";
 import { ShaderJS } from "./Shader";
 
 export class NoiseShader extends ShaderJS {
-  // Because we use an SVG filter, we need to use a canvas element
+  // Because we use an SVG filter, we need to use a canvas element (instead of OffscreenCanvas)
   private canvas = document.createElement("canvas");
 
   private static count = 0;
