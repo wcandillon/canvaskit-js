@@ -20,8 +20,10 @@ export class BlendShader extends ShaderJS {
     const t1 = this.child1.paint(t0);
     texture.globalCompositeOperation = getBlendMode(this.blendMode);
     texture.drawImage(t1, 0, 0);
+    t1.close();
     const t2 = this.child2.paint(t0);
     texture.drawImage(t2, 0, 0);
+    t2.close();
     return texture.canvas.transferToImageBitmap();
   }
 }
