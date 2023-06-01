@@ -13,7 +13,6 @@ import { RuntimeEffectShader } from "../Shader/RuntimeEffectShader";
 
 export interface RuntimeEffectContext {
   gl: WebGL2RenderingContext;
-  canvas: OffscreenCanvas;
   program: WebGLProgram;
   children: {
     shader: ShaderJS;

@@ -7,10 +7,12 @@ export class RuntimeEffectShader extends ShaderJS {
     super();
   }
 
-  getTexture(width: number, height: number) {
-    const { gl, canvas } = this.ctx;
-    canvas.width = width;
-    canvas.height = height;
+  paint(ctx: OffscreenCanvasRenderingContext2D) {
+    const { gl } = this.ctx;
+    const { width, height } = ctx.canvas;
+    const canvas = gl.canvas as OffscreenCanvas;
+    gl.canvas.width = width;
+    gl.canvas.height = height;
     this.ctx.children.forEach(({ shader, location, index }) => {
       gl.activeTexture(gl[`TEXTURE${index}` as "TEXTURE0"]);
       // Upload the image into the texture
@@ -20,14 +22,14 @@ export class RuntimeEffectShader extends ShaderJS {
         gl.RGBA,
         gl.RGBA,
         gl.UNSIGNED_BYTE,
-        // TODO: remove hardcoding
-        shader.getTexture(width, height)
+        shader.paint(ctx)
       );
       // Use the texture
       gl.uniform1i(location, index);
     });
     gl.viewport(0, 0, width, height);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
-    return this.ctx.canvas;
+    const bitmap = canvas.transferToImageBitmap();
+    return bitmap;
   }
 }

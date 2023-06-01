@@ -7,8 +7,6 @@ export abstract class ShaderJS extends HostObject<Shader> implements Shader {
     super();
   }
 
-  abstract getTexture(
-    width: number,
-    height: number
-  ): OffscreenCanvas | HTMLCanvasElement;
+  // Paint may return the same texture that was passed in, or a new one.
+  abstract paint(texture: OffscreenCanvasRenderingContext2D): ImageBitmap;
 }

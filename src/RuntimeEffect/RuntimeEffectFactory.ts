@@ -46,7 +46,7 @@ const handleError = (
   return null;
 };
 
-export const createContext = (
+const createContext = (
   shaderCode: string,
   _error?: ((err: string) => void) | undefined
 ) => {
@@ -102,5 +102,5 @@ export const createContext = (
   gl.enableVertexAttribArray(positionLocation);
   gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 
-  return { gl, canvas, program, children: [] };
+  return { gl, program, children: [] };
 };

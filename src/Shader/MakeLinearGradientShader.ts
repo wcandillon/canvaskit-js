@@ -12,7 +12,6 @@ import { NativeColor, uIntColorToCanvasKitColor } from "../Values";
 import { ShaderJS } from "./Shader";
 
 export class MakeLinearGradientShader extends ShaderJS {
-  private canvas = new OffscreenCanvas(0, 0);
   private colors: Color[];
   private pos: number[];
 
@@ -33,11 +32,7 @@ export class MakeLinearGradientShader extends ShaderJS {
       : this.colors.map((_, i) => i / (this.colors.length - 1));
   }
 
-  getTexture(width: number, height: number) {
-    const { canvas } = this;
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext("2d")!;
+  paint(ctx: OffscreenCanvasRenderingContext2D) {
     const grd = ctx.createLinearGradient(
       this.start[0],
       this.start[1],
@@ -49,8 +44,8 @@ export class MakeLinearGradientShader extends ShaderJS {
       grd.addColorStop(this.pos[i], NativeColor(color));
     });
     ctx.fillStyle = grd;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    return canvas;
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    return ctx.canvas.transferToImageBitmap();
   }
 }
 

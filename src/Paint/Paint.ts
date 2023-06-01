@@ -13,6 +13,7 @@ import type { ImageFilterJS } from "../ImageFilter";
 import { HostObject } from "../HostObject";
 import { NativeColor } from "../Values";
 import type { MaskFilterJS } from "../MaskFilter/MaskFilter";
+import { createOffscreenTexture } from "../Core/Platform";
 
 import { getBlendMode } from "./BlendMode";
 
@@ -38,9 +39,8 @@ export class PaintJS extends HostObject<Paint> implements Paint {
     context.save();
     let style: CanvasPattern | string;
     if (this.shader) {
-      const texture = this.shader.getTexture(
-        context.canvas.width,
-        context.canvas.height
+      const texture = this.shader.paint(
+        createOffscreenTexture(context.canvas.width, context.canvas.height)
       );
       style = context.createPattern(texture, "no-repeat")!;
     } else {

@@ -1,13 +1,13 @@
+import { createTexture } from "../Core/Platform";
 import { SVGFilter } from "../SVG";
 
 import { ShaderJS } from "./Shader";
 
 export class NoiseShader extends ShaderJS {
-  // Because we use an SVG filter, we need to use a canvas element (instead of OffscreenCanvas)
-  private canvas = document.createElement("canvas");
-
   private static count = 0;
-  private readonly id: string;
+  private ctx: CanvasRenderingContext2D;
+  private filter: SVGFilter;
+  private filterURL: string;
 
   constructor(
     private readonly baseFreqX: number,
@@ -20,16 +20,10 @@ export class NoiseShader extends ShaderJS {
   ) {
     super();
     NoiseShader.count++;
-    this.id = `fractal-noise-${NoiseShader.count}`;
-  }
-
-  getTexture(width: number, height: number) {
-    const { canvas } = this;
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext("2d")!;
-    const filter = new SVGFilter(this.id);
-    filter.addNoise(
+    const id = `fractal-noise-${NoiseShader.count}`;
+    this.ctx = createTexture(0, 0);
+    this.filter = new SVGFilter(id);
+    this.filter.addNoise(
       this.baseFreqX,
       this.baseFreqY,
       this.octaves,
@@ -38,9 +32,17 @@ export class NoiseShader extends ShaderJS {
       this.tileH,
       this.type
     );
-    ctx.filter = filter.create();
+    this.filterURL = this.filter.create();
+  }
+
+  paint(ctx: OffscreenCanvasRenderingContext2D) {
+    const { width, height } = ctx.canvas;
+    this.ctx.canvas.width = width;
+    this.ctx.canvas.height = height;
+    this.ctx.filter = this.filterURL;
     ctx.fillStyle = "transparent";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    return canvas;
+    this.ctx.fillRect(0, 0, width, height);
+    ctx.drawImage(this.ctx.canvas, 0, 0);
+    return ctx.canvas.transferToImageBitmap();
   }
 }
