@@ -64,7 +64,7 @@ import type {
 } from "canvaskit-wasm";
 
 import { Matrix3 } from "./Matrix3";
-import type { ColorSpaceJS, ImageFormatEnum } from "./Contants";
+import type { ColorSpaceJS } from "./Contants";
 import {
   ColorSpace,
   AlphaType,
@@ -90,6 +90,7 @@ import {
   StrokeJoin,
   TileMode,
   VertexMode,
+  ImageFormatEnum,
 } from "./Contants";
 import { SurfaceJS } from "./Surface";
 import { PaintJS } from "./Paint";
@@ -105,7 +106,6 @@ import { RuntimeEffectFactory } from "./RuntimeEffect";
 import {
   createOffscreenTexture,
   createTexture,
-  makeImageFromEncodedAsync,
   resolveContext,
 } from "./Core/Platform";
 
@@ -382,7 +382,27 @@ export class CanvasKitJS implements ICanvasKit {
     bytes: Uint8Array | ArrayBuffer,
     imageFormat: ImageFormatEnum
   ) {
-    return makeImageFromEncodedAsync(bytes, imageFormat);
+    let type = "image/png";
+    if (imageFormat === ImageFormatEnum.JPEG) {
+      type = "image/jpeg";
+    } else if (imageFormat === ImageFormatEnum.WEBP) {
+      type = "image/webp";
+    }
+    const blob = new Blob([bytes], { type });
+    const url = URL.createObjectURL(blob);
+    const img = new window.Image();
+    img.src = url;
+    return new Promise((resolve, reject) => {
+      img.onload = () => {
+        img.width = img.naturalWidth;
+        img.height = img.naturalHeight;
+        const result = new ImageJS(img);
+        if (!result) {
+          reject();
+        }
+        resolve(result);
+      };
+    });
   }
   MakeImageFromEncoded(_bytes: Uint8Array | ArrayBuffer): Image | null {
     throw new Error(

@@ -1,6 +1,3 @@
-import { ImageFormatEnum } from "../Contants";
-import { ImageJS } from "../Image";
-
 export const createTexture = (
   width: number,
   height: number,
@@ -45,31 +42,4 @@ export const resolveContext = (
     resolved = canvas;
   }
   return resolved.getContext("2d", options);
-};
-
-export const makeImageFromEncodedAsync = (
-  bytes: Uint8Array | ArrayBuffer,
-  imageFormat: ImageFormatEnum
-) => {
-  let type = "image/png";
-  if (imageFormat === ImageFormatEnum.JPEG) {
-    type = "image/jpeg";
-  } else if (imageFormat === ImageFormatEnum.WEBP) {
-    type = "image/webp";
-  }
-  const blob = new Blob([bytes], { type });
-  const url = URL.createObjectURL(blob);
-  const img = new window.Image();
-  img.src = url;
-  return new Promise((resolve, reject) => {
-    img.onload = () => {
-      img.width = img.naturalWidth;
-      img.height = img.naturalHeight;
-      const result = new ImageJS(img);
-      if (!result) {
-        reject();
-      }
-      resolve(result);
-    };
-  });
 };
