@@ -15,8 +15,13 @@ global.CanvasKit = CanvasKitJS.getInstance();
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+const strictMode = false;
+if (strictMode) {
+  root.render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
+} else {
+  root.render(<App />);
+}
