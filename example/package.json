@@ -19,10 +19,10 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "ESLINT_NO_DEV_ERRORS=true react-scripts start",
-    "build": "ESLINT_NO_DEV_ERRORS=true react-scripts build",
-    "test": "ESLINT_NO_DEV_ERRORS=true react-scripts test",
-    "eject": "ESLINT_NO_DEV_ERRORS=true react-scripts eject",
+    "start": "TSC_COMPILE_ON_ERROR=true ESLINT_NO_DEV_ERRORS=true react-scripts start",
+    "build": "TSC_COMPILE_ON_ERROR=true ESLINT_NO_DEV_ERRORS=true react-scripts build",
+    "test": "TSC_COMPILE_ON_ERROR=true ESLINT_NO_DEV_ERRORS=true react-scripts test",
+    "eject": "TSC_COMPILE_ON_ERROR=true ESLINT_NO_DEV_ERRORS=true react-scripts eject",
     "tsc": "tsc --noEmit",
     "lint": "eslint . --ext .ts,.tsx  --max-warnings 0 --cache"
   },
