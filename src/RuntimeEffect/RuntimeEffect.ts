@@ -32,8 +32,18 @@ export class RuntimeEffectJS
   extends HostObject<RuntimeEffect>
   implements RuntimeEffect
 {
+  private uniformMap: number[] = [];
+
   constructor(private readonly ctx: RuntimeEffectContext) {
     super();
+    const { gl, program } = this.ctx;
+    const uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
+    for (let i = 0; i < uniformCount; i++) {
+      const uniformInfo = gl.getActiveUniform(program, i);
+      if (uniformInfo && uniformInfo.type !== gl.SAMPLER_2D) {
+        this.uniformMap.push(i);
+      }
+    }
   }
 
   makeShader(
@@ -150,7 +160,7 @@ export class RuntimeEffectJS
 
     // If a local matrix is provided, set it as a uniform
     if (localMatrix) {
-      //console.warn("localMatrix not implemented yet");
+      console.warn("localMatrix not implemented yet");
       //throw new Error("localMatrix not implemented yet");
     }
 
@@ -159,9 +169,10 @@ export class RuntimeEffectJS
   getUniform(index: number): SkSLUniform {
     const { gl, program } = this.ctx;
     // TODO: should exclude texture uniforms.
-    const uniformInfo = gl.getActiveUniform(program, index);
+    const i = this.uniformMap.indexOf(index);
+    const uniformInfo = gl.getActiveUniform(program, i);
     if (!uniformInfo) {
-      throw new Error(`No uniform at index ${index}`);
+      throw new Error(`No uniform at index ${i}`);
     }
 
     let rows = 1;
@@ -213,7 +224,7 @@ export class RuntimeEffectJS
     const uniform: SkSLUniform = {
       columns,
       rows,
-      slot: index,
+      slot: i,
       isInteger,
     };
 
@@ -226,7 +237,7 @@ export class RuntimeEffectJS
 
     for (let i = 0; i < uniformCount; i++) {
       const uniformInfo = gl.getActiveUniform(program, i);
-      if (uniformInfo && uniformInfo.type !== gl.FLOAT) {
+      if (uniformInfo && uniformInfo.type !== gl.SAMPLER_2D) {
         count++;
       }
     }
@@ -239,8 +250,8 @@ export class RuntimeEffectJS
 
     for (let i = 0; i < uniformCount; i++) {
       const uniformInfo = gl.getActiveUniform(program, i);
-      if (uniformInfo && uniformInfo.type === gl.SAMPLER_2D) {
-        floatCount++;
+      if (uniformInfo && uniformInfo.type === gl.FLOAT) {
+        floatCount += uniformInfo.size;
       }
     }
     return floatCount;
