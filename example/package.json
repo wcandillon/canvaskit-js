@@ -23,7 +23,8 @@
     "build": "ESLINT_NO_DEV_ERRORS=true react-scripts build",
     "test": "ESLINT_NO_DEV_ERRORS=true react-scripts test",
     "eject": "ESLINT_NO_DEV_ERRORS=true react-scripts eject",
-    "tsc": "tsc --noEmit"
+    "tsc": "tsc --noEmit",
+    "lint": "eslint . --ext .ts,.tsx  --max-warnings 0 --cache"
   },
   "browserslist": {
     "production": [
@@ -36,5 +37,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "eslint": "^8.41.0",
+    "eslint-config-react-native-wcandillon": "^3.10.0"
   }
 }

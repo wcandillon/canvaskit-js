@@ -6,6 +6,7 @@ import type { CanvasKit } from "canvaskit-wasm";
 import App from "./App";
 
 declare global {
+  // eslint-disable-next-line no-var
   var CanvasKit: CanvasKit;
 }
 
