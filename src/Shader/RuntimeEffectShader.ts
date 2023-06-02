@@ -15,7 +15,7 @@ export class RuntimeEffectShader extends ShaderJS {
     gl.canvas.height = height;
     const children: ImageBitmap[] = [];
     this.ctx.children.forEach(({ shader, location, index }) => {
-      gl.activeTexture(gl[`TEXTURE${index}` as "TEXTURE0"]);
+      gl.activeTexture(gl[`TEXTURE${index}`]);
       // Upload the image into the texture
       const child = shader.paint(ctx);
       gl.texImage2D(

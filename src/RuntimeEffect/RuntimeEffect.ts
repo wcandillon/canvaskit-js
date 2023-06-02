@@ -11,19 +11,21 @@ import { normalizeArray } from "../Values";
 import type { ShaderJS } from "../Shader";
 import { RuntimeEffectShader } from "../Shader/RuntimeEffectShader";
 
+type ShaderIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
+
 export interface RuntimeEffectContext {
   gl: WebGL2RenderingContext;
   program: WebGLProgram;
   children: {
     shader: ShaderJS;
     location: WebGLUniformLocation;
-    index: number;
+    index: ShaderIndex;
   }[];
 }
 
 interface UniformProcessingState {
   uniformIndex: number;
-  shaderIndex: number;
+  shaderIndex: ShaderIndex;
 }
 
 export class RuntimeEffectJS
@@ -48,7 +50,7 @@ export class RuntimeEffectJS
   ): Shader {
     const { gl, program } = this.ctx;
     const uniforms = normalizeArray(inputUniforms);
-    const state = { uniformIndex: 0, shaderIndex: 0 };
+    const state: UniformProcessingState = { uniformIndex: 0, shaderIndex: 0 };
     const uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
     for (let i = 0; i < uniformCount; i++) {
       const uniformInfo = gl.getActiveUniform(program, i)!;
@@ -129,7 +131,7 @@ export class RuntimeEffectJS
         if (!texture) {
           throw new Error("Could not create texture for " + name);
         }
-        gl.activeTexture(gl[`TEXTURE${state.shaderIndex}` as "TEXTURE0"]);
+        gl.activeTexture(gl[`TEXTURE${state.shaderIndex}`]);
         gl.bindTexture(gl.TEXTURE_2D, texture);
 
         // Set the parameters so we can render any size image
