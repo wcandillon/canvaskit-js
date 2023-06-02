@@ -10,10 +10,8 @@
     "@types/node": "^16.18.34",
     "@types/react": "^18.2.8",
     "@types/react-dom": "^18.2.4",
-    "canvaskit-js": "link:../",
+    "canvaskit-js": "link:../package",
     "canvaskit-wasm": "^0.38.1",
-    "eslint": "^8.41.0",
-    "eslint-config-react-native-wcandillon": "^3.10.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
@@ -21,11 +19,10 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "lint": "eslint . --ext .ts,.tsx  --max-warnings 0 --cache",
+    "start": "ESLINT_NO_DEV_ERRORS=true react-scripts start",
+    "build": "ESLINT_NO_DEV_ERRORS=true react-scripts build",
+    "test": "ESLINT_NO_DEV_ERRORS=true react-scripts test",
+    "eject": "ESLINT_NO_DEV_ERRORS=true react-scripts eject",
     "tsc": "tsc --noEmit"
   },
   "browserslist": {

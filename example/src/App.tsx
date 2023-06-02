@@ -1,21 +1,12 @@
-import { useEffect, useRef } from "react";
+import { Canvas, useOnDraw } from "./components";
 
 function App() {
-  const ref = useRef<HTMLCanvasElement>(null);
-  useEffect(() => {
-    if (!ref.current) {
-      throw new Error("Canvas not found");
-    }
-    const surface = CanvasKit.MakeWebGLCanvasSurface(ref.current);
-    if (!surface) {
-      throw new Error("Could not make canvas surface");
-    }
-    const canvas = surface.getCanvas();
+  const onDraw = useOnDraw((canvas, { width, height }) => {
     const paint = new CanvasKit.Paint();
-    paint.setColor(CanvasKit.Color(0, 1, 1));
-    canvas.drawPaint(paint);
-  }, []);
-  return <canvas style={{ width: "100%", height: "100vh" }} ref={ref} />;
+    paint.setColor(CanvasKit.Color4f(0, 1, 1, 1));
+    canvas.drawRect(CanvasKit.XYWHRect(0, 0, width, height), paint);
+  });
+  return <Canvas onDraw={onDraw} />;
 }
 
 // eslint-disable-next-line import/no-default-export
