@@ -18,15 +18,27 @@ jobs:
           cache: 'yarn'
 
       - name: Install root node dependencies
+        working-directory: package
         run: yarn
 
       - name: TypeScript
+        working-directory: package
         run: yarn tsc
 
       - name: Lint
-        run: yarn lint;
+        working-directory: package
+        run: yarn lint
 
-      - name: Run tests
+      - name: Tests
+        working-directory: package
         run: |
           sudo apt-get install -y xvfb
           xvfb-run --auto-servernum --server-args='-screen 0 1024x768x24' yarn test
+
+      - name: TypeScript
+        working-directory: example
+        run: yarn tsc
+
+      - name: Lint
+        working-directory: example
+        run: yarn lint
