@@ -97,7 +97,8 @@ export const inputCmds = (input: InputCommands) => {
   return Array.from(input.toTypedArray());
 };
 
-const isMalloc = (v: unknown): v is MallocObj => {
+// TODO: Move to core
+export const isMalloc = (v: unknown): v is MallocObj => {
   return typeof v === "object" && v !== null && "toTypedArray" in v;
 };
 

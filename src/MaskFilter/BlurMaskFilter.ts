@@ -5,19 +5,13 @@ import { MaskFilterJS } from "./MaskFilter";
 
 export class BlurMaskFilter extends MaskFilterJS {
   private static count = 0;
-  private readonly id: string;
+  private filterURL: string;
 
-  constructor(
-    private readonly style: BlurStyleEnum,
-    private readonly sigma: number
-  ) {
+  constructor(readonly style: BlurStyleEnum, readonly sigma: number) {
     super();
     BlurMaskFilter.count++;
-    this.id = `blur-mask-filter-${BlurMaskFilter.count}`;
-  }
-
-  getFilter(): string {
-    const filter = new SVGFilter(this.id);
+    const id = `blur-mask-filter-${BlurMaskFilter.count}`;
+    const filter = new SVGFilter(id);
     const blurName = "blurred";
     if (this.style === BlurStyleEnum.Solid) {
       filter.blur(this.sigma, blurName);
@@ -31,6 +25,10 @@ export class BlurMaskFilter extends MaskFilterJS {
       filter.blur(this.sigma, blurName);
       filter.composite(blurName, "SourceGraphic", "in");
     }
-    return filter.create();
+    this.filterURL = filter.create();
+  }
+
+  getFilter(): string {
+    return this.filterURL;
   }
 }

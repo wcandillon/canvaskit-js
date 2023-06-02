@@ -150,13 +150,15 @@ export class RuntimeEffectJS
 
     // If a local matrix is provided, set it as a uniform
     if (localMatrix) {
-      throw new Error("localMatrix not implemented yet");
+      //console.warn("localMatrix not implemented yet");
+      //throw new Error("localMatrix not implemented yet");
     }
 
     return new RuntimeEffectShader(this.ctx);
   }
   getUniform(index: number): SkSLUniform {
     const { gl, program } = this.ctx;
+    // TODO: should exclude texture uniforms.
     const uniformInfo = gl.getActiveUniform(program, index);
     if (!uniformInfo) {
       throw new Error(`No uniform at index ${index}`);
@@ -219,7 +221,16 @@ export class RuntimeEffectJS
   }
   getUniformCount(): number {
     const { gl, program } = this.ctx;
-    return gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
+    let count = 0;
+    const uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
+
+    for (let i = 0; i < uniformCount; i++) {
+      const uniformInfo = gl.getActiveUniform(program, i);
+      if (uniformInfo && uniformInfo.type !== gl.FLOAT) {
+        count++;
+      }
+    }
+    return count;
   }
   getUniformFloatCount(): number {
     const { gl, program } = this.ctx;
@@ -228,7 +239,7 @@ export class RuntimeEffectJS
 
     for (let i = 0; i < uniformCount; i++) {
       const uniformInfo = gl.getActiveUniform(program, i);
-      if (uniformInfo && uniformInfo.type === gl.FLOAT) {
+      if (uniformInfo && uniformInfo.type === gl.SAMPLER_2D) {
         floatCount++;
       }
     }

@@ -1,5 +1,5 @@
 {
-  "name": "canvaskit-lite",
+  "name": "canvaskit-js",
   "version": "1.0.0",
   "description": "A CanvasKit polyfill to the browser APIs",
   "main": "dist/index.js",

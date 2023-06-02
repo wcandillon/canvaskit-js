@@ -1,3 +1,4 @@
+/* eslint-disable prefer-destructuring */
 import type {
   Canvas,
   ColorIntArray,
@@ -31,7 +32,7 @@ import { PaintJS } from "./Paint";
 import type { ColorSpaceJS, InputColor } from "./Contants";
 import { HostObject } from "./HostObject";
 import { IntAsColor, rectToXYWH, rrectToXYWH } from "./Values";
-import { convertDOMMatrixTo3x3 } from "./Matrix3";
+import { convertDOMMatrixTo3x3, normalizeMatrix } from "./Matrix3";
 import { toRad } from "./math";
 import type { PathJS } from "./Path";
 import type { ImageJS } from "./Image";
@@ -66,8 +67,15 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
   ): void {
     throw new Error("Method not implemented.");
   }
-  concat(_m: InputMatrix): void {
-    throw new Error("Method not implemented.");
+  concat(m: InputMatrix): void {
+    const matrix = normalizeMatrix(m);
+    const a = matrix[0]; // scale x
+    const b = matrix[3]; // skew y
+    const c = matrix[1]; // skew x
+    const d = matrix[4]; // scale y
+    const e = matrix[2]; // translate x
+    const f = matrix[5]; // translate y
+    this.ctx.transform(a, b, c, d, e, f);
   }
   drawArc(
     _oval: InputRect,

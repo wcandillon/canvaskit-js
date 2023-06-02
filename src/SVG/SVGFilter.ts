@@ -7,6 +7,10 @@ export class SVGFilter {
 
   constructor(private id: string) {}
 
+  dispose() {
+    // TODO: implement
+  }
+
   addNoise(
     baseFreqX: number,
     baseFreqY: number,

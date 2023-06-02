@@ -1,7 +1,35 @@
 /* eslint-disable prefer-destructuring */
-import type { AngleInRadians, Matrix3x3Helpers } from "canvaskit-wasm";
+import type {
+  AngleInRadians,
+  InputMatrix,
+  Matrix3x3Helpers,
+} from "canvaskit-wasm";
+
+import { isMalloc } from "./Values";
 
 export type Matrix3x3 = number[];
+
+export const normalizeMatrix = (matrix: InputMatrix): Matrix3x3 => {
+  if (Array.isArray(matrix)) {
+    return matrix;
+  } else if (matrix instanceof Float32Array) {
+    return Array.from(matrix);
+  } else if (isMalloc(matrix)) {
+    return Array.from(matrix.toTypedArray());
+  } else {
+    return [
+      matrix.m11,
+      matrix.m12,
+      matrix.m13,
+      matrix.m21,
+      matrix.m22,
+      matrix.m23,
+      matrix.m41,
+      matrix.m42,
+      matrix.m44,
+    ];
+  }
+};
 
 export const convert3x3ToDOMMatrix = (arr: number[]) => {
   const matrix = new DOMMatrix();

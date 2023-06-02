@@ -13,6 +13,7 @@ import type {
 import { HostObject } from "./HostObject";
 import { ImageFormatEnum } from "./Contants";
 import { createTexture } from "./Core/Platform";
+import { ImageShader } from "./Shader/ImageShader";
 
 const dataURLToByteArray = (dataUrl: string) => {
   // split the data URL at the comma to separate the metadata from the data
@@ -99,7 +100,7 @@ export class ImageJS extends HostObject<Image> implements Image {
     _C: number,
     _localMatrix?: InputMatrix | undefined
   ): Shader {
-    throw new Error("Method not implemented.");
+    return new ImageShader(this.image);
   }
   makeShaderOptions(
     _tx: EmbindEnumEntity,
@@ -108,7 +109,7 @@ export class ImageJS extends HostObject<Image> implements Image {
     _mm: EmbindEnumEntity,
     _localMatrix?: InputMatrix | undefined
   ): Shader {
-    throw new Error("Method not implemented.");
+    return new ImageShader(this.image);
   }
   readPixels(
     _srcX: number,
