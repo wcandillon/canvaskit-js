@@ -1,4 +1,4 @@
-import React from "react";
+import { Fragment, StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 import { CanvasKitJS } from "canvaskit-js";
 import type { CanvasKit } from "canvaskit-wasm";
@@ -16,12 +16,9 @@ const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
 const strictMode = false;
-if (strictMode) {
-  root.render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>
-  );
-} else {
-  root.render(<App />);
-}
+const Wapper = strictMode ? StrictMode : Fragment;
+root.render(
+  <Wapper>
+    <App />
+  </Wapper>
+);

@@ -3,8 +3,8 @@ import type { Canvas as CKCanvas } from "canvaskit-wasm";
 import type { Info } from "./components";
 import { Canvas, useOnDraw } from "./components";
 import { mix, polar2Canvas, vec } from "./components/math";
-
-const progress = 1;
+import type { AnimationValue } from "./components/animations";
+import { useLoop } from "./components/animations";
 
 const root = new CanvasKit.Paint();
 root.setBlendMode(CanvasKit.BlendMode.Screen);
@@ -18,12 +18,20 @@ c1.setColor(CanvasKit.parseColorString("#61bea2"));
 const c2 = root.copy();
 c2.setColor(CanvasKit.parseColorString("#529ca0"));
 
-const drawRing = (canvas: CKCanvas, { width, height }: Info, index: number) => {
+const drawRing = (
+  progress: AnimationValue,
+  canvas: CKCanvas,
+  { width, height }: Info,
+  index: number
+) => {
   const r = height / 4;
   const center = vec(width / 2, height / 2);
   const theta = (index * (2 * Math.PI)) / 6;
-  const translation = polar2Canvas({ theta, radius: progress * r }, vec(0, 0));
-  const scale = mix(progress, 0.3, 1);
+  const translation = polar2Canvas(
+    { theta, radius: progress.value * r },
+    vec(0, 0)
+  );
+  const scale = mix(progress.value, 0.2, 1);
   canvas.save();
   canvas.translate(center[0], center[1]);
   canvas.translate(translation[0], translation[1]);
@@ -33,24 +41,22 @@ const drawRing = (canvas: CKCanvas, { width, height }: Info, index: number) => {
   canvas.restore();
 };
 
-const drawRings = (canvas: CKCanvas, info: Info) => {
+const drawRings = (progress: AnimationValue, canvas: CKCanvas, info: Info) => {
   const { width, height } = info;
-  console.log({ width, height });
   const center = vec(width / 2, height / 2);
   const bgColor = CanvasKit.parseColorString("#242b38");
   canvas.drawColor(bgColor);
-  const rotate = mix(progress, -Math.PI, 0);
+  const rotate = mix(progress.value, 0, 180);
   canvas.save();
-  canvas.translate(center[0], center[1]);
   canvas.rotate(rotate, center[0], center[1]);
-  canvas.translate(-center[0], -center[1]);
   new Array(6).fill(0).map((_, index) => {
-    drawRing(canvas, info, index);
+    drawRing(progress, canvas, info, index);
   });
   canvas.restore();
 };
 
 export const Breathe = () => {
-  const onDraw = useOnDraw(drawRings);
-  return <Canvas onDraw={onDraw} />;
+  const progress = useLoop();
+  const onDraw = useOnDraw(drawRings.bind(null, progress));
+  return <Canvas onDraw={onDraw} deps={[progress]} />;
 };
