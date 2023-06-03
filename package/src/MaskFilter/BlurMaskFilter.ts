@@ -1,5 +1,5 @@
 import { BlurStyleEnum } from "../Contants";
-import { SVGFilter } from "../SVG";
+import { SVGFilter } from "../ImageFilter";
 
 import { MaskFilterJS } from "./MaskFilter";
 

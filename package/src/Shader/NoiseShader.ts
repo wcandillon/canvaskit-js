@@ -1,5 +1,5 @@
 import { createTexture } from "../Core/Platform";
-import { SVGFilter } from "../SVG";
+import { SVGFilter } from "../ImageFilter";
 
 import { ShaderJS } from "./Shader";
 

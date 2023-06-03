@@ -92,6 +92,7 @@ describe("Images", () => {
         const input = CanvasKit.XYWHRect(0, 0, zurich.width(), zurich.height());
         const output = CanvasKit.XYWHRect(0, 0, width, height);
         const paint = new CanvasKit.Paint();
+        // const colorFilter = CanvasKit.ImageFilter.MakeColorFilter(cf, null);
         paint.setMaskFilter(
           CanvasKit.ImageFilter.MakeBlur(10, 10, CanvasKit.TileMode.Clamp, null)
         );
