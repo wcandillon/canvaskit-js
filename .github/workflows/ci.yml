@@ -16,17 +16,34 @@ jobs:
         with:
           node-version: 16
           cache: 'yarn'
+          cache-dependency-path: 'package/yarn.lock'
 
-      - name: Install root node dependencies
+      - name: Install dependencies
+        working-directory: package
         run: yarn
 
       - name: TypeScript
+        working-directory: package
         run: yarn tsc
 
       - name: Lint
-        run: yarn lint;
+        working-directory: package
+        run: yarn lint
 
-      - name: Run tests
+      - name: Tests
+        working-directory: package
         run: |
           sudo apt-get install -y xvfb
           xvfb-run --auto-servernum --server-args='-screen 0 1024x768x24' yarn test
+
+      - name: Install dependencies
+        working-directory: example
+        run: yarn
+
+      - name: TypeScript
+        working-directory: example
+        run: yarn tsc
+
+      - name: Lint
+        working-directory: example
+        run: yarn lint
