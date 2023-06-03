@@ -14,6 +14,7 @@ import { HostObject } from "../HostObject";
 import { NativeColor } from "../Values";
 import type { MaskFilterJS } from "../MaskFilter/MaskFilter";
 import { createOffscreenTexture } from "../Core/Platform";
+import { SVGContext } from "../ImageFilter/SVG";
 
 import { getBlendMode } from "./BlendMode";
 
@@ -55,12 +56,17 @@ export class PaintJS extends HostObject<Paint> implements Paint {
     context.lineWidth = this.strokeWidth;
     context.lineCap = lineCap(this.strokeCap);
     context.lineJoin = lineJoin(this.strokeJoin);
-    if (this.maskFilter || this.imageFilter) {
-      let filter = "";
-      filter += this.imageFilter ? this.imageFilter.getFilter() : "";
-      filter += this.maskFilter ? this.maskFilter.getFilter() : "";
-      context.filter = filter;
+    if (this.maskFilter) {
+      const filter = this.maskFilter.getFilter();
+      SVGContext.getInstance().create("test-id", filter);
+      context.filter = "url(#test-id)";
     }
+    // if (this.maskFilter || this.imageFilter) {
+    //   let filter = "";
+    //   filter += this.imageFilter ? this.imageFilter.getFilter() : "";
+    //   filter += this.maskFilter ? this.maskFilter.getFilter() : "";
+    //   context.filter = filter;
+    // }
 
     context.globalCompositeOperation = getBlendMode(this.blendMode);
     if (this.colorFilter) {
