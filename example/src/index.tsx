@@ -2,8 +2,11 @@ import { Fragment, StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 import { CanvasKitJS } from "canvaskit-js";
 import type { CanvasKit } from "canvaskit-wasm";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-import App from "./App";
+import { Breathe } from "./Breathe";
+import { Menu } from "./Menu";
+import { Glassmorphism } from "./Glassmorphism";
 
 declare global {
   // eslint-disable-next-line no-var
@@ -17,8 +20,22 @@ const root = ReactDOM.createRoot(
 );
 const strictMode = false;
 const Wapper = strictMode ? StrictMode : Fragment;
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Menu />,
+  },
+  {
+    path: "/breathe",
+    element: <Breathe />,
+  },
+  {
+    path: "/glassmorphism",
+    element: <Glassmorphism />,
+  },
+]);
 root.render(
   <Wapper>
-    <App />
+    <RouterProvider router={router} />
   </Wapper>
 );

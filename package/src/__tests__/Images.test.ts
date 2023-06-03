@@ -85,6 +85,22 @@ describe("Images", () => {
     );
     checkImage(image, "snapshots/zurich-contain.png", { threshold: 0.2 });
   });
+
+  it("should display an image with contain and blurred", async () => {
+    const image = await skia.eval(
+      ({ canvas, width, height, assets: { zurich } }) => {
+        const input = CanvasKit.XYWHRect(0, 0, zurich.width(), zurich.height());
+        const output = CanvasKit.XYWHRect(0, 0, width, height);
+        const paint = new CanvasKit.Paint();
+        paint.setMaskFilter(
+          CanvasKit.ImageFilter.MakeBlur(10, 10, CanvasKit.TileMode.Clamp, null)
+        );
+        const { src, dst } = fitRects("contain", input, output);
+        canvas.drawImageRect(zurich, src, dst, paint);
+      }
+    );
+    checkImage(image, "snapshots/zurich-blurred.png");
+  });
 });
 
 interface Size {

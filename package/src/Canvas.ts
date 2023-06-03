@@ -356,10 +356,10 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
     return this.saveCount;
   }
   saveLayer(
-    _paint?: Paint | undefined,
-    _bounds?: InputRect | null | undefined,
-    _backdrop?: ImageFilter | null | undefined,
-    _flags?: number | undefined
+    _paint?: Paint,
+    _bounds?: InputRect | null,
+    _backdrop?: ImageFilter | null,
+    _flags?: number
   ): number {
     throw new Error("Method not implemented.");
   }
