@@ -2,7 +2,7 @@ import type { InputFlexibleColorArray, InputPoint } from "canvaskit-wasm";
 
 import { Gradient } from "./Gradient";
 
-export class MakeLinearGradientShader extends Gradient {
+export class LinearGradient extends Gradient {
   constructor(
     private readonly start: InputPoint,
     private readonly end: InputPoint,

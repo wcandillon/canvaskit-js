@@ -2,12 +2,10 @@ import type { InputFlexibleColorArray, InputPoint } from "canvaskit-wasm";
 
 import { Gradient } from "./Gradient";
 
-export class TwoPointConicalGradient extends Gradient {
+export class SweepGradient extends Gradient {
   constructor(
-    private readonly c1: InputPoint,
-    private readonly r1: number,
-    private readonly c2: InputPoint,
-    private readonly r2: number,
+    private readonly c: InputPoint,
+    private readonly startAngle: number,
     colors: InputFlexibleColorArray,
     pos: number[] | null
   ) {
@@ -15,8 +13,7 @@ export class TwoPointConicalGradient extends Gradient {
   }
 
   paint(ctx: OffscreenCanvasRenderingContext2D) {
-    const { c1, r1, c2, r2 } = this;
-    const grd = ctx.createRadialGradient(c1[0], c1[1], r1, c2[0], c2[1], r2);
+    const grd = ctx.createConicGradient(this.startAngle, this.c[0], this.c[1]);
     this.colors.forEach((color, i) => {
       grd.addColorStop(this.pos[i], color);
     });

@@ -15,7 +15,11 @@ import { nativeColor } from "../Core";
 import { ColorShader } from "./ColorShader";
 import { BlendShader } from "./BlendShader";
 import type { ShaderJS } from "./Shader";
-import { MakeLinearGradientShader, TwoPointConicalGradient } from "./Gradients";
+import {
+  LinearGradient,
+  SweepGradient,
+  TwoPointConicalGradient,
+} from "./Gradients";
 import { NoiseShader } from "./NoiseShader";
 
 export const ShaderFactory: CKShaderFactory = {
@@ -45,7 +49,7 @@ export const ShaderFactory: CKShaderFactory = {
     _flags?: number | undefined,
     _colorSpace?: ColorSpace | undefined
   ): Shader {
-    return new MakeLinearGradientShader(start, end, colors, pos);
+    return new LinearGradient(start, end, colors, pos);
   },
   MakeRadialGradient: function (
     center: InputPoint,
@@ -60,18 +64,23 @@ export const ShaderFactory: CKShaderFactory = {
     return new TwoPointConicalGradient(center, 0, center, radius, colors, pos);
   },
   MakeSweepGradient: function (
-    _cx: number,
-    _cy: number,
-    _colors: InputFlexibleColorArray,
-    _pos: number[] | null,
+    cx: number,
+    cy: number,
+    colors: InputFlexibleColorArray,
+    pos: number[] | null,
     _mode: EmbindEnumEntity,
     _localMatrix?: InputMatrix | null | undefined,
     _flags?: number | undefined,
-    _startAngle?: number | undefined,
+    startAngle?: number | undefined,
     _endAngle?: number | undefined,
     _colorSpace?: ColorSpace | undefined
   ): Shader {
-    throw new Error("Function not implemented.");
+    return new SweepGradient(
+      Float32Array.of(cx, cy),
+      startAngle ?? 0,
+      colors,
+      pos
+    );
   },
   MakeTurbulence: function (
     baseFreqX: number,

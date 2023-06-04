@@ -1,2 +1,3 @@
-export * from "./LinearGradientShader";
+export * from "./LinearGradient";
 export * from "./TwoPointConicalGradient";
+export * from "./SweepGradient";
