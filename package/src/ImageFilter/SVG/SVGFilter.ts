@@ -116,3 +116,25 @@ export class BlendFilter extends BaseSVGFilter<SVGFEBlendElement> {
     this.filter.setAttribute("result", id);
   }
 }
+
+type ColorMatrixValues =
+  | { type: "matrix"; values: Float32Array }
+  | { type: "saturate" | "hueRotate"; values: number }
+  | { type: "luminanceToAlpha"; values?: never };
+
+export class ColorMatrixFilter extends BaseSVGFilter<SVGFEColorMatrixElement> {
+  constructor(input: ColorMatrixValues, id = "result") {
+    super(document.createElementNS(ns, "feColorMatrix"));
+    this.filter.setAttribute("in", "SourceGraphic");
+    this.filter.setAttribute("type", input.type);
+    if (input.type !== "luminanceToAlpha") {
+      this.filter.setAttribute(
+        "values",
+        Array.isArray(input.values)
+          ? input.values.join(" ")
+          : input.values.toString()
+      );
+    }
+    this.filter.setAttribute("result", id);
+  }
+}

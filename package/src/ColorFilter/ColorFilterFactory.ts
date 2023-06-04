@@ -7,6 +7,10 @@ import type {
   InputColorMatrix,
 } from "canvaskit-wasm";
 
+import { normalizeArray } from "../Core";
+
+import { MatrixColorFilter } from "./MatrixColorFilter";
+
 export const ColorFilterFactory: CKColorFilterFactory = {
   MakeBlend: function (
     _color: InputColor,
@@ -31,8 +35,8 @@ export const ColorFilterFactory: CKColorFilterFactory = {
   MakeLinearToSRGBGamma: function (): ColorFilter {
     throw new Error("Function not implemented.");
   },
-  MakeMatrix: function (_cMatrix: InputColorMatrix): ColorFilter {
-    throw new Error("Function not implemented.");
+  MakeMatrix: function (cMatrix: InputColorMatrix): ColorFilter {
+    return new MatrixColorFilter(normalizeArray(cMatrix));
   },
   MakeSRGBToLinearGamma: function (): ColorFilter {
     throw new Error("Function not implemented.");

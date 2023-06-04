@@ -8,7 +8,6 @@ import type {
   AffinityEnumValues,
   AnimatedImage,
   ColorChannelEnumValues,
-  ColorFilterFactory,
   ColorIntArray,
   ColorMatrixHelpers,
   ContourMeasureIterConstructor,
@@ -79,6 +78,7 @@ import {
   createTexture,
   resolveContext,
 } from "./Core/Platform";
+import { ColorFilterFactory } from "./ColorFilter/ColorFilterFactory";
 
 export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
   private static instance: ICanvasKit | null = null;
@@ -348,7 +348,7 @@ export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
   PictureRecorder!: DefaultConstructor<PictureRecorder>;
   TextStyle!: TextStyleConstructor;
   ParagraphBuilder!: ParagraphBuilderFactory;
-  ColorFilter!: ColorFilterFactory;
+  ColorFilter = ColorFilterFactory;
   FontCollection!: FontCollectionFactory;
   FontMgr!: FontMgrFactory;
   ImageFilter = ImageFilterFactory;

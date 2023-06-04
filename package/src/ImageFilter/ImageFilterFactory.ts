@@ -1,6 +1,5 @@
 import type {
   ImageFilterFactory as CKImageFilterFactory,
-  ColorFilter,
   CubicResampler,
   EmbindEnumEntity,
   FilterOptions,
@@ -10,7 +9,11 @@ import type {
   Shader,
 } from "canvaskit-wasm";
 
+import type { ColorFilterJS } from "../ColorFilter/ColorFilter";
+
 import { BlurImageFilter } from "./BlurImageFilter";
+import type { ImageFilterJS } from "./ImageFilter";
+import { ComposeImageFilter } from "./ComposeImageFilter";
 
 export const ImageFilterFactory: CKImageFilterFactory = {
   MakeBlend: function (
@@ -24,21 +27,21 @@ export const ImageFilterFactory: CKImageFilterFactory = {
     sigmaX: number,
     _sigmaY: number,
     _mode: EmbindEnumEntity,
-    _input: ImageFilter | null
+    input: ImageFilterJS | null
   ): ImageFilter {
-    return new BlurImageFilter(sigmaX);
+    return new BlurImageFilter(sigmaX, input);
   },
   MakeColorFilter: function (
-    _cf: ColorFilter,
-    _input: ImageFilter | null
+    cf: ColorFilterJS,
+    input: ImageFilterJS | null
   ): ImageFilter {
-    throw new Error("Function not implemented.");
+    return new ComposeImageFilter(cf, input);
   },
   MakeCompose: function (
-    _outer: ImageFilter | null,
-    _inner: ImageFilter | null
+    outer: ImageFilterJS | null,
+    inner: ImageFilterJS | null
   ): ImageFilter {
-    throw new Error("Function not implemented.");
+    return new ComposeImageFilter(outer, inner);
   },
   MakeDilate: function (
     _radiusX: number,

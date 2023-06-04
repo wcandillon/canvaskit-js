@@ -11,6 +11,7 @@ import type {
   Canvas,
   Image,
   PathConstructorAndFactory,
+  Rect,
 } from "canvaskit-wasm";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -21,7 +22,9 @@ import puppeteer from "puppeteer";
 import { CoreCanvasKit } from "../Core";
 import { PathJS } from "../Path";
 
-const DEBUG = false;
+import { fitRects } from "./lib/FitRect";
+
+const DEBUG = process.env.DEBUG === "true";
 
 export interface DrawingContext {
   CanvasKit: CanvasKit;
@@ -30,7 +33,10 @@ export interface DrawingContext {
   height: number;
   canvas: Canvas;
   center: { x: number; y: number };
-  assets: { zurich: Image };
+  assets: { zurich: Image; oslo: Image };
+  lib: {
+    fitRects: (fit: string, src: Rect, dst: Rect) => { src: Rect; dst: Rect };
+  };
 }
 
 class RemoteSurface {
@@ -46,12 +52,18 @@ class RemoteSurface {
       console.error(error.message);
     });
     await page.evaluate(fs.readFileSync("./dist/index.global.js", "utf8"));
-    const img = fs.readFileSync("./src/__tests__/assets/zurich.jpg");
+    const zurich = fs.readFileSync("./src/__tests__/assets/zurich.jpg");
+    const oslo = fs.readFileSync("./src/__tests__/assets/oslo.jpg");
     await page.evaluate(
-      `const zurichRaw = new Uint8Array([${img.join(",")}]);
+      `const zurichRaw = new Uint8Array([${zurich.join(",")}]);
+       const osloRaw = new Uint8Array([${oslo.join(",")}]);
        const assets = {};
-       CanvasKit.MakeImageFromEncodedAsync(zurichRaw).then((zurich) => {
+       Promise.all([
+        CanvasKit.MakeImageFromEncodedAsync(zurichRaw),
+        CanvasKit.MakeImageFromEncodedAsync(osloRaw)
+       ]).then(([zurich, oslo]) => {
           assets.zurich = zurich;
+          assets.oslo = oslo;
        });
       `
     );
@@ -84,7 +96,9 @@ class RemoteSurface {
       const height = ${height};
       const center = { x: width/2, y: height/2 };
       const ctx = { 
-        CanvasKit, surface, width, height, canvas: surface.getCanvas(), center, assets
+        CanvasKit, surface, width, height,
+        canvas: surface.getCanvas(), center, assets,
+        lib: { fitRects: ${fitRects.toString()} }
       };
       ${Object.keys(this.functions)
         .map((name) => {

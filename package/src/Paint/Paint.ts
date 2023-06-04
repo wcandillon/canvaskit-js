@@ -1,5 +1,4 @@
 import type {
-  ColorFilter,
   ColorSpace,
   EmbindEnumEntity,
   Paint,
@@ -19,8 +18,34 @@ import type { ImageFilterJS } from "../ImageFilter";
 import { HostObject } from "../HostObject";
 import type { MaskFilterJS } from "../MaskFilter/MaskFilter";
 import { createOffscreenTexture } from "../Core/Platform";
+import type { ColorFilterJS } from "../ColorFilter/ColorFilter";
+import { svgCtx } from "../ImageFilter/SVG";
 
 import { getBlendMode } from "./BlendMode";
+
+const count = { value: 0 };
+
+class SVGFilterManager {
+  public readonly id: string;
+
+  constructor(public readonly filter: ImageFilterJS) {
+    this.id = `filter-${count.value}`;
+    count.value++;
+    this.create();
+  }
+
+  create() {
+    svgCtx.create(this.id, this.filter.getFilters());
+  }
+
+  dispose() {
+    svgCtx.disposeFilter(this.id);
+  }
+
+  getFilter(): string {
+    return `url(#${this.id})`;
+  }
+}
 
 export class PaintJS extends HostObject<Paint> implements Paint {
   private style = PaintStyle.Fill;
@@ -28,9 +53,9 @@ export class PaintJS extends HostObject<Paint> implements Paint {
   private strokeWidth = 1;
   private strokeMiter = 10;
   private shader: ShaderJS | null = null;
-  private colorFilter: ColorFilter | null = null;
-  private imageFilter: ImageFilterJS | null = null;
-  private maskFilter: MaskFilterJS | null = null;
+  private colorFilter: SVGFilterManager | null = null;
+  private imageFilter: SVGFilterManager | null = null;
+  private maskFilter: SVGFilterManager | null = null;
   private strokeJoin = StrokeJoin.Bevel;
   private strokeCap = StrokeCap.Square;
   private blendMode = BlendMode.SrcOver;
@@ -60,17 +85,15 @@ export class PaintJS extends HostObject<Paint> implements Paint {
     context.lineWidth = this.strokeWidth;
     context.lineCap = lineCap(this.strokeCap);
     context.lineJoin = lineJoin(this.strokeJoin);
-    if (this.maskFilter || this.imageFilter) {
+    if (this.maskFilter || this.imageFilter || this.colorFilter) {
       let filter = "";
       filter += this.imageFilter ? this.imageFilter.getFilter() : "";
       filter += this.maskFilter ? this.maskFilter.getFilter() : "";
+      filter += this.colorFilter ? this.colorFilter.getFilter() : "";
       context.filter = filter;
     }
 
     context.globalCompositeOperation = getBlendMode(this.blendMode);
-    if (this.colorFilter) {
-      console.log(this.colorFilter);
-    }
     if (!path) {
       context.beginPath();
       draw(context);
@@ -117,13 +140,13 @@ export class PaintJS extends HostObject<Paint> implements Paint {
       paint.setShader(shader);
     }
     if (imageFilter) {
-      paint.setImageFilter(imageFilter);
+      paint.setImageFilter(imageFilter.filter);
     }
     if (colorFilter) {
-      paint.setColorFilter(colorFilter);
+      paint.setColorFilter(colorFilter.filter);
     }
     if (maskFilter) {
-      paint.setMaskFilter(maskFilter);
+      paint.setMaskFilter(maskFilter.filter);
     }
     return paint;
   }
@@ -165,8 +188,11 @@ export class PaintJS extends HostObject<Paint> implements Paint {
   ): void {
     this.color = new Float32Array([r, g, b, a]);
   }
-  setColorFilter(filter: ColorFilter | null): void {
-    this.colorFilter = filter;
+  setColorFilter(filter: ColorFilterJS | null): void {
+    if (this.colorFilter) {
+      this.colorFilter.dispose();
+    }
+    this.colorFilter = filter ? new SVGFilterManager(filter) : null;
   }
   setColorInt(_color: number, _colorSpace?: ColorSpace | undefined): void {
     throw new Error("Method not implemented.");
@@ -175,10 +201,16 @@ export class PaintJS extends HostObject<Paint> implements Paint {
     throw new Error("Method not implemented.");
   }
   setImageFilter(filter: ImageFilterJS | null): void {
-    this.imageFilter = filter;
+    if (this.imageFilter) {
+      this.imageFilter.dispose();
+    }
+    this.imageFilter = filter ? new SVGFilterManager(filter) : null;
   }
   setMaskFilter(filter: MaskFilterJS | null): void {
-    this.maskFilter = filter;
+    if (this.maskFilter) {
+      this.maskFilter.dispose();
+    }
+    this.maskFilter = filter ? new SVGFilterManager(filter) : null;
   }
   setPathEffect(_effect: PathEffect | null): void {
     throw new Error("Method not implemented.");
