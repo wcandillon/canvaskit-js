@@ -19,7 +19,7 @@ import puppeteer from "puppeteer";
 
 import { vec } from "../Values";
 
-const DEBUG = true;
+const DEBUG = false;
 
 export interface DrawingContext {
   CanvasKit: CanvasKit;
