@@ -15,7 +15,7 @@ import { nativeColor } from "../Core";
 import { ColorShader } from "./ColorShader";
 import { BlendShader } from "./BlendShader";
 import type { ShaderJS } from "./Shader";
-import { MakeLinearGradientShader } from "./MakeLinearGradientShader";
+import { MakeLinearGradientShader, TwoPointConicalGradient } from "./Gradients";
 import { NoiseShader } from "./NoiseShader";
 
 export const ShaderFactory: CKShaderFactory = {
@@ -40,33 +40,24 @@ export const ShaderFactory: CKShaderFactory = {
     end: InputPoint,
     colors: InputFlexibleColorArray,
     pos: number[] | null,
-    mode: EmbindEnumEntity,
-    localMatrix?: InputMatrix | undefined,
-    flags?: number | undefined,
-    colorSpace?: ColorSpace | undefined
-  ): Shader {
-    return new MakeLinearGradientShader(
-      start,
-      end,
-      colors,
-      pos,
-      mode,
-      localMatrix,
-      flags,
-      colorSpace
-    );
-  },
-  MakeRadialGradient: function (
-    _center: InputPoint,
-    _radius: number,
-    _colors: InputFlexibleColorArray,
-    _pos: number[] | null,
     _mode: EmbindEnumEntity,
     _localMatrix?: InputMatrix | undefined,
     _flags?: number | undefined,
     _colorSpace?: ColorSpace | undefined
   ): Shader {
-    throw new Error("Function not implemented.");
+    return new MakeLinearGradientShader(start, end, colors, pos);
+  },
+  MakeRadialGradient: function (
+    center: InputPoint,
+    radius: number,
+    colors: InputFlexibleColorArray,
+    pos: number[] | null,
+    _mode: EmbindEnumEntity,
+    _localMatrix?: InputMatrix | undefined,
+    _flags?: number | undefined,
+    _colorSpace?: ColorSpace | undefined
+  ): Shader {
+    return new TwoPointConicalGradient(center, 0, center, radius, colors, pos);
   },
   MakeSweepGradient: function (
     _cx: number,
@@ -93,17 +84,24 @@ export const ShaderFactory: CKShaderFactory = {
     return new NoiseShader(baseFreqX, baseFreqY, octaves, seed, "turbulence");
   },
   MakeTwoPointConicalGradient: function (
-    _start: InputPoint,
-    _startRadius: number,
-    _end: InputPoint,
-    _endRadius: number,
-    _colors: InputFlexibleColorArray,
-    _pos: number[] | null,
+    start: InputPoint,
+    startRadius: number,
+    end: InputPoint,
+    endRadius: number,
+    colors: InputFlexibleColorArray,
+    pos: number[] | null,
     _mode: EmbindEnumEntity,
     _localMatrix?: InputMatrix | undefined,
     _flags?: number | undefined,
     _colorSpace?: ColorSpace | undefined
   ): Shader {
-    throw new Error("Function not implemented.");
+    return new TwoPointConicalGradient(
+      start,
+      startRadius,
+      end,
+      endRadius,
+      colors,
+      pos
+    );
   },
 };

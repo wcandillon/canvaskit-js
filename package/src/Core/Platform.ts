@@ -43,3 +43,16 @@ export const resolveContext = (
   }
   return resolved.getContext("2d", options);
 };
+
+// const WARN_ON_UNUSED_PARAMETERS = false;
+
+// export const unusedParameter = (name: string) => {
+//   if (WARN_ON_UNUSED_PARAMETERS) {
+//     try {
+//       throw new Error();
+//       // eslint-disable-next-line @typescript-eslint/no-explicit-any
+//     } catch (e: any) {
+//       console.warn(`Unused parameter ${name} in ${e.stack}`);
+//     }
+//   }
+// };
