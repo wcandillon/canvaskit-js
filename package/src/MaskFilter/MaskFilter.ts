@@ -1,15 +1,19 @@
 import type { MaskFilter } from "canvaskit-wasm";
 
 import { HostObject } from "../HostObject";
-import type { BaseSVGFilter } from "../ImageFilter/SVG";
+import type { SVGFilter } from "../ImageFilter/SVG";
 
 export abstract class MaskFilterJS
   extends HostObject<MaskFilter>
   implements MaskFilter
 {
-  constructor(protected filter: BaseSVGFilter) {
+  protected filters: SVGFilter[] = [];
+
+  constructor() {
     super();
   }
 
-  abstract getFilter(): BaseSVGFilter;
+  getFilter() {
+    return this.filters;
+  }
 }

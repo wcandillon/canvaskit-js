@@ -19,6 +19,8 @@ import { SVGContext } from "../ImageFilter/SVG";
 import { getBlendMode } from "./BlendMode";
 
 export class PaintJS extends HostObject<Paint> implements Paint {
+  private static id = 0;
+
   private style = PaintStyle.Fill;
   private color = new Float32Array([0, 0, 0, 1]); // default to black color
   private strokeWidth = 1;
@@ -58,8 +60,10 @@ export class PaintJS extends HostObject<Paint> implements Paint {
     context.lineJoin = lineJoin(this.strokeJoin);
     if (this.maskFilter) {
       const filter = this.maskFilter.getFilter();
-      SVGContext.getInstance().create("test-id", filter);
-      context.filter = "url(#test-id)";
+      PaintJS.id++;
+      const fileName = `filter-${PaintJS.id}`;
+      SVGContext.getInstance().create(fileName, filter);
+      context.filter = `url(#${fileName})`;
     }
     // if (this.maskFilter || this.imageFilter) {
     //   let filter = "";

@@ -1,4 +1,4 @@
-import type { BaseSVGFilter } from "./SVGFilter";
+import type { SVGFilter } from "./SVGFilter";
 
 const ns = "http://www.w3.org/2000/svg";
 
@@ -26,13 +26,13 @@ export class SVGContext {
     document.body.removeChild(this.root);
   }
 
-  create(id: string, fe: BaseSVGFilter) {
+  create(id: string, filters: SVGFilter[]) {
     const filter = document.createElementNS(ns, "filter");
     filter.setAttribute("id", id);
-    this.defs.appendChild(filter);
-
-    filter.appendChild(fe.getFilter());
-
+    for (const fe of filters) {
+      filter.appendChild(fe.getFilter());
+    }
+    this.root.appendChild(filter);
     return `url(#${id})`;
   }
 }
