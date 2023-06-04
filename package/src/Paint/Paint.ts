@@ -60,15 +60,12 @@ export class PaintJS extends HostObject<Paint> implements Paint {
     context.lineWidth = this.strokeWidth;
     context.lineCap = lineCap(this.strokeCap);
     context.lineJoin = lineJoin(this.strokeJoin);
-    if (this.maskFilter) {
-      context.filter = this.maskFilter.getFilter();
+    if (this.maskFilter || this.imageFilter) {
+      let filter = "";
+      filter += this.imageFilter ? this.imageFilter.getFilter() : "";
+      filter += this.maskFilter ? this.maskFilter.getFilter() : "";
+      context.filter = filter;
     }
-    // if (this.maskFilter || this.imageFilter) {
-    //   let filter = "";
-    //   filter += this.imageFilter ? this.imageFilter.getFilter() : "";
-    //   filter += this.maskFilter ? this.maskFilter.getFilter() : "";
-    //   context.filter = filter;
-    // }
 
     context.globalCompositeOperation = getBlendMode(this.blendMode);
     if (this.colorFilter) {

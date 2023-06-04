@@ -10,6 +10,7 @@ import type {
   Surface,
   Canvas,
   Image,
+  PathConstructorAndFactory,
 } from "canvaskit-wasm";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -18,6 +19,7 @@ import type { Browser, Page } from "puppeteer";
 import puppeteer from "puppeteer";
 
 import { CoreCanvasKit } from "../Core";
+import { PathJS } from "../Path";
 
 const DEBUG = false;
 
@@ -122,7 +124,9 @@ beforeAll(async () => {
   global.RealCanvasKit = await CanvasKitInit({});
 });
 
-class HeadlessCanvasKit extends CoreCanvasKit {}
+class HeadlessCanvasKit extends CoreCanvasKit {
+  Path = PathJS as unknown as PathConstructorAndFactory;
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 global.CanvasKit = new HeadlessCanvasKit() as any;

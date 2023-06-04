@@ -39,7 +39,7 @@ class SVGContext {
     for (const fe of filters) {
       filter.appendChild(fe.getFilter());
     }
-    this.root.appendChild(filter);
+    this.defs.appendChild(filter);
   }
 }
 

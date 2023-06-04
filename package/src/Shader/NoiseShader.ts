@@ -1,3 +1,4 @@
+import { createTexture } from "../Core";
 import type { TurbulenceType } from "../ImageFilter/SVG";
 import { svgCtx, TurbulenceFilter } from "../ImageFilter/SVG";
 
@@ -7,6 +8,7 @@ export class NoiseShader extends ShaderJS {
   private static count = 0;
 
   private id: string;
+  private ctx: CanvasRenderingContext2D;
 
   constructor(
     readonly baseFreqY: number,
@@ -16,7 +18,7 @@ export class NoiseShader extends ShaderJS {
     readonly type: TurbulenceType = "fractalNoise"
   ) {
     super();
-    this.id = `filter-${NoiseShader.count}`;
+    this.id = `shader-${NoiseShader.count}`;
     NoiseShader.count++;
     const filter = new TurbulenceFilter(
       baseFreqX,
@@ -26,6 +28,7 @@ export class NoiseShader extends ShaderJS {
       type
     );
     svgCtx.create(this.id, [filter]);
+    this.ctx = createTexture(0, 0);
   }
 
   dispose() {
@@ -34,10 +37,11 @@ export class NoiseShader extends ShaderJS {
 
   paint(ctx: OffscreenCanvasRenderingContext2D) {
     const { width, height } = ctx.canvas;
-    ctx.filter = `url(#${this.id})`;
-    ctx.fillStyle = "transparent";
-    ctx.fillRect(0, 0, width, height);
-    ctx.drawImage(ctx.canvas, 0, 0);
+    this.ctx.canvas.width = width;
+    this.ctx.canvas.height = height;
+    this.ctx.filter = `url(#${this.id})`;
+    this.ctx.fillRect(0, 0, width, height);
+    ctx.drawImage(this.ctx.canvas, 0, 0);
     return ctx.canvas.transferToImageBitmap();
   }
 }

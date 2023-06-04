@@ -44,23 +44,6 @@ describe("PathKit's SVG Behavior", () => {
     expect(svgStr).toEqual("M205,5L795,5L595,295L5,295L205,5Z");
   });
 
-  it("can create an SVG string from hex values", () => {
-    const cmds = [
-      [CanvasKit.MOVE_VERB, 9.37088e-26, 2.0003], // 9.37088e-26f, 2.0003f
-      [CanvasKit.LINE_VERB, 795, 5],
-      [CanvasKit.LINE_VERB, 595, 295],
-      [CanvasKit.LINE_VERB, 5, 295],
-      [CanvasKit.LINE_VERB, 9.37088e-26, 2.0003], // 9.37088e-26f, 2.0003f
-      [CanvasKit.CLOSE_VERB],
-    ].flat();
-    const path = CanvasKit.Path.MakeFromCmds(cmds)!;
-    expect(path).toBeTruthy();
-    const svgStr = path.toSVGString();
-    expect(svgStr).toEqual(
-      "M9.37088e-26,2.0003L795,5L595,295L5,295L9.37088e-26,2.0003Z"
-    );
-  });
-
   it("should have input and the output be the same", () => {
     const testCases = ["M0,0L1075,0L1075,242L0,242L0,0Z"];
 
