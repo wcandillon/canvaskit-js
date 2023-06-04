@@ -5,8 +5,6 @@ import type {
   Matrix3x3Helpers,
 } from "canvaskit-wasm";
 
-import { isMalloc } from "./Core";
-
 export type Matrix3x3 = number[];
 
 export const normalizeMatrix = (matrix: InputMatrix): Matrix3x3 => {
@@ -14,9 +12,7 @@ export const normalizeMatrix = (matrix: InputMatrix): Matrix3x3 => {
     return matrix;
   } else if (matrix instanceof Float32Array) {
     return Array.from(matrix);
-  } else if (isMalloc(matrix)) {
-    return Array.from(matrix.toTypedArray());
-  } else {
+  } else if (matrix instanceof DOMMatrix) {
     return [
       matrix.m11,
       matrix.m12,
@@ -28,6 +24,8 @@ export const normalizeMatrix = (matrix: InputMatrix): Matrix3x3 => {
       matrix.m42,
       matrix.m44,
     ];
+  } else {
+    return Array.from(matrix.toTypedArray());
   }
 };
 
