@@ -2,7 +2,7 @@ import type { SVGFilter } from "./SVGFilter";
 
 const ns = "http://www.w3.org/2000/svg";
 
-export class SVGContext {
+class SVGContext {
   private static _instance: SVGContext | null = null;
 
   private root: SVGSVGElement = document.createElementNS(ns, "svg");
@@ -33,6 +33,7 @@ export class SVGContext {
       filter.appendChild(fe.getFilter());
     }
     this.root.appendChild(filter);
-    return `url(#${id})`;
   }
 }
+
+export const svgCtx = SVGContext.getInstance();

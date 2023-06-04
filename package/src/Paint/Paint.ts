@@ -14,13 +14,10 @@ import { HostObject } from "../HostObject";
 import { NativeColor } from "../Values";
 import type { MaskFilterJS } from "../MaskFilter/MaskFilter";
 import { createOffscreenTexture } from "../Core/Platform";
-import { SVGContext } from "../ImageFilter/SVG";
 
 import { getBlendMode } from "./BlendMode";
 
 export class PaintJS extends HostObject<Paint> implements Paint {
-  private static id = 0;
-
   private style = PaintStyle.Fill;
   private color = new Float32Array([0, 0, 0, 1]); // default to black color
   private strokeWidth = 1;
@@ -59,11 +56,7 @@ export class PaintJS extends HostObject<Paint> implements Paint {
     context.lineCap = lineCap(this.strokeCap);
     context.lineJoin = lineJoin(this.strokeJoin);
     if (this.maskFilter) {
-      const filter = this.maskFilter.getFilter();
-      PaintJS.id++;
-      const fileName = `filter-${PaintJS.id}`;
-      SVGContext.getInstance().create(fileName, filter);
-      context.filter = `url(#${fileName})`;
+      context.filter = this.maskFilter.getFilter();
     }
     // if (this.maskFilter || this.imageFilter) {
     //   let filter = "";

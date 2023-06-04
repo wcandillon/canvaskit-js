@@ -20,5 +20,6 @@ export class BlurMaskFilter extends MaskFilterJS {
     } else if (this.style === BlurStyleEnum.Inner) {
       this.filters.push(new CompositeFilter(blur, SourceGraphic, "in"));
     }
+    this.create();
   }
 }
