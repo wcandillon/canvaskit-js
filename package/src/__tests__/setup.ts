@@ -4,8 +4,8 @@ import fs from "fs";
 import { PNG } from "pngjs";
 import pixelmatch from "pixelmatch";
 /* eslint-disable no-var */
+import { CanvasKit } from "canvaskit-wasm";
 import type {
-  CanvasKit,
   CanvasKit as CanvasKitType,
   Surface,
   Canvas,
@@ -29,6 +29,7 @@ import {
   xywhiRect,
   rrectXY,
 } from "../Core";
+import { Matrix3 } from "../Matrix3";
 
 const DEBUG = false;
 
@@ -128,13 +129,12 @@ declare global {
 }
 
 beforeAll(async () => {
-  const CanvasKit = await CanvasKitInit({});
   // The CanvasKit API is stored on the global object and used
   // to create the JsiSKApi in the Skia.web.ts file.
-  global.RealCanvasKit = CanvasKit;
+  global.RealCanvasKit = await CanvasKitInit({});
 });
 
-const constructors = {
+global.CanvasKit = {
   Color: color,
   Color4f: color4f,
   ColorAsInt: colorAsInt,
@@ -145,7 +145,9 @@ const constructors = {
   XYWHRect: xywhRect,
   RRectXY: rrectXY,
   XYWHiRect: xywhiRect,
-};
+  Matrix: Matrix3,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+} as any;
 
 export const testCanvasKitMethod = (
   name: keyof CanvasKitType,
@@ -155,7 +157,7 @@ export const testCanvasKitMethod = (
   it(`${name}(${args.join(", ")})`, () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    expect(constructors[name](...args)).toEqual(
+    expect(CanvasKit[name](...args)).toEqual(
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       global.RealCanvasKit[name](...args)
