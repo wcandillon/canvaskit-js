@@ -5,7 +5,7 @@ import type {
   Matrix3x3Helpers,
 } from "canvaskit-wasm";
 
-import { isMalloc } from "./Values";
+import { isMalloc } from "./Core";
 
 export type Matrix3x3 = number[];
 

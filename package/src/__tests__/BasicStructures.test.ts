@@ -16,6 +16,6 @@ describe("Rects", () => {
   testCanvasKitMethod("LTRBiRect", 10, 20, 30, 40);
   testCanvasKitMethod("XYWHiRect", 10, 20, 30, 40);
 
-  const rect = CanvasKit.LTRBRect(10, 20, 30, 40);
+  const rect = Float32Array.of(10, 20, 30, 40);
   testCanvasKitMethod("RRectXY", rect, 5, 5);
 });

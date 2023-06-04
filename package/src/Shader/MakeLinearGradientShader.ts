@@ -7,7 +7,7 @@ import type {
   InputPoint,
 } from "canvaskit-wasm";
 
-import { NativeColor, uIntColorToCanvasKitColor } from "../Values";
+import { nativeColor, uIntColorToCanvasKitColor } from "../Core";
 
 import { ShaderJS } from "./Shader";
 
@@ -41,7 +41,7 @@ export class MakeLinearGradientShader extends ShaderJS {
     );
     this.colors.forEach((color, i) => {
       // TODO: NativeColor should already be set
-      grd.addColorStop(this.pos[i], NativeColor(color));
+      grd.addColorStop(this.pos[i], nativeColor(color));
     });
     ctx.fillStyle = grd;
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);

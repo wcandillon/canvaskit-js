@@ -11,7 +11,7 @@ import type {
 import { HostObject } from "./HostObject";
 import { CanvasJS } from "./Canvas";
 import { ImageJS } from "./Image";
-import { rectToXYWH } from "./Values";
+import { rectToXYWH } from "./Core";
 
 export class SurfaceJS extends HostObject<Surface> implements Surface {
   private canvas: Canvas;

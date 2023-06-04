@@ -31,11 +31,11 @@ import type {
 import { PaintJS } from "./Paint";
 import type { ColorSpaceJS, InputColor } from "./Contants";
 import { HostObject } from "./HostObject";
-import { IntAsColor, rectToXYWH, rrectToXYWH } from "./Values";
 import { convertDOMMatrixTo3x3, normalizeMatrix } from "./Matrix3";
 import { toRad } from "./math";
 import type { PathJS } from "./Path";
 import type { ImageJS } from "./Image";
+import { intAsColor, rectToXYWH, rrectToXYWH } from "./Core";
 
 export class CanvasJS extends HostObject<Canvas> implements Canvas {
   private defaultPaint = new PaintJS();
@@ -120,7 +120,7 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
     this.drawColor(Float32Array.of(r, g, b, a), blendMode);
   }
   drawColorInt(color: number, blendMode?: EmbindEnumEntity | undefined): void {
-    this.drawColor(IntAsColor(color), blendMode);
+    this.drawColor(intAsColor(color), blendMode);
   }
   drawDRRect(_outer: InputRRect, _inner: InputRRect, _paint: Paint): void {
     throw new Error("Method not implemented.");

@@ -7,9 +7,9 @@ import type {
 } from "canvaskit-wasm";
 
 import { HostObject } from "../HostObject";
-import { normalizeArray } from "../Values";
 import type { ShaderJS } from "../Shader";
 import { RuntimeEffectShader } from "../Shader/RuntimeEffectShader";
+import { normalizeArray } from "../Core";
 
 type ShaderIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 

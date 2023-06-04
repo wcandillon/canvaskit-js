@@ -10,7 +10,7 @@ import type {
   Shader,
 } from "canvaskit-wasm";
 
-import { NativeColor } from "../Values";
+import { nativeColor } from "../Core";
 
 import { ColorShader } from "./ColorShader";
 import { BlendShader } from "./BlendShader";
@@ -22,7 +22,7 @@ export const ShaderFactory: CKShaderFactory = {
     return new BlendShader(mode, one, two);
   },
   MakeColor: function (color: InputColor, _space: ColorSpace): Shader {
-    return new ColorShader(NativeColor(color));
+    return new ColorShader(nativeColor(color));
   },
   MakeFractalNoise: function (
     _baseFreqX: number,

@@ -18,7 +18,7 @@ import { PathVerb as CKPathVerb } from "../Contants";
 import { HostObject } from "../HostObject";
 import type { Matrix3x3 } from "../Matrix3";
 import { Matrix3, transformPoint } from "../Matrix3";
-import { inputCmds, rrectToXYWH } from "../Values";
+import { normalizeArray, rrectToXYWH } from "../Core";
 
 enum PathVerb {
   Move = "M",
@@ -31,7 +31,7 @@ enum PathVerb {
 
 type PathCommand = [string, ...number[]];
 
-const unflattenCmds = (cmds: number[]): PathCommand[] => {
+const unflattenCmds = (cmds: Float32Array): PathCommand[] => {
   const result: PathCommand[] = [];
   let i = 0;
   while (i < cmds.length) {
@@ -451,7 +451,7 @@ export class PathJS extends HostObject<Path> implements Path {
     throw new Error("Function not implemented.");
   }
   static MakeFromCmds(cmds: InputCommands): Path | null {
-    return new PathJS(unflattenCmds(inputCmds(cmds)));
+    return new PathJS(unflattenCmds(normalizeArray(cmds)));
   }
   static MakeFromOp(
     _one: Path,

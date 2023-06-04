@@ -11,9 +11,9 @@ import { BlendMode, StrokeCap, PaintStyle, StrokeJoin } from "../Contants";
 import type { ShaderJS } from "../Shader";
 import type { ImageFilterJS } from "../ImageFilter";
 import { HostObject } from "../HostObject";
-import { NativeColor } from "../Values";
 import type { MaskFilterJS } from "../MaskFilter/MaskFilter";
 import { createOffscreenTexture } from "../Core/Platform";
+import { nativeColor } from "../Core";
 
 import { getBlendMode } from "./BlendMode";
 
@@ -44,7 +44,7 @@ export class PaintJS extends HostObject<Paint> implements Paint {
       );
       style = context.createPattern(texture, "no-repeat")!;
     } else {
-      style = NativeColor(this.color);
+      style = nativeColor(this.color);
     }
     if (this.style === PaintStyle.Fill) {
       context.fillStyle = style;

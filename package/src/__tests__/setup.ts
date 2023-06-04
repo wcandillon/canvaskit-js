@@ -17,7 +17,18 @@ import CanvasKitInit from "canvaskit-wasm/bin/full/canvaskit";
 import type { Browser, Page } from "puppeteer";
 import puppeteer from "puppeteer";
 
-import { vec } from "../Values";
+import {
+  color,
+  color4f,
+  colorAsInt,
+  getColorComponents,
+  multiplyByAlpha,
+  ltrbRect,
+  ltrbiRect,
+  xywhRect,
+  xywhiRect,
+  rrectXY,
+} from "../Core";
 
 const DEBUG = false;
 
@@ -123,6 +134,19 @@ beforeAll(async () => {
   global.RealCanvasKit = CanvasKit;
 });
 
+const constructors = {
+  Color: color,
+  Color4f: color4f,
+  ColorAsInt: colorAsInt,
+  getColorComponents,
+  multiplyByAlpha,
+  LTRBRect: ltrbRect,
+  LTRBiRect: ltrbiRect,
+  XYWHRect: xywhRect,
+  RRectXY: rrectXY,
+  XYWHiRect: xywhiRect,
+};
+
 export const testCanvasKitMethod = (
   name: keyof CanvasKitType,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -131,7 +155,7 @@ export const testCanvasKitMethod = (
   it(`${name}(${args.join(", ")})`, () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    expect(global.CanvasKit[name](...args)).toEqual(
+    expect(constructors[name](...args)).toEqual(
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       global.RealCanvasKit[name](...args)
@@ -147,7 +171,7 @@ export const setupRealSkia = (width = 256, height = 256) => {
     width,
     height,
     canvas,
-    center: vec(width / 2, height / 2),
+    center: Float32Array.of(width / 2, height / 2),
   };
 };
 

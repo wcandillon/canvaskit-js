@@ -61,6 +61,7 @@ import type {
   WebGLOptions,
   WebGPUCanvasContext,
   WebGPUCanvasOptions,
+  Color,
 } from "canvaskit-wasm";
 
 import { Matrix3 } from "./Matrix3";
@@ -95,7 +96,6 @@ import {
 import { SurfaceJS } from "./Surface";
 import { PaintJS } from "./Paint";
 import { ShaderFactory } from "./Shader";
-import { ColorAsInt, MallocObjJS } from "./Values";
 import { PathJS } from "./Path";
 import { ImageFilterFactory } from "./ImageFilter";
 import { MaskFilterFactory } from "./MaskFilter";
@@ -108,6 +108,19 @@ import {
   createTexture,
   resolveContext,
 } from "./Core/Platform";
+import {
+  MallocObjJS,
+  color,
+  color4f,
+  colorAsInt,
+  getColorComponents,
+  ltrbRect,
+  ltrbiRect,
+  multiplyByAlpha,
+  rrectXY,
+  xywhRect,
+  xywhiRect,
+} from "./Core";
 
 export class CanvasKitJS implements ICanvasKit {
   private static instance: ICanvasKit | null = null;
@@ -134,7 +147,7 @@ export class CanvasKitJS implements ICanvasKit {
   }
 
   Color(r: number, g: number, b: number, a = 1): Float32Array {
-    return new Float32Array([r / 255, g / 255, b / 255, a]);
+    return color(r, g, b, a);
   }
 
   Color4f(
@@ -143,20 +156,15 @@ export class CanvasKitJS implements ICanvasKit {
     b: number,
     a?: number | undefined
   ): Float32Array {
-    return Float32Array.of(r, g, b, a ?? 1);
+    return color4f(r, g, b, a);
   }
 
   ColorAsInt(r: number, g: number, b: number, a = 1): number {
-    return ColorAsInt(r, g, b, a);
+    return colorAsInt(r, g, b, a);
   }
 
-  getColorComponents(color: Float32Array): number[] {
-    return [
-      Math.floor(color[0] * 255),
-      Math.floor(color[1] * 255),
-      Math.floor(color[2] * 255),
-      color[3],
-    ];
+  getColorComponents(cl: Color): number[] {
+    return getColorComponents(cl);
   }
 
   parseColorString(
@@ -170,23 +178,22 @@ export class CanvasKitJS implements ICanvasKit {
   }
 
   multiplyByAlpha(c: Float32Array, alpha: number): Float32Array {
-    return this.Color4f(c[0], c[1], c[2], c[3] * alpha);
+    return multiplyByAlpha(c, alpha);
   }
 
   computeTonalColors(_colors: TonalColorsInput): TonalColorsOutput {
     throw new Error("Method not implemented.");
   }
-
   LTRBRect(
     left: number,
     top: number,
     right: number,
     bottom: number
   ): Float32Array {
-    return new Float32Array([left, top, right, bottom]);
+    return ltrbRect(left, top, right, bottom);
   }
   XYWHRect(x: number, y: number, width: number, height: number): Float32Array {
-    return this.LTRBRect(x, y, x + width, y + height);
+    return xywhRect(x, y, width, height);
   }
   LTRBiRect(
     left: number,
@@ -194,30 +201,13 @@ export class CanvasKitJS implements ICanvasKit {
     right: number,
     bottom: number
   ): Int32Array {
-    return new Int32Array([left, top, right, bottom]);
+    return ltrbiRect(left, top, right, bottom);
   }
   XYWHiRect(x: number, y: number, width: number, height: number): Int32Array {
-    return this.LTRBiRect(x, y, x + width, y + height);
+    return xywhiRect(x, y, width, height);
   }
-  RRectXY(
-    rect: Exclude<InputRect, MallocObj>,
-    rx: number,
-    ry: number
-  ): Float32Array {
-    return Float32Array.of(
-      rect[0],
-      rect[1],
-      rect[2],
-      rect[3],
-      rx,
-      ry,
-      rx,
-      ry,
-      rx,
-      ry,
-      rx,
-      ry
-    );
+  RRectXY(input: InputRect, rx: number, ry: number): Float32Array {
+    return rrectXY(input, rx, ry);
   }
   getShadowLocalBounds(
     _ctm: InputMatrix,

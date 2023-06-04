@@ -5,6 +5,8 @@ export const clamp = (value: number, min: number, max: number) => {
   return Math.min(Math.max(value, min), max);
 };
 
+export const saturate = (value: number) => clamp(value, 0, 1);
+
 export const toDeg = (rad: number) => (rad * 180) / Math.PI;
 
 export const toRad = (deg: number) => (deg * Math.PI) / 180;

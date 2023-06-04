@@ -7,7 +7,6 @@ export class GrDirectContextJS
   implements GrDirectContext
 {
   private limit = 0;
-  private cache: CanvasRenderingContext2D[] = [];
 
   constructor(public readonly ctx: CanvasRenderingContext2D) {
     super();
@@ -18,14 +17,15 @@ export class GrDirectContextJS
   }
 
   getResourceCacheUsageBytes(): number {
-    return this.cache.reduce(
-      (acc, ctx) => acc + ctx.canvas.width * ctx.canvas.height * 4,
-      0
-    );
+    throw new Error("Method not implemented.");
+    // return this.cache.reduce(
+    //   (acc, ctx) => acc + ctx.canvas.width * ctx.canvas.height * 4,
+    //   0
+    // );
   }
 
   releaseResourcesAndAbandonContext(): void {
-    this.cache = [];
+    //this.cache = [];
   }
 
   setResourceCacheLimitBytes(limit: number): void {
