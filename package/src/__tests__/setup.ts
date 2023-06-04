@@ -17,40 +17,7 @@ import CanvasKitInit from "canvaskit-wasm/bin/full/canvaskit";
 import type { Browser, Page } from "puppeteer";
 import puppeteer from "puppeteer";
 
-import {
-  color,
-  color4f,
-  colorAsInt,
-  getColorComponents,
-  multiplyByAlpha,
-  ltrbRect,
-  ltrbiRect,
-  xywhRect,
-  xywhiRect,
-  rrectXY,
-} from "../Core";
-import { Matrix3 } from "../Matrix3";
-import {
-  AlphaType,
-  BlendMode,
-  BlurStyle,
-  ColorSpace,
-  ColorType,
-  FillType,
-  FilterMode,
-  FontEdging,
-  FontHinting,
-  ImageFormat,
-  MipmapMode,
-  PaintStyle,
-  Path1DEffectStyle,
-  PathOp,
-  PointMode,
-  StrokeCap,
-  StrokeJoin,
-  TileMode,
-  VertexMode,
-} from "../Contants";
+import { CoreCanvasKit } from "../Core";
 
 const DEBUG = false;
 
@@ -155,39 +122,10 @@ beforeAll(async () => {
   global.RealCanvasKit = await CanvasKitInit({});
 });
 
-global.CanvasKit = {
-  Color: color,
-  Color4f: color4f,
-  ColorAsInt: colorAsInt,
-  getColorComponents,
-  multiplyByAlpha,
-  LTRBRect: ltrbRect,
-  LTRBiRect: ltrbiRect,
-  XYWHRect: xywhRect,
-  RRectXY: rrectXY,
-  XYWHiRect: xywhiRect,
-  Matrix: Matrix3,
-  ImageFormat: ImageFormat,
-  MipmapMode: MipmapMode,
-  PaintStyle: PaintStyle,
-  Path1DEffect: Path1DEffectStyle,
-  PathOp: PathOp,
-  PointMode: PointMode,
-  ColorSpace: ColorSpace,
-  StrokeCap: StrokeCap,
-  StrokeJoin: StrokeJoin,
-  TileMode: TileMode,
-  VertexMode: VertexMode,
-  ColorType: ColorType,
-  FillType: FillType,
-  FilterMode: FilterMode,
-  FontEdging: FontEdging,
-  FontHinting: FontHinting,
-  AlphaType: AlphaType,
-  BlendMode: BlendMode,
-  BlurStyle: BlurStyle,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-} as any;
+class HeadlessCanvasKit extends CoreCanvasKit {}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+global.CanvasKit = new HeadlessCanvasKit() as any;
 
 export const testCanvasKitMethod = (
   name: keyof CanvasKitType,

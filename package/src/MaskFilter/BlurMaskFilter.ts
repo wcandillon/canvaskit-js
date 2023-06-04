@@ -1,4 +1,4 @@
-import { BlurStyleEnum } from "../Contants";
+import { BlurStyleEnum } from "../Core";
 import {
   BlurFilter,
   CompositeFilter,

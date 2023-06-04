@@ -6,14 +6,19 @@ import type {
   PathEffect,
 } from "canvaskit-wasm";
 
-import type { InputColor } from "../Contants";
-import { BlendMode, StrokeCap, PaintStyle, StrokeJoin } from "../Contants";
+import type { InputColor } from "../Core";
+import {
+  BlendMode,
+  StrokeCap,
+  PaintStyle,
+  StrokeJoin,
+  nativeColor,
+} from "../Core";
 import type { ShaderJS } from "../Shader";
 import type { ImageFilterJS } from "../ImageFilter";
 import { HostObject } from "../HostObject";
 import type { MaskFilterJS } from "../MaskFilter/MaskFilter";
 import { createOffscreenTexture } from "../Core/Platform";
-import { nativeColor } from "../Core";
 
 import { getBlendMode } from "./BlendMode";
 

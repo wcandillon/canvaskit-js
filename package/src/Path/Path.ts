@@ -14,11 +14,10 @@ import absSVG from "abs-svg-path";
 import serializeSVG from "serialize-svg-path";
 import { svgPathProperties as SvgPathProperties } from "svg-path-properties";
 
-import { PathVerb as CKPathVerb } from "../Contants";
+import { PathVerb as CKPathVerb, normalizeArray, rrectToXYWH } from "../Core";
 import { HostObject } from "../HostObject";
 import type { Matrix3x3 } from "../Matrix3";
 import { Matrix3, transformPoint } from "../Matrix3";
-import { normalizeArray, rrectToXYWH } from "../Core";
 
 enum PathVerb {
   Move = "M",

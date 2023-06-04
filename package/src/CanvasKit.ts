@@ -24,7 +24,6 @@ import type {
   ImageInfo,
   InputFlattenedPointArray,
   InputMatrix,
-  InputRect,
   InputVector3,
   MallocObj,
   ManagedSkottieAnimation,
@@ -61,38 +60,10 @@ import type {
   WebGLOptions,
   WebGPUCanvasContext,
   WebGPUCanvasOptions,
-  Color,
 } from "canvaskit-wasm";
 
-import { Matrix3 } from "./Matrix3";
-import type { ColorSpaceJS } from "./Contants";
-import {
-  ColorSpace,
-  AlphaType,
-  BlendMode,
-  BlurStyle,
-  ClipOp,
-  ColorType,
-  FillType,
-  FilterMode,
-  FontEdging,
-  FontHinting,
-  FontSlant,
-  FontWeight,
-  FontWidth,
-  ImageFormat,
-  MipmapMode,
-  PaintStyle,
-  Path1DEffectStyle,
-  PathOp,
-  PathVerb,
-  PointMode,
-  StrokeCap,
-  StrokeJoin,
-  TileMode,
-  VertexMode,
-  ImageFormatEnum,
-} from "./Contants";
+import type { ColorSpaceJS } from "./Core";
+import { CoreCanvasKit, ImageFormatEnum, MallocObjJS } from "./Core";
 import { SurfaceJS } from "./Surface";
 import { PaintJS } from "./Paint";
 import { ShaderFactory } from "./Shader";
@@ -108,27 +79,16 @@ import {
   createTexture,
   resolveContext,
 } from "./Core/Platform";
-import {
-  MallocObjJS,
-  color,
-  color4f,
-  colorAsInt,
-  getColorComponents,
-  ltrbRect,
-  ltrbiRect,
-  multiplyByAlpha,
-  rrectXY,
-  xywhRect,
-  xywhiRect,
-} from "./Core";
 
-export class CanvasKitJS implements ICanvasKit {
+export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
   private static instance: ICanvasKit | null = null;
 
   private contextes: CanvasRenderingContext2D[] = [];
   private _colorCtx: OffscreenCanvasRenderingContext2D | null = null;
 
-  private constructor() {}
+  private constructor() {
+    super();
+  }
 
   get colorCtx(): OffscreenCanvasRenderingContext2D {
     if (this._colorCtx === null) {
@@ -146,27 +106,6 @@ export class CanvasKitJS implements ICanvasKit {
     return this.instance;
   }
 
-  Color(r: number, g: number, b: number, a = 1): Float32Array {
-    return color(r, g, b, a);
-  }
-
-  Color4f(
-    r: number,
-    g: number,
-    b: number,
-    a?: number | undefined
-  ): Float32Array {
-    return color4f(r, g, b, a);
-  }
-
-  ColorAsInt(r: number, g: number, b: number, a = 1): number {
-    return colorAsInt(r, g, b, a);
-  }
-
-  getColorComponents(cl: Color): number[] {
-    return getColorComponents(cl);
-  }
-
   parseColorString(
     colorStr: string,
     _colorMap?: Record<string, Float32Array> | undefined
@@ -177,38 +116,10 @@ export class CanvasKitJS implements ICanvasKit {
     return Float32Array.of(r / 255, g / 255, b / 255, a / 255);
   }
 
-  multiplyByAlpha(c: Float32Array, alpha: number): Float32Array {
-    return multiplyByAlpha(c, alpha);
-  }
-
   computeTonalColors(_colors: TonalColorsInput): TonalColorsOutput {
     throw new Error("Method not implemented.");
   }
-  LTRBRect(
-    left: number,
-    top: number,
-    right: number,
-    bottom: number
-  ): Float32Array {
-    return ltrbRect(left, top, right, bottom);
-  }
-  XYWHRect(x: number, y: number, width: number, height: number): Float32Array {
-    return xywhRect(x, y, width, height);
-  }
-  LTRBiRect(
-    left: number,
-    top: number,
-    right: number,
-    bottom: number
-  ): Int32Array {
-    return ltrbiRect(left, top, right, bottom);
-  }
-  XYWHiRect(x: number, y: number, width: number, height: number): Int32Array {
-    return xywhiRect(x, y, width, height);
-  }
-  RRectXY(input: InputRect, rx: number, ry: number): Float32Array {
-    return rrectXY(input, rx, ry);
-  }
+
   getShadowLocalBounds(
     _ctm: InputMatrix,
     _path: Path,
@@ -449,46 +360,10 @@ export class CanvasKitJS implements ICanvasKit {
   Typeface!: TypefaceFactory;
   TypefaceFontProvider!: TypefaceFontProviderFactory;
   ColorMatrix!: ColorMatrixHelpers;
-  Matrix = Matrix3;
   M44!: Matrix4x4Helpers;
   Vector!: VectorHelpers;
-  AlphaType = AlphaType;
-  BlendMode = BlendMode;
-  BlurStyle = BlurStyle;
-  ClipOp = ClipOp;
   ColorChannel!: ColorChannelEnumValues;
-  ColorType = ColorType;
-  FillType = FillType;
-  FilterMode = FilterMode;
-  FontEdging = FontEdging;
-  FontHinting = FontHinting;
   GlyphRunFlags!: GlyphRunFlagValues;
-  ImageFormat = ImageFormat;
-  MipmapMode = MipmapMode;
-  PaintStyle = PaintStyle;
-  Path1DEffect = Path1DEffectStyle;
-  PathOp = PathOp;
-  PointMode = PointMode;
-  ColorSpace = ColorSpace;
-  StrokeCap = StrokeCap;
-  StrokeJoin = StrokeJoin;
-  TileMode = TileMode;
-  VertexMode = VertexMode;
-  TRANSPARENT = new Float32Array([0, 0, 0, 0]);
-  BLACK = new Float32Array([0, 0, 0, 1]);
-  WHITE = new Float32Array([1, 1, 1, 1]);
-  RED = new Float32Array([1, 0, 0, 1]);
-  GREEN = new Float32Array([0, 1, 0, 1]);
-  BLUE = new Float32Array([0, 0, 1, 1]);
-  YELLOW = new Float32Array([1, 1, 0, 1]);
-  CYAN = new Float32Array([0, 1, 1, 1]);
-  MAGENTA = new Float32Array([1, 0, 1, 1]);
-  MOVE_VERB = PathVerb.Move;
-  LINE_VERB = PathVerb.Line;
-  QUAD_VERB = PathVerb.Quad;
-  CONIC_VERB = PathVerb.Conic;
-  CUBIC_VERB = PathVerb.Cubic;
-  CLOSE_VERB = PathVerb.Close;
   SaveLayerInitWithPrevious = 1 << 2;
   SaveLayerF16ColorType = 1 << 4;
   ShadowTransparentOccluder!: number;
@@ -500,9 +375,6 @@ export class CanvasKitJS implements ICanvasKit {
   skottie?: boolean | undefined;
   Affinity!: AffinityEnumValues;
   DecorationStyle!: DecorationStyleEnumValues;
-  FontSlant = FontSlant;
-  FontWeight = FontWeight;
-  FontWidth = FontWidth;
   PlaceholderAlignment!: PlaceholderAlignmentEnumValues;
   RectHeightStyle!: RectHeightStyleEnumValues;
   RectWidthStyle!: RectWidthStyleEnumValues;

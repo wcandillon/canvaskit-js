@@ -25,7 +25,7 @@ import {
   TileModeEnum,
   VertexModeEnum,
   mapKeys,
-} from "../Contants";
+} from "../Core";
 
 import "./setup";
 

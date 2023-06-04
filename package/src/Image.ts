@@ -10,8 +10,8 @@ import type {
   Shader,
 } from "canvaskit-wasm";
 
+import { ImageFormatEnum } from "./Core";
 import { HostObject } from "./HostObject";
-import { ImageFormatEnum } from "./Contants";
 import { createTexture } from "./Core/Platform";
 import { ImageShader } from "./Shader/ImageShader";
 

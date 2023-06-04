@@ -27,7 +27,7 @@ import type {
   ColorSpaceEnumValues,
 } from "canvaskit-wasm";
 
-import { HostObject } from "./HostObject";
+import { HostObject } from "../HostObject";
 
 export type InputColor = Exclude<CKInputColor, MallocObj>;
 

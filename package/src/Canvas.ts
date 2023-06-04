@@ -29,7 +29,7 @@ import type {
 } from "canvaskit-wasm";
 
 import { PaintJS } from "./Paint";
-import type { ColorSpaceJS, InputColor } from "./Contants";
+import type { ColorSpaceJS, InputColor } from "./Core";
 import { HostObject } from "./HostObject";
 import { convertDOMMatrixTo3x3, normalizeMatrix } from "./Matrix3";
 import { toRad } from "./math";
