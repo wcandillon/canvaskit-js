@@ -11,7 +11,7 @@ import { MaskFilterJS } from "./MaskFilter";
 export class BlurMaskFilter extends MaskFilterJS {
   constructor(readonly style: BlurStyleEnum, readonly sigma: number) {
     super();
-    const blur = new BlurFilter(sigma, SourceGraphic);
+    const blur = new BlurFilter(sigma);
     this.filters.push(blur);
     if (this.style === BlurStyleEnum.Solid) {
       this.filters.push(new MergeFilter([blur, SourceGraphic]));

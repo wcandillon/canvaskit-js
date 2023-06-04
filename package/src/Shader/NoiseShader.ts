@@ -1,39 +1,43 @@
-/* eslint-disable max-len */
-import { createTexture } from "../Core/Platform";
+import type { TurbulenceType } from "../ImageFilter/SVG";
+import { svgCtx, TurbulenceFilter } from "../ImageFilter/SVG";
 
 import { ShaderJS } from "./Shader";
 
 export class NoiseShader extends ShaderJS {
-  private ctx: CanvasRenderingContext2D;
-  // private filter: SVGFilter;
-  //private filterURL: string;
+  private static count = 0;
 
-  constructor() {
-    // private readonly type: "turbulence" | "fractalNoise" = "fractalNoise" // private readonly tileH: number, // private readonly tileW: number, // private readonly seed: number, // private readonly octaves: number, // private readonly baseFreqY: number, // private readonly baseFreqX: number,
+  private id: string;
+
+  constructor(
+    readonly baseFreqY: number,
+    readonly baseFreqX: number,
+    readonly octaves: number,
+    readonly seed: number,
+    readonly type: TurbulenceType = "fractalNoise"
+  ) {
     super();
-    //const id = `fractal-noise-${NoiseShader.count}`;
-    this.ctx = createTexture(0, 0);
-    // this.filter = new SVGFilter(id);
-    // this.filter.addNoise(
-    //   this.baseFreqX,
-    //   this.baseFreqY,
-    //   this.octaves,
-    //   this.seed,
-    //   this.tileW,
-    //   this.tileH,
-    //   this.type
-    // );
-    // this.filterURL = this.filter.create();
+    this.id = `filter-${NoiseShader.count}`;
+    NoiseShader.count++;
+    const filter = new TurbulenceFilter(
+      baseFreqX,
+      baseFreqY,
+      octaves,
+      seed,
+      type
+    );
+    svgCtx.create(this.id, [filter]);
+  }
+
+  dispose() {
+    svgCtx.disposeFilter(this.id);
   }
 
   paint(ctx: OffscreenCanvasRenderingContext2D) {
     const { width, height } = ctx.canvas;
-    this.ctx.canvas.width = width;
-    this.ctx.canvas.height = height;
-    //this.ctx.filter = this.filterURL;
+    ctx.filter = `url(#${this.id})`;
     ctx.fillStyle = "transparent";
-    this.ctx.fillRect(0, 0, width, height);
-    ctx.drawImage(this.ctx.canvas, 0, 0);
+    ctx.fillRect(0, 0, width, height);
+    ctx.drawImage(ctx.canvas, 0, 0);
     return ctx.canvas.transferToImageBitmap();
   }
 }

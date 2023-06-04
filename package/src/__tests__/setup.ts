@@ -30,6 +30,27 @@ import {
   rrectXY,
 } from "../Core";
 import { Matrix3 } from "../Matrix3";
+import {
+  AlphaType,
+  BlendMode,
+  BlurStyle,
+  ColorSpace,
+  ColorType,
+  FillType,
+  FilterMode,
+  FontEdging,
+  FontHinting,
+  ImageFormat,
+  MipmapMode,
+  PaintStyle,
+  Path1DEffectStyle,
+  PathOp,
+  PointMode,
+  StrokeCap,
+  StrokeJoin,
+  TileMode,
+  VertexMode,
+} from "../Contants";
 
 const DEBUG = false;
 
@@ -146,6 +167,25 @@ global.CanvasKit = {
   RRectXY: rrectXY,
   XYWHiRect: xywhiRect,
   Matrix: Matrix3,
+  ImageFormat: ImageFormat,
+  MipmapMode: MipmapMode,
+  PaintStyle: PaintStyle,
+  Path1DEffect: Path1DEffectStyle,
+  PathOp: PathOp,
+  PointMode: PointMode,
+  ColorSpace: ColorSpace,
+  StrokeCap: StrokeCap,
+  StrokeJoin: StrokeJoin,
+  TileMode: TileMode,
+  VertexMode: VertexMode,
+  ColorType: ColorType,
+  FillType: FillType,
+  FilterMode: FilterMode,
+  FontEdging: FontEdging,
+  FontHinting: FontHinting,
+  AlphaType: AlphaType,
+  BlendMode: BlendMode,
+  BlurStyle: BlurStyle,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 } as any;
 

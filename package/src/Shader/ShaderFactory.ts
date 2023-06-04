@@ -16,6 +16,7 @@ import { ColorShader } from "./ColorShader";
 import { BlendShader } from "./BlendShader";
 import type { ShaderJS } from "./Shader";
 import { MakeLinearGradientShader } from "./MakeLinearGradientShader";
+import { NoiseShader } from "./NoiseShader";
 
 export const ShaderFactory: CKShaderFactory = {
   MakeBlend: function (mode: BlendMode, one: ShaderJS, two: ShaderJS): Shader {
@@ -25,16 +26,14 @@ export const ShaderFactory: CKShaderFactory = {
     return new ColorShader(nativeColor(color));
   },
   MakeFractalNoise: function (
-    _baseFreqX: number,
-    _baseFreqY: number,
-    _octaves: number,
-    _seed: number,
+    baseFreqX: number,
+    baseFreqY: number,
+    octaves: number,
+    seed: number,
     _tileW: number,
     _tileH: number
   ): Shader {
-    throw new Error("Function not implemented.");
-
-    // return new NoiseShader(baseFreqX, baseFreqY, octaves, seed, tileW, tileH);
+    return new NoiseShader(baseFreqX, baseFreqY, octaves, seed);
   },
   MakeLinearGradient: function (
     start: InputPoint,
@@ -84,23 +83,14 @@ export const ShaderFactory: CKShaderFactory = {
     throw new Error("Function not implemented.");
   },
   MakeTurbulence: function (
-    _baseFreqX: number,
-    _baseFreqY: number,
-    _octaves: number,
-    _seed: number,
+    baseFreqX: number,
+    baseFreqY: number,
+    octaves: number,
+    seed: number,
     _tileW: number,
     _tileH: number
   ): Shader {
-    throw new Error("Function not implemented.");
-    // return new NoiseShader(
-    //   baseFreqX,
-    //   baseFreqY,
-    //   octaves,
-    //   seed,
-    //   tileW,
-    //   tileH,
-    //   "turbulence"
-    // );
+    return new NoiseShader(baseFreqX, baseFreqY, octaves, seed, "turbulence");
   },
   MakeTwoPointConicalGradient: function (
     _start: InputPoint,

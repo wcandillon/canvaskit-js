@@ -1,11 +1,11 @@
 import { ImageFilterJS } from "./ImageFilter";
+import { BlurFilter } from "./SVG";
 
 export class BlurImageFilter extends ImageFilterJS {
-  constructor(private readonly sigmaX: number) {
+  constructor(readonly sigma: number) {
     super();
-  }
-
-  getFilter(): string {
-    return `blur(${this.sigmaX}px)`;
+    const blur = new BlurFilter(sigma);
+    this.filters.push(blur);
+    this.create();
   }
 }

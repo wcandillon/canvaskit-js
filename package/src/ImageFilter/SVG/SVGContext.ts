@@ -26,6 +26,13 @@ class SVGContext {
     document.body.removeChild(this.root);
   }
 
+  disposeFilter(id: string) {
+    const filter = document.getElementById(id);
+    if (filter) {
+      this.defs.removeChild(filter);
+    }
+  }
+
   create(id: string, filters: SVGFilter[]) {
     const filter = document.createElementNS(ns, "filter");
     filter.setAttribute("id", id);

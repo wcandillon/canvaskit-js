@@ -35,7 +35,11 @@ export class SourceGraphicFilter implements SVGFilter {
 export const SourceGraphic = new SourceGraphicFilter();
 
 export class BlurFilter extends BaseSVGFilter<SVGFEGaussianBlurElement> {
-  constructor(stdDeviation: number, inFilter: SVGFilter, id = "result") {
+  constructor(
+    stdDeviation: number,
+    inFilter: SVGFilter = SourceGraphic,
+    id = "result"
+  ) {
     super(
       document.createElementNS("http://www.w3.org/2000/svg", "feGaussianBlur")
     );
@@ -44,21 +48,25 @@ export class BlurFilter extends BaseSVGFilter<SVGFEGaussianBlurElement> {
     this.filter.setAttribute("result", id);
   }
 }
-type StitchTiles = "noStitch" | "stitch";
-type TurbulenceType = "fractalNoise" | "turbulence";
+
+export type TurbulenceType = "fractalNoise" | "turbulence";
 
 export class TurbulenceFilter extends BaseSVGFilter<SVGFETurbulenceElement> {
   constructor(
-    baseFrequency: number,
+    baseFrequencyX: number,
+    baseFrequencyY: number,
     numOctaves: number,
-    stitchTiles: StitchTiles,
+    seed: number,
     type: TurbulenceType,
     id = "result"
   ) {
     super(document.createElementNS(ns, "feTurbulence"));
-    this.filter.setAttribute("baseFrequency", baseFrequency.toString());
+    this.filter.setAttribute(
+      "baseFrequency",
+      [baseFrequencyX.toString(), baseFrequencyY.toString()].join(" ")
+    );
+    this.filter.setAttribute("seed", seed.toString());
     this.filter.setAttribute("numOctaves", numOctaves.toString());
-    this.filter.setAttribute("stitchTiles", stitchTiles);
     this.filter.setAttribute("type", type);
     this.filter.setAttribute("result", id);
   }
