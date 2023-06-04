@@ -33,12 +33,11 @@ class SVGContext {
     }
   }
 
-  create(id: string, filters: SVGFilter[]) {
+  create(id: string, filters: SVGElement[]) {
     const filter = document.createElementNS(ns, "filter");
     filter.setAttribute("id", id);
     for (const fe of filters) {
-      // TODO: maybe we can avoid to clone this
-      filter.appendChild(fe.getFilter().cloneNode(true));
+      filter.appendChild(fe);
     }
     this.defs.appendChild(filter);
   }
