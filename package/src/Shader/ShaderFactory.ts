@@ -20,7 +20,6 @@ import {
   SweepGradient,
   TwoPointConicalGradient,
 } from "./Gradients";
-import { NoiseShader } from "./NoiseShader";
 
 export const ShaderFactory: CKShaderFactory = {
   MakeBlend: function (mode: BlendMode, one: ShaderJS, two: ShaderJS): Shader {
@@ -30,14 +29,14 @@ export const ShaderFactory: CKShaderFactory = {
     return new ColorShader(nativeColor(color));
   },
   MakeFractalNoise: function (
-    baseFreqX: number,
-    baseFreqY: number,
-    octaves: number,
-    seed: number,
+    _baseFreqX: number,
+    _baseFreqY: number,
+    _octaves: number,
+    _seed: number,
     _tileW: number,
     _tileH: number
   ): Shader {
-    return new NoiseShader(baseFreqX, baseFreqY, octaves, seed);
+    throw new Error("Not implemented");
   },
   MakeLinearGradient: function (
     start: InputPoint,
@@ -83,14 +82,14 @@ export const ShaderFactory: CKShaderFactory = {
     );
   },
   MakeTurbulence: function (
-    baseFreqX: number,
-    baseFreqY: number,
-    octaves: number,
-    seed: number,
+    _baseFreqX: number,
+    _baseFreqY: number,
+    _octaves: number,
+    _seed: number,
     _tileW: number,
     _tileH: number
   ): Shader {
-    return new NoiseShader(baseFreqX, baseFreqY, octaves, seed, "turbulence");
+    throw new Error("Not implemented");
   },
   MakeTwoPointConicalGradient: function (
     start: InputPoint,

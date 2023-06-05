@@ -1,4 +1,4 @@
-import { ColorMatrixFilter } from "../ImageFilter/SVG";
+import { ColorMatrixFilter } from "../SVG";
 
 import { ColorFilterJS } from "./ColorFilter";
 

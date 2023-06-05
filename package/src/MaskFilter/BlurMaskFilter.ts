@@ -4,7 +4,7 @@ import {
   CompositeFilter,
   MergeFilter,
   SourceGraphic,
-} from "../ImageFilter/SVG";
+} from "../SVG";
 
 import { MaskFilterJS } from "./MaskFilter";
 
