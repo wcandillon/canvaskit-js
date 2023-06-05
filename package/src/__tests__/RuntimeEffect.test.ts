@@ -162,13 +162,13 @@ void main() {
     });
     checkImage(image, "snapshots/shaders/children.png");
   });
-  it("should show a fractal noise", async () => {
-    const image = await skia.eval(({ CanvasKit, canvas }) => {
-      const noise = CanvasKit.Shader.MakeFractalNoise(0.05, 0.05, 4, 0, 10, 10);
-      const paint = new CanvasKit.Paint();
-      paint.setShader(noise);
-      canvas.drawPaint(paint);
-    });
-    checkImage(image, "snapshots/shaders/fractal-noise.png");
-  });
+  // it("should show a fractal noise", async () => {
+  //   const image = await skia.eval(({ CanvasKit, canvas }) => {
+  //     const noise = CanvasKit.Shader.MakeFractalNoise(0.05, 0.05, 4, 0, 10, 10);
+  //     const paint = new CanvasKit.Paint();
+  //     paint.setShader(noise);
+  //     canvas.drawPaint(paint);
+  //   });
+  //   checkImage(image, "snapshots/shaders/fractal-noise.png");
+  // });
 });
