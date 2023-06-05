@@ -7,7 +7,6 @@ import type {
   FilterOptions,
   Font,
   Image,
-  ImageFilter,
   ImageInfo,
   InputFlattenedPointArray,
   InputFlattenedRSXFormArray,
@@ -36,17 +35,27 @@ import { convertDOMMatrixTo3x3, normalizeMatrix } from "./Matrix3";
 import { toRad } from "./math";
 import type { PathJS } from "./Path";
 import type { ImageJS } from "./Image";
+import type { ImageFilterJS } from "./ImageFilter";
+
+interface LayerContext {
+  ctx: CanvasRenderingContext2D;
+  imageFilter?: ImageFilterJS;
+}
 
 export class CanvasJS extends HostObject<Canvas> implements Canvas {
   private saveCount = 0;
-  private layerStack: CanvasRenderingContext2D[] = [];
+  private layerStack: LayerContext[] = [];
 
   constructor(ctx: CanvasRenderingContext2D) {
     super();
-    this.layerStack.push(ctx);
+    this.layerStack.push({ ctx });
   }
 
   get ctx() {
+    return this.layerStack[this.layerStack.length - 1].ctx;
+  }
+
+  get layer() {
     return this.layerStack[this.layerStack.length - 1];
   }
 
@@ -346,10 +355,23 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
   }
   restore(): void {
     if (this.saveCount === this.layerStack.length - 1) {
-      console.log("FOUND LAYER");
+      const { imageFilter, ctx } = this.layer;
+      this.ctx.restore();
+      this.saveCount--;
+      this.layerStack.pop();
+      if (imageFilter) {
+        const paint = new PaintJS();
+        paint.setImageFilter(imageFilter);
+        paint.apply(this.ctx, () => {
+          this.ctx.drawImage(ctx.canvas, 0, 0);
+        });
+      } else {
+        this.ctx.drawImage(ctx.canvas, 0, 0);
+      }
+    } else {
+      this.ctx.restore();
+      this.saveCount--;
     }
-    this.ctx.restore();
-    this.saveCount--;
   }
   restoreToCount(saveCount: number): void {
     for (let i = 1; i <= saveCount; i++) {
@@ -369,13 +391,15 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
   saveLayer(
     _paint?: Paint,
     _bounds?: InputRect | null,
-    _backdrop?: ImageFilter | null,
+    imageFilter?: ImageFilterJS | null,
     _flags?: number
   ): number {
+    const currentLayer = this.ctx.canvas;
     this.save();
     const { width, height } = this.ctx.canvas;
     const layer = createTexture(width, height);
-    this.layerStack.push(layer);
+    layer.drawImage(currentLayer, 0, 0);
+    this.layerStack.push({ ctx: layer, imageFilter: imageFilter ?? undefined });
     return this.saveCount;
   }
   scale(sx: number, sy: number): void {
