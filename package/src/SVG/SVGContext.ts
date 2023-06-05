@@ -1,28 +1,9 @@
-import { SourceGraphic, makeColorMatrix } from "./SVGFilter";
-
-const ns = "http://www.w3.org/2000/svg";
-const indentityColorMatrix = Float32Array.of(
-  1,
-  0,
-  0,
-  0,
-  0,
-  0,
-  1,
-  0,
-  0,
-  0,
-  0,
-  0,
-  1,
-  0,
-  0,
-  0,
-  0,
-  0,
-  1,
-  0
-);
+import {
+  IndentityColorMatrix,
+  SourceGraphic,
+  makeColorMatrix,
+  ns,
+} from "./SVGFilter";
 
 class SVGContext {
   private static _instance: SVGContext | null = null;
@@ -62,7 +43,7 @@ class SVGContext {
     makeColorMatrix(
       {
         type: "matrix",
-        values: indentityColorMatrix,
+        values: IndentityColorMatrix,
       },
       SourceGraphic
     );
