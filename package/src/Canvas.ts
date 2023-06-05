@@ -53,12 +53,11 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
   clipPath(path: PathJS, _op: EmbindEnumEntity, _doAntiAlias: boolean): void {
     this.ctx.clip(path.getPath2D());
   }
-  clipRect(
-    _rect: InputRect,
-    _op: EmbindEnumEntity,
-    _doAntiAlias: boolean
-  ): void {
-    throw new Error("Method not implemented.");
+  clipRect(rect: InputRect, _op: EmbindEnumEntity, _doAntiAlias: boolean) {
+    const { x, y, width, height } = rectToXYWH(rect);
+    this.ctx.beginPath();
+    this.ctx.rect(x, y, width, height);
+    this.ctx.clip();
   }
   clipRRect(
     _rrect: InputRRect,
