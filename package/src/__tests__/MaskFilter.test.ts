@@ -117,8 +117,6 @@ describe("MaskFilter", () => {
       canvas.drawCircle(width / 2, height - r, r, yellow);
     });
 
-    checkImage(image, "snapshots/image-filters/outer-blur.png", {
-      overwrite: true,
-    });
+    checkImage(image, "snapshots/image-filters/outer-blur.png");
   });
 });

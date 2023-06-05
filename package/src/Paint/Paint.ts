@@ -115,6 +115,7 @@ export class PaintJS extends HostObject<Paint> implements Paint {
     if (shader) {
       paint.setShader(shader);
     }
+    // TODO: here the ownership/clean up of these could be revised
     if (imageFilter) {
       paint.imageFilter = imageFilter.copy();
     }
