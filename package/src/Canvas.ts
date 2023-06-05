@@ -30,19 +30,24 @@ import type {
 
 import { PaintJS } from "./Paint";
 import type { ColorSpaceJS, InputColor } from "./Core";
+import { createTexture, intAsColor, rectToXYWH, rrectToXYWH } from "./Core";
 import { HostObject } from "./HostObject";
 import { convertDOMMatrixTo3x3, normalizeMatrix } from "./Matrix3";
 import { toRad } from "./math";
 import type { PathJS } from "./Path";
 import type { ImageJS } from "./Image";
-import { intAsColor, rectToXYWH, rrectToXYWH } from "./Core";
 
 export class CanvasJS extends HostObject<Canvas> implements Canvas {
-  private defaultPaint = new PaintJS();
   private saveCount = 0;
+  private layerStack: CanvasRenderingContext2D[] = [];
 
-  constructor(private readonly ctx: CanvasRenderingContext2D) {
+  constructor(ctx: CanvasRenderingContext2D) {
     super();
+    this.layerStack.push(ctx);
+  }
+
+  get ctx() {
+    return this.layerStack[this.layerStack.length - 1];
   }
 
   clear(color: InputColor): void {
@@ -135,9 +140,13 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
     throw new Error("Method not implemented.");
   }
   drawImage(img: ImageJS, left: number, top: number, paint?: PaintJS): void {
-    (paint ?? this.defaultPaint).apply(this.ctx, () => {
+    if (paint) {
+      paint.apply(this.ctx, () => {
+        this.ctx.drawImage(img.getImage(), left, top);
+      });
+    } else {
       this.ctx.drawImage(img.getImage(), left, top);
-    });
+    }
   }
   drawImageCubic(
     _img: Image,
@@ -336,6 +345,9 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
     throw new Error("Method not implemented.");
   }
   restore(): void {
+    if (this.saveCount === this.layerStack.length - 1) {
+      console.log("FOUND LAYER");
+    }
     this.ctx.restore();
     this.saveCount--;
   }
@@ -360,7 +372,11 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
     _backdrop?: ImageFilter | null,
     _flags?: number
   ): number {
-    throw new Error("Method not implemented.");
+    this.save();
+    const { width, height } = this.ctx.canvas;
+    const layer = createTexture(width, height);
+    this.layerStack.push(layer);
+    return this.saveCount;
   }
   scale(sx: number, sy: number): void {
     this.ctx.scale(sx, sy);

@@ -1,3 +1,4 @@
+// TODO: rename
 export const createTexture = (
   width: number,
   height: number,
@@ -14,6 +15,7 @@ export const createTexture = (
   return ctx;
 };
 
+// TODO: rename
 export const createOffscreenTexture = (
   width: number,
   height: number,
