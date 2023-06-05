@@ -7,7 +7,6 @@ export const createTexture = (
   const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;
-  canvas.style.display = "none";
   const ctx = canvas.getContext("2d", options);
   if (!ctx) {
     throw new Error("Could not create 2d context");
