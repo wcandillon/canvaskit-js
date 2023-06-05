@@ -10,6 +10,7 @@ import { startAnimations } from "./animations";
 export interface Info {
   width: number;
   height: number;
+  center: Float32Array;
 }
 
 export type OnDraw = (canvas: CKCanvas, info: Info) => void;
@@ -23,7 +24,7 @@ const pd = 1; //window.devicePixelRatio;
 
 export const Canvas = ({ onDraw, deps }: CanvasProps) => {
   const surfaceRef = useRef<Surface>();
-  const info = useRef<Info>({ width: -1, height: -1 });
+  const info = useRef<Info | null>(null);
   const ref = useRef<CanvasRef>(null);
   const draw = useCallback(() => {
     if (surfaceRef.current) {
@@ -31,7 +32,7 @@ export const Canvas = ({ onDraw, deps }: CanvasProps) => {
       canvas.clear(Float32Array.of(0, 0, 0, 0));
       canvas.save();
       canvas.scale(pd, pd);
-      onDraw(canvas, info.current);
+      onDraw(canvas, info.current!);
       canvas.restore();
     }
   }, [onDraw]);
@@ -45,7 +46,11 @@ export const Canvas = ({ onDraw, deps }: CanvasProps) => {
       if (ref.current) {
         ref.current.width = width * pd;
         ref.current.height = height * pd;
-        info.current = { width, height };
+        info.current = {
+          width,
+          height,
+          center: Float32Array.of(width / 2, height / 2),
+        };
         const surface = CanvasKit.MakeWebGLCanvasSurface(ref.current);
         if (!surface) {
           throw new Error("Could not make canvas surface");
@@ -58,6 +63,13 @@ export const Canvas = ({ onDraw, deps }: CanvasProps) => {
   useEffect(() => {
     startAnimations(deps, draw);
   }, [deps, draw]);
+  useEffect(() => {
+    return () => {
+      if (surfaceRef.current) {
+        surfaceRef.current.dispose();
+      }
+    };
+  }, []);
   return <canvas style={{ width: "100%", height: "100vh" }} ref={ref} />;
 };
 

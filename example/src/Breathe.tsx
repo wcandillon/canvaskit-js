@@ -18,6 +18,8 @@ c1.setColor(CanvasKit.parseColorString("#61bea2"));
 const c2 = root.copy();
 c2.setColor(CanvasKit.parseColorString("#529ca0"));
 
+const bgColor = CanvasKit.parseColorString("#242b38");
+
 const drawRing = (
   progress: AnimationValue,
   canvas: CKCanvas,
@@ -42,9 +44,7 @@ const drawRing = (
 };
 
 const drawRings = (progress: AnimationValue, canvas: CKCanvas, info: Info) => {
-  const { width, height } = info;
-  const center = vec(width / 2, height / 2);
-  const bgColor = CanvasKit.parseColorString("#242b38");
+  const { center } = info;
   canvas.drawColor(bgColor);
   const rotate = mix(progress.value, 0, 180);
   canvas.save();
