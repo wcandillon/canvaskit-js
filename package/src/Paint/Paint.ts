@@ -29,8 +29,8 @@ export class PaintJS extends HostObject<Paint> implements Paint {
   private strokeWidth = 1;
   private strokeMiter = 10;
   private shader: ShaderJS | null = null;
-  public colorFilter: SVGPaintFilter | null = null;
-  public imageFilter: SVGPaintFilter | null = null;
+  private colorFilter: SVGPaintFilter | null = null;
+  private imageFilter: SVGPaintFilter | null = null;
   private maskFilter: SVGPaintFilter | null = null;
   private strokeJoin = StrokeJoin.Bevel;
   private strokeCap = StrokeCap.Square;

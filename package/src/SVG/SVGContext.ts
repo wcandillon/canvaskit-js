@@ -6,7 +6,7 @@ class SVGContext {
   private root: SVGSVGElement = document.createElementNS(ns, "svg");
   private defs: SVGDefsElement = document.createElementNS(ns, "defs");
 
-  constructor() {
+  private constructor() {
     this.root.setAttribute("style", "display: none;");
     this.defs = document.createElementNS(ns, "defs");
     this.root.appendChild(this.defs);

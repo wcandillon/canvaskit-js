@@ -5,6 +5,7 @@ import { svgCtx } from "../SVG";
 
 export class SVGPaintFilter {
   private static count = 0;
+
   public readonly id: string;
   public readonly filter: SVGElement[];
 
