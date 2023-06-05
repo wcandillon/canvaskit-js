@@ -354,10 +354,11 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
     throw new Error("Method not implemented.");
   }
   restore(): void {
-    if (this.saveCount === this.layerStack.length - 1) {
+    const hasLayer = this.saveCount === this.layerStack.length - 1;
+    this.ctx.restore();
+    this.saveCount--;
+    if (hasLayer) {
       const { imageFilter, ctx } = this.layer;
-      this.ctx.restore();
-      this.saveCount--;
       this.layerStack.pop();
       if (imageFilter) {
         const paint = new PaintJS();
@@ -368,9 +369,6 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
       } else {
         this.ctx.drawImage(ctx.canvas, 0, 0);
       }
-    } else {
-      this.ctx.restore();
-      this.saveCount--;
     }
   }
   restoreToCount(saveCount: number): void {
