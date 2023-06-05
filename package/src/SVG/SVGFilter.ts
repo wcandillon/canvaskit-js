@@ -1,13 +1,15 @@
 const ns = "http://www.w3.org/2000/svg";
 
+type CurrentGraphic = "CurrentGraphic";
+export const CurrentGraphic = "CurrentGraphic";
 type SourceGraphic = "SourceGraphic";
 export const SourceGraphic = "SourceGraphic";
 export type SVGFilter = SVGElement;
-export type SVGInputFilter = SVGFilter | SourceGraphic;
+export type SVGInputFilter = SVGFilter | CurrentGraphic | SourceGraphic;
 
 export const getFilterId = (filter: SVGInputFilter) => {
-  if (filter === SourceGraphic) {
-    return "SourceGraphic";
+  if (filter === CurrentGraphic || filter === SourceGraphic) {
+    return filter;
   }
   const id = filter.getAttribute("result");
   if (!id) {
@@ -18,13 +20,13 @@ export const getFilterId = (filter: SVGInputFilter) => {
 
 export const makeBlur = (
   stdDeviation: number,
-  inFilter: SVGInputFilter = SourceGraphic,
-  id = "result"
+  inFilter: SVGInputFilter = CurrentGraphic,
+  result = "CurrentGraphic"
 ) => {
   const filter = document.createElementNS(ns, "feGaussianBlur");
   filter.setAttribute("in", getFilterId(inFilter));
   filter.setAttribute("stdDeviation", stdDeviation.toString());
-  filter.setAttribute("result", id);
+  filter.setAttribute("result", result);
   return filter;
 };
 export type TurbulenceType = "fractalNoise" | "turbulence";
@@ -35,7 +37,7 @@ export const makeTurbulence = (
   numOctaves: number,
   seed: number,
   type: TurbulenceType,
-  id = "result"
+  result = "CurrentGraphic"
 ) => {
   const filter = document.createElementNS(ns, "feTurbulence");
   filter.setAttribute(
@@ -45,7 +47,7 @@ export const makeTurbulence = (
   filter.setAttribute("seed", seed.toString());
   filter.setAttribute("numOctaves", numOctaves.toString());
   filter.setAttribute("type", type);
-  filter.setAttribute("result", id);
+  filter.setAttribute("result", result);
   return filter;
 };
 
@@ -55,24 +57,27 @@ export const makeComposite = (
   inFilter: SVGInputFilter,
   in2Filter: SVGInputFilter,
   operator: CompositeOperator,
-  id = "result"
+  result = "CurrentGraphic"
 ) => {
   const filter = document.createElementNS(ns, "feComposite");
   filter.setAttribute("in", getFilterId(inFilter));
   filter.setAttribute("in2", getFilterId(in2Filter));
   filter.setAttribute("operator", operator);
-  filter.setAttribute("result", id);
+  filter.setAttribute("result", result);
   return filter;
 };
 
-export const makeMerge = (inFilters: SVGInputFilter[], id = "result") => {
+export const makeMerge = (
+  inFilters: SVGInputFilter[],
+  result = "CurrentGraphic"
+) => {
   const filter = document.createElementNS(ns, "feMerge");
   inFilters.forEach((filterElement) => {
     const mergeNode = document.createElementNS(ns, "feMergeNode");
     mergeNode.setAttribute("in", getFilterId(filterElement));
     filter.appendChild(mergeNode);
   });
-  filter.setAttribute("result", id);
+  filter.setAttribute("result", result);
   return filter;
 };
 
@@ -82,13 +87,13 @@ export const makeBlend = (
   inFilter: SVGInputFilter,
   in2Filter: SVGInputFilter,
   mode: BlendMode,
-  id = "result"
+  result = "CurrentGraphic"
 ) => {
   const filter = document.createElementNS(ns, "feBlend");
   filter.setAttribute("in", getFilterId(inFilter));
   filter.setAttribute("in2", getFilterId(in2Filter));
   filter.setAttribute("mode", mode);
-  filter.setAttribute("result", id);
+  filter.setAttribute("result", result);
   return filter;
 };
 
@@ -97,18 +102,22 @@ type ColorMatrixValues =
   | { type: "saturate" | "hueRotate"; values: number }
   | { type: "luminanceToAlpha"; values?: never };
 
-export const makeColorMatrix = (input: ColorMatrixValues, id = "result") => {
+export const makeColorMatrix = (
+  value: ColorMatrixValues,
+  input: SVGInputFilter = CurrentGraphic,
+  result = "CurrentGraphic"
+) => {
   const filter = document.createElementNS(ns, "feColorMatrix");
-  filter.setAttribute("in", "SourceGraphic");
-  filter.setAttribute("type", input.type);
-  if (input.type !== "luminanceToAlpha") {
+  filter.setAttribute("in", getFilterId(input));
+  filter.setAttribute("type", value.type);
+  if (value.type !== "luminanceToAlpha") {
     filter.setAttribute(
       "values",
-      Array.isArray(input.values)
-        ? input.values.join(" ")
-        : input.values.toString()
+      Array.isArray(value.values)
+        ? value.values.join(" ")
+        : value.values.toString()
     );
   }
-  filter.setAttribute("result", id);
+  filter.setAttribute("result", result);
   return filter;
 };

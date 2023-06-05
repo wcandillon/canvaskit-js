@@ -7,6 +7,7 @@ export class ComposeImageFilter extends ImageFilterJS {
       this.filters.push(...outer.getFilters());
     }
     if (inner) {
+      // The input here is SourceGraphic but it should be result
       this.filters.push(...inner.getFilters());
     }
   }
