@@ -1,140 +1,114 @@
 const ns = "http://www.w3.org/2000/svg";
 
-export interface SVGFilter<T extends SVGElement = SVGElement> {
-  getFilter(): T;
-  getId(): string;
-}
+type SourceGraphic = "SourceGraphic";
+export const SourceGraphic = "SourceGraphic";
+export type SVGFilter = SVGElement;
+export type SVGInputFilter = SVGFilter | SourceGraphic;
 
-export abstract class BaseSVGFilter<T extends SVGElement = SVGElement>
-  implements SVGFilter<T>
-{
-  constructor(protected filter: T) {}
-
-  getFilter(): T {
-    return this.filter;
-  }
-
-  getId(): string {
-    const id = this.filter.getAttribute("result");
-    if (!id) {
-      throw new Error("SVGFilter: id is null");
-    }
-    return id;
-  }
-}
-
-export class SourceGraphicFilter implements SVGFilter {
-  getFilter(): SVGElement {
-    throw new Error("Cannot get filter from SourceGraphicFilter");
-  }
-  getId() {
+export const getFilterId = (filter: SVGInputFilter) => {
+  if (filter === SourceGraphic) {
     return "SourceGraphic";
   }
-}
-
-export const SourceGraphic = new SourceGraphicFilter();
-
-export class BlurFilter extends BaseSVGFilter<SVGFEGaussianBlurElement> {
-  constructor(
-    stdDeviation: number,
-    inFilter: SVGFilter = SourceGraphic,
-    id = "result"
-  ) {
-    super(
-      document.createElementNS("http://www.w3.org/2000/svg", "feGaussianBlur")
-    );
-    this.filter.setAttribute("in", inFilter.getId());
-    this.filter.setAttribute("stdDeviation", stdDeviation.toString());
-    this.filter.setAttribute("result", id);
+  const id = filter.getAttribute("result");
+  if (!id) {
+    throw new Error("SVGFilter: id is null");
   }
-}
+  return id;
+};
 
+export const makeBlur = (
+  stdDeviation: number,
+  inFilter: SVGInputFilter = SourceGraphic,
+  id = "result"
+) => {
+  const filter = document.createElementNS(ns, "feGaussianBlur");
+  filter.setAttribute("in", getFilterId(inFilter));
+  filter.setAttribute("stdDeviation", stdDeviation.toString());
+  filter.setAttribute("result", id);
+  return filter;
+};
 export type TurbulenceType = "fractalNoise" | "turbulence";
 
-export class TurbulenceFilter extends BaseSVGFilter<SVGFETurbulenceElement> {
-  constructor(
-    baseFrequencyX: number,
-    baseFrequencyY: number,
-    numOctaves: number,
-    seed: number,
-    type: TurbulenceType,
-    id = "result"
-  ) {
-    super(document.createElementNS(ns, "feTurbulence"));
-    this.filter.setAttribute(
-      "baseFrequency",
-      [baseFrequencyX.toString(), baseFrequencyY.toString()].join(" ")
-    );
-    this.filter.setAttribute("seed", seed.toString());
-    this.filter.setAttribute("numOctaves", numOctaves.toString());
-    this.filter.setAttribute("type", type);
-    this.filter.setAttribute("result", id);
-  }
-}
+export const makeTurbulence = (
+  baseFrequencyX: number,
+  baseFrequencyY: number,
+  numOctaves: number,
+  seed: number,
+  type: TurbulenceType,
+  id = "result"
+) => {
+  const filter = document.createElementNS(ns, "feTurbulence");
+  filter.setAttribute(
+    "baseFrequency",
+    [baseFrequencyX.toString(), baseFrequencyY.toString()].join(" ")
+  );
+  filter.setAttribute("seed", seed.toString());
+  filter.setAttribute("numOctaves", numOctaves.toString());
+  filter.setAttribute("type", type);
+  filter.setAttribute("result", id);
+  return filter;
+};
 
 type CompositeOperator = "over" | "in" | "out" | "atop" | "xor" | "arithmetic";
 
-export class CompositeFilter extends BaseSVGFilter<SVGFECompositeElement> {
-  constructor(
-    inFilter: SVGFilter,
-    in2Filter: SVGFilter,
-    operator: CompositeOperator,
-    id = "result"
-  ) {
-    super(document.createElementNS(ns, "feComposite"));
-    this.filter.setAttribute("in", inFilter.getId());
-    this.filter.setAttribute("in2", in2Filter.getId());
-    this.filter.setAttribute("operator", operator);
-    this.filter.setAttribute("result", id);
-  }
-}
+export const makeComposite = (
+  inFilter: SVGInputFilter,
+  in2Filter: SVGInputFilter,
+  operator: CompositeOperator,
+  id = "result"
+) => {
+  const filter = document.createElementNS(ns, "feComposite");
+  filter.setAttribute("in", getFilterId(inFilter));
+  filter.setAttribute("in2", getFilterId(in2Filter));
+  filter.setAttribute("operator", operator);
+  filter.setAttribute("result", id);
+  return filter;
+};
 
-export class MergeFilter extends BaseSVGFilter<SVGFEMergeElement> {
-  constructor(inFilters: SVGFilter[], id = "result") {
-    super(document.createElementNS(ns, "feMerge"));
-    inFilters.forEach((filter) => {
-      const mergeNode = document.createElementNS(ns, "feMergeNode");
-      mergeNode.setAttribute("in", filter.getId());
-      this.filter.appendChild(mergeNode);
-    });
-    this.filter.setAttribute("result", id);
-  }
-}
+export const makeMerge = (inFilters: SVGInputFilter[], id = "result") => {
+  const filter = document.createElementNS(ns, "feMerge");
+  inFilters.forEach((filterElement) => {
+    const mergeNode = document.createElementNS(ns, "feMergeNode");
+    mergeNode.setAttribute("in", getFilterId(filterElement));
+    filter.appendChild(mergeNode);
+  });
+  filter.setAttribute("result", id);
+  return filter;
+};
 
 type BlendMode = "normal" | "multiply" | "screen" | "darken" | "lighten";
-export class BlendFilter extends BaseSVGFilter<SVGFEBlendElement> {
-  constructor(
-    inFilter: BaseSVGFilter,
-    in2Filter: BaseSVGFilter,
-    mode: BlendMode,
-    id = "result"
-  ) {
-    super(document.createElementNS(ns, "feBlend"));
-    this.filter.setAttribute("in", inFilter.getId());
-    this.filter.setAttribute("in2", in2Filter.getId());
-    this.filter.setAttribute("mode", mode);
-    this.filter.setAttribute("result", id);
-  }
-}
+
+export const makeBlend = (
+  inFilter: SVGInputFilter,
+  in2Filter: SVGInputFilter,
+  mode: BlendMode,
+  id = "result"
+) => {
+  const filter = document.createElementNS(ns, "feBlend");
+  filter.setAttribute("in", getFilterId(inFilter));
+  filter.setAttribute("in2", getFilterId(in2Filter));
+  filter.setAttribute("mode", mode);
+  filter.setAttribute("result", id);
+  return filter;
+};
 
 type ColorMatrixValues =
   | { type: "matrix"; values: Float32Array }
   | { type: "saturate" | "hueRotate"; values: number }
   | { type: "luminanceToAlpha"; values?: never };
 
-export class ColorMatrixFilter extends BaseSVGFilter<SVGFEColorMatrixElement> {
-  constructor(input: ColorMatrixValues, id = "result") {
-    super(document.createElementNS(ns, "feColorMatrix"));
-    this.filter.setAttribute("in", "SourceGraphic");
-    this.filter.setAttribute("type", input.type);
-    if (input.type !== "luminanceToAlpha") {
-      this.filter.setAttribute(
-        "values",
-        Array.isArray(input.values)
-          ? input.values.join(" ")
-          : input.values.toString()
-      );
-    }
-    this.filter.setAttribute("result", id);
+export const makeColorMatrix = (input: ColorMatrixValues, id = "result") => {
+  const filter = document.createElementNS(ns, "feColorMatrix");
+  filter.setAttribute("in", "SourceGraphic");
+  filter.setAttribute("type", input.type);
+  if (input.type !== "luminanceToAlpha") {
+    filter.setAttribute(
+      "values",
+      Array.isArray(input.values)
+        ? input.values.join(" ")
+        : input.values.toString()
+    );
   }
-}
+  filter.setAttribute("result", id);
+  return filter;
+};

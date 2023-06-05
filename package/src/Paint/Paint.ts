@@ -168,7 +168,7 @@ export class PaintJS extends HostObject<Paint> implements Paint {
     if (this.colorFilter) {
       this.colorFilter.dispose();
     }
-    this.colorFilter = filter ? SVGPaintFilter.MakeFromFilter(filter) : null;
+    this.colorFilter = filter ? SVGPaintFilter.makeFromFilter(filter) : null;
   }
   setColorInt(_color: number, _colorSpace?: ColorSpace | undefined): void {
     throw new Error("Method not implemented.");
@@ -180,13 +180,13 @@ export class PaintJS extends HostObject<Paint> implements Paint {
     if (this.imageFilter) {
       this.imageFilter.dispose();
     }
-    this.imageFilter = filter ? SVGPaintFilter.MakeFromFilter(filter) : null;
+    this.imageFilter = filter ? SVGPaintFilter.makeFromFilter(filter) : null;
   }
   setMaskFilter(filter: MaskFilterJS | null): void {
     if (this.maskFilter) {
       this.maskFilter.dispose();
     }
-    this.maskFilter = filter ? SVGPaintFilter.MakeFromFilter(filter) : null;
+    this.maskFilter = filter ? SVGPaintFilter.makeFromFilter(filter) : null;
   }
   setPathEffect(_effect: PathEffect | null): void {
     throw new Error("Method not implemented.");

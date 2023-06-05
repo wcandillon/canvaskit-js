@@ -34,9 +34,9 @@ export class SVGPaintFilter {
     );
   }
 
-  static MakeFromFilter(
+  static makeFromFilter(
     filter: ImageFilterJS | MaskFilterJS | ColorFilterJS
   ): SVGPaintFilter {
-    return new SVGPaintFilter(filter.getFilters().map((f) => f.getFilter()));
+    return new SVGPaintFilter(filter.getFilters());
   }
 }
