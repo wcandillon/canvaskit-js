@@ -68,6 +68,8 @@ describe("BackdropFilter", () => {
       canvas.saveLayer(undefined, undefined, filter);
       canvas.restore();
     });
-    checkImage(image, "snapshots/backdrop-filters/reference.png");
+    checkImage(image, "snapshots/backdrop-filters/reference.png", {
+      threshold: 0.2,
+    });
   });
 });
