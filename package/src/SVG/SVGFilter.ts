@@ -1,4 +1,4 @@
-const ns = "http://www.w3.org/2000/svg";
+export const ns = "http://www.w3.org/2000/svg";
 
 type CurrentGraphic = "CurrentGraphic";
 export const CurrentGraphic = "CurrentGraphic";
@@ -121,3 +121,26 @@ export const makeColorMatrix = (
   filter.setAttribute("result", result);
   return filter;
 };
+
+export const IndentityColorMatrix = Float32Array.of(
+  1,
+  0,
+  0,
+  0,
+  0,
+  0,
+  1,
+  0,
+  0,
+  0,
+  0,
+  0,
+  1,
+  0,
+  0,
+  0,
+  0,
+  0,
+  1,
+  0
+);
