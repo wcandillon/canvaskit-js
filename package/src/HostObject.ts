@@ -19,12 +19,12 @@ export abstract class HostObject<T extends HostObject<T>>
 export abstract class IndexedHostObject<
   T extends HostObject<T>
 > extends HostObject<T> {
-  private static count = 0;
   public readonly id;
 
   constructor(prefix: string) {
     super();
-    this.id = `${prefix}-${IndexedHostObject.count}`;
-    IndexedHostObject.count++;
+    this.id = `${prefix}-${
+      Date.now().toString(36) + Math.random().toString(36).substring(2, 9)
+    }`;
   }
 }

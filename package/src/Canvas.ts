@@ -68,6 +68,7 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
   }
 
   clear(color: InputColor): void {
+    this.svgCtx.discardCacheIfNeeded();
     const paint = new PaintJS();
     paint.setColor(color);
     this.drawPaint(paint);

@@ -28,6 +28,18 @@ export class SVGContext {
     }
   }
 
+  discardCacheIfNeeded() {
+    if (this.defs.childElementCount > 500) {
+      this.disposeFilters();
+    }
+  }
+
+  disposeFilters() {
+    while (this.defs.firstChild) {
+      this.defs.removeChild(this.defs.firstChild);
+    }
+  }
+
   create(id: string, filters: SVGElement[]) {
     const url = `url(#${id})`;
     // If the filter already exists, we don't need to create it again
