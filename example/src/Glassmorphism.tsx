@@ -1,14 +1,14 @@
 import type { Canvas as CKCanvas } from "canvaskit-wasm";
 
 import type { AnimationValue, Info } from "./components";
-import { mix, Canvas, useLoop, useOnDraw } from "./components";
+import { useValue, mix, Canvas, useLoop, useOnDraw } from "./components";
 
 const drawSun = (
   progress: AnimationValue,
   canvas: CKCanvas,
   { width, center }: Info
 ) => {
-  const r = mix(progress.value, width / 4, width / 2);
+  const r = mix(progress.value, width / 4, width / 8);
   canvas.drawColor(CanvasKit.BLACK);
   const paint = new CanvasKit.Paint();
   const colors = ["#FFF723", "#E70696"].map((cl) =>
@@ -16,8 +16,8 @@ const drawSun = (
   );
   paint.setShader(
     CanvasKit.Shader.MakeLinearGradient(
-      [0, 0],
-      [0, 2 * r],
+      [center[0], center[1] - r],
+      [center[0], center[1] + r],
       colors,
       null,
       CanvasKit.TileMode.Clamp
@@ -35,7 +35,7 @@ const drawSun = (
     null
   );
   canvas.clipRect(
-    CanvasKit.XYWHRect(0, r, 2 * r, r),
+    CanvasKit.XYWHRect(0, center[1], width, center[1]),
     CanvasKit.ClipOp.Intersect,
     true
   );

@@ -23,14 +23,16 @@ export const startAnimations = (
 
 const easing = Easing.inOut(Easing.ease);
 
-export abstract class AnimationValue {
+export class AnimationValue {
   constructor(protected _value: number) {}
 
   get value() {
     return this._value;
   }
 
-  abstract onFrame(timespace: number): boolean;
+  onFrame(_timespace: number) {
+    return false;
+  }
 }
 
 class LoopAnimationValue extends AnimationValue {
@@ -60,3 +62,7 @@ class LoopAnimationValue extends AnimationValue {
 export const useLoop = (value = 0, duration = 3000) =>
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useMemo(() => new LoopAnimationValue(value, duration), []);
+
+export const useValue = (value = 0) =>
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useMemo(() => new AnimationValue(value), []);
