@@ -55,6 +55,9 @@ export const Canvas = ({ onDraw, deps }: CanvasProps) => {
         if (!surface) {
           throw new Error("Could not make canvas surface");
         }
+        if (surfaceRef.current) {
+          surfaceRef.current.dispose();
+        }
         surfaceRef.current = surface;
         draw();
       }
