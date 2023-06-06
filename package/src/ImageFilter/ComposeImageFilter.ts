@@ -4,11 +4,11 @@ export class ComposeImageFilter extends ImageFilterJS {
   constructor(outer: ImageFilterJS | null, inner: ImageFilterJS | null) {
     super();
     if (outer) {
-      this.filters.push(...outer.getFilters());
+      this._filters.push(...outer.filters);
     }
     if (inner) {
       // The input here is SourceGraphic but it should be result
-      this.filters.push(...inner.getFilters());
+      this._filters.push(...inner.filters);
     }
   }
 }

@@ -5,24 +5,16 @@ import {
   ns,
 } from "./SVGFilter";
 
-class SVGContext {
-  private static _instance: SVGContext | null = null;
-
+export class SVGContext {
   private root: SVGSVGElement = document.createElementNS(ns, "svg");
   private defs: SVGDefsElement = document.createElementNS(ns, "defs");
 
-  private constructor() {
+  constructor(id: string) {
+    this.root.setAttribute("id", id);
     this.root.setAttribute("style", "display: none;");
     this.defs = document.createElementNS(ns, "defs");
     this.root.appendChild(this.defs);
     document.body.appendChild(this.root);
-  }
-
-  static getInstance() {
-    if (!this._instance) {
-      this._instance = new SVGContext();
-    }
-    return this._instance;
   }
 
   dispose() {
@@ -37,6 +29,11 @@ class SVGContext {
   }
 
   create(id: string, filters: SVGElement[]) {
+    const url = `url(#${id})`;
+    // If the filter already exists, we don't need to create it again
+    if (document.getElementById(id)) {
+      return url;
+    }
     const filter = document.createElementNS(ns, "filter");
     filter.setAttribute("id", id);
     // Now we create the CurrentGraphic filter input for composition
@@ -51,7 +48,6 @@ class SVGContext {
       filter.appendChild(fe);
     }
     this.defs.appendChild(filter);
+    return url;
   }
 }
-
-export const svgCtx = SVGContext.getInstance();

@@ -36,6 +36,7 @@ import { toRad } from "./math";
 import type { PathJS } from "./Path";
 import type { ImageJS } from "./Image";
 import type { ImageFilterJS } from "./ImageFilter";
+import type { SVGContext } from "./SVG";
 
 interface LayerContext {
   ctx: CanvasRenderingContext2D;
@@ -46,7 +47,10 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
   private saveCount = 0;
   private layerStack: LayerContext[] = [];
 
-  constructor(ctx: CanvasRenderingContext2D) {
+  constructor(
+    ctx: CanvasRenderingContext2D,
+    public readonly svgCtx: SVGContext
+  ) {
     super();
     this.layerStack.push({ ctx });
   }
@@ -57,6 +61,10 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
 
   get layer() {
     return this.layerStack[this.layerStack.length - 1];
+  }
+
+  get paintCtx() {
+    return { ctx: this.ctx, svgCtx: this.svgCtx };
   }
 
   clear(color: InputColor): void {
@@ -111,7 +119,7 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
     throw new Error("Method not implemented.");
   }
   drawCircle(cx: number, cy: number, radius: number, paint: PaintJS) {
-    paint.apply(this.ctx, () => {
+    paint.apply(this.paintCtx, () => {
       this.ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
     });
   }
@@ -150,7 +158,7 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
   }
   drawImage(img: ImageJS, left: number, top: number, paint?: PaintJS): void {
     if (paint) {
-      paint.apply(this.ctx, () => {
+      paint.apply(this.paintCtx, () => {
         this.ctx.drawImage(img.getImage(), left, top);
       });
     } else {
@@ -195,7 +203,7 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
   ): void {
     const src = rectToXYWH(_src);
     const dest = rectToXYWH(_dest);
-    paint.apply(this.ctx, () => {
+    paint.apply(this.paintCtx, () => {
       this.ctx.drawImage(
         img.getImage(),
         src.x,
@@ -236,7 +244,7 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
     y1: number,
     paint: PaintJS
   ): void {
-    paint.apply(this.ctx, () => {
+    paint.apply(this.paintCtx, () => {
       this.ctx.moveTo(x0, y0);
       this.ctx.lineTo(x1, y1);
     });
@@ -252,7 +260,7 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
   }
   drawPath(path: PathJS, paint: PaintJS): void {
     paint.apply(
-      this.ctx,
+      this.paintCtx,
       () => {
         return path.getPath2D();
       },
@@ -279,7 +287,7 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
     throw new Error("Method not implemented.");
   }
   drawRect(rect: InputRect, paint: PaintJS): void {
-    paint.apply(this.ctx, () => {
+    paint.apply(this.paintCtx, () => {
       const { x, y, width, height } = rectToXYWH(rect);
       this.ctx.rect(x, y, width, height);
     });
@@ -293,12 +301,12 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
   ): void {
     const width = right - left;
     const height = bottom - top;
-    paint.apply(this.ctx, () => {
+    paint.apply(this.paintCtx, () => {
       this.ctx.rect(left, top, width, height);
     });
   }
   drawRRect(rrect: InputRRect, paint: PaintJS): void {
-    paint.apply(this.ctx, () => {
+    paint.apply(this.paintCtx, () => {
       const { x, y, width, height, radii } = rrectToXYWH(rrect);
       this.ctx.roundRect(x, y, width, height, radii);
     });
@@ -363,7 +371,7 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
       if (imageFilter) {
         const paint = new PaintJS();
         paint.setImageFilter(imageFilter);
-        paint.apply(this.ctx, () => {
+        paint.apply(this.paintCtx, () => {
           this.ctx.drawImage(ctx.canvas, 0, 0);
         });
       } else {
@@ -404,7 +412,7 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
         };
     const layer = createTexture(width, height);
     if (paint) {
-      paint.apply(layer, () => {
+      paint.apply({ ctx: layer, svgCtx: this.svgCtx }, () => {
         layer.drawImage(currentLayer, x, y, width, height);
       });
     } else {

@@ -8,22 +8,27 @@ import type {
   TextureSource,
 } from "canvaskit-wasm";
 
-import { HostObject } from "./HostObject";
+import { IndexedHostObject } from "./HostObject";
 import { CanvasJS } from "./Canvas";
 import { ImageJS } from "./Image";
 import { rectToXYWH } from "./Core";
+import { SVGContext } from "./SVG/SVGContext";
 
-export class SurfaceJS extends HostObject<Surface> implements Surface {
+export class SurfaceJS extends IndexedHostObject<Surface> implements Surface {
   private canvas: Canvas;
+  private svgCtx: SVGContext;
 
   constructor(private readonly ctx: CanvasRenderingContext2D) {
-    super();
-    this.canvas = new CanvasJS(this.ctx);
+    super("surface");
+    this.svgCtx = new SVGContext(this.id);
+    this.canvas = new CanvasJS(this.ctx, this.svgCtx);
   }
   drawOnce(drawFrame: (_: Canvas) => void): void {
     this.requestAnimationFrame(drawFrame);
   }
-  dispose(): void {}
+  dispose(): void {
+    this.svgCtx.dispose();
+  }
   flush(): void {}
   getCanvas(): Canvas {
     return this.canvas;

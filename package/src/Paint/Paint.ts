@@ -19,9 +19,14 @@ import { HostObject } from "../HostObject";
 import type { MaskFilterJS } from "../MaskFilter/MaskFilter";
 import { createOffscreenTexture } from "../Core/Platform";
 import type { ColorFilterJS } from "../ColorFilter/ColorFilter";
+import type { SVGContext } from "../SVG";
 
 import { getBlendMode } from "./BlendMode";
-import { SVGPaintFilter } from "./SVGPaintFilter";
+
+interface PaintContext {
+  ctx: CanvasRenderingContext2D;
+  svgCtx: SVGContext;
+}
 
 export class PaintJS extends HostObject<Paint> implements Paint {
   private style = PaintStyle.Fill;
@@ -29,65 +34,78 @@ export class PaintJS extends HostObject<Paint> implements Paint {
   private strokeWidth = 1;
   private strokeMiter = 10;
   private shader: ShaderJS | null = null;
-  private colorFilter: SVGPaintFilter | null = null;
-  private imageFilter: SVGPaintFilter | null = null;
-  private maskFilter: SVGPaintFilter | null = null;
+  private colorFilter: ColorFilterJS | null = null;
+  private imageFilter: ImageFilterJS | null = null;
+  private maskFilter: MaskFilterJS | null = null;
   private strokeJoin = StrokeJoin.Bevel;
   private strokeCap = StrokeCap.Square;
   private blendMode = BlendMode.SrcOver;
 
   apply(
-    context: CanvasRenderingContext2D,
+    paintCtx: PaintContext,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     draw: (ctx: CanvasRenderingContext2D) => any,
     path?: boolean
   ) {
-    context.save();
+    const { ctx, svgCtx } = paintCtx;
+    ctx.save();
     let style: CanvasPattern | string;
     if (this.shader) {
       const texture = this.shader.paint(
-        createOffscreenTexture(context.canvas.width, context.canvas.height)
+        createOffscreenTexture(ctx.canvas.width, ctx.canvas.height)
       );
-      style = context.createPattern(texture, "no-repeat")!;
+      style = ctx.createPattern(texture, "no-repeat")!;
     } else {
       style = nativeColor(this.color);
     }
     if (this.style === PaintStyle.Fill) {
-      context.fillStyle = style;
+      ctx.fillStyle = style;
     } else {
-      context.strokeStyle = style;
+      ctx.strokeStyle = style;
     }
-    context.miterLimit = this.strokeMiter;
-    context.lineWidth = this.strokeWidth;
-    context.lineCap = lineCap(this.strokeCap);
-    context.lineJoin = lineJoin(this.strokeJoin);
+    ctx.miterLimit = this.strokeMiter;
+    ctx.lineWidth = this.strokeWidth;
+    ctx.lineCap = lineCap(this.strokeCap);
+    ctx.lineJoin = lineJoin(this.strokeJoin);
     if (this.maskFilter || this.imageFilter || this.colorFilter) {
-      let filter = "";
-      filter += this.imageFilter ? this.imageFilter.getFilter() : "";
-      filter += this.maskFilter ? this.maskFilter.getFilter() : "";
-      filter += this.colorFilter ? this.colorFilter.getFilter() : "";
-      context.filter = filter;
+      const filter: string[] = [];
+      if (this.maskFilter) {
+        const { id, filters } = this.maskFilter;
+        const url = svgCtx.create(id, filters);
+        filter.push(url);
+      }
+      if (this.imageFilter) {
+        const { id, filters } = this.imageFilter;
+        const url = svgCtx.create(id, filters);
+        filter.push(url);
+      }
+      if (this.colorFilter) {
+        const { id, filters } = this.colorFilter;
+        const url = svgCtx.create(id, filters);
+        filter.push(url);
+      }
+      ctx.filter = filter.join(" ");
     }
 
-    context.globalCompositeOperation = getBlendMode(this.blendMode);
+    ctx.globalCompositeOperation = getBlendMode(this.blendMode);
     if (!path) {
-      context.beginPath();
-      draw(context);
-      context.closePath();
+      ctx.beginPath();
+      draw(ctx);
+      ctx.closePath();
       if (this.style === PaintStyle.Fill) {
-        context.fill();
+        ctx.fill();
       } else {
-        context.stroke();
+        ctx.stroke();
       }
     } else {
-      const p = draw(context);
+      const p = draw(ctx);
       if (this.style === PaintStyle.Fill) {
-        context.fill(p);
+        ctx.fill(p);
       } else {
-        context.stroke(p);
+        ctx.stroke(p);
       }
     }
-    context.restore();
+    ctx.restore();
   }
 
   copy(): Paint {
@@ -115,15 +133,14 @@ export class PaintJS extends HostObject<Paint> implements Paint {
     if (shader) {
       paint.setShader(shader);
     }
-    // TODO: here the ownership/clean up of these could be revised
     if (imageFilter) {
-      paint.imageFilter = imageFilter.copy();
+      paint.imageFilter = imageFilter;
     }
     if (colorFilter) {
-      paint.colorFilter = colorFilter.copy();
+      paint.colorFilter = colorFilter;
     }
     if (maskFilter) {
-      paint.maskFilter = maskFilter.copy();
+      paint.maskFilter = maskFilter;
     }
     return paint;
   }
@@ -166,10 +183,7 @@ export class PaintJS extends HostObject<Paint> implements Paint {
     this.color = new Float32Array([r, g, b, a]);
   }
   setColorFilter(filter: ColorFilterJS | null): void {
-    if (this.colorFilter) {
-      this.colorFilter.dispose();
-    }
-    this.colorFilter = filter ? SVGPaintFilter.makeFromFilter(filter) : null;
+    this.colorFilter = filter;
   }
   setColorInt(_color: number, _colorSpace?: ColorSpace | undefined): void {
     throw new Error("Method not implemented.");
@@ -178,16 +192,10 @@ export class PaintJS extends HostObject<Paint> implements Paint {
     throw new Error("Method not implemented.");
   }
   setImageFilter(filter: ImageFilterJS | null): void {
-    if (this.imageFilter) {
-      this.imageFilter.dispose();
-    }
-    this.imageFilter = filter ? SVGPaintFilter.makeFromFilter(filter) : null;
+    this.imageFilter = filter;
   }
   setMaskFilter(filter: MaskFilterJS | null): void {
-    if (this.maskFilter) {
-      this.maskFilter.dispose();
-    }
-    this.maskFilter = filter ? SVGPaintFilter.makeFromFilter(filter) : null;
+    this.maskFilter = filter;
   }
   setPathEffect(_effect: PathEffect | null): void {
     throw new Error("Method not implemented.");

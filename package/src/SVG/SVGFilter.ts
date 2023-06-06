@@ -7,7 +7,7 @@ export const SourceGraphic = "SourceGraphic";
 export type SVGFilter = SVGElement;
 export type SVGInputFilter = SVGFilter | CurrentGraphic | SourceGraphic;
 
-export const getFilterId = (filter: SVGInputFilter) => {
+export const filterId = (filter: SVGInputFilter) => {
   if (filter === CurrentGraphic || filter === SourceGraphic) {
     return filter;
   }
@@ -24,7 +24,7 @@ export const makeBlur = (
   result = "CurrentGraphic"
 ) => {
   const filter = document.createElementNS(ns, "feGaussianBlur");
-  filter.setAttribute("in", getFilterId(inFilter));
+  filter.setAttribute("in", filterId(inFilter));
   filter.setAttribute("stdDeviation", stdDeviation.toString());
   filter.setAttribute("result", result);
   return filter;
@@ -60,8 +60,8 @@ export const makeComposite = (
   result = "CurrentGraphic"
 ) => {
   const filter = document.createElementNS(ns, "feComposite");
-  filter.setAttribute("in", getFilterId(inFilter));
-  filter.setAttribute("in2", getFilterId(in2Filter));
+  filter.setAttribute("in", filterId(inFilter));
+  filter.setAttribute("in2", filterId(in2Filter));
   filter.setAttribute("operator", operator);
   filter.setAttribute("result", result);
   return filter;
@@ -74,7 +74,7 @@ export const makeMerge = (
   const filter = document.createElementNS(ns, "feMerge");
   inFilters.forEach((filterElement) => {
     const mergeNode = document.createElementNS(ns, "feMergeNode");
-    mergeNode.setAttribute("in", getFilterId(filterElement));
+    mergeNode.setAttribute("in", filterId(filterElement));
     filter.appendChild(mergeNode);
   });
   filter.setAttribute("result", result);
@@ -90,8 +90,8 @@ export const makeBlend = (
   result = "CurrentGraphic"
 ) => {
   const filter = document.createElementNS(ns, "feBlend");
-  filter.setAttribute("in", getFilterId(inFilter));
-  filter.setAttribute("in2", getFilterId(in2Filter));
+  filter.setAttribute("in", filterId(inFilter));
+  filter.setAttribute("in2", filterId(in2Filter));
   filter.setAttribute("mode", mode);
   filter.setAttribute("result", result);
   return filter;
@@ -108,7 +108,7 @@ export const makeColorMatrix = (
   result = "CurrentGraphic"
 ) => {
   const filter = document.createElementNS(ns, "feColorMatrix");
-  filter.setAttribute("in", getFilterId(input));
+  filter.setAttribute("in", filterId(input));
   filter.setAttribute("type", value.type);
   if (value.type !== "luminanceToAlpha") {
     filter.setAttribute(
