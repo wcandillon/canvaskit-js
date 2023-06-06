@@ -52,7 +52,9 @@ describe("BackdropFilter", () => {
           CanvasKit.TileMode.Clamp
         )
       );
-      canvas.drawCircle(r, r, r, paint);
+      canvas.translate(r, r);
+      canvas.drawCircle(0, 0, r, paint);
+      canvas.translate(-r, -r);
       const filter = CanvasKit.ImageFilter.MakeBlur(
         10,
         10,
