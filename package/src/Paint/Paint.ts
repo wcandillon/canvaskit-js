@@ -80,6 +80,7 @@ export class PaintJS extends HostObject<Paint> implements Paint {
       const pattern = ctx.createPattern(texture, null)!;
       pattern.setTransform(ctx.getTransform());
       style = pattern;
+      texture.close();
     } else {
       style = nativeColor(this.color);
     }

@@ -1,7 +1,14 @@
 import type { Canvas as CKCanvas } from "canvaskit-wasm";
 
 import type { AnimationValue, Info } from "./components";
-import { useValue, mix, Canvas, useLoop, useOnDraw } from "./components";
+import { mix, Canvas, useLoop, useOnDraw } from "./components";
+
+const filter = CanvasKit.ImageFilter.MakeBlur(
+  10,
+  10,
+  CanvasKit.TileMode.Clamp,
+  null
+);
 
 const drawSun = (
   progress: AnimationValue,
@@ -28,12 +35,7 @@ const drawSun = (
   canvas.drawCircle(0, 0, r, paint);
   canvas.translate(-center[0], -center[1]);
   canvas.restore();
-  const filter = CanvasKit.ImageFilter.MakeBlur(
-    10,
-    10,
-    CanvasKit.TileMode.Clamp,
-    null
-  );
+
   canvas.clipRect(
     CanvasKit.XYWHRect(0, center[1], width, center[1]),
     CanvasKit.ClipOp.Intersect,
