@@ -68,4 +68,94 @@ describe("Transforms", () => {
     );
     checkImage(image, "snapshots/rectangles.png");
   });
+  it("should draw the circle centered", async () => {
+    const image = await skia.eval(
+      ({ CanvasKit, width, canvas, height, center }) => {
+        const mix = (value: number, x: number, y: number) =>
+          x * (1 - value) + y * value;
+        const r = mix(1, width / 4, width / 2);
+        canvas.drawColor(CanvasKit.BLACK);
+        const paint = new CanvasKit.Paint();
+        const colors = ["#FFF723", "#E70696"].map((cl) =>
+          CanvasKit.parseColorString(cl)
+        );
+        paint.setShader(
+          CanvasKit.Shader.MakeLinearGradient(
+            [0, 0],
+            [0, height],
+            colors,
+            null,
+            CanvasKit.TileMode.Clamp
+          )
+        );
+        canvas.save();
+        canvas.translate(center.x, center.y);
+        canvas.drawCircle(0, 0, r, paint);
+        canvas.translate(-center.x, -center.y);
+        canvas.restore();
+      }
+    );
+    checkImage(image, "snapshots/circle-gradient.png");
+  });
 });
+
+/*
+import fs from "fs";
+import path from "path";
+
+import { processResult } from "../../__tests__/setup";
+import type { SkCanvas } from "../types/Canvas";
+
+import { setupSkia } from "./setup";
+
+describe("Test transforms", () => {
+  it("Scale and rotate image", () => {
+    testImageTransform((canvas) => {
+      canvas.scale(0.75, 0.75);
+      canvas.rotate(-30, 0, 0);
+    }, "snapshots/transform/rotate.png");
+  });
+
+  it("Skew image", () => {
+    testImageTransform((canvas) => {
+      canvas.skew(-Math.PI / 6, 0);
+    }, "snapshots/transform/skew.png");
+  });
+
+  it("Scale image", () => {
+    testImageTransform((canvas) => {
+      canvas.scale(2, 1);
+    }, "snapshots/transform/scale.png");
+  });
+
+const testImageTransform = (cb: (canvas: SkCanvas) => void, result: string) => {
+  const { canvas, surface, center, width, Skia } = setupSkia();
+  const aspectRatio = 836 / 1324;
+  const CARD_WIDTH = width - 64;
+  const CARD_HEIGHT = CARD_WIDTH * aspectRatio;
+  const rect = Skia.XYWHRect(
+    center.x - CARD_WIDTH / 2,
+    center.y - CARD_HEIGHT / 2,
+    CARD_WIDTH,
+    CARD_HEIGHT
+  );
+  const image = Skia.Image.MakeImageFromEncoded(
+    Skia.Data.fromBytes(
+      fs.readFileSync(path.resolve(__dirname, "./assets/card.png"))
+    )
+  )!;
+  const imgRect = Skia.XYWHRect(0, 0, image.width(), image.height());
+  canvas.save();
+
+  //  we pivot on the center of the card
+  canvas.translate(center.x, center.y);
+  cb(canvas);
+  canvas.translate(-center.x, -center.y);
+
+  const paint = Skia.Paint();
+  canvas.drawImageRect(image, imgRect, rect, paint);
+  canvas.restore();
+
+  processResult(surface, result);
+};
+*/

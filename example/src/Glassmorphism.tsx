@@ -23,25 +23,25 @@ const drawSun = (
       CanvasKit.TileMode.Clamp
     )
   );
-  // canvas.save();
+  canvas.save();
   canvas.translate(center[0], center[1]);
   canvas.drawCircle(0, 0, r, paint);
   canvas.translate(-center[0], -center[1]);
-  // canvas.restore();
-  // const filter = CanvasKit.ImageFilter.MakeBlur(
-  //   10,
-  //   10,
-  //   CanvasKit.TileMode.Clamp,
-  //   null
-  // );
-  // canvas.clipRect(
-  //   CanvasKit.XYWHRect(0, r, 2 * r, r),
-  //   CanvasKit.ClipOp.Intersect,
-  //   true
-  // );
-  // canvas.drawColor(Float32Array.of(0, 0, 0, 0.3));
-  // canvas.saveLayer(undefined, undefined, filter);
-  // canvas.restore();
+  canvas.restore();
+  const filter = CanvasKit.ImageFilter.MakeBlur(
+    10,
+    10,
+    CanvasKit.TileMode.Clamp,
+    null
+  );
+  canvas.clipRect(
+    CanvasKit.XYWHRect(0, r, 2 * r, r),
+    CanvasKit.ClipOp.Intersect,
+    true
+  );
+  canvas.drawColor(Float32Array.of(0, 0, 0, 0.3));
+  canvas.saveLayer(undefined, undefined, filter);
+  canvas.restore();
 };
 
 export const Glassmorphism = () => {

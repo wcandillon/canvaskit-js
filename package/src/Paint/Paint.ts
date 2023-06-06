@@ -47,14 +47,39 @@ export class PaintJS extends HostObject<Paint> implements Paint {
     draw: (ctx: CanvasRenderingContext2D) => any,
     path?: boolean
   ) {
-    const { ctx, svgCtx } = paintCtx;
+    const { ctx } = paintCtx;
     ctx.save();
+    this.processFilter(paintCtx);
+    this.processStyle(ctx);
+    ctx.globalCompositeOperation = getBlendMode(this.blendMode);
+    if (!path) {
+      ctx.beginPath();
+      draw(ctx);
+      if (this.style === PaintStyle.Fill) {
+        ctx.fill();
+      } else {
+        ctx.stroke();
+      }
+    } else {
+      const p = draw(ctx);
+      if (this.style === PaintStyle.Fill) {
+        ctx.fill(p);
+      } else {
+        ctx.stroke(p);
+      }
+    }
+    ctx.restore();
+  }
+
+  private processStyle(ctx: CanvasRenderingContext2D) {
     let style: CanvasPattern | string;
     if (this.shader) {
       const texture = this.shader.paint(
         createOffscreenTexture(ctx.canvas.width, ctx.canvas.height)
       );
-      style = ctx.createPattern(texture, "no-repeat")!;
+      const pattern = ctx.createPattern(texture, null)!;
+      pattern.setTransform(ctx.getTransform());
+      style = pattern;
     } else {
       style = nativeColor(this.color);
     }
@@ -67,6 +92,10 @@ export class PaintJS extends HostObject<Paint> implements Paint {
     ctx.lineWidth = this.strokeWidth;
     ctx.lineCap = lineCap(this.strokeCap);
     ctx.lineJoin = lineJoin(this.strokeJoin);
+  }
+
+  private processFilter(paintCtx: PaintContext) {
+    const { ctx, svgCtx } = paintCtx;
     if (this.maskFilter || this.imageFilter || this.colorFilter) {
       const filter: string[] = [];
       if (this.maskFilter) {
@@ -86,26 +115,6 @@ export class PaintJS extends HostObject<Paint> implements Paint {
       }
       ctx.filter = filter.join(" ");
     }
-
-    ctx.globalCompositeOperation = getBlendMode(this.blendMode);
-    if (!path) {
-      ctx.beginPath();
-      draw(ctx);
-      ctx.closePath();
-      if (this.style === PaintStyle.Fill) {
-        ctx.fill();
-      } else {
-        ctx.stroke();
-      }
-    } else {
-      const p = draw(ctx);
-      if (this.style === PaintStyle.Fill) {
-        ctx.fill(p);
-      } else {
-        ctx.stroke(p);
-      }
-    }
-    ctx.restore();
   }
 
   copy(): Paint {
