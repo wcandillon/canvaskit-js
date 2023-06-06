@@ -1,9 +1,4 @@
-import {
-  IndentityColorMatrix,
-  SourceGraphic,
-  makeColorMatrix,
-  ns,
-} from "./SVGFilter";
+import { ns } from "./SVGFilter";
 
 export class SVGContext {
   private root: SVGSVGElement = document.createElementNS(ns, "svg");
@@ -48,14 +43,17 @@ export class SVGContext {
     }
     const filter = document.createElementNS(ns, "filter");
     filter.setAttribute("id", id);
+    // This step doesn't seem to be necessary
     // Now we create the CurrentGraphic filter input for composition
-    makeColorMatrix(
-      {
-        type: "matrix",
-        values: IndentityColorMatrix,
-      },
-      SourceGraphic
-    );
+    // filter.append(
+    //   makeColorMatrix(
+    //     {
+    //       type: "matrix",
+    //       values: IndentityColorMatrix,
+    //     },
+    //     SourceGraphic
+    //   )
+    // );
     for (const fe of filters) {
       filter.appendChild(fe);
     }

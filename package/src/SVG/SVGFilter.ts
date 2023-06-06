@@ -19,13 +19,14 @@ export const filterId = (filter: SVGInputFilter) => {
 };
 
 export const makeBlur = (
-  stdDeviation: number,
+  blurX: number,
+  blurY: number,
   inFilter: SVGInputFilter = CurrentGraphic,
   result = "CurrentGraphic"
 ) => {
   const filter = document.createElementNS(ns, "feGaussianBlur");
   filter.setAttribute("in", filterId(inFilter));
-  filter.setAttribute("stdDeviation", stdDeviation.toString());
+  filter.setAttribute("stdDeviation", `${blurX} ${blurY}`);
   filter.setAttribute("result", result);
   return filter;
 };
@@ -121,26 +122,3 @@ export const makeColorMatrix = (
   filter.setAttribute("result", result);
   return filter;
 };
-
-export const IndentityColorMatrix = Float32Array.of(
-  1,
-  0,
-  0,
-  0,
-  0,
-  0,
-  1,
-  0,
-  0,
-  0,
-  0,
-  0,
-  1,
-  0,
-  0,
-  0,
-  0,
-  0,
-  1,
-  0
-);

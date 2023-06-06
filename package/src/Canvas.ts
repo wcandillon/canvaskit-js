@@ -413,7 +413,6 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
     //       height: this.ctx.canvas.height,
     //     };
     const layer = createTexture(width, height);
-    layer.setTransform(this.ctx.getTransform());
     if (paint) {
       paint.apply({ ctx: layer, svgCtx: this.svgCtx }, () => {
         layer.drawImage(currentLayer, 0, 0, width, height);
@@ -421,6 +420,8 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
     } else {
       layer.drawImage(currentLayer, 0, 0);
     }
+    // TODO: write a test for this
+    layer.setTransform(this.ctx.getTransform());
     this.layerStack.push({ ctx: layer, imageFilter: imageFilter ?? undefined });
     return this.saveCount;
   }

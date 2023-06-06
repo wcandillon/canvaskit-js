@@ -25,11 +25,11 @@ export const ImageFilterFactory: CKImageFilterFactory = {
   },
   MakeBlur: function (
     sigmaX: number,
-    _sigmaY: number,
+    sigmaY: number,
     _mode: EmbindEnumEntity,
     input: ImageFilterJS | null
   ): ImageFilter {
-    return new BlurImageFilter(sigmaX, input);
+    return new BlurImageFilter(sigmaX, sigmaY, input);
   },
   MakeColorFilter: function (
     cf: ColorFilterJS,
