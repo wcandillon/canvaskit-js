@@ -108,13 +108,10 @@ describe("BackdropFilter", () => {
         canvas.translate(-center.x, -center.y);
         canvas.restore();
 
-        canvas.clipRect(
-          CanvasKit.XYWHRect(0, center.y, width, center.y),
-          CanvasKit.ClipOp.Intersect,
-          true
-        );
+        const bounds = CanvasKit.XYWHRect(0, center.y, width, center.y);
+        canvas.clipRect(bounds, CanvasKit.ClipOp.Intersect, true);
         canvas.drawColor(Float32Array.of(0, 0, 0, 0.3));
-        canvas.saveLayer(undefined, undefined, filter);
+        canvas.saveLayer(undefined, bounds, filter);
         canvas.restore();
       },
       1024,
