@@ -397,24 +397,26 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
   }
   saveLayer(
     paint?: PaintJS,
-    bounds?: InputRect | null,
+    _bounds?: InputRect | null,
     imageFilter?: ImageFilterJS | null,
     _flags?: number
   ): number {
     const currentLayer = this.ctx.canvas;
     this.save();
-    const { x, y, width, height } = bounds
-      ? rectToXYWH(bounds)
-      : {
-          x: 0,
-          y: 0,
-          width: this.ctx.canvas.width,
-          height: this.ctx.canvas.height,
-        };
+    const { width, height } = currentLayer;
+    // const { x, y, width, height } = bounds
+    //   ? rectToXYWH(bounds)
+    //   : {
+    //       x: 0,
+    //       y: 0,
+    //       width: this.ctx.canvas.width,
+    //       height: this.ctx.canvas.height,
+    //     };
     const layer = createTexture(width, height);
+    layer.setTransform(this.ctx.getTransform());
     if (paint) {
       paint.apply({ ctx: layer, svgCtx: this.svgCtx }, () => {
-        layer.drawImage(currentLayer, x, y, width, height);
+        layer.drawImage(currentLayer, 0, 0, width, height);
       });
     } else {
       layer.drawImage(currentLayer, 0, 0);
