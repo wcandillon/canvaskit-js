@@ -279,32 +279,6 @@ export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
     );
     return new ImageJS(imageData);
   }
-  MakeImageFromEncodedAsync(
-    bytes: Uint8Array | ArrayBuffer,
-    imageFormat: ImageFormatEnum
-  ) {
-    let type = "image/png";
-    if (imageFormat === ImageFormatEnum.JPEG) {
-      type = "image/jpeg";
-    } else if (imageFormat === ImageFormatEnum.WEBP) {
-      type = "image/webp";
-    }
-    const blob = new Blob([bytes], { type });
-    const url = URL.createObjectURL(blob);
-    const img = new window.Image();
-    img.src = url;
-    return new Promise((resolve, reject) => {
-      img.onload = () => {
-        img.width = img.naturalWidth;
-        img.height = img.naturalHeight;
-        const result = new ImageJS(img);
-        if (!result) {
-          reject();
-        }
-        resolve(result);
-      };
-    });
-  }
   MakeImageFromEncoded(_bytes: Uint8Array | ArrayBuffer): Image | null {
     throw new Error(
       `MakeImageFromEncoded in CanvasKit is synchronous and not supported on Web.
@@ -386,4 +360,39 @@ export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
   UnderlineDecoration!: number;
   OverlineDecoration!: number;
   LineThroughDecoration!: number;
+
+  // The methods below are specific to canvaskit-js
+  MakeCanvasRecordingSurface(canvas: string | HTMLCanvasElement) {
+    const ctx = resolveContext(canvas);
+    if (!ctx) {
+      return null;
+    }
+    return new SurfaceJS(ctx, true);
+  }
+  MakeImageFromEncodedAsync(
+    bytes: Uint8Array | ArrayBuffer,
+    imageFormat: ImageFormatEnum
+  ) {
+    let type = "image/png";
+    if (imageFormat === ImageFormatEnum.JPEG) {
+      type = "image/jpeg";
+    } else if (imageFormat === ImageFormatEnum.WEBP) {
+      type = "image/webp";
+    }
+    const blob = new Blob([bytes], { type });
+    const url = URL.createObjectURL(blob);
+    const img = new window.Image();
+    img.src = url;
+    return new Promise((resolve, reject) => {
+      img.onload = () => {
+        img.width = img.naturalWidth;
+        img.height = img.naturalHeight;
+        const result = new ImageJS(img);
+        if (!result) {
+          reject();
+        }
+        resolve(result);
+      };
+    });
+  }
 }

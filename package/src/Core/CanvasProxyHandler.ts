@@ -2,11 +2,7 @@
 export class CanvasProxyHandler
   implements ProxyHandler<CanvasRenderingContext2D>
 {
-  constructor() {
-    console.log("===========");
-    console.log("New Drawing");
-    console.log("===========");
-  }
+  private commands: string[] = [];
 
   get(
     target: CanvasRenderingContext2D,
@@ -15,8 +11,8 @@ export class CanvasProxyHandler
     const origProperty = target[property];
     if (typeof origProperty === "function") {
       return (...args: any[]) => {
-        console.log(
-          `${String(property)}(${args
+        this.commands.push(
+          `ctx.${String(property)}(${args
             .map((arg) => JSON.stringify(arg))
             .join(", ")});`
         );
@@ -31,10 +27,20 @@ export class CanvasProxyHandler
     property: keyof CanvasRenderingContext2D,
     value: any
   ) {
-    console.log(`${String(property)} = ${JSON.stringify(value)};`);
+    this.commands.push(`ctx.${String(property)} = ${JSON.stringify(value)};`);
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
     target[property] = value;
     return true; // indicates that the assignment succeeded
+  }
+
+  flush() {
+    console.log("===========");
+    console.log("Start Drawing");
+    console.log("===========");
+    console.log(this.commands.join("\n"));
+    console.log("===========");
+    console.log("End Drawing");
+    console.log("===========");
   }
 }

@@ -13,14 +13,23 @@ import { CanvasJS } from "./Canvas";
 import { ImageJS } from "./Image";
 import { rectToXYWH } from "./Core";
 import { SVGContext } from "./SVG/SVGContext";
+import { CanvasProxyHandler } from "./Core/CanvasProxyHandler";
 
 export class SurfaceJS extends IndexedHostObject<Surface> implements Surface {
   private canvas: Canvas;
   private svgCtx: SVGContext;
+  private ctx: CanvasRenderingContext2D;
+  private proxyHandler: CanvasProxyHandler | null = null;
 
-  constructor(private readonly ctx: CanvasRenderingContext2D) {
+  constructor(ctx: CanvasRenderingContext2D, debug = false) {
     super("surface");
     this.svgCtx = new SVGContext(this.id);
+    if (debug) {
+      this.proxyHandler = new CanvasProxyHandler();
+      this.ctx = new Proxy(ctx, this.proxyHandler);
+    } else {
+      this.ctx = ctx;
+    }
     this.canvas = new CanvasJS(this.ctx, this.svgCtx);
   }
   drawOnce(drawFrame: (_: Canvas) => void): void {
@@ -29,7 +38,11 @@ export class SurfaceJS extends IndexedHostObject<Surface> implements Surface {
   dispose(): void {
     this.svgCtx.dispose();
   }
-  flush(): void {}
+  flush(): void {
+    if (this.proxyHandler) {
+      this.proxyHandler.flush();
+    }
+  }
   getCanvas(): Canvas {
     return this.canvas;
   }

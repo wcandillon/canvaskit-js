@@ -102,7 +102,7 @@ class RemoteSurface {
       canvas.width = ${width};
       canvas.height = ${height};
       document.body.appendChild(canvas);
-      const surface = CanvasKit.MakeCanvasSurface(canvas);
+      const surface = ${DEBUG} ? CanvasKit.MakeCanvasRecordingSurface(canvas) : CanvasKit.MakeCanvasSurface(canvas);
       const width = ${width};
       const height = ${height};
       const center = { x: width/2, y: height/2 };
@@ -117,6 +117,7 @@ class RemoteSurface {
         })
         .join("\n")}
       (${fn.toString()})(ctx);
+      surface.flush();
       return surface.makeImageSnapshot().encodeToBytes();
     })();`;
     const data = await this.page.evaluate(source);

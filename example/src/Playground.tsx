@@ -47,8 +47,101 @@ const drawSun = (
   // ctx.restore();
 };
 
+const draw = (
+  progress: AnimationValue,
+  ctx: CanvasRenderingContext2D,
+  { width, height }: Info
+) => {
+  const clipPath = new Path2D();
+  clipPath.rect(0, height / 2, width, height / 2);
+  ctx.save();
+  ctx.save();
+  ctx.fillStyle = "rgba(0, 0, 0, 1)";
+  ctx.beginPath();
+  ctx.rect(0, 0, 1024, 1024);
+  ctx.fill();
+  ctx.restore();
+  ctx.save();
+  ctx.translate(512, 512);
+  ctx.save();
+  ctx.getTransform();
+  ctx.fillStyle = "cyan";
+  ctx.beginPath();
+  ctx.arc(0, 0, 256, 0, 6.283185307179586);
+  ctx.fill();
+  ctx.restore();
+  ctx.translate(-512, -512);
+  ctx.restore();
+  ctx.clip(clipPath);
+  ctx.save();
+  ctx.fillStyle = "rgba(0, 0, 0, 0.30000001192092896)";
+  ctx.beginPath();
+  ctx.rect(0, 0, 1024, 1024);
+  ctx.fill();
+  ctx.restore();
+  ctx.save();
+  ctx.save();
+
+  let layer = document.createElement("canvas");
+  layer.width = ctx.canvas.width;
+  layer.height = ctx.canvas.height;
+  let layerCtx = layer.getContext("2d")!;
+  layerCtx.drawImage(ctx.canvas, 0, 0);
+
+  ctx.filter = "blur(10px)";
+  ctx.beginPath();
+  ctx.drawImage(layer, 0, 0, 1024, 1024);
+  ctx.fill();
+  ctx.restore();
+  ctx.restore();
+  ctx.save();
+  ctx.globalCompositeOperation = "copy";
+  ctx.fillStyle = "rgba(0, 0, 0, 0)";
+  ctx.fillRect(0, 0, 1024, 1024);
+  ctx.restore();
+  ctx.save();
+  ctx.save();
+  ctx.fillStyle = "rgba(0, 0, 0, 1)";
+  ctx.beginPath();
+  ctx.rect(0, 0, 1024, 1024);
+  ctx.fill();
+  ctx.restore();
+  ctx.save();
+  ctx.translate(512, 512);
+  ctx.save();
+  ctx.getTransform();
+  ctx.fillStyle = "cyan";
+  ctx.beginPath();
+  ctx.arc(0, 0, 128, 0, 6.283185307179586);
+  ctx.fill();
+  ctx.restore();
+  ctx.translate(-512, -512);
+  ctx.restore();
+  ctx.clip(clipPath);
+  ctx.save();
+  ctx.fillStyle = "rgba(0, 0, 0, 0.30000001192092896)";
+  ctx.beginPath();
+  ctx.rect(0, 0, 1024, 1024);
+  ctx.fill();
+  ctx.restore();
+  ctx.save();
+  ctx.save();
+  ctx.filter = "blur(10px)";
+  ctx.beginPath();
+
+  layer = document.createElement("canvas");
+  layer.width = ctx.canvas.width;
+  layer.height = ctx.canvas.height;
+  layerCtx = layer.getContext("2d")!;
+  layerCtx.drawImage(ctx.canvas, 0, 0);
+  ctx.drawImage(layer, 0, 0, 1024, 1024);
+  ctx.fill();
+  ctx.restore();
+  ctx.restore();
+};
+
 export const Playground = () => {
   const progress = useLoop();
-  const onDraw = useOnDrawNative(drawSun.bind(null, progress));
+  const onDraw = useOnDrawNative(draw.bind(null, progress));
   return <NativeCanvas onDraw={onDraw} deps={[progress]} />;
 };

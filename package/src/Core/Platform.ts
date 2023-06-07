@@ -1,5 +1,3 @@
-import { CanvasProxyHandler } from "./CanvasProxyHandler";
-
 // TODO: rename
 export const createTexture = (
   width: number,
@@ -30,8 +28,6 @@ export const createOffscreenTexture = (
   return ctx;
 };
 
-const DEBUG = true;
-
 export const resolveContext = (
   canvas: string | HTMLCanvasElement,
   options?: CanvasRenderingContext2DSettings
@@ -45,12 +41,6 @@ export const resolveContext = (
     resolved = el;
   } else {
     resolved = canvas;
-  }
-  if (DEBUG) {
-    const ctx = resolved.getContext("2d", options);
-    if (ctx) {
-      return new Proxy(ctx, new CanvasProxyHandler());
-    }
   }
   return resolved.getContext("2d", options);
 };
