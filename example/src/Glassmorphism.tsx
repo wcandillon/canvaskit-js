@@ -35,7 +35,7 @@ const drawSun = (
   canvas.drawCircle(0, 0, r, paint);
   canvas.translate(-center[0], -center[1]);
   canvas.restore();
-
+  canvas.save();
   canvas.clipRect(
     CanvasKit.XYWHRect(0, center[1], width, center[1]),
     CanvasKit.ClipOp.Intersect,
@@ -43,6 +43,7 @@ const drawSun = (
   );
   canvas.drawColor(Float32Array.of(0, 0, 0, 0.3));
   canvas.saveLayer(undefined, undefined, filter);
+  canvas.restore();
   canvas.restore();
 };
 

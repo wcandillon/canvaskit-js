@@ -11,11 +11,16 @@ export class CanvasProxyHandler
     const origProperty = target[property];
     if (typeof origProperty === "function") {
       return (...args: any[]) => {
-        this.commands.push(
-          `ctx.${String(property)}(${args
-            .map((arg) => JSON.stringify(arg))
-            .join(", ")});`
-        );
+        const cmd = `ctx.${String(property)}(${args
+          .map((arg) => JSON.stringify(arg))
+          .join(", ")});`;
+        if (property === "save") {
+          this.commands.push("<layer>");
+        } else if (property === "restore") {
+          this.commands.push("</layer>");
+        } else {
+          this.commands.push(cmd);
+        }
         return (origProperty as (...args: any[]) => any).apply(target, args);
       };
     } else {
@@ -35,12 +40,8 @@ export class CanvasProxyHandler
   }
 
   flush() {
-    console.log("===========");
-    console.log("Start Drawing");
-    console.log("===========");
+    console.log("<drawing>");
     console.log(this.commands.join("\n"));
-    console.log("===========");
-    console.log("End Drawing");
-    console.log("===========");
+    console.log("</drawing>");
   }
 }
