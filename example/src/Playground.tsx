@@ -4,40 +4,24 @@ import { mix, NativeCanvas, useLoop, useOnDrawNative } from "./components";
 const drawSun = (
   progress: AnimationValue,
   ctx: CanvasRenderingContext2D,
-  { width, center }: Info
+  { width, height, center }: Info
 ) => {
   const r = mix(progress.value, width / 4, width / 8);
   ctx.save();
+  ctx.translate(center[0], center[1]);
   ctx.fillStyle = "rgba(80, 180, 255, 1)";
   ctx.beginPath();
-  ctx.arc(center[0], center[1], r, 0, Math.PI * 2);
+  ctx.arc(0, 0, r, 0, Math.PI * 2);
   ctx.fill();
+  ctx.translate(-center[0], -center[1]);
   ctx.restore();
-  // canvas.drawColor(CanvasKit.BLACK);
-  // const paint = new CanvasKit.Paint();
-  // const colors = ["#FFF723", "#E70696"].map((cl) =>
-  //   CanvasKit.parseColorString(cl)
-  // );
-  // paint.setShader(
-  //   CanvasKit.Shader.MakeLinearGradient(
-  //     [center[0], center[1] - r],
-  //     [center[0], center[1] + r],
-  //     colors,
-  //     null,
-  //     CanvasKit.TileMode.Clamp
-  //   )
-  // );
-  // canvas.save();
-  // canvas.translate(center[0], center[1]);
-  // canvas.drawCircle(0, 0, r, paint);
-  // canvas.translate(-center[0], -center[1]);
-  // canvas.restore();
 
-  // canvas.clipRect(
-  //   CanvasKit.XYWHRect(0, center[1], width, center[1]),
-  //   CanvasKit.ClipOp.Intersect,
-  //   true
-  // );
+  ctx.beginPath();
+  ctx.rect(0, center[1], width, center[1]);
+  ctx.clip();
+  ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+  ctx.fillRect(0, 0, width, height);
+
   // canvas.drawColor(Float32Array.of(0, 0, 0, 0.3));
   // canvas.saveLayer(undefined, undefined, filter);
   // canvas.restore();
