@@ -5,8 +5,10 @@ import { Easing } from "./Easing";
 export const startAnimations = (
   values: AnimationValue[],
   redraw: () => void
-) => {
-  requestAnimationFrame((time) => {
+): (() => void) => {
+  let animationFrameId: number;
+
+  const animate = (time: number) => {
     let shouldRedraw = false;
     values.forEach((value) => {
       const hasChanged = value.onFrame(time);
@@ -17,8 +19,14 @@ export const startAnimations = (
     if (shouldRedraw) {
       redraw();
     }
-    startAnimations(values, redraw);
-  });
+    animationFrameId = requestAnimationFrame(animate);
+  };
+
+  animationFrameId = requestAnimationFrame(animate);
+
+  return () => {
+    cancelAnimationFrame(animationFrameId);
+  };
 };
 
 const easing = Easing.inOut(Easing.ease);

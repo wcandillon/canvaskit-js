@@ -44,36 +44,30 @@ import type { ImageJS } from "./Image";
 import type { ImageFilterJS } from "./ImageFilter";
 import type { SVGContext } from "./SVG";
 
-interface LayerContext {
-  ctx: CanvasRenderingContext2D;
+interface CanvasContext {
   imageFilter?: ImageFilterJS;
-  saveCount: number;
+  isLayer?: boolean;
+  ctx: CanvasRenderingContext2D;
+  clip?: Path2D;
 }
 
 export class CanvasJS extends HostObject<Canvas> implements Canvas {
-  private saveCount = 0;
-  private layerStack: LayerContext[] = [];
+  private stack: CanvasContext[] = [];
 
   constructor(
-    ctx: CanvasRenderingContext2D,
+    readonly drawingCtx: CanvasRenderingContext2D,
     public readonly svgCtx: SVGContext
   ) {
     super();
-    this.layerStack.push({ ctx, saveCount: 0 });
+    this.stack.push({ ctx: drawingCtx });
+  }
+
+  get layer() {
+    return this.stack[this.stack.length - 1];
   }
 
   get ctx() {
-    return this.layerStack[this.layerStack.length - 1].ctx;
-  }
-
-  get currentLayer() {
-    if (this.layerStack.length > 1) {
-      const layer = this.layerStack[this.layerStack.length - 1];
-      if (layer.saveCount === this.saveCount) {
-        return layer;
-      }
-    }
-    return null;
+    return this.stack[this.stack.length - 1].ctx;
   }
 
   get paintCtx() {
@@ -89,20 +83,31 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
     this.ctx.restore();
   }
   clipPath(path: PathJS, _op: EmbindEnumEntity, _doAntiAlias: boolean): void {
-    this.ctx.clip(path.getPath2D());
+    this._clip(path.getPath2D());
   }
   clipRect(rect: InputRect, _op: EmbindEnumEntity, _doAntiAlias: boolean) {
     const { x, y, width, height } = rectToXYWH(rect);
-    this.ctx.beginPath();
-    this.ctx.rect(x, y, width, height);
-    this.ctx.clip();
+    const path = new Path2D();
+    path.rect(x, y, width, height);
+    this._clip(path);
   }
   clipRRect(
-    _rrect: InputRRect,
+    rrect: InputRRect,
     _op: EmbindEnumEntity,
     _doAntiAlias: boolean
   ): void {
-    throw new Error("Method not implemented.");
+    const { x, y, width, height, radii } = rrectToXYWH(rrect);
+    const path = new Path2D();
+    path.roundRect(x, y, width, height, radii);
+    this._clip(path);
+  }
+  private _clip(path: Path2D) {
+    this.ctx.clip(path);
+    // if (this.layer.clip) {
+    //   this.layer.clip.addPath(path);
+    // } else {
+    //   this.layer.clip = path;
+    // }
   }
   concat(m: InputMatrix): void {
     const matrix = normalizeMatrix(m);
@@ -360,7 +365,7 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
     throw new Error("Method not implemented.");
   }
   getSaveCount(): number {
-    return this.saveCount;
+    return this.stack.length - 1;
   }
   getTotalMatrix(): number[] {
     return convertDOMMatrixTo3x3(this.ctx.getTransform());
@@ -378,20 +383,29 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
     throw new Error("Method not implemented.");
   }
   restore(): void {
-    const { currentLayer } = this;
     this.ctx.restore();
-    this.saveCount--;
-    if (currentLayer) {
-      const { imageFilter, ctx } = currentLayer;
-      this.layerStack.pop();
+    const { isLayer, imageFilter, ctx } = this.stack.pop()!;
+    if (isLayer) {
       if (imageFilter) {
         const paint = new PaintJS();
         paint.setImageFilter(imageFilter);
         paint.apply(this.paintCtx, () => {
-          this.ctx.drawImage(ctx.canvas, 0, 0);
+          this.ctx.drawImage(
+            ctx.canvas,
+            0,
+            0,
+            ctx.canvas.width,
+            ctx.canvas.height
+          );
         });
       } else {
-        this.ctx.drawImage(ctx.canvas, 0, 0);
+        this.ctx.drawImage(
+          ctx.canvas,
+          0,
+          0,
+          ctx.canvas.width,
+          ctx.canvas.height
+        );
       }
     }
   }
@@ -406,9 +420,10 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
     this.ctx.translate(-rx, -ry);
   }
   save(): number {
-    this.ctx.save();
-    this.saveCount++;
-    return this.saveCount;
+    const { ctx, clip } = this.layer;
+    ctx.save();
+    this.stack.push({ ctx, clip });
+    return this.getSaveCount();
   }
   saveLayer(
     paint?: PaintJS,
@@ -417,7 +432,8 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
     _flags?: number
   ): number {
     const saveCount = this.save();
-    const { canvas } = this.ctx;
+    const { ctx } = this.layer; // clip
+    const { canvas } = ctx;
     const { width, height } = canvas;
     // const { x, y, width, height } = bounds
     //   ? rectToXYWH(bounds)
@@ -435,12 +451,18 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
     } else {
       layer.drawImage(canvas, 0, 0);
     }
-    // TODO: write a test for this
-    layer.setTransform(this.ctx.getTransform());
-    this.layerStack.push({
+    //  layer.setTransform(this.ctx.getTransform());
+    // const newClip = clip ? new Path2D() : undefined;
+    // if (newClip) {
+    //   newClip.addPath(clip!);
+    //   //   layer.clip(clip!);
+    // }
+
+    this.stack.push({
       ctx: layer,
       imageFilter: imageFilter ?? undefined,
-      saveCount,
+      //      clip: newClip,
+      isLayer: true,
     });
     return saveCount;
   }

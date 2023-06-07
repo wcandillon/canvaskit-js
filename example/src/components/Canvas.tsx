@@ -20,7 +20,7 @@ interface CanvasProps {
   deps: AnimationValue[];
 }
 
-const pd = 1; //window.devicePixelRatio;
+const pd = window.devicePixelRatio;
 
 export const Canvas = ({ onDraw, deps }: CanvasProps) => {
   const surfaceRef = useRef<Surface>();
@@ -64,7 +64,7 @@ export const Canvas = ({ onDraw, deps }: CanvasProps) => {
     }
   );
   useEffect(() => {
-    startAnimations(deps, draw);
+    return startAnimations(deps, draw);
   }, [deps, draw]);
   useEffect(() => {
     return () => {

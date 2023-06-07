@@ -8,6 +8,10 @@ const drawSun = (
 ) => {
   const r = mix(progress.value, width / 4, width / 8);
   ctx.save();
+  ctx.beginPath();
+  ctx.rect(0, 0, width, height);
+  ctx.fillStyle = "black";
+  ctx.fill();
   ctx.translate(center[0], center[1]);
   ctx.fillStyle = "rgba(80, 180, 255, 1)";
   ctx.beginPath();
@@ -16,15 +20,31 @@ const drawSun = (
   ctx.translate(-center[0], -center[1]);
   ctx.restore();
 
+  const {
+    x,
+    y,
+    width: w,
+    height: h,
+  } = { x: 0, y: center[1], width, height: center[1] };
   ctx.beginPath();
-  ctx.rect(0, center[1], width, center[1]);
+  ctx.rect(x, y, w, h);
   ctx.clip();
   ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
   ctx.fillRect(0, 0, width, height);
 
-  // canvas.drawColor(Float32Array.of(0, 0, 0, 0.3));
-  // canvas.saveLayer(undefined, undefined, filter);
-  // canvas.restore();
+  const layer = document.createElement("canvas");
+  layer.width = ctx.canvas.width;
+  layer.height = ctx.canvas.height;
+  const layerCtx = layer.getContext("2d")!;
+  layerCtx.drawImage(ctx.canvas, 0, 0);
+  //console.log(ctx.getTransform());
+  //layerCtx.setTransform(ctx.getTransform());
+
+  //ctx.save();
+  // ctx.scale(2, 2);
+  ctx.filter = "blur(10px)";
+  ctx.drawImage(layer, 0, 0, width, height);
+  // ctx.restore();
 };
 
 export const Playground = () => {

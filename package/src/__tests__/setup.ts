@@ -194,6 +194,7 @@ interface CheckImageOptions {
   overwrite?: boolean;
   mute?: boolean;
   shouldFail?: boolean;
+  showDiff?: boolean;
 }
 
 // On Github Action, the image decoding is slightly different
@@ -204,6 +205,7 @@ const defaultCheckImageOptions = {
   overwrite: false,
   mute: false,
   shouldFail: false,
+  showDiff: false,
 };
 
 export const checkImage = (
@@ -212,12 +214,12 @@ export const checkImage = (
   opts?: CheckImageOptions
 ) => {
   const options = { ...defaultCheckImageOptions, ...opts };
-  const { overwrite, threshold, mute, maxPixelDiff, shouldFail } = options;
+  const { overwrite, threshold, mute, maxPixelDiff, shouldFail, showDiff } =
+    options;
   const p = path.resolve(__dirname, relPath);
   if (fs.existsSync(p) && !overwrite) {
     const ref = fs.readFileSync(p);
     const baseline = PNG.sync.read(ref);
-
     const diffImage = new PNG({
       width: baseline.width,
       height: baseline.height,
@@ -234,7 +236,9 @@ export const checkImage = (
       if (diffPixelsCount > maxPixelDiff && !shouldFail) {
         console.log(`${p} didn't match`);
         fs.writeFileSync(`${p}.test.png`, PNG.sync.write(toTest));
-        fs.writeFileSync(`${p}-diff-test.png`, PNG.sync.write(diffImage));
+        if (showDiff) {
+          fs.writeFileSync(`${p}-diff-test.png`, PNG.sync.write(diffImage));
+        }
       }
       if (shouldFail) {
         expect(diffPixelsCount).not.toBeLessThanOrEqual(maxPixelDiff);
