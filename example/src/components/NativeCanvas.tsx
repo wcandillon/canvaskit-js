@@ -27,10 +27,9 @@ export const NativeCanvas = ({ onDraw, deps }: CanvasProps) => {
     if (ref.current && info.current) {
       const ctx = ref.current.getContext("2d")!;
       ctx.save();
-      ctx.fillStyle = "black";
-      ctx.beginPath();
-      ctx.rect(0, 0, ctx.canvas.width, ctx.canvas.height);
-      ctx.fill();
+      ctx.globalCompositeOperation = "copy";
+      ctx.fillStyle = "transparent";
+      ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
       ctx.restore();
       ctx.save();
       ctx.scale(pd, pd);

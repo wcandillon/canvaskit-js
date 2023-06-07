@@ -29,7 +29,13 @@ import type {
 
 import { PaintJS } from "./Paint";
 import type { ColorSpaceJS, InputColor } from "./Core";
-import { createTexture, intAsColor, rectToXYWH, rrectToXYWH } from "./Core";
+import {
+  nativeColor,
+  createTexture,
+  intAsColor,
+  rectToXYWH,
+  rrectToXYWH,
+} from "./Core";
 import { HostObject } from "./HostObject";
 import { convertDOMMatrixTo3x3, normalizeMatrix } from "./Matrix3";
 import { toRad } from "./math";
@@ -76,9 +82,11 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
 
   clear(color: InputColor): void {
     this.svgCtx.discardCacheIfNeeded();
-    const paint = new PaintJS();
-    paint.setColor(color);
-    this.drawPaint(paint);
+    this.ctx.save();
+    this.ctx.globalCompositeOperation = "copy";
+    this.ctx.fillStyle = nativeColor(color);
+    this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+    this.ctx.restore();
   }
   clipPath(path: PathJS, _op: EmbindEnumEntity, _doAntiAlias: boolean): void {
     this.ctx.clip(path.getPath2D());

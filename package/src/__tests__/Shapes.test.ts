@@ -10,6 +10,15 @@ export interface PolarPoint {
 }
 
 describe("Shapes", () => {
+  it("should clear a paint", async () => {
+    const image = await skia.eval(({ CanvasKit, canvas }) => {
+      const paint = new CanvasKit.Paint();
+      paint.setColor(CanvasKit.RED);
+      canvas.drawPaint(paint);
+      canvas.clear(Float32Array.of(0, 0, 0, 0));
+    });
+    checkImage(image, "snapshots/transparent.png");
+  });
   it("should draw a paint", async () => {
     const image = await skia.eval(({ CanvasKit, canvas }) => {
       const paint = new CanvasKit.Paint();
