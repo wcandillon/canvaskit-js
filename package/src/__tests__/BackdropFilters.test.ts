@@ -152,7 +152,6 @@ describe("BackdropFilter", () => {
         canvas.drawCircle(0, 0, r, paint);
         canvas.translate(-center.x, -center.y);
         canvas.restore();
-        canvas.save();
         canvas.clipRect(
           CanvasKit.XYWHRect(0, center.y, width, center.y),
           CanvasKit.ClipOp.Intersect,
@@ -160,7 +159,6 @@ describe("BackdropFilter", () => {
         );
         canvas.drawColor(Float32Array.of(0, 0, 0, 0.3));
         canvas.saveLayer(undefined, undefined, filter);
-        canvas.restore();
         canvas.restore();
         canvas.restore();
         canvas.clear(Float32Array.of(0, 0, 0, 0));
@@ -169,10 +167,18 @@ describe("BackdropFilter", () => {
         canvas.drawColor(CanvasKit.BLACK);
         canvas.save();
         canvas.translate(center.x, center.y);
+        paint.setShader(
+          CanvasKit.Shader.MakeLinearGradient(
+            [center.x, center.y - r],
+            [center.x, center.y + r],
+            colors,
+            null,
+            CanvasKit.TileMode.Clamp
+          )
+        );
         canvas.drawCircle(0, 0, r, paint);
         canvas.translate(-center.x, -center.y);
         canvas.restore();
-        canvas.save();
         canvas.clipRect(
           CanvasKit.XYWHRect(0, center.y, width, center.y),
           CanvasKit.ClipOp.Intersect,
@@ -180,7 +186,6 @@ describe("BackdropFilter", () => {
         );
         canvas.drawColor(Float32Array.of(0, 0, 0, 0.3));
         canvas.saveLayer(undefined, undefined, filter);
-        canvas.restore();
         canvas.restore();
         canvas.restore();
       },

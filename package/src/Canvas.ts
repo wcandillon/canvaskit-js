@@ -382,8 +382,7 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
   ): Float32Array | Uint8Array | null {
     throw new Error("Method not implemented.");
   }
-  restore(): void {
-    this.ctx.restore();
+  restore() {
     const { isLayer, imageFilter, ctx } = this.stack.pop()!;
     if (isLayer) {
       if (imageFilter) {
@@ -408,6 +407,7 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
         );
       }
     }
+    this.ctx.restore();
   }
   restoreToCount(saveCount: number): void {
     for (let i = 1; i <= saveCount; i++) {
