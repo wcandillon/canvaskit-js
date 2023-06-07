@@ -3,18 +3,18 @@ import type { Canvas as CKCanvas } from "canvaskit-wasm";
 import type { AnimationValue, Info } from "./components";
 import { mix, Canvas, useLoop, useOnDraw } from "./components";
 
-const filter = CanvasKit.ImageFilter.MakeBlur(
-  10,
-  10,
-  CanvasKit.TileMode.Clamp,
-  null
-);
-
 const drawSun = (
   progress: AnimationValue,
   canvas: CKCanvas,
   { width, center }: Info
 ) => {
+  const filter = CanvasKit.ImageFilter.MakeBlur(
+    10,
+    10,
+    CanvasKit.TileMode.Clamp,
+    null
+  );
+
   const r = mix(progress.value, width / 4, width / 8);
   canvas.drawColor(CanvasKit.BLACK);
   const paint = new CanvasKit.Paint();

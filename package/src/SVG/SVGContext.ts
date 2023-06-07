@@ -24,15 +24,15 @@ export class SVGContext {
   }
 
   discardCacheIfNeeded() {
-    if (this.defs.childElementCount > 500) {
+    if (this.defs.childElementCount > 100) {
       this.disposeFilters();
     }
   }
 
   disposeFilters() {
-    while (this.defs.firstChild) {
-      this.defs.removeChild(this.defs.firstChild);
-    }
+    this.root.removeChild(this.defs);
+    this.defs = document.createElementNS(ns, "defs");
+    this.root.appendChild(this.defs);
   }
 
   create(id: string, filters: SVGElement[]) {
