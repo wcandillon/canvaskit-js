@@ -85,9 +85,9 @@ export class SurfaceJS extends IndexedHostObject<Surface> implements Surface {
   reportBackendTypeIsGPU(): boolean {
     return true; //-ish
   }
-  requestAnimationFrame(_drawFrame: (_: Canvas) => void): number {
+  requestAnimationFrame(drawFrame: (_: Canvas) => void): number {
     return requestAnimationFrame(() => {
-      _drawFrame(this.canvas);
+      drawFrame(this.canvas);
     });
   }
   sampleCnt(): number {

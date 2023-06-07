@@ -389,6 +389,7 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
         const paint = new PaintJS();
         paint.setImageFilter(imageFilter);
         paint.apply(this.paintCtx, () => {
+          this.ctx.setTransform(1, 0, 0, 1, 0, 0);
           this.ctx.drawImage(
             ctx.canvas,
             0,
@@ -398,6 +399,8 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
           );
         });
       } else {
+        this.ctx.save();
+        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
         this.ctx.drawImage(
           ctx.canvas,
           0,
@@ -405,6 +408,7 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
           ctx.canvas.width,
           ctx.canvas.height
         );
+        this.ctx.restore();
       }
     }
     this.ctx.restore();
@@ -451,7 +455,8 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
     } else {
       layer.drawImage(canvas, 0, 0);
     }
-    //  layer.setTransform(this.ctx.getTransform());
+    layer.setTransform(this.ctx.getTransform());
+    //
     // const newClip = clip ? new Path2D() : undefined;
     // if (newClip) {
     //   newClip.addPath(clip!);

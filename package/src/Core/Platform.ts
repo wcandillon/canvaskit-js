@@ -14,7 +14,7 @@ export const createTexture = (
   return ctx;
 };
 
-// TODO: rename
+// TODO: rename ?
 export const createOffscreenTexture = (
   width: number,
   height: number,
