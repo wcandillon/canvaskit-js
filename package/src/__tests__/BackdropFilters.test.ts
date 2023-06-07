@@ -114,8 +114,7 @@ describe("BackdropFilter", () => {
         canvas.saveLayer(undefined, bounds, filter);
         canvas.restore();
       },
-      1024,
-      1024
+      { width: 1024, height: 1024 }
     );
     checkImage(image, "snapshots/backdrop-filters/backdrop-blur.png");
   });
@@ -194,8 +193,7 @@ describe("BackdropFilter", () => {
         canvas.restore();
         canvas.restore();
       },
-      1024,
-      1024
+      { width: 1024, height: 1024 }
     );
     checkImage(image, "snapshots/backdrop-filters/backdrop-blur.png");
   });

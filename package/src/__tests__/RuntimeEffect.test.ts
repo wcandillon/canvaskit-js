@@ -130,8 +130,7 @@ void main() {
         );
         canvas.drawPaint(paint);
       },
-      1024,
-      1024
+      { width: 1024, height: 1024 }
     );
     checkImage(image, "snapshots/shaders/spiral-large.png");
   });

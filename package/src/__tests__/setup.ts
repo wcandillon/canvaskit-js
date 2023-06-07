@@ -39,6 +39,16 @@ export interface DrawingContext {
   };
 }
 
+type EvalOptions = {
+  width?: number;
+  height?: number;
+};
+
+const defaultEvalOptions: Required<EvalOptions> = {
+  width: 256,
+  height: 256,
+};
+
 class RemoteSurface {
   private browser: Browser | null = null;
   private page: Page | null = null;
@@ -82,7 +92,8 @@ class RemoteSurface {
     this.functions[name] = fn.toString();
   }
 
-  async eval(fn: (opts: DrawingContext) => unknown, width = 256, height = 256) {
+  async eval(fn: (opts: DrawingContext) => unknown, opts?: EvalOptions) {
+    const { width, height } = { ...defaultEvalOptions, ...opts };
     if (!this.page) {
       throw new Error("RemoteSurface not initialized");
     }
