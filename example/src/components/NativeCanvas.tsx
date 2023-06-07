@@ -24,13 +24,17 @@ export const NativeCanvas = ({ onDraw, deps }: CanvasProps) => {
   const info = useRef<Info | null>(null);
   const ref = useRef<CanvasRef>(null);
   const draw = useCallback(() => {
-    if (ref.current) {
+    if (ref.current && info.current) {
       const ctx = ref.current.getContext("2d")!;
-      ctx.fillStyle = "transparent";
-      ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      ctx.save();
+      ctx.fillStyle = "black";
+      ctx.beginPath();
+      ctx.rect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      ctx.fill();
+      ctx.restore();
       ctx.save();
       ctx.scale(pd, pd);
-      onDraw(ctx, info.current!);
+      onDraw(ctx, info.current);
       ctx.restore();
     }
   }, [onDraw]);

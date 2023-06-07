@@ -7,10 +7,12 @@ const drawSun = (
   { width, center }: Info
 ) => {
   const r = mix(progress.value, width / 4, width / 8);
-  ctx.fillStyle = "blue";
+  ctx.save();
+  ctx.fillStyle = "rgba(80, 180, 255, 1)";
   ctx.beginPath();
   ctx.arc(center[0], center[1], r, 0, Math.PI * 2);
   ctx.fill();
+  ctx.restore();
   // canvas.drawColor(CanvasKit.BLACK);
   // const paint = new CanvasKit.Paint();
   // const colors = ["#FFF723", "#E70696"].map((cl) =>
