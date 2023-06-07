@@ -7,6 +7,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Breathe } from "./Breathe";
 import { Menu } from "./Menu";
 import { Glassmorphism } from "./Glassmorphism";
+import { Playground } from "./Playground";
 
 declare global {
   // eslint-disable-next-line no-var
@@ -32,6 +33,10 @@ const router = createBrowserRouter([
   {
     path: "/glassmorphism",
     element: <Glassmorphism />,
+  },
+  {
+    path: "/playground",
+    element: <Playground />,
   },
 ]);
 root.render(

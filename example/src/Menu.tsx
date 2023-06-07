@@ -9,6 +9,9 @@ export const Menu = () => {
       <li>
         <Link to="glassmorphism">Glassmorphism</Link>
       </li>
+      <li>
+        <Link to="playground">Playground</Link>
+      </li>
     </ul>
   );
 };

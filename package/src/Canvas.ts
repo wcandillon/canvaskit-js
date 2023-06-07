@@ -41,6 +41,7 @@ import type { SVGContext } from "./SVG";
 interface LayerContext {
   ctx: CanvasRenderingContext2D;
   imageFilter?: ImageFilterJS;
+  saveCount: number;
 }
 
 export class CanvasJS extends HostObject<Canvas> implements Canvas {
@@ -52,15 +53,21 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
     public readonly svgCtx: SVGContext
   ) {
     super();
-    this.layerStack.push({ ctx });
+    this.layerStack.push({ ctx, saveCount: 0 });
   }
 
   get ctx() {
     return this.layerStack[this.layerStack.length - 1].ctx;
   }
 
-  get layer() {
-    return this.layerStack[this.layerStack.length - 1];
+  get currentLayer() {
+    if (this.layerStack.length > 1) {
+      const layer = this.layerStack[this.layerStack.length - 1];
+      if (layer.saveCount === this.saveCount) {
+        return layer;
+      }
+    }
+    return null;
   }
 
   get paintCtx() {
@@ -363,11 +370,11 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
     throw new Error("Method not implemented.");
   }
   restore(): void {
-    const hasLayer = this.saveCount === this.layerStack.length - 1;
+    const { currentLayer } = this;
     this.ctx.restore();
     this.saveCount--;
-    if (hasLayer) {
-      const { imageFilter, ctx } = this.layer;
+    if (currentLayer) {
+      const { imageFilter, ctx } = currentLayer;
       this.layerStack.pop();
       if (imageFilter) {
         const paint = new PaintJS();
@@ -401,9 +408,9 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
     imageFilter?: ImageFilterJS | null,
     _flags?: number
   ): number {
-    const currentLayer = this.ctx.canvas;
-    this.save();
-    const { width, height } = currentLayer;
+    const saveCount = this.save();
+    const { canvas } = this.ctx;
+    const { width, height } = canvas;
     // const { x, y, width, height } = bounds
     //   ? rectToXYWH(bounds)
     //   : {
@@ -415,15 +422,19 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
     const layer = createTexture(width, height);
     if (paint) {
       paint.apply({ ctx: layer, svgCtx: this.svgCtx }, () => {
-        layer.drawImage(currentLayer, 0, 0, width, height);
+        layer.drawImage(canvas, 0, 0, width, height);
       });
     } else {
-      layer.drawImage(currentLayer, 0, 0);
+      layer.drawImage(canvas, 0, 0);
     }
     // TODO: write a test for this
     layer.setTransform(this.ctx.getTransform());
-    this.layerStack.push({ ctx: layer, imageFilter: imageFilter ?? undefined });
-    return this.saveCount;
+    this.layerStack.push({
+      ctx: layer,
+      imageFilter: imageFilter ?? undefined,
+      saveCount,
+    });
+    return saveCount;
   }
   scale(sx: number, sy: number): void {
     this.ctx.scale(sx, sy);
