@@ -1,4 +1,5 @@
 import type {
+  Color,
   ColorSpace,
   EmbindEnumEntity,
   Paint,
@@ -6,13 +7,7 @@ import type {
 } from "canvaskit-wasm";
 
 import type { InputColor } from "../Core";
-import {
-  BlendMode,
-  StrokeCap,
-  PaintStyle,
-  StrokeJoin,
-  nativeColor,
-} from "../Core";
+import { StrokeJoin, nativeColor, StrokeCap, PaintStyle } from "../Core";
 import type { ShaderJS } from "../Shader";
 import type { ImageFilterJS } from "../ImageFilter";
 import { HostObject } from "../HostObject";
@@ -30,16 +25,16 @@ interface PaintContext {
 
 export class PaintJS extends HostObject<Paint> implements Paint {
   private style = PaintStyle.Fill;
-  private color = new Float32Array([0, 0, 0, 1]);
-  private strokeWidth = 1;
-  private strokeMiter = 10;
+  private color: Color | null = null;
+  private strokeWidth: number | null = null;
+  private strokeMiter: number | null = null;
   private shader: ShaderJS | null = null;
   private colorFilter: ColorFilterJS | null = null;
   private imageFilter: ImageFilterJS | null = null;
   private maskFilter: MaskFilterJS | null = null;
-  private strokeJoin = StrokeJoin.Bevel;
-  private strokeCap = StrokeCap.Square;
-  private blendMode = BlendMode.SrcOver;
+  private strokeJoin: Miter | null = null;
+  private strokeCap: Cap | null = null;
+  private blendMode: GlobalCompositeOperation | null = null;
 
   apply(
     paintCtx: PaintContext,
@@ -51,7 +46,9 @@ export class PaintJS extends HostObject<Paint> implements Paint {
     ctx.save();
     this.processFilter(paintCtx);
     this.processStyle(ctx);
-    ctx.globalCompositeOperation = getBlendMode(this.blendMode);
+    if (this.blendMode) {
+      ctx.globalCompositeOperation = this.blendMode;
+    }
     if (!path) {
       ctx.beginPath();
       draw(ctx);
@@ -72,7 +69,7 @@ export class PaintJS extends HostObject<Paint> implements Paint {
   }
 
   private processStyle(ctx: CanvasRenderingContext2D) {
-    let style: CanvasPattern | string;
+    let style: CanvasPattern | string | null = null;
     if (this.shader) {
       const texture = this.shader.paint(
         createOffscreenTexture(ctx.canvas.width, ctx.canvas.height)
@@ -81,18 +78,26 @@ export class PaintJS extends HostObject<Paint> implements Paint {
       pattern.setTransform(ctx.getTransform());
       style = pattern;
       texture.close();
-    } else {
+    } else if (this.color !== null) {
       style = nativeColor(this.color);
     }
-    if (this.style === PaintStyle.Fill) {
+    if (style && this.style === PaintStyle.Fill) {
       ctx.fillStyle = style;
-    } else {
+    } else if (style) {
       ctx.strokeStyle = style;
     }
-    ctx.miterLimit = this.strokeMiter;
-    ctx.lineWidth = this.strokeWidth;
-    ctx.lineCap = lineCap(this.strokeCap);
-    ctx.lineJoin = lineJoin(this.strokeJoin);
+    if (this.strokeMiter !== null) {
+      ctx.miterLimit = this.strokeMiter;
+    }
+    if (this.strokeWidth !== null) {
+      ctx.lineWidth = this.strokeWidth;
+    }
+    if (this.strokeCap !== null) {
+      ctx.lineCap = this.strokeCap;
+    }
+    if (this.strokeJoin !== null) {
+      ctx.lineJoin = this.strokeJoin;
+    }
   }
 
   private processFilter(paintCtx: PaintContext) {
@@ -134,12 +139,14 @@ export class PaintJS extends HostObject<Paint> implements Paint {
     } = this;
     const paint = new PaintJS();
     paint.setStyle(style);
-    paint.setColor(color);
-    paint.setStrokeWidth(strokeWidth);
-    paint.setStrokeMiter(strokeMiter);
-    paint.setStrokeJoin(strokeJoin);
-    paint.setStrokeCap(strokeCap);
-    paint.setBlendMode(blendMode);
+    if (color !== null) {
+      paint.color = color;
+    }
+    paint.strokeWidth = strokeWidth;
+    paint.strokeMiter = strokeMiter;
+    paint.strokeJoin = strokeJoin;
+    paint.strokeCap = strokeCap;
+    paint.blendMode = blendMode;
     if (shader) {
       paint.setShader(shader);
     }
@@ -154,27 +161,31 @@ export class PaintJS extends HostObject<Paint> implements Paint {
     }
     return paint;
   }
-  getColor(): Float32Array {
-    return this.color;
+  getColor() {
+    return this.color ?? Float32Array.of(0, 0, 0, 1);
   }
   getStrokeCap(): EmbindEnumEntity {
-    return this.strokeCap;
+    return lineCap(this.strokeCap);
   }
   getStrokeJoin(): EmbindEnumEntity {
-    return this.strokeJoin;
+    return lineJoin(this.strokeJoin);
   }
-  getStrokeMiter(): number {
-    return this.strokeMiter;
+  getStrokeMiter() {
+    return this.strokeMiter ?? 10;
   }
-  getStrokeWidth(): number {
-    return this.strokeWidth;
+  getStrokeWidth() {
+    return this.strokeWidth ?? 1;
   }
-  setAlphaf(alpha: number): void {
-    this.color[3] = alpha;
+  setAlphaf(alpha: number) {
+    if (this.color === null) {
+      this.color = Float32Array.of(0, 0, 0, alpha);
+    } else {
+      this.color[3] = alpha;
+    }
   }
   setAntiAlias(_aa: boolean): void {}
   setBlendMode(mode: EmbindEnumEntity): void {
-    this.blendMode = mode;
+    this.blendMode = getBlendMode(mode);
   }
   setColor(color: InputColor, _colorSpace?: ColorSpace | undefined): void {
     if (color instanceof Float32Array) {
@@ -214,10 +225,10 @@ export class PaintJS extends HostObject<Paint> implements Paint {
     this.shader = shader;
   }
   setStrokeCap(cap: EmbindEnumEntity): void {
-    this.strokeCap = cap;
+    this.strokeCap = nativeLineCap(cap);
   }
   setStrokeJoin(join: EmbindEnumEntity): void {
-    this.strokeJoin = join;
+    this.strokeJoin = nativeLineJoin(join);
   }
   setStrokeMiter(limit: number): void {
     this.strokeMiter = limit;
@@ -230,7 +241,23 @@ export class PaintJS extends HostObject<Paint> implements Paint {
   }
 }
 
-const lineCap = (cap: EmbindEnumEntity) => {
+const lineCap = (cap: Cap | null) => {
+  if (cap === null) {
+    return StrokeCap.Butt;
+  }
+  switch (cap) {
+    case "butt":
+      return StrokeCap.Butt;
+    case "round":
+      return StrokeCap.Round;
+    case "square":
+      return StrokeCap.Square;
+    default:
+      throw new Error(`Unknown line cap: ${cap}`);
+  }
+};
+
+const nativeLineCap = (cap: EmbindEnumEntity) => {
   switch (cap.value) {
     case 0:
       return "butt";
@@ -243,7 +270,23 @@ const lineCap = (cap: EmbindEnumEntity) => {
   }
 };
 
-const lineJoin = (join: EmbindEnumEntity) => {
+const lineJoin = (join: string | null) => {
+  if (join === null) {
+    return StrokeJoin.Miter;
+  }
+  switch (join) {
+    case "miter":
+      return StrokeJoin.Miter;
+    case "round":
+      return StrokeJoin.Round;
+    case "bevel":
+      return StrokeJoin.Bevel;
+    default:
+      throw new Error(`Unknown line cap: ${join}`);
+  }
+};
+
+const nativeLineJoin = (join: EmbindEnumEntity) => {
   switch (join.value) {
     case 0:
       return "miter";
@@ -255,3 +298,6 @@ const lineJoin = (join: EmbindEnumEntity) => {
       throw new Error(`Unknown line cap: ${join.value}`);
   }
 };
+
+type Miter = "miter" | "round" | "bevel";
+type Cap = "butt" | "round" | "square";

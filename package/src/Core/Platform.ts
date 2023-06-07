@@ -29,7 +29,9 @@ export const createOffscreenTexture = (
   return ctx;
 };
 
-class Context2DProxyHandler implements ProxyHandler<CanvasRenderingContext2D> {
+export class Context2DProxyHandler
+  implements ProxyHandler<CanvasRenderingContext2D>
+{
   get(
     target: CanvasRenderingContext2D,
     property: keyof CanvasRenderingContext2D
@@ -37,9 +39,7 @@ class Context2DProxyHandler implements ProxyHandler<CanvasRenderingContext2D> {
     const origProperty = target[property];
     if (typeof origProperty === "function") {
       return function (...args: any[]) {
-        console.log(
-          `${String(property)}(${args.map((a) => a.toString().join(", "))})`
-        );
+        console.log(`${String(property)}`, args);
         return (origProperty as (...args: any[]) => any).apply(target, args);
       };
     } else {
@@ -73,10 +73,11 @@ export const resolveContext = (
   } else {
     resolved = canvas;
   }
-  return new Proxy(
-    resolved.getContext("2d", options)!,
-    new Context2DProxyHandler()
-  );
+  return resolved.getContext("2d", options);
+  // return new Proxy(
+  //   resolved.getContext("2d", options)!,
+  //   new Context2DProxyHandler()
+  // );
 };
 
 // const WARN_ON_UNUSED_PARAMETERS = false;

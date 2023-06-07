@@ -45,7 +45,7 @@ export const getColorComponents = (cl: Float32Array) => [
 export const multiplyByAlpha = (c: Float32Array, alpha: number) =>
   color4f(c[0], c[1], c[2], c[3] * alpha);
 
-// TODO: support p3 color space?
+// TODO: a color space
 export const nativeColor = (inputColor: InputColor) => {
   const cl = normalizeArray(inputColor);
   return `rgba(${[
