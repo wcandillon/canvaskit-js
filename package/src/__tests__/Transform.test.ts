@@ -1,4 +1,4 @@
-import { checkImage, skia } from "./setup";
+import { checkImage, processResult, setupRealSkia, skia } from "./setup";
 
 describe("Transforms", () => {
   it("should rotate on a pivot point", async () => {
@@ -68,6 +68,56 @@ describe("Transforms", () => {
     );
     checkImage(image, "snapshots/rectangles.png");
   });
+  it("Build the reference result (1)", () => {
+    const { surface, canvas, width, height, center } = setupRealSkia();
+    const mix = (value: number, x: number, y: number) =>
+      x * (1 - value) + y * value;
+    const r = mix(1, width / 4, width / 2);
+    canvas.drawColor(RealCanvasKit.BLACK);
+    const paint = new RealCanvasKit.Paint();
+    const colors = ["#FFF723", "#E70696"].map((cl) =>
+      RealCanvasKit.parseColorString(cl)
+    );
+    paint.setShader(
+      RealCanvasKit.Shader.MakeLinearGradient(
+        [0, 0],
+        [0, height],
+        colors,
+        null,
+        RealCanvasKit.TileMode.Clamp
+      )
+    );
+    canvas.save();
+    canvas.translate(center[0], center[1]);
+    canvas.drawCircle(0, 0, r, paint);
+    canvas.translate(-center[0], -center[1]);
+    canvas.restore();
+    processResult(surface, "snapshots/circle-gradient.png");
+  });
+  it("Build the reference result (2)", () => {
+    const { surface, canvas, width, height, center } = setupRealSkia();
+    const mix = (value: number, x: number, y: number) =>
+      x * (1 - value) + y * value;
+    const r = mix(1, width / 4, width / 2);
+    canvas.drawColor(RealCanvasKit.BLACK);
+    const paint = new RealCanvasKit.Paint();
+    const colors = ["#FFF723", "#E70696"].map((cl) =>
+      RealCanvasKit.parseColorString(cl)
+    );
+    paint.setShader(
+      RealCanvasKit.Shader.MakeLinearGradient(
+        [0, 0],
+        [0, height],
+        colors,
+        null,
+        RealCanvasKit.TileMode.Clamp
+      )
+    );
+    canvas.save();
+    canvas.drawCircle(center[0], center[1], r, paint);
+    canvas.restore();
+    processResult(surface, "snapshots/circle-gradient2.png");
+  });
   it("should draw the circle centered", async () => {
     const image = await skia.eval(
       ({ CanvasKit, width, canvas, height, center }) => {
@@ -96,6 +146,33 @@ describe("Transforms", () => {
       }
     );
     checkImage(image, "snapshots/circle-gradient.png");
+  });
+  it("should draw the circle centered (2)", async () => {
+    const image = await skia.eval(
+      ({ CanvasKit, width, canvas, height, center }) => {
+        const mix = (value: number, x: number, y: number) =>
+          x * (1 - value) + y * value;
+        const r = mix(1, width / 4, width / 2);
+        canvas.drawColor(CanvasKit.BLACK);
+        const paint = new CanvasKit.Paint();
+        const colors = ["#FFF723", "#E70696"].map((cl) =>
+          CanvasKit.parseColorString(cl)
+        );
+        paint.setShader(
+          CanvasKit.Shader.MakeLinearGradient(
+            [0, 0],
+            [0, height],
+            colors,
+            null,
+            CanvasKit.TileMode.Clamp
+          )
+        );
+        canvas.save();
+        canvas.drawCircle(center.x, center.y, r, paint);
+        canvas.restore();
+      }
+    );
+    checkImage(image, "snapshots/circle-gradient2.png");
   });
 });
 

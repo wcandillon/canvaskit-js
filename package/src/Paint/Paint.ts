@@ -71,11 +71,15 @@ export class PaintJS extends HostObject<Paint> implements Paint {
   private processStyle(ctx: CanvasRenderingContext2D) {
     let style: CanvasPattern | string | null = null;
     if (this.shader) {
-      const texture = this.shader.paint(
-        createOffscreenTexture(ctx.canvas.width, ctx.canvas.height)
+      const bufferCtx = createOffscreenTexture(
+        ctx.canvas.width,
+        ctx.canvas.height
       );
-      const pattern = ctx.createPattern(texture, null)!;
-      pattern.setTransform(ctx.getTransform().invertSelf());
+      const tr = ctx.getTransform();
+      bufferCtx.setTransform(tr);
+      const texture = this.shader.paint(bufferCtx);
+      const pattern = ctx.createPattern(texture, "no-repeat")!;
+      pattern.setTransform(tr.invertSelf());
       style = pattern;
       texture.close();
     } else if (this.color !== null) {

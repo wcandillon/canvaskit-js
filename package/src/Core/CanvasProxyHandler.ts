@@ -40,8 +40,6 @@ export class CanvasProxyHandler
   }
 
   flush() {
-    console.log("<drawing>");
-    console.log(this.commands.join("\n"));
-    console.log("</drawing>");
+    console.log(`<drawing>${this.commands.join("\n")}</drawing>`);
   }
 }

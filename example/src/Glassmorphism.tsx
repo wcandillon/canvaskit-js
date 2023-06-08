@@ -31,9 +31,9 @@ const drawSun = (
     )
   );
   canvas.save();
-  canvas.translate(center[0], center[1]);
-  canvas.drawCircle(0, 0, r, paint);
-  canvas.translate(-center[0], -center[1]);
+  //canvas.translate(center[0], center[1]);
+  canvas.drawCircle(center[0], center[1], r, paint);
+  //canvas.translate(-center[0], -center[1]);
   canvas.restore();
   canvas.clipRect(
     CanvasKit.XYWHRect(0, center[1], width, center[1]),
