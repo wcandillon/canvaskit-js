@@ -1,32 +1,33 @@
 import type { InputFlexibleColorArray, InputPoint } from "canvaskit-wasm";
 
+import { project2d } from "../../Matrix3";
+
 import { Gradient } from "./Gradient";
 
 export class LinearGradient extends Gradient {
+  private readonly start: DOMPoint;
+  private readonly end: DOMPoint;
+
   constructor(
-    private readonly start: InputPoint,
-    private readonly end: InputPoint,
+    start: InputPoint,
+    end: InputPoint,
     colors: InputFlexibleColorArray,
     pos: number[] | null
   ) {
     super(colors, pos);
+    this.start = new DOMPoint(...start);
+    this.end = new DOMPoint(...end);
   }
 
-  paint(ctx: OffscreenCanvasRenderingContext2D) {
-    const grd = ctx.createLinearGradient(
-      this.start[0],
-      this.start[1],
-      this.end[0],
-      this.end[1]
-    );
+  paint(ctx: OffscreenCanvasRenderingContext2D, matrix: DOMMatrix) {
+    const start = project2d(this.start, matrix);
+    const end = project2d(this.end, matrix);
+    const grd = ctx.createLinearGradient(start.x, start.y, end.x, end.y);
     this.colors.forEach((color, i) => {
       grd.addColorStop(this.pos[i], color);
     });
-    // ctx.save();
-    // ctx.setTransform(ctx.getTransform().invertSelf());
     ctx.fillStyle = grd;
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    //ctx.restore();
     return ctx.canvas.transferToImageBitmap();
   }
 }
