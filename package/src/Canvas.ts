@@ -436,17 +436,9 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
     _flags?: number
   ): number {
     const saveCount = this.save();
-    const { ctx } = this.layer; // clip
+    const { ctx, clip } = this.layer;
     const { canvas } = ctx;
     const { width, height } = canvas;
-    // const { x, y, width, height } = bounds
-    //   ? rectToXYWH(bounds)
-    //   : {
-    //       x: 0,
-    //       y: 0,
-    //       width: this.ctx.canvas.width,
-    //       height: this.ctx.canvas.height,
-    //     };
     const layer = createTexture(width, height);
     if (paint) {
       paint.apply({ ctx: layer, svgCtx: this.svgCtx }, () => {
@@ -456,12 +448,11 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
       layer.drawImage(canvas, 0, 0);
     }
     layer.setTransform(this.ctx.getTransform());
-    //
-    // const newClip = clip ? new Path2D() : undefined;
-    // if (newClip) {
-    //   newClip.addPath(clip!);
-    //   //   layer.clip(clip!);
-    // }
+    const newClip = clip ? new Path2D() : undefined;
+    if (newClip) {
+      newClip.addPath(clip!);
+      layer.clip(clip!);
+    }
 
     this.stack.push({
       ctx: layer,

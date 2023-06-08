@@ -1,4 +1,4 @@
-// TODO: rename
+// TODO: rename ?
 export const createTexture = (
   width: number,
   height: number,
