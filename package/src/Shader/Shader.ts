@@ -7,8 +7,5 @@ export abstract class ShaderJS extends HostObject<Shader> implements Shader {
     super();
   }
 
-  abstract paint(
-    buffer: OffscreenCanvasRenderingContext2D,
-    matrix: DOMMatrix
-  ): ImageBitmap;
+  abstract paint(buffer: OffscreenCanvasRenderingContext2D): ImageBitmap;
 }

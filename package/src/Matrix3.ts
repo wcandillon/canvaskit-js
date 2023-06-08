@@ -8,7 +8,7 @@ import type {
 export type Matrix3x3 = number[];
 
 export const project2d = (point: DOMPoint, matrix: DOMMatrix) => {
-  const vector = new DOMPoint(point.x, point.y, point.z);
+  const vector = new DOMPoint(point.x, point.y);
   const projected = vector.matrixTransform(matrix);
   return projected;
 };

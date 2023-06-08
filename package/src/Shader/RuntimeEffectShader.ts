@@ -7,7 +7,7 @@ export class RuntimeEffectShader extends ShaderJS {
     super();
   }
 
-  paint(ctx: OffscreenCanvasRenderingContext2D, matrix: DOMMatrix) {
+  paint(ctx: OffscreenCanvasRenderingContext2D) {
     const { gl } = this.ctx;
     const { width, height } = ctx.canvas;
     const canvas = gl.canvas as OffscreenCanvas;
@@ -17,7 +17,7 @@ export class RuntimeEffectShader extends ShaderJS {
     this.ctx.children.forEach(({ shader, location, index }) => {
       gl.activeTexture(gl[`TEXTURE${index}`]);
       // Upload the image into the texture
-      const child = shader.paint(ctx, matrix);
+      const child = shader.paint(ctx);
       gl.texImage2D(
         gl.TEXTURE_2D,
         0,

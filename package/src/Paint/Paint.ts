@@ -76,8 +76,8 @@ export class PaintJS extends HostObject<Paint> implements Paint {
         ctx.canvas.height
       );
       const currenTransform = ctx.getTransform();
-      // bufferCtx.setTransform(currenTransform);
-      const texture = this.shader.paint(bufferCtx, currenTransform);
+      bufferCtx.setTransform(currenTransform);
+      const texture = this.shader.paint(bufferCtx);
       const pattern = ctx.createPattern(texture, "no-repeat")!;
       pattern.setTransform(currenTransform.invertSelf());
       style = pattern;

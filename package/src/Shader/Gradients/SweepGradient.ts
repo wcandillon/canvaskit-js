@@ -5,7 +5,7 @@ import { project2d } from "../../Matrix3";
 import { Gradient } from "./Gradient";
 
 export class SweepGradient extends Gradient {
-  private readonly c: DOMPoint;
+  private c: DOMPoint;
 
   constructor(
     c: InputPoint,
@@ -17,14 +17,19 @@ export class SweepGradient extends Gradient {
     this.c = new DOMPoint(...c);
   }
 
-  paint(ctx: OffscreenCanvasRenderingContext2D, matrix: DOMMatrix) {
-    const c = project2d(this.c, matrix);
+  paint(ctx: OffscreenCanvasRenderingContext2D) {
+    const m3 = ctx.getTransform();
+    const c = project2d(this.c, m3);
     const grd = ctx.createConicGradient(this.startAngle, c.x, c.y);
+    ctx.save();
+    ctx.setTransform();
     this.colors.forEach((color, i) => {
       grd.addColorStop(this.pos[i], color);
     });
     ctx.fillStyle = grd;
-    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    const origin = this.origin(ctx);
+    ctx.fillRect(origin.x, origin.y, ctx.canvas.width, ctx.canvas.height);
+    ctx.restore();
     return ctx.canvas.transferToImageBitmap();
   }
 }

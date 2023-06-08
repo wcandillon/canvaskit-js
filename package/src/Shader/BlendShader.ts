@@ -14,14 +14,14 @@ export class BlendShader extends ShaderJS {
     super();
   }
 
-  paint(texture: OffscreenCanvasRenderingContext2D, matrix: DOMMatrix) {
+  paint(texture: OffscreenCanvasRenderingContext2D) {
     const { width, height } = texture.canvas;
     const t0 = createOffscreenTexture(width, height);
-    const t1 = this.child1.paint(t0, matrix);
+    const t1 = this.child1.paint(t0);
     texture.globalCompositeOperation = getBlendMode(this.blendMode);
     texture.drawImage(t1, 0, 0);
     t1.close();
-    const t2 = this.child2.paint(t0, matrix);
+    const t2 = this.child2.paint(t0);
     texture.drawImage(t2, 0, 0);
     t2.close();
     return texture.canvas.transferToImageBitmap();

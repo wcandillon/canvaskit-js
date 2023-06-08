@@ -5,8 +5,8 @@ import { project2d } from "../../Matrix3";
 import { Gradient } from "./Gradient";
 
 export class LinearGradient extends Gradient {
-  private readonly start: DOMPoint;
-  private readonly end: DOMPoint;
+  private start: DOMPoint;
+  private end: DOMPoint;
 
   constructor(
     start: InputPoint,
@@ -19,15 +19,19 @@ export class LinearGradient extends Gradient {
     this.end = new DOMPoint(...end);
   }
 
-  paint(ctx: OffscreenCanvasRenderingContext2D, matrix: DOMMatrix) {
-    const start = project2d(this.start, matrix);
-    const end = project2d(this.end, matrix);
+  paint(ctx: OffscreenCanvasRenderingContext2D) {
+    const m3 = ctx.getTransform();
+    const start = project2d(this.start, m3);
+    const end = project2d(this.end, m3);
+    ctx.save();
+    ctx.setTransform();
     const grd = ctx.createLinearGradient(start.x, start.y, end.x, end.y);
     this.colors.forEach((color, i) => {
       grd.addColorStop(this.pos[i], color);
     });
     ctx.fillStyle = grd;
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.restore();
     return ctx.canvas.transferToImageBitmap();
   }
 }
