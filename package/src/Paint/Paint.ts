@@ -75,7 +75,7 @@ export class PaintJS extends HostObject<Paint> implements Paint {
         createOffscreenTexture(ctx.canvas.width, ctx.canvas.height)
       );
       const pattern = ctx.createPattern(texture, null)!;
-      pattern.setTransform(ctx.getTransform());
+      pattern.setTransform(ctx.getTransform().invertSelf());
       style = pattern;
       texture.close();
     } else if (this.color !== null) {

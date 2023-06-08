@@ -3,24 +3,24 @@ import type { Canvas as CKCanvas } from "canvaskit-wasm";
 import type { AnimationValue, Info } from "./components";
 import { mix, Canvas, useLoop, useOnDraw } from "./components";
 
+const filter = CanvasKit.ImageFilter.MakeBlur(
+  10,
+  10,
+  CanvasKit.TileMode.Clamp,
+  null
+);
+const paint = new CanvasKit.Paint();
+const colors = ["#FFF723", "#E70696"].map((cl) =>
+  CanvasKit.parseColorString(cl)
+);
+
 const drawSun = (
   progress: AnimationValue,
   canvas: CKCanvas,
   { width, center }: Info
 ) => {
-  const filter = CanvasKit.ImageFilter.MakeBlur(
-    10,
-    10,
-    CanvasKit.TileMode.Clamp,
-    null
-  );
-
   const r = mix(progress.value, width / 4, width / 8);
   canvas.drawColor(CanvasKit.BLACK);
-  const paint = new CanvasKit.Paint();
-  const colors = ["#FFF723", "#E70696"].map((cl) =>
-    CanvasKit.parseColorString(cl)
-  );
   paint.setShader(
     CanvasKit.Shader.MakeLinearGradient(
       [center[0], center[1] - r],
