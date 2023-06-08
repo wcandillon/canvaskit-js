@@ -22,8 +22,11 @@ export class LinearGradient extends Gradient {
     this.colors.forEach((color, i) => {
       grd.addColorStop(this.pos[i], color);
     });
+    // ctx.save();
+    // ctx.setTransform(ctx.getTransform().invertSelf());
     ctx.fillStyle = grd;
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    //ctx.restore();
     return ctx.canvas.transferToImageBitmap();
   }
 }

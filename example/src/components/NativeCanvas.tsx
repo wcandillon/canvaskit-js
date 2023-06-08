@@ -15,7 +15,7 @@ type OnDraw = (ctx: CanvasRenderingContext2D, info: Info) => void;
 
 interface CanvasProps {
   onDraw: OnDraw;
-  deps: AnimationValue[];
+  deps?: AnimationValue[];
 }
 
 const pd = window.devicePixelRatio;
@@ -57,7 +57,10 @@ export const NativeCanvas = ({ onDraw, deps }: CanvasProps) => {
     }
   );
   useEffect(() => {
-    startAnimations(deps, draw);
+    if (deps) {
+      return startAnimations(deps, draw);
+    }
+    return;
   }, [deps, draw]);
 
   return <canvas style={{ width: "100%", height: "100vh" }} ref={ref} />;

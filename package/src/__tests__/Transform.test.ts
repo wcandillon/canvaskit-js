@@ -75,16 +75,17 @@ describe("Transforms", () => {
     const r = mix(1, width / 4, width / 2);
     canvas.drawColor(RealCanvasKit.BLACK);
     const paint = new RealCanvasKit.Paint();
+    paint.setAntiAlias(true);
     const colors = ["#FFF723", "#E70696"].map((cl) =>
       RealCanvasKit.parseColorString(cl)
     );
     paint.setShader(
       RealCanvasKit.Shader.MakeLinearGradient(
         [0, 0],
-        [0, height],
+        [width, height],
         colors,
         null,
-        RealCanvasKit.TileMode.Decal
+        RealCanvasKit.TileMode.Clamp
       )
     );
     canvas.save();
@@ -101,6 +102,7 @@ describe("Transforms", () => {
     const r = mix(1, width / 4, width / 2);
     canvas.drawColor(RealCanvasKit.BLACK);
     const paint = new RealCanvasKit.Paint();
+    paint.setAntiAlias(true);
     const colors = ["#FFF723", "#E70696"].map((cl) =>
       RealCanvasKit.parseColorString(cl)
     );
@@ -132,7 +134,7 @@ describe("Transforms", () => {
         paint.setShader(
           CanvasKit.Shader.MakeLinearGradient(
             [0, 0],
-            [0, height],
+            [width, height],
             colors,
             null,
             CanvasKit.TileMode.Clamp
