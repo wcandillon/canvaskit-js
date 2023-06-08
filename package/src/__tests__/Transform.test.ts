@@ -84,7 +84,7 @@ describe("Transforms", () => {
         [0, height],
         colors,
         null,
-        RealCanvasKit.TileMode.Clamp
+        RealCanvasKit.TileMode.Decal
       )
     );
     canvas.save();

@@ -27,13 +27,13 @@ const drawSun = (
       [center[0], center[1] + r],
       colors,
       null,
-      CanvasKit.TileMode.Clamp
+      CanvasKit.TileMode.Decal
     )
   );
   canvas.save();
-  //canvas.translate(center[0], center[1]);
-  canvas.drawCircle(center[0], center[1], r, paint);
-  //canvas.translate(-center[0], -center[1]);
+  canvas.translate(center[0], center[1]);
+  canvas.drawCircle(0, 0, r, paint);
+  canvas.translate(-center[0], -center[1]);
   canvas.restore();
   canvas.clipRect(
     CanvasKit.XYWHRect(0, center[1], width, center[1]),
