@@ -76,9 +76,8 @@ const project = (point: DOMPoint, matrix: DOMMatrix) => {
 
 export const onDrawCircle = (
   ctx: CanvasRenderingContext2D,
-  { width, height, center }: Info
+  { width, center }: Info
 ) => {
-  //ctx.save();
   const r = width / 4;
   ctx.translate(center[0], center[1]);
 
@@ -87,28 +86,21 @@ export const onDrawCircle = (
   shader.height = ctx.canvas.height;
   const shaderCtx = shader.getContext("2d")!;
   const m3 = ctx.getTransform();
-  //  shaderCtx.setTransform(ctx.getTransform());
   onDrawShader(
     shaderCtx,
     project(new DOMPoint(0, 0), m3),
     project(new DOMPoint(r, r), m3)
   );
-  // ctx.save();
-  // ctx.setTransform(1, 0, 0, 1, 0, 0);
-  // ctx.drawImage(shader, 0, 0);
-  // ctx.restore();
+
   const pattern = ctx.createPattern(shader, "no-repeat")!;
   pattern.setTransform(m3.invertSelf());
-  //pattern.setTransform(m3.invertSelf());
-  //ctx.save();
-  // ctx.setTransform(1, 0, 0, 1, 0, 0);
+
   ctx.fillStyle = pattern;
   ctx.beginPath();
   ctx.arc(0, 0, r, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.translate(-center[0], -center[1]);
-  // ctx.restore();
 };
 
 export const Playground = () => {
