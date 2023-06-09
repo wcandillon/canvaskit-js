@@ -7,7 +7,7 @@ export const ltrbRect = (
   top: number,
   right: number,
   bottom: number
-) => new Float32Array([left, top, right, bottom]);
+) => Float32Array.of(left, top, right, bottom);
 
 export const xywhRect = (x: number, y: number, width: number, height: number) =>
   ltrbRect(x, y, x + width, y + height);
@@ -17,7 +17,7 @@ export const ltrbiRect = (
   top: number,
   right: number,
   bottom: number
-) => new Int32Array([left, top, right, bottom]);
+) => Int32Array.of(left, top, right, bottom);
 
 export const xywhiRect = (
   x: number,

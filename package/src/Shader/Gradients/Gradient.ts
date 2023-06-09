@@ -2,9 +2,6 @@ import type { Color, InputFlexibleColorArray } from "canvaskit-wasm";
 
 import { nativeColor, uIntColorToCanvasKitColor } from "../../Core";
 import { ShaderJS } from "../Shader";
-import { project2d } from "../../Matrix3";
-
-const Origin = new DOMPoint(0, 0);
 
 export abstract class Gradient extends ShaderJS {
   protected colors: string[];
@@ -18,8 +15,14 @@ export abstract class Gradient extends ShaderJS {
       : this.colors.map((_, i) => i / (this.colors.length - 1));
   }
 
-  protected origin(ctx: OffscreenCanvasRenderingContext2D) {
-    return project2d(Origin, ctx.getTransform().invertSelf());
+  protected fill(ctx: OffscreenCanvasRenderingContext2D) {
+    const m = ctx.getTransform().invertSelf();
+    const topLeft = new DOMPoint(0, 0).matrixTransform(m);
+    const bottomRight = new DOMPoint(
+      ctx.canvas.width,
+      ctx.canvas.height
+    ).matrixTransform(m);
+    ctx.fillRect(topLeft.x, topLeft.y, bottomRight.x, bottomRight.y);
   }
 }
 

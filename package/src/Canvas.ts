@@ -30,6 +30,8 @@ import type {
 import { PaintJS } from "./Paint";
 import type { ColorSpaceJS, InputColor } from "./Core";
 import {
+  DrawableRect,
+  DrawablePath,
   nativeColor,
   createTexture,
   intAsColor,
@@ -77,6 +79,7 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
   clear(color: InputColor): void {
     this.svgCtx.discardCacheIfNeeded();
     this.ctx.save();
+    this.ctx.setTransform();
     this.ctx.globalCompositeOperation = "copy";
     this.ctx.fillStyle = nativeColor(color);
     this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
@@ -103,11 +106,6 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
   }
   private _clip(path: Path2D) {
     this.ctx.clip(path);
-    // if (this.layer.clip) {
-    //   this.layer.clip.addPath(path);
-    // } else {
-    //   this.layer.clip = path;
-    // }
   }
   concat(m: InputMatrix): void {
     const matrix = normalizeMatrix(m);
@@ -274,19 +272,22 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
     throw new Error("Method not implemented.");
   }
   drawPaint(paint: PaintJS) {
-    this.drawRect([0, 0, this.ctx.canvas.width, this.ctx.canvas.height], paint);
+    const m = this.ctx.getTransform().invertSelf();
+    const topLeft = new DOMPoint(0, 0).matrixTransform(m);
+    const bottomRight = new DOMPoint(
+      this.ctx.canvas.width,
+      this.ctx.canvas.height
+    ).matrixTransform(m);
+    this.drawRect(
+      Float32Array.of(topLeft.x, topLeft.y, bottomRight.x, bottomRight.y),
+      paint
+    );
   }
   drawParagraph(_p: Paragraph, _x: number, _y: number): void {
     throw new Error("Method not implemented.");
   }
   drawPath(path: PathJS, paint: PaintJS): void {
-    paint.apply(
-      this.paintCtx,
-      () => {
-        return path.getPath2D();
-      },
-      true
-    );
+    paint.apply(this.paintCtx, new DrawablePath(path.getPath2D()));
   }
   drawPatch(
     _cubics: InputFlattenedPointArray,
@@ -307,11 +308,9 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
   ): void {
     throw new Error("Method not implemented.");
   }
-  drawRect(rect: InputRect, paint: PaintJS): void {
-    paint.apply(this.paintCtx, () => {
-      const { x, y, width, height } = rectToXYWH(rect);
-      this.ctx.rect(x, y, width, height);
-    });
+  drawRect(rect: InputRect, paint: PaintJS) {
+    const { x, y, width, height } = rectToXYWH(rect);
+    paint.apply(this.paintCtx, new DrawableRect(x, y, width, height));
   }
   drawRect4f(
     left: number,
@@ -319,12 +318,10 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
     right: number,
     bottom: number,
     paint: PaintJS
-  ): void {
+  ) {
     const width = right - left;
     const height = bottom - top;
-    paint.apply(this.paintCtx, () => {
-      this.ctx.rect(left, top, width, height);
-    });
+    this.drawRect(Float32Array.of(left, top, width, height), paint);
   }
   drawRRect(rrect: InputRRect, paint: PaintJS): void {
     paint.apply(this.paintCtx, () => {

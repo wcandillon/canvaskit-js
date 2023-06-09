@@ -6,8 +6,14 @@ import type {
   PathEffect,
 } from "canvaskit-wasm";
 
-import type { InputColor } from "../Core";
-import { StrokeJoin, nativeColor, StrokeCap, PaintStyle } from "../Core";
+import type { Drawable, InputColor } from "../Core";
+import {
+  CustomDrawable,
+  StrokeJoin,
+  nativeColor,
+  StrokeCap,
+  PaintStyle,
+} from "../Core";
 import type { ShaderJS } from "../Shader";
 import type { ImageFilterJS } from "../ImageFilter";
 import { HostObject } from "../HostObject";
@@ -36,40 +42,13 @@ export class PaintJS extends HostObject<Paint> implements Paint {
   private strokeCap: Cap | null = null;
   private blendMode: GlobalCompositeOperation | null = null;
 
-  apply(
-    paintCtx: PaintContext,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    draw: (ctx: CanvasRenderingContext2D) => any,
-    path?: boolean
-  ) {
+  apply(paintCtx: PaintContext, input: Drawable | (() => void)) {
+    const shape =
+      typeof input === "function" ? new CustomDrawable(input) : input;
     const { ctx } = paintCtx;
     ctx.save();
     this.processFilter(paintCtx);
     this.processStyle(ctx);
-    if (this.blendMode) {
-      ctx.globalCompositeOperation = this.blendMode;
-    }
-    if (!path) {
-      ctx.beginPath();
-      draw(ctx);
-      if (this.style === PaintStyle.Fill) {
-        ctx.fill();
-      } else {
-        ctx.stroke();
-      }
-    } else {
-      const p = draw(ctx);
-      if (this.style === PaintStyle.Fill) {
-        ctx.fill(p);
-      } else {
-        ctx.stroke(p);
-      }
-    }
-    ctx.restore();
-  }
-
-  private processStyle(ctx: CanvasRenderingContext2D) {
-    let style: CanvasPattern | string | null = null;
     if (this.shader) {
       const bufferCtx = createOffscreenTexture(
         ctx.canvas.width,
@@ -78,11 +57,20 @@ export class PaintJS extends HostObject<Paint> implements Paint {
       const currenTransform = ctx.getTransform();
       bufferCtx.setTransform(currenTransform);
       const texture = this.shader.paint(bufferCtx);
-      const pattern = ctx.createPattern(texture, "no-repeat")!;
-      pattern.setTransform(currenTransform.invertSelf());
-      style = pattern;
-      texture.close();
-    } else if (this.color !== null) {
+      ctx.save();
+      ctx.resetTransform();
+      ctx.drawImage(texture, 0, 0);
+      ctx.restore();
+      //texture.close();
+    } else {
+      shape.draw(ctx);
+    }
+    ctx.restore();
+  }
+
+  private processStyle(ctx: CanvasRenderingContext2D) {
+    let style: CanvasPattern | string | null = null;
+    if (this.color !== null) {
       style = nativeColor(this.color);
     }
     if (style && this.style === PaintStyle.Fill) {
@@ -101,6 +89,9 @@ export class PaintJS extends HostObject<Paint> implements Paint {
     }
     if (this.strokeJoin !== null) {
       ctx.lineJoin = this.strokeJoin;
+    }
+    if (this.blendMode) {
+      ctx.globalCompositeOperation = this.blendMode;
     }
   }
 

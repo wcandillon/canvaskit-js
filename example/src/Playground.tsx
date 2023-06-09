@@ -64,23 +64,12 @@ export const onDrawShader = (
   grd.addColorStop(0, "#FFF723");
   grd.addColorStop(1, "#E70696");
   ctx.fillStyle = grd;
-  const topLeft = project(new DOMPoint(0, 0), ctx.getTransform().invertSelf());
-  const bottomRight = project(
-    new DOMPoint(ctx.canvas.width, ctx.canvas.height),
-    ctx.getTransform().invertSelf()
-  );
-  ctx.beginPath();
-  ctx.moveTo(topLeft.x, topLeft.y);
-  ctx.lineTo(bottomRight.x, topLeft.y);
-  ctx.lineTo(bottomRight.x, bottomRight.y);
-  ctx.lineTo(topLeft.x, bottomRight.y);
-  ctx.closePath();
-  ctx.fill();
+  ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   return ctx.canvas;
 };
 
 const project = (point: DOMPoint, matrix: DOMMatrix) => {
-  const vector = new DOMPoint(point.x, point.y);
+  const vector = new DOMPoint(point.x, point.y, point.z);
   const projected = vector.matrixTransform(matrix);
   return projected;
 };
@@ -98,8 +87,11 @@ export const onDrawCircle = (
   shader.height = ctx.canvas.height;
   const shaderCtx = shader.getContext("2d")!;
   const m3 = ctx.getTransform();
-  shaderCtx.setTransform(ctx.getTransform());
-  onDrawShader(shaderCtx, new DOMPoint(0, 0), new DOMPoint(r, r));
+  onDrawShader(
+    shaderCtx,
+    project(new DOMPoint(0, 0), m3),
+    project(new DOMPoint(r, r), m3)
+  );
 
   const pattern = ctx.createPattern(shader, "no-repeat")!;
   pattern.setTransform(m3.invertSelf());
