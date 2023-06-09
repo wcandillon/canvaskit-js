@@ -17,3 +17,12 @@ export class BlurMaskFilter extends MaskFilterJS {
     }
   }
 }
+/*
+if (respectCTM) {
+  // Extract the scaling factors from the current transformation matrix
+  let { a, d } = context.currentTransform;
+
+  // Calculate the new sigma, as average of the scaling factors
+  sigma *= (Math.abs(a) + Math.abs(d)) / 2;
+}
+*/

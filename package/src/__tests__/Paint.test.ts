@@ -125,17 +125,7 @@ describe("Paint", () => {
     });
     checkImage(image, "snapshots/paint/clip.png");
   });
-  /*
-  void draw(SkCanvas* canvas) {
-    SkColor     colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
-    SkScalar    pos[] = { 0, SK_Scalar1/2, SK_Scalar1 };
-    SkPaint     paint;
-    auto rect = SkRect::MakeXYWH(0, 0, 150, 150);
-  	canvas->clipRect(rect);
-    paint.setShader(SkGradientShader::MakeSweep(256, 256, colors, pos, 3));
-    canvas->drawPaint(paint);
-}
-*/
+
   it("should clear", async () => {
     const image = await skia.eval(({ CanvasKit, canvas }) => {
       canvas.save();

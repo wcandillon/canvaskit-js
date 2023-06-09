@@ -65,6 +65,8 @@ export class PaintJS extends HostObject<Paint> implements Paint {
       const pattern = ctx.createPattern(texture, "no-repeat")!;
       pattern.setTransform(currenTransform.inverse());
       style = pattern;
+      // eslint-disable-next-line prefer-destructuring
+      ctx.globalAlpha = this.color[3];
     } else {
       style = nativeColor(this.color);
     }
