@@ -96,7 +96,12 @@ const applyBoxFit = (fit: Fit, input: Size, output: Size) => {
 
 export const fitRects = (fit: Fit, inp: Rect, out: Rect) => {
   const rect = inp;
-  const [x, y, width, height] = out;
+  const { x, y, width, height } = {
+    x: out[0],
+    y: out[1],
+    width: out[2] - out[0],
+    height: out[3] - out[1],
+  };
   const sizes = applyBoxFit(
     fit,
     { width: rect[2], height: rect[3] },
