@@ -1,3 +1,5 @@
+import type { Rect } from "canvaskit-wasm";
+
 import { checkImage, skia } from "./setup";
 
 describe("Runtime Effects", () => {
@@ -160,6 +162,64 @@ void main() {
       canvas.drawCircle(width / 2, width / 2, width / 2, paint);
     });
     checkImage(image, "snapshots/shaders/children.png");
+  });
+
+  it("should display an image shader with cover", async () => {
+    const image = await skia.eval(
+      ({
+        canvas,
+        CanvasKit,
+        width,
+        height,
+        assets: { zurich },
+        lib: { fitRects },
+      }) => {
+        const shader = `precision mediump float;
+uniform sampler2D child;
+
+void main() {
+  vec2 uv = gl_FragCoord.xy/vec2(256.0, 256.0);
+  vec2 flippedUV = vec2(uv.x, 1.0 - uv.y);
+  gl_FragColor = texture2D(child, flippedUV);
+}`;
+        const rt = CanvasKit.RuntimeEffect.Make(shader)!;
+        const rect = (rct: Float32Array) => ({
+          x: rct[0],
+          y: rct[1],
+          width: rct[2] - rct[0],
+          height: rct[3] - rct[1],
+        });
+
+        const rect2rect = (_src: Rect, _dst: Rect) => {
+          const src = rect(_src);
+          const dst = rect(_dst);
+          const scaleX = dst.width / src.width;
+          const scaleY = dst.height / src.height;
+          const translateX = dst.x - src.x * scaleX;
+          const translateY = dst.y - src.y * scaleY;
+          const m = new DOMMatrix();
+          m.translateSelf(translateX, translateY);
+          m.scaleSelf(scaleX, scaleY);
+          return m;
+        };
+
+        const input = CanvasKit.XYWHRect(0, 0, zurich.width(), zurich.height());
+        const output = CanvasKit.XYWHRect(0, 0, width, height);
+        const { src, dst } = fitRects("cover", input, output);
+        const transform = rect2rect(src, dst);
+        const imgShader = zurich.makeShaderOptions(
+          CanvasKit.TileMode.Clamp,
+          CanvasKit.TileMode.Clamp,
+          CanvasKit.FilterMode.Linear,
+          CanvasKit.MipmapMode.None,
+          transform
+        );
+        const paint = new CanvasKit.Paint();
+        paint.setShader(rt.makeShaderWithChildren([], [imgShader]));
+        canvas.drawPaint(paint);
+      }
+    );
+    checkImage(image, "snapshots/zurich-cover.png");
   });
   // it("should show a fractal noise", async () => {
   //   const image = await skia.eval(({ CanvasKit, canvas }) => {

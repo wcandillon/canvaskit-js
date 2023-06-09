@@ -9,7 +9,7 @@ import {
   useOnDraw,
   useImage,
 } from "./components";
-import zurich from "./assets/zurich.jpg";
+import zurich from "./assets/zurich2.jpg";
 
 const filter = CanvasKit.RuntimeEffect.Make(`precision mediump float;
 
@@ -33,24 +33,18 @@ const drawShader = (
   }
   const input = CanvasKit.XYWHRect(0, 0, image.width(), image.height());
   const output = CanvasKit.XYWHRect(0, 0, width, height);
-  const transform = fitbox("contain", input, output);
-  canvas.concat(transform);
+  const transform = fitbox("cover", input, output);
+  const imageShader = image.makeShaderOptions(
+    CanvasKit.TileMode.Clamp,
+    CanvasKit.TileMode.Clamp,
+    CanvasKit.FilterMode.Linear,
+    CanvasKit.MipmapMode.None,
+    transform
+  );
 
-  //canvas.drawImageRect(image, src, dst, paint);
   const paint = new CanvasKit.Paint();
   paint.setShader(
-    filter.makeShaderWithChildren(
-      [mix(progress.value, 1, 100)],
-      [
-        image.makeShaderOptions(
-          CanvasKit.TileMode.Clamp,
-          CanvasKit.TileMode.Clamp,
-          CanvasKit.FilterMode.Linear,
-          CanvasKit.MipmapMode.None,
-          CanvasKit.Matrix.identity()
-        ),
-      ]
-    )
+    filter.makeShaderWithChildren([mix(progress.value, 1, 100)], [imageShader])
   );
   canvas.drawPaint(paint);
 };

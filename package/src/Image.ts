@@ -98,18 +98,18 @@ export class ImageJS extends HostObject<Image> implements Image {
     _ty: EmbindEnumEntity,
     _B: number,
     _C: number,
-    _localMatrix?: InputMatrix | undefined
+    localMatrix?: InputMatrix | undefined
   ): Shader {
-    return new ImageShader(this.image);
+    return new ImageShader(this.image, localMatrix);
   }
   makeShaderOptions(
     _tx: EmbindEnumEntity,
     _ty: EmbindEnumEntity,
     _fm: EmbindEnumEntity,
     _mm: EmbindEnumEntity,
-    _localMatrix?: InputMatrix | undefined
+    localMatrix?: InputMatrix | undefined
   ): Shader {
-    return new ImageShader(this.image);
+    return new ImageShader(this.image, localMatrix);
   }
   readPixels(
     _srcX: number,

@@ -7,6 +7,18 @@ import type {
 
 export type Matrix3x3 = number[];
 
+export const nativeMatrix = (matrix: InputMatrix) => {
+  if (Array.isArray(matrix)) {
+    return new DOMMatrix(matrix);
+  } else if (matrix instanceof Float32Array) {
+    return DOMMatrix.fromFloat32Array(matrix);
+  } else if (matrix instanceof DOMMatrix) {
+    return matrix;
+  } else {
+    return DOMMatrix.fromFloat32Array(matrix.toTypedArray() as Float32Array);
+  }
+};
+
 export const normalizeMatrix = (matrix: InputMatrix): Matrix3x3 => {
   if (Array.isArray(matrix)) {
     return matrix;
