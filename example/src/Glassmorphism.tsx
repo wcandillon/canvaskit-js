@@ -13,6 +13,9 @@ const paint = new CanvasKit.Paint();
 const colors = ["#FFF723", "#E70696"].map((cl) =>
   CanvasKit.parseColorString(cl)
 );
+paint.setMaskFilter(
+  CanvasKit.MaskFilter.MakeBlur(CanvasKit.BlurStyle.Solid, 50, true)
+);
 
 const drawSun = (
   progress: AnimationValue,

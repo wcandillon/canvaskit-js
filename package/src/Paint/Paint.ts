@@ -167,11 +167,7 @@ export class PaintJS extends HostObject<Paint> implements Paint {
     return this.strokeWidth ?? 1;
   }
   setAlphaf(alpha: number) {
-    if (this.color === null) {
-      this.color = Float32Array.of(0, 0, 0, alpha);
-    } else {
-      this.color[3] = alpha;
-    }
+    this.color[3] = alpha;
   }
   setAntiAlias(_aa: boolean): void {}
   setBlendMode(mode: EmbindEnumEntity): void {
