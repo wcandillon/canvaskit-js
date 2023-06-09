@@ -272,16 +272,19 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
     throw new Error("Method not implemented.");
   }
   drawPaint(paint: PaintJS) {
+    const { width, height } = this.ctx.canvas;
     const m = this.ctx.getTransform().invertSelf();
     const topLeft = new DOMPoint(0, 0).matrixTransform(m);
-    const bottomRight = new DOMPoint(
-      this.ctx.canvas.width,
-      this.ctx.canvas.height
-    ).matrixTransform(m);
-    this.drawRect(
-      Float32Array.of(topLeft.x, topLeft.y, bottomRight.x, bottomRight.y),
-      paint
-    );
+    const topRight = new DOMPoint(width, 0).matrixTransform(m);
+    const bottomRight = new DOMPoint(width, height).matrixTransform(m);
+    const bottomLeft = new DOMPoint(0, height).matrixTransform(m);
+    paint.apply(this.paintCtx, () => {
+      this.ctx.moveTo(topLeft.x, topLeft.y);
+      this.ctx.lineTo(topRight.x, topRight.y);
+      this.ctx.lineTo(bottomRight.x, bottomRight.y);
+      this.ctx.lineTo(bottomLeft.x, bottomLeft.y);
+      this.ctx.closePath();
+    });
   }
   drawParagraph(_p: Paragraph, _x: number, _y: number): void {
     throw new Error("Method not implemented.");

@@ -16,13 +16,21 @@ export abstract class Gradient extends ShaderJS {
   }
 
   protected fill(ctx: OffscreenCanvasRenderingContext2D) {
+    const { width, height } = ctx.canvas;
     const m = ctx.getTransform().invertSelf();
     const topLeft = new DOMPoint(0, 0).matrixTransform(m);
+    const topRight = new DOMPoint(width, 0).matrixTransform(m);
     const bottomRight = new DOMPoint(
       ctx.canvas.width,
       ctx.canvas.height
     ).matrixTransform(m);
-    ctx.fillRect(topLeft.x, topLeft.y, bottomRight.x, bottomRight.y);
+    const bottomLeft = new DOMPoint(0, height).matrixTransform(m);
+    ctx.beginPath();
+    ctx.moveTo(topLeft.x, topLeft.y);
+    ctx.lineTo(topRight.x, topRight.y);
+    ctx.lineTo(bottomRight.x, bottomRight.y);
+    ctx.lineTo(bottomLeft.x, bottomLeft.y);
+    ctx.fill();
   }
 }
 

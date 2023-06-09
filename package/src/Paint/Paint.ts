@@ -49,6 +49,12 @@ export class PaintJS extends HostObject<Paint> implements Paint {
     ctx.save();
     this.processFilter(paintCtx);
     this.processStyle(ctx);
+    shape.draw(ctx);
+    ctx.restore();
+  }
+
+  private processStyle(ctx: CanvasRenderingContext2D) {
+    let style: CanvasPattern | string | null = null;
     if (this.shader) {
       const bufferCtx = createOffscreenTexture(
         ctx.canvas.width,
@@ -57,21 +63,11 @@ export class PaintJS extends HostObject<Paint> implements Paint {
       const currenTransform = ctx.getTransform();
       bufferCtx.setTransform(currenTransform);
       const texture = this.shader.paint(bufferCtx);
-      ctx.save();
-      ctx.resetTransform();
-      ctx.drawImage(texture, 0, 0);
-      ctx.restore();
-      //texture.close();
+      const pattern = ctx.createPattern(texture, "no-repeat")!;
+      pattern.setTransform(currenTransform.invertSelf());
+      style = pattern;
     } else {
-      shape.draw(ctx);
-    }
-    ctx.restore();
-  }
-
-  private processStyle(ctx: CanvasRenderingContext2D) {
-    let style: CanvasPattern | string | null = null;
-    if (this.color !== null) {
-      style = nativeColor(this.color);
+      style = nativeColor(this.color ?? Float32Array.of(0, 0, 0, 1));
     }
     if (style && this.style === PaintStyle.Fill) {
       ctx.fillStyle = style;
