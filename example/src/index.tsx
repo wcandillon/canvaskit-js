@@ -8,6 +8,7 @@ import { Breathe } from "./Breathe";
 import { Menu } from "./Menu";
 import { Glassmorphism } from "./Glassmorphism";
 import { Playground } from "./Playground";
+import { Shaders } from "./Shaders";
 
 declare global {
   // eslint-disable-next-line no-var
@@ -33,6 +34,10 @@ const router = createBrowserRouter([
   {
     path: "/glassmorphism",
     element: <Glassmorphism />,
+  },
+  {
+    path: "/shaders",
+    element: <Shaders />,
   },
   {
     path: "/playground",
