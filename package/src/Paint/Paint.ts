@@ -1,5 +1,4 @@
 import type {
-  Color,
   ColorSpace,
   EmbindEnumEntity,
   Paint,
@@ -31,7 +30,7 @@ interface PaintContext {
 
 export class PaintJS extends HostObject<Paint> implements Paint {
   private style = PaintStyle.Fill;
-  private color: Color | null = null;
+  private color = Float32Array.of(0, 0, 0, 1);
   private strokeWidth: number | null = null;
   private strokeMiter: number | null = null;
   private shader: ShaderJS | null = null;
@@ -64,10 +63,10 @@ export class PaintJS extends HostObject<Paint> implements Paint {
       bufferCtx.setTransform(currenTransform);
       const texture = this.shader.paint(bufferCtx);
       const pattern = ctx.createPattern(texture, "no-repeat")!;
-      pattern.setTransform(currenTransform.invertSelf());
+      pattern.setTransform(currenTransform.inverse());
       style = pattern;
     } else {
-      style = nativeColor(this.color ?? Float32Array.of(0, 0, 0, 1));
+      style = nativeColor(this.color);
     }
     if (style && this.style === PaintStyle.Fill) {
       ctx.fillStyle = style;
@@ -153,13 +152,13 @@ export class PaintJS extends HostObject<Paint> implements Paint {
     return paint;
   }
   getColor() {
-    return this.color ?? Float32Array.of(0, 0, 0, 1);
+    return this.color;
   }
   getStrokeCap(): EmbindEnumEntity {
-    return lineCap(this.strokeCap);
+    return lineCap(this.strokeCap ?? "butt");
   }
   getStrokeJoin(): EmbindEnumEntity {
-    return lineJoin(this.strokeJoin);
+    return lineJoin(this.strokeJoin ?? "miter");
   }
   getStrokeMiter() {
     return this.strokeMiter ?? 10;
@@ -232,10 +231,7 @@ export class PaintJS extends HostObject<Paint> implements Paint {
   }
 }
 
-const lineCap = (cap: Cap | null) => {
-  if (cap === null) {
-    return StrokeCap.Butt;
-  }
+const lineCap = (cap: Cap) => {
   switch (cap) {
     case "butt":
       return StrokeCap.Butt;
@@ -261,10 +257,7 @@ const nativeLineCap = (cap: EmbindEnumEntity) => {
   }
 };
 
-const lineJoin = (join: string | null) => {
-  if (join === null) {
-    return StrokeJoin.Miter;
-  }
+const lineJoin = (join: string) => {
   switch (join) {
     case "miter":
       return StrokeJoin.Miter;

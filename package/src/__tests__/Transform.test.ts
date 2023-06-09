@@ -176,6 +176,32 @@ describe("Transforms", () => {
     );
     checkImage(image, "snapshots/circle-gradient2.png");
   });
+  it("should draw the circle centered (3)", async () => {
+    const image = await skia.eval(
+      ({ CanvasKit, canvas }) => {
+        canvas.drawColor(CanvasKit.BLACK);
+        const paint = new CanvasKit.Paint();
+        const colors = ["#FFF723", "#E70696"].map((cl) =>
+          CanvasKit.parseColorString(cl)
+        );
+        paint.setShader(
+          CanvasKit.Shader.MakeLinearGradient(
+            [0, 0],
+            [0, 256],
+            colors,
+            null,
+            CanvasKit.TileMode.Clamp
+          )
+        );
+        canvas.save();
+        canvas.scale(2, 2);
+        canvas.drawCircle(128, 128, 128, paint);
+        canvas.restore();
+      },
+      { width: 512, height: 512 }
+    );
+    checkImage(image, "snapshots/circle-gradient3.png");
+  });
 });
 
 /*
