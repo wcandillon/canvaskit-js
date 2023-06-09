@@ -4,8 +4,8 @@ import type { AnimationValue, Info } from "./components";
 import { mix, Canvas, useLoop, useOnDraw } from "./components";
 
 const filter = CanvasKit.ImageFilter.MakeBlur(
-  10,
-  10,
+  50,
+  50,
   CanvasKit.TileMode.Clamp,
   null
 );
