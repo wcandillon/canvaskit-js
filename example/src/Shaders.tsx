@@ -15,11 +15,12 @@ const filter = CanvasKit.RuntimeEffect.Make(`precision mediump float;
 
 uniform sampler2D child;
 uniform float r;
+uniform vec2 resolution;
 
 void main() {
-  vec2 xy = gl_FragCoord.xy;
+  vec2 xy = vec2(gl_FragCoord.x, 1.0 - gl_FragCoord.y);
   xy.x += sin(xy.y / r) * 4.0;
-  gl_FragColor = texture2D(child, gl_FragCoord.xy);
+  gl_FragColor = texture2D(child, xy/resolution);
 }`)!;
 
 const drawShader = (
@@ -44,7 +45,10 @@ const drawShader = (
 
   const paint = new CanvasKit.Paint();
   paint.setShader(
-    filter.makeShaderWithChildren([mix(progress.value, 1, 100)], [imageShader])
+    filter.makeShaderWithChildren(
+      [mix(progress.value, 1, 100), width * 2, height * 2],
+      [imageShader]
+    )
   );
   canvas.drawPaint(paint);
 };
