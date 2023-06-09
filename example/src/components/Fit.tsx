@@ -1,11 +1,22 @@
 import type { Rect } from "canvaskit-wasm";
 
+const exhaustiveCheck = (a: never): never => {
+  throw new Error(`Unknown transformation: ${a}`);
+};
+
+const rect = (rct: Float32Array) => ({
+  x: rct[0],
+  y: rct[1],
+  width: rct[2] - rct[0],
+  height: rct[3] - rct[1],
+});
+
 interface Size {
   width: number;
   height: number;
 }
 
-type Fit =
+export type Fit =
   | "cover"
   | "contain"
   | "fill"
@@ -14,23 +25,59 @@ type Fit =
   | "none"
   | "scaleDown";
 
+export const size = (width = 0, height = 0) => ({ width, height });
+
+export const fitbox = (fit: Fit, src: Rect, dst: Rect) => {
+  const rects = fitRects(fit, src, dst);
+  return rect2rect(rects.src, rects.dst);
+};
+
+export const rect2rect = (_src: Rect, _dst: Rect) => {
+  const src = rect(_src);
+  const dst = rect(_dst);
+  const scaleX = dst.width / src.width;
+  const scaleY = dst.height / src.height;
+  const translateX = dst.x - src.x * scaleX;
+  const translateY = dst.y - src.y * scaleY;
+  const m = new DOMMatrix();
+  m.translateSelf(translateX, translateY);
+  m.scaleSelf(scaleX, scaleY);
+  return m;
+};
+
+export const fitRects = (fit: Fit, _rect: Rect, _dst: Rect) => {
+  const rct = rect(_rect);
+  const { x, y, width, height } = rect(_dst);
+  const sizes = applyBoxFit(
+    fit,
+    { width: rct.width, height: rct.height },
+    { width, height }
+  );
+  const src = inscribe(sizes.src, rct);
+  const dst = inscribe(sizes.dst, {
+    x,
+    y,
+    width,
+    height,
+  });
+  return { src, dst };
+};
+
 const inscribe = (
   { width, height }: Size,
-  rect: { x: number; y: number; width: number; height: number }
+  rct: { x: number; y: number; width: number; height: number }
 ) => {
-  const halfWidthDelta = (rect.width - width) / 2.0;
-  const halfHeightDelta = (rect.height - height) / 2.0;
-  return Float32Array.of(
-    rect.x + halfWidthDelta,
-    rect.y + halfHeightDelta,
+  const halfWidthDelta = (rct.width - width) / 2.0;
+  const halfHeightDelta = (rct.height - height) / 2.0;
+  return CanvasKit.XYWHRect(
+    rct.x + halfWidthDelta,
+    rct.y + halfHeightDelta,
     width,
     height
   );
 };
 
 const applyBoxFit = (fit: Fit, input: Size, output: Size) => {
-  const size = (width = 0, height = 0) => ({ width, height });
-
   let src = size(),
     dst = size();
   if (
@@ -89,35 +136,7 @@ const applyBoxFit = (fit: Fit, input: Size, output: Size) => {
       }
       break;
     default:
-      throw new Error(`Unknown fit: ${fit}`);
+      exhaustiveCheck(fit);
   }
-  return { src, dst };
-};
-
-export const fitRects = (fit: Fit, inp: Rect, out: Rect) => {
-  const rect = inp;
-  const { x, y, width, height } = {
-    x: out[0],
-    y: out[1],
-    width: out[2] - out[0],
-    height: out[3] - out[1],
-  };
-  const sizes = applyBoxFit(
-    fit,
-    { width: rect[2], height: rect[3] },
-    { width, height }
-  );
-  const src = inscribe(sizes.src, {
-    x: rect[0],
-    y: rect[1],
-    width: rect[2],
-    height: rect[3],
-  });
-  const dst = inscribe(sizes.dst, {
-    x,
-    y,
-    width,
-    height,
-  });
   return { src, dst };
 };
