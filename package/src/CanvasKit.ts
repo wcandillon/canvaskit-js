@@ -344,6 +344,7 @@ export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
   ShadowGeometricOnly!: number;
   ShadowDirectionalLight!: number;
   gpu = true;
+  polyfill = true;
   managed_skottie?: boolean | undefined = undefined;
   rt_effect?: boolean | undefined = undefined;
   skottie?: boolean | undefined;
