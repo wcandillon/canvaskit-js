@@ -35,6 +35,5 @@ const drawShader = (
 export const Shader = () => {
   const progress = useClock();
   const onDraw = useOnDraw(drawShader.bind(null, progress), []);
-
   return <Canvas onDraw={onDraw} deps={[progress]} />;
 };

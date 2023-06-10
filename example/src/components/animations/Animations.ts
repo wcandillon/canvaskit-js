@@ -69,11 +69,11 @@ class LoopAnimationValue extends AnimationValue {
 
 class ClockAnimationValue extends AnimationValue {
   constructor() {
-    super(0);
+    super(performance.timeOrigin);
   }
 
-  onFrame(_: number) {
-    this._value += 1;
+  onFrame(time: number) {
+    this._value = time / 1000;
     return true;
   }
 }
