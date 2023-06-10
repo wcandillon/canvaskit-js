@@ -8,33 +8,8 @@ import { useEffect, useMemo, useState } from "react";
 
 import type { AnimationValue, Info } from "./components";
 import { useClock, useOnDraw } from "./components";
-import { CKCanvas } from "./components/CKCanvas";
-
-const useCanvasKit = () => {
-  const [CanvasKit, setCanvasKit] = useState<CanvasKit | null>(null);
-  useEffect(() => {
-    CanvasKitInit({
-      locateFile: (file) =>
-        "https://unpkg.com/canvaskit-wasm@0.38.1/bin/" + file,
-    }).then((Ck) => {
-      console.log("OK!");
-      setCanvasKit(Ck);
-    });
-  }, []);
-  return CanvasKit;
-};
-
-export const Compare = () => {
-  const CanvasKit = useCanvasKit();
-  if (!CanvasKit) {
-    return null;
-  }
-  return <CKShader CanvasKit={CanvasKit} />;
-};
-
-interface CKShaderProps {
-  CanvasKit: CanvasKit;
-}
+import { CanvasWASM } from "./components/CanvasWASM";
+import { useCanvasKitWASM } from "./components/CanvasKitContext";
 
 const drawShader = (
   progress: AnimationValue,
@@ -49,10 +24,10 @@ const drawShader = (
   canvas.drawPaint(paint);
 };
 
-const CKShader = ({ CanvasKit }: CKShaderProps) => {
+export const Compare = () => {
+  const CanvasKit = useCanvasKitWASM();
   const progress = useClock();
   const rt = useMemo(() => {
-    console.log("COMPILE SHADER!");
     return CanvasKit.RuntimeEffect.Make(`
 uniform float iTime;
 uniform vec2 iResolution;
@@ -72,6 +47,6 @@ vec4 main(vec2 FC) {
 }
 `)!;
   }, [CanvasKit.RuntimeEffect]);
-  const onDraw = useOnDraw(drawShader.bind(null, progress, rt), []);
-  return <CKCanvas CanvasKit={CanvasKit} onDraw={onDraw} deps={[progress]} />;
+  const onDraw = useOnDraw(drawShader.bind(null, progress, rt, CanvasKit), []);
+  return <CanvasWASM onDraw={onDraw} deps={[progress]} />;
 };

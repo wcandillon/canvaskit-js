@@ -1,48 +1,16 @@
-import CanvasKitInit from "canvaskit-wasm";
-import type { CanvasKit, Surface, Canvas as SkCanvas } from "canvaskit-wasm";
+import type { Surface, Canvas as SkCanvas } from "canvaskit-wasm";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { CanvasProps, Info } from "./Canvas";
 import type { CanvasRef } from "./Platform";
 import { useElementLayout } from "./Platform";
 import { startAnimations } from "./animations";
-
-const useCanvasKit = () => {
-  const [CanvasKit, setCanvasKit] = useState<CanvasKit | null>(null);
-  useEffect(() => {
-    CanvasKitInit({
-      locateFile: (file) =>
-        "https://unpkg.com/canvaskit-wasm@0.38.1/bin/" + file,
-    }).then((Ck) => {
-      setCanvasKit(Ck);
-    });
-  }, []);
-  return CanvasKit;
-};
+import { useCanvasKitWASM } from "./CanvasKitContext";
 
 const pd = 1; //window.devicePixelRatio;
 
-interface CKCanvasProps extends Omit<CanvasProps, "onDraw"> {
-  onDraw: (CanvasKit: CanvasKit, canvas: SkCanvas, info: Info) => void;
-}
-
-export const CKCanvas = (props: CKCanvasProps) => {
-  const CanvasKit = useCanvasKit();
-  if (!CanvasKit) {
-    return null;
-  }
-  return <CKCanvasWithCanvasKit CanvasKit={CanvasKit} {...props} />;
-};
-
-interface CKCanvasWithCanvasKitProps extends CKCanvasProps {
-  CanvasKit: CanvasKit;
-}
-
-export const CKCanvasWithCanvasKit = ({
-  CanvasKit,
-  onDraw,
-  deps,
-}: CKCanvasWithCanvasKitProps) => {
+export const CanvasWASM = ({ onDraw, deps }: CanvasProps) => {
+  const CanvasKit = useCanvasKitWASM();
   const surfaceRef = useRef<Surface>();
   const info = useRef<Info | null>(null);
   const ref = useRef<CanvasRef>(null);
@@ -52,11 +20,11 @@ export const CKCanvasWithCanvasKit = ({
       canvas.clear(Float32Array.of(0, 0, 0, 0));
       canvas.save();
       canvas.scale(pd, pd);
-      onDraw(CanvasKit, canvas, info.current!);
+      onDraw(canvas, info.current!);
       canvas.restore();
       surfaceRef.current.flush();
     }
-  }, [CanvasKit, onDraw]);
+  }, [onDraw]);
   useElementLayout(
     ref,
     ({

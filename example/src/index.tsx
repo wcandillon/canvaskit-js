@@ -11,6 +11,7 @@ import { Playground } from "./Playground";
 import { Shaders } from "./Shaders";
 import { Shader } from "./Shader";
 import { Compare } from "./Compare";
+import { CanvasKitProvider } from "./components/CanvasKitContext";
 
 declare global {
   // eslint-disable-next-line no-var
@@ -56,6 +57,8 @@ const router = createBrowserRouter([
 ]);
 root.render(
   <Wapper>
-    <RouterProvider router={router} />
+    <CanvasKitProvider>
+      <RouterProvider router={router} />
+    </CanvasKitProvider>
   </Wapper>
 );
