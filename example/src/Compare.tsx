@@ -37,9 +37,9 @@ interface CKShaderProps {
 }
 
 const drawShader = (
-  CanvasKit: CanvasKit,
   progress: AnimationValue,
   rt: RuntimeEffect,
+  CanvasKit: CanvasKit,
   canvas: SkCanvas,
   { width, height }: Info
 ) => {
@@ -72,6 +72,6 @@ vec4 main(vec2 FC) {
 }
 `)!;
   }, [CanvasKit.RuntimeEffect]);
-  const onDraw = useOnDraw(drawShader.bind(null, CanvasKit, progress, rt), []);
+  const onDraw = useOnDraw(drawShader.bind(null, progress, rt), []);
   return <CKCanvas CanvasKit={CanvasKit} onDraw={onDraw} deps={[progress]} />;
 };
