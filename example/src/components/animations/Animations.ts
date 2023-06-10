@@ -67,6 +67,19 @@ class LoopAnimationValue extends AnimationValue {
   }
 }
 
+class ClockAnimationValue extends AnimationValue {
+  constructor() {
+    super(0);
+  }
+
+  onFrame(_: number) {
+    this._value += 1;
+    return true;
+  }
+}
+
+export const useClock = () => useMemo(() => new ClockAnimationValue(), []);
+
 export const useLoop = (value = 0, duration = 3000) =>
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useMemo(() => new LoopAnimationValue(value, duration), []);

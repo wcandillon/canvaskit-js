@@ -21,7 +21,7 @@ import { createOffscreenTexture } from "../Core/Platform";
 import type { ColorFilterJS } from "../ColorFilter/ColorFilter";
 import type { SVGContext } from "../SVG";
 
-import { getBlendMode } from "./BlendMode";
+import { nativeBlendMode } from "./BlendMode";
 
 interface PaintContext {
   ctx: CanvasRenderingContext2D;
@@ -173,7 +173,7 @@ export class PaintJS extends HostObject<Paint> implements Paint {
   }
   setAntiAlias(_aa: boolean): void {}
   setBlendMode(mode: EmbindEnumEntity): void {
-    this.blendMode = getBlendMode(mode);
+    this.blendMode = nativeBlendMode(mode);
   }
   setColor(color: InputColor, _colorSpace?: ColorSpace | undefined): void {
     if (color instanceof Float32Array) {

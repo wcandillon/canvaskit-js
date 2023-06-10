@@ -10,6 +10,9 @@ export const Menu = () => {
         <Link to="glassmorphism">Glassmorphism</Link>
       </li>
       <li>
+        <Link to="shader">Shader</Link>
+      </li>
+      <li>
         <Link to="shaders">Shaders</Link>
       </li>
       <li>

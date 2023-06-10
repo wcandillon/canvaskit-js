@@ -1,6 +1,6 @@
 import type { EmbindEnumEntity } from "canvaskit-wasm";
 
-export const getBlendMode = (mode: EmbindEnumEntity) => {
+export const nativeBlendMode = (mode: EmbindEnumEntity) => {
   switch (mode.value) {
     case 2:
       return "copy";

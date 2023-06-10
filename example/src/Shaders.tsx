@@ -18,9 +18,9 @@ uniform float r;
 uniform vec2 resolution;
 
 void main() {
-  vec2 xy = vec2(gl_FragCoord.x, 1.0 - gl_FragCoord.y);
-  xy.x += sin(xy.y / r) * 4.0;
-  gl_FragColor = texture2D(child, xy/resolution);
+  vec2 uv = gl_FragCoord.xy/vec2(256.0, 256.0);
+  vec2 flippedUV = vec2(uv.x, 1.0 - uv.y);
+  gl_FragColor = texture2D(child, flippedUV);
 }`)!;
 
 const drawShader = (
@@ -44,10 +44,11 @@ const drawShader = (
   );
 
   const paint = new CanvasKit.Paint();
+  // paint.setShader(imageShader!);
   paint.setShader(
     filter.makeShaderWithChildren(
-      [mix(progress.value, 1, 100), width * 2, height * 2],
-      [imageShader]
+      [mix(progress.value, 1, 100), width, height],
+      [imageShader!]
     )
   );
   canvas.drawPaint(paint);

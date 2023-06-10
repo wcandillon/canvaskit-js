@@ -27,7 +27,7 @@ import type {
   Vertices,
 } from "canvaskit-wasm";
 
-import { PaintJS } from "./Paint";
+import { PaintJS, nativeBlendMode } from "./Paint";
 import type { ColorSpaceJS, InputColor } from "./Core";
 import {
   DrawableRect,
@@ -143,12 +143,14 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
     });
   }
   drawColor(color: InputColor, blendMode?: EmbindEnumEntity | undefined): void {
-    const paint = new PaintJS();
-    paint.setColor(color);
+    this.ctx.save();
+    this.ctx.setTransform();
     if (blendMode) {
-      paint.setBlendMode(blendMode);
+      this.ctx.globalCompositeOperation = nativeBlendMode(blendMode);
     }
-    this.drawPaint(paint);
+    this.ctx.fillStyle = nativeColor(color);
+    this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+    this.ctx.restore();
   }
   drawColorComponents(
     r: number,
