@@ -18,6 +18,9 @@ export const Menu = () => {
       <li>
         <Link to="playground">Playground</Link>
       </li>
+      <li>
+        <Link to="compare">Compare</Link>
+      </li>
     </ul>
   );
 };

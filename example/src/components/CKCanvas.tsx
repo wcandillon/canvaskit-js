@@ -1,28 +1,18 @@
-import type { Canvas as CKCanvas, Surface } from "canvaskit-wasm";
-import type { DependencyList } from "react";
-import { useEffect, useCallback, useRef } from "react";
+import type { CanvasKit, Surface } from "canvaskit-wasm";
+import { useCallback, useEffect, useRef } from "react";
 
+import type { CanvasProps, Info } from "./Canvas";
 import type { CanvasRef } from "./Platform";
 import { useElementLayout } from "./Platform";
-import type { AnimationValue } from "./animations";
 import { startAnimations } from "./animations";
 
-export interface Info {
-  width: number;
-  height: number;
-  center: Float32Array;
-}
-
-export type OnDraw = (canvas: CKCanvas, info: Info) => void;
-
-export interface CanvasProps {
-  onDraw: OnDraw;
-  deps: AnimationValue[];
+interface CKCanvasProps extends CanvasProps {
+  CanvasKit: CanvasKit;
 }
 
 const pd = 1; //window.devicePixelRatio;
 
-export const Canvas = ({ onDraw, deps }: CanvasProps) => {
+export const CKCanvas = ({ onDraw, deps, CanvasKit }: CKCanvasProps) => {
   const surfaceRef = useRef<Surface>();
   const info = useRef<Info | null>(null);
   const ref = useRef<CanvasRef>(null);
@@ -34,6 +24,7 @@ export const Canvas = ({ onDraw, deps }: CanvasProps) => {
       canvas.scale(pd, pd);
       onDraw(canvas, info.current!);
       canvas.restore();
+      surfaceRef.current.flush();
     }
   }, [onDraw]);
   useElementLayout(
@@ -75,7 +66,3 @@ export const Canvas = ({ onDraw, deps }: CanvasProps) => {
   }, []);
   return <canvas style={{ width: "100%", height: "100vh" }} ref={ref} />;
 };
-
-export const useOnDraw = (cb: OnDraw, deps: DependencyList = []) =>
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useCallback(cb, deps);

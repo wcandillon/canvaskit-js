@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@craco/craco": "^7.1.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -20,10 +21,10 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "TSC_COMPILE_ON_ERROR=true ESLINT_NO_DEV_ERRORS=true react-scripts start",
-    "build": "TSC_COMPILE_ON_ERROR=true ESLINT_NO_DEV_ERRORS=true react-scripts build",
-    "test": "TSC_COMPILE_ON_ERROR=true ESLINT_NO_DEV_ERRORS=true react-scripts test",
-    "eject": "TSC_COMPILE_ON_ERROR=true ESLINT_NO_DEV_ERRORS=true react-scripts eject",
+    "start": "TSC_COMPILE_ON_ERROR=true ESLINT_NO_DEV_ERRORS=true craco start",
+    "build": "TSC_COMPILE_ON_ERROR=true ESLINT_NO_DEV_ERRORS=true craco build",
+    "test": "TSC_COMPILE_ON_ERROR=true ESLINT_NO_DEV_ERRORS=true craco test",
+    "eject": "TSC_COMPILE_ON_ERROR=true ESLINT_NO_DEV_ERRORS=true craco eject",
     "tsc": "tsc --noEmit",
     "lint": "eslint . --ext .ts,.tsx  --max-warnings 0 --cache"
   },
