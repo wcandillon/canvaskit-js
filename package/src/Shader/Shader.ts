@@ -3,7 +3,7 @@ import type { Shader } from "canvaskit-wasm";
 import { HostObject } from "../HostObject";
 
 export abstract class ShaderJS extends HostObject<Shader> implements Shader {
-  private texture: ImageBitmap | null = null;
+  protected texture: ImageBitmap | null = null;
   protected children: ShaderJS[] | null;
 
   constructor(...children: ShaderJS[]) {
@@ -11,14 +11,7 @@ export abstract class ShaderJS extends HostObject<Shader> implements Shader {
     this.children = children.length > 0 ? children : null;
   }
 
-  abstract paintTexture(ctx: OffscreenCanvasRenderingContext2D): ImageBitmap;
-
-  paint(ctx: OffscreenCanvasRenderingContext2D) {
-    if (!this.texture) {
-      this.texture = this.paintTexture(ctx);
-    }
-    return this.texture;
-  }
+  abstract paint(ctx: OffscreenCanvasRenderingContext2D): ImageBitmap;
 
   dispose() {
     if (this.texture) {

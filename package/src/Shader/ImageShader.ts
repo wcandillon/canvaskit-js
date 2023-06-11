@@ -17,7 +17,7 @@ export class ImageShader extends ShaderJS {
     }
   }
 
-  paintTexture(ctx: OffscreenCanvasRenderingContext2D) {
+  paint(ctx: OffscreenCanvasRenderingContext2D) {
     ctx.save();
     ctx.setTransform();
     if (this.localMatrix) {

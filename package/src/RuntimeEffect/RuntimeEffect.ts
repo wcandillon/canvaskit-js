@@ -11,21 +11,22 @@ import type { ShaderJS } from "../Shader";
 import { RuntimeEffectShader } from "../Shader/RuntimeEffectShader";
 import { normalizeArray } from "../Core";
 
-type ShaderIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
-const textureMap = {};
+export type Textures = { [name: string]: WebGLTexture };
 export interface RuntimeEffectContext {
   gl: WebGL2RenderingContext;
   program: WebGLProgram;
   children: {
     shader: ShaderJS;
     location: WebGLUniformLocation;
-    index: ShaderIndex;
+    index: number;
+    texture: WebGLTexture;
   }[];
+  textures: Textures;
 }
 
 interface UniformProcessingState {
   uniformIndex: number;
-  shaderIndex: ShaderIndex;
+  shaderIndex: number;
 }
 
 export class RuntimeEffectJS
@@ -58,7 +59,7 @@ export class RuntimeEffectJS
     children?: ShaderJS[],
     localMatrix?: InputMatrix
   ): Shader {
-    const { gl, program } = this.ctx;
+    const { gl, program, textures } = this.ctx;
     const uniforms = normalizeArray(inputUniforms);
     const state: UniformProcessingState = { uniformIndex: 0, shaderIndex: 0 };
     const uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
@@ -129,42 +130,13 @@ export class RuntimeEffectJS
         );
       } else if (uniformInfo.type === gl.SAMPLER_2D) {
         const { name } = uniformInfo;
-        const location = gl.getUniformLocation(program, name);
-        if (!location) {
-          throw new Error("Could not find uniform location for " + name);
-        }
         const child = (children ?? [])[state.shaderIndex];
         if (!child) {
           throw new Error("No shader provided for " + name);
         }
-        let texture;
-        if (textureMap[name]) {
-          console.log("Found texture in map");
-          // if the texture already exists, use it
-          texture = textureMap[name];
-
-          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-        } else {
-          console.log("Create texture");
-          texture = gl.createTexture();
-          if (!texture) {
-            throw new Error("Could not create texture for " + name);
-          }
-          // store the texture in the map for later use
-          textureMap[name] = texture;
-          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-        }
-
-        // Set the parameters so we can render any size image
-        gl.activeTexture(gl[`TEXTURE${state.shaderIndex}`]);
-        gl.bindTexture(gl.TEXTURE_2D, texture);
+        const texture = textures[name];
         this.ctx.children.push({
+          texture,
           shader: child,
           location,
           index: state.shaderIndex,
@@ -258,7 +230,7 @@ export class RuntimeEffectJS
     }
     return count;
   }
-  getUniformFloatCount(): number {
+  getUniformFloatCount() {
     const { gl, program } = this.ctx;
     let floatCount = 0;
     const uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
@@ -271,7 +243,8 @@ export class RuntimeEffectJS
     }
     return floatCount;
   }
-  getUniformName(index: number): string {
+
+  getUniformName(index: number) {
     const { gl, program } = this.ctx;
     const uniformInfo = gl.getActiveUniform(program, index);
     if (!uniformInfo) {

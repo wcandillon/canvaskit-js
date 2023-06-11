@@ -7,7 +7,7 @@ export class GrDirectContextJS
   implements GrDirectContext
 {
   private limit = 5 * 2048 * 2048 * 4;
-  private cache: Map<ImageBitmap, true> = new Map();
+  private cache: Map<string, ImageBitmap> = new Map();
 
   constructor() {
     super();
@@ -18,8 +18,8 @@ export class GrDirectContextJS
   }
 
   getResourceCacheUsageBytes() {
-    return Array.from(this.cache.entries()).reduce(
-      (acc, [bitmap]) => acc + bitmap.width * bitmap.height * 4,
+    return Array.from(this.cache.values()).reduce(
+      (acc, bitmap) => acc + bitmap.width * bitmap.height * 4,
       0
     );
   }
@@ -30,5 +30,13 @@ export class GrDirectContextJS
 
   setResourceCacheLimitBytes(limit: number) {
     this.limit = limit;
+  }
+
+  get(id: string) {
+    return this.cache.get(id);
+  }
+
+  set(id: string, bitmap: ImageBitmap) {
+    this.cache.set(id, bitmap);
   }
 }
