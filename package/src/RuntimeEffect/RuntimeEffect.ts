@@ -12,7 +12,7 @@ import { RuntimeEffectShader } from "../Shader/RuntimeEffectShader";
 import { normalizeArray } from "../Core";
 
 type ShaderIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
-
+const textureMap = {};
 export interface RuntimeEffectContext {
   gl: WebGL2RenderingContext;
   program: WebGLProgram;
@@ -137,18 +137,33 @@ export class RuntimeEffectJS
         if (!child) {
           throw new Error("No shader provided for " + name);
         }
-        const texture = gl.createTexture();
-        if (!texture) {
-          throw new Error("Could not create texture for " + name);
+        let texture;
+        if (textureMap[name]) {
+          console.log("Found texture in map");
+          // if the texture already exists, use it
+          texture = textureMap[name];
+
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        } else {
+          console.log("Create texture");
+          texture = gl.createTexture();
+          if (!texture) {
+            throw new Error("Could not create texture for " + name);
+          }
+          // store the texture in the map for later use
+          textureMap[name] = texture;
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
         }
-        gl.activeTexture(gl[`TEXTURE${state.shaderIndex}`]);
-        gl.bindTexture(gl.TEXTURE_2D, texture);
 
         // Set the parameters so we can render any size image
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.activeTexture(gl[`TEXTURE${state.shaderIndex}`]);
+        gl.bindTexture(gl.TEXTURE_2D, texture);
         this.ctx.children.push({
           shader: child,
           location,

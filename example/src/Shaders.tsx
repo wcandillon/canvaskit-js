@@ -25,6 +25,7 @@ void main() {
   gl_FragColor = texture2D(child, vec2(xy.x, 1.0 - xy.y)).rbga;
 }`)!;
 
+// TODO: remove
 let imageShader: null | Shader = null;
 
 const drawShader = (
@@ -54,7 +55,7 @@ const drawShader = (
   paint.setShader(
     filter.makeShaderWithChildren(
       [width, height, mix(progress.value, 1, 100)],
-      [imageShader!]
+      [imageShader]
     )
   );
   canvas.drawPaint(paint);

@@ -62,8 +62,6 @@ const router = createBrowserRouter([
 ]);
 root.render(
   <Wapper>
-    <CanvasKitProvider>
-      <RouterProvider router={router} />
-    </CanvasKitProvider>
+    <RouterProvider router={router} />
   </Wapper>
 );
