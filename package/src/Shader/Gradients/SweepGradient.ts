@@ -12,7 +12,7 @@ export class SweepGradient extends Gradient {
     super(colors, pos);
   }
 
-  paint(ctx: OffscreenCanvasRenderingContext2D) {
+  paintTexture(ctx: OffscreenCanvasRenderingContext2D) {
     const grd = ctx.createConicGradient(this.startAngle, this.c[0], this.c[1]);
     this.colors.forEach((color, i) => {
       grd.addColorStop(this.pos[i], color);

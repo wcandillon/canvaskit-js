@@ -1,29 +1,28 @@
 import type { EmbindEnumEntity } from "canvaskit-wasm";
 
-import { nativeBlendMode } from "../Paint/BlendMode";
 import { createOffscreenTexture } from "../Core/Platform";
+import { nativeBlendMode } from "../Paint";
 
 import { ShaderJS } from "./Shader";
 
 export class BlendShader extends ShaderJS {
   constructor(
     private readonly blendMode: EmbindEnumEntity,
-    private readonly child1: ShaderJS,
-    private readonly child2: ShaderJS
+    child1: ShaderJS,
+    child2: ShaderJS
   ) {
-    super();
+    super(child1, child2);
   }
 
-  paint(texture: OffscreenCanvasRenderingContext2D) {
+  paintTexture(texture: OffscreenCanvasRenderingContext2D) {
     const { width, height } = texture.canvas;
+    const [child1, child2] = this.children!;
     const t0 = createOffscreenTexture(width, height);
-    const t1 = this.child1.paint(t0);
+    const t1 = child1.paint(t0);
     texture.globalCompositeOperation = nativeBlendMode(this.blendMode);
     texture.drawImage(t1, 0, 0);
-    t1.close();
-    const t2 = this.child2.paint(t0);
+    const t2 = child2.paint(t0);
     texture.drawImage(t2, 0, 0);
-    t2.close();
     return texture.canvas.transferToImageBitmap();
   }
 }

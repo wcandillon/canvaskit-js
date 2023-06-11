@@ -5,7 +5,7 @@ export class ColorShader extends ShaderJS {
     super();
   }
 
-  paint(ctx: OffscreenCanvasRenderingContext2D) {
+  paintTexture(ctx: OffscreenCanvasRenderingContext2D) {
     ctx.fillStyle = this.color;
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     return ctx.canvas.transferToImageBitmap();

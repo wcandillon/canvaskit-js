@@ -7,7 +7,12 @@ export class RuntimeEffectShader extends ShaderJS {
     super();
   }
 
-  paint(ctx: OffscreenCanvasRenderingContext2D) {
+  dispose() {
+    super.dispose();
+    // TODO: delete gl texture
+  }
+
+  paintTexture(ctx: OffscreenCanvasRenderingContext2D) {
     const { gl } = this.ctx;
     const { width, height } = ctx.canvas;
     const canvas = gl.canvas as OffscreenCanvas;
@@ -33,7 +38,7 @@ export class RuntimeEffectShader extends ShaderJS {
     gl.viewport(0, 0, width, height);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
     const bitmap = canvas.transferToImageBitmap();
-    children.forEach((child) => child.close());
+    //children.forEach((child) => child.close());
     return bitmap;
   }
 }

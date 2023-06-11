@@ -14,13 +14,15 @@ import zurich from "./assets/zurich2.jpg";
 const filter = CanvasKit.RuntimeEffect.Make(`precision mediump float;
 
 uniform sampler2D child;
-uniform float r;
 uniform vec2 resolution;
+uniform float r;
+
 
 void main() {
-  vec2 uv = gl_FragCoord.xy/vec2(256.0, 256.0);
-  vec2 flippedUV = vec2(uv.x, 1.0 - uv.y);
-  gl_FragColor = texture2D(child, flippedUV);
+  vec2 xy = gl_FragCoord.xy;
+  xy.x += sin(xy.y / r) * 4.0;
+  xy /= resolution;
+  gl_FragColor = texture2D(child, vec2(xy.x, 1.0 - xy.y)).rbga;
 }`)!;
 
 const drawShader = (
@@ -44,10 +46,10 @@ const drawShader = (
   );
 
   const paint = new CanvasKit.Paint();
-  // paint.setShader(imageShader!);
+  //paint.setShader(imageShader!);
   paint.setShader(
     filter.makeShaderWithChildren(
-      [mix(progress.value, 1, 100), width, height],
+      [width, height, mix(progress.value, 1, 100)],
       [imageShader!]
     )
   );

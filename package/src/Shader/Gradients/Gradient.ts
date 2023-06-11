@@ -14,24 +14,6 @@ export abstract class Gradient extends ShaderJS {
       ? pos
       : this.colors.map((_, i) => i / (this.colors.length - 1));
   }
-
-  protected fill(ctx: OffscreenCanvasRenderingContext2D) {
-    const { width, height } = ctx.canvas;
-    const m = ctx.getTransform().invertSelf();
-    const topLeft = new DOMPoint(0, 0).matrixTransform(m);
-    const topRight = new DOMPoint(width, 0).matrixTransform(m);
-    const bottomRight = new DOMPoint(
-      ctx.canvas.width,
-      ctx.canvas.height
-    ).matrixTransform(m);
-    const bottomLeft = new DOMPoint(0, height).matrixTransform(m);
-    ctx.beginPath();
-    ctx.moveTo(topLeft.x, topLeft.y);
-    ctx.lineTo(topRight.x, topRight.y);
-    ctx.lineTo(bottomRight.x, bottomRight.y);
-    ctx.lineTo(bottomLeft.x, bottomLeft.y);
-    ctx.fill();
-  }
 }
 
 const normalizeInputColorArray = (input: InputFlexibleColorArray) => {

@@ -12,7 +12,7 @@ export class LinearGradient extends Gradient {
     super(colors, pos);
   }
 
-  paint(ctx: OffscreenCanvasRenderingContext2D) {
+  paintTexture(ctx: OffscreenCanvasRenderingContext2D) {
     const { start, end } = this;
     const grd = ctx.createLinearGradient(start[0], start[1], end[0], end[1]);
     this.colors.forEach((color, i) => {
