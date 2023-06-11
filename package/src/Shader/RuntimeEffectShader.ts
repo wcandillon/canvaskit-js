@@ -18,7 +18,6 @@ export class RuntimeEffectShader extends ShaderJS {
     const canvas = gl.canvas as OffscreenCanvas;
     gl.canvas.width = width;
     gl.canvas.height = height;
-    const children: ImageBitmap[] = [];
     this.ctx.children.forEach(({ shader, location, index }) => {
       gl.activeTexture(gl[`TEXTURE${index}`]);
       // Upload the image into the texture
@@ -31,14 +30,12 @@ export class RuntimeEffectShader extends ShaderJS {
         gl.UNSIGNED_BYTE,
         child
       );
-      children.push(child);
       // Use the texture
       gl.uniform1i(location, index);
     });
     gl.viewport(0, 0, width, height);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
     const bitmap = canvas.transferToImageBitmap();
-    //children.forEach((child) => child.close());
     return bitmap;
   }
 }
