@@ -1,4 +1,9 @@
-import type { Surface, Canvas as SkCanvas } from "canvaskit-wasm";
+import type {
+  Surface,
+  Canvas as SkCanvas,
+  Image,
+  CanvasKit,
+} from "canvaskit-wasm";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { CanvasProps, Info } from "./Canvas";
@@ -8,6 +13,20 @@ import { startAnimations } from "./animations";
 import { useCanvasKitWASM } from "./CanvasKitContext";
 
 const pd = 1; //window.devicePixelRatio;
+
+export const useImageWASM = (CanvasKit: CanvasKit, url: string) => {
+  const [image, setImage] = useState<Image | null>(null);
+  useEffect(() => {
+    (async () => {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const data = await blob.arrayBuffer();
+      const result = CanvasKit.MakeImageFromEncoded(data);
+      setImage(result);
+    })();
+  }, [CanvasKit, url]);
+  return image;
+};
 
 export const CanvasWASM = ({ onDraw, deps }: CanvasProps) => {
   const CanvasKit = useCanvasKitWASM();

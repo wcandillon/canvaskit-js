@@ -19,7 +19,10 @@ export const Menu = () => {
         <Link to="playground">Playground</Link>
       </li>
       <li>
-        <Link to="compare">Compare</Link>
+        <Link to="shader1">Shader 1 (WASM)</Link>
+      </li>
+      <li>
+        <Link to="shader2">Shader 2 (WASM)</Link>
       </li>
     </ul>
   );

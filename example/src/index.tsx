@@ -10,8 +10,9 @@ import { Glassmorphism } from "./Glassmorphism";
 import { Playground } from "./Playground";
 import { Shaders } from "./Shaders";
 import { Shader } from "./Shader";
-import { Compare } from "./Compare";
 import { CanvasKitProvider } from "./components/CanvasKitContext";
+import { Shader1 } from "./Shader1";
+import { Shader2 } from "./Shader2";
 
 declare global {
   // eslint-disable-next-line no-var
@@ -47,8 +48,12 @@ const router = createBrowserRouter([
     element: <Shaders />,
   },
   {
-    path: "/compare",
-    element: <Compare />,
+    path: "/shader1",
+    element: <Shader1 />,
+  },
+  {
+    path: "/shader2",
+    element: <Shader2 />,
   },
   {
     path: "/playground",

@@ -24,7 +24,7 @@ const drawShader = (
   canvas.drawPaint(paint);
 };
 
-export const Compare = () => {
+export const Shader1 = () => {
   const CanvasKit = useCanvasKitWASM();
   const progress = useClock();
   const rt = useMemo(() => {
