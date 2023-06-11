@@ -1,4 +1,4 @@
-import type { Canvas as CKCanvas, Image } from "canvaskit-wasm";
+import type { Canvas as CKCanvas, Image, Shader } from "canvaskit-wasm";
 
 import type { AnimationValue, Info } from "./components";
 import {
@@ -25,6 +25,8 @@ void main() {
   gl_FragColor = texture2D(child, vec2(xy.x, 1.0 - xy.y)).rbga;
 }`)!;
 
+let imageShader: null | Shader = null;
+
 const drawShader = (
   image: Image | null,
   progress: AnimationValue,
@@ -37,13 +39,15 @@ const drawShader = (
   const input = CanvasKit.XYWHRect(0, 0, image.width(), image.height());
   const output = CanvasKit.XYWHRect(0, 0, width, height);
   const transform = fitbox("cover", input, output);
-  const imageShader = image.makeShaderOptions(
-    CanvasKit.TileMode.Clamp,
-    CanvasKit.TileMode.Clamp,
-    CanvasKit.FilterMode.Linear,
-    CanvasKit.MipmapMode.None,
-    transform
-  );
+  if (!imageShader) {
+    imageShader = image.makeShaderOptions(
+      CanvasKit.TileMode.Clamp,
+      CanvasKit.TileMode.Clamp,
+      CanvasKit.FilterMode.Linear,
+      CanvasKit.MipmapMode.None,
+      transform
+    );
+  }
 
   const paint = new CanvasKit.Paint();
   //paint.setShader(imageShader!);
