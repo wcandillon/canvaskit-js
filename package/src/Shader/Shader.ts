@@ -1,7 +1,6 @@
 import type { Shader } from "canvaskit-wasm";
 
 import { HostObject } from "../HostObject";
-import type { GrDirectContextJS } from "../Core";
 
 export abstract class ShaderJS extends HostObject<Shader> implements Shader {
   protected texture: ImageBitmap | null = null;
@@ -12,10 +11,7 @@ export abstract class ShaderJS extends HostObject<Shader> implements Shader {
     this.children = children.length > 0 ? children : null;
   }
 
-  abstract paint(
-    ctx: OffscreenCanvasRenderingContext2D,
-    grCtx: GrDirectContextJS
-  ): ImageBitmap;
+  abstract paint(ctx: OffscreenCanvasRenderingContext2D): ImageBitmap;
 
   dispose() {
     if (this.texture) {

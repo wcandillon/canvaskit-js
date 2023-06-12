@@ -6,7 +6,6 @@ import type {
   EmbindEnumEntity,
   FilterOptions,
   Font,
-  GrDirectContext,
   Image,
   ImageInfo,
   InputFlattenedPointArray,
@@ -75,7 +74,7 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
   }
 
   get paintCtx() {
-    return { ctx: this.ctx, svgCtx: this.svgCtx, grCtx: this.grCtx };
+    return { ctx: this.ctx, svgCtx: this.svgCtx };
   }
 
   clear(color: InputColor): void {
@@ -445,12 +444,9 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
     const { width, height } = canvas;
     const layer = createTexture(width, height);
     if (paint) {
-      paint.apply(
-        { ctx: layer, svgCtx: this.svgCtx, grCtx: this.grCtx },
-        () => {
-          layer.drawImage(canvas, 0, 0, width, height);
-        }
-      );
+      paint.apply({ ctx: layer, svgCtx: this.svgCtx }, () => {
+        layer.drawImage(canvas, 0, 0, width, height);
+      });
     } else {
       layer.drawImage(canvas, 0, 0);
     }

@@ -1,5 +1,4 @@
 import type { RuntimeEffectContext } from "../RuntimeEffect";
-import type { GrDirectContextJS } from "../Core";
 
 import { ShaderJS } from "./Shader";
 
@@ -8,7 +7,7 @@ export class RuntimeEffectShader extends ShaderJS {
     super();
   }
 
-  paint(ctx: OffscreenCanvasRenderingContext2D, grCtx: GrDirectContextJS) {
+  paint(ctx: OffscreenCanvasRenderingContext2D) {
     const { gl } = this.ctx;
     const { width, height } = ctx.canvas;
     const canvas = gl.canvas as OffscreenCanvas;
@@ -16,10 +15,7 @@ export class RuntimeEffectShader extends ShaderJS {
     gl.canvas.width = width;
     gl.canvas.height = height;
     this.ctx.children.forEach(({ shader, index, texture, id }) => {
-      if (grCtx.get(id)) {
-        return;
-      }
-      const child = shader.paint(ctx, grCtx);
+      // const child = shader.paint(ctx);
       gl.activeTexture(gl.TEXTURE0 + index);
       gl.bindTexture(gl.TEXTURE_2D, texture);
       // Upload the image into the texture
@@ -29,13 +25,8 @@ export class RuntimeEffectShader extends ShaderJS {
         gl.RGBA,
         gl.RGBA,
         gl.UNSIGNED_BYTE,
-        child
+        (shader as any).image
       );
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      gl.generateMipmap(gl.TEXTURE_2D);
-      grCtx.set(id, child);
     });
     gl.viewport(0, 0, width, height);
     gl.drawArrays(gl.TRIANGLES, 0, 6);

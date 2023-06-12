@@ -148,17 +148,14 @@ export class RuntimeEffectJS
       }
     }
 
-    // If a local matrix is provided, set it as a uniform
     if (localMatrix) {
       console.warn("localMatrix not implemented yet");
-      //throw new Error("localMatrix not implemented yet");
     }
 
     return new RuntimeEffectShader(this.ctx);
   }
   getUniform(index: number): SkSLUniform {
     const { gl, program } = this.ctx;
-    // TODO: should exclude texture uniforms.
     const i = this.uniformMap.indexOf(index);
     const uniformInfo = gl.getActiveUniform(program, i);
     if (!uniformInfo) {
