@@ -6,16 +6,18 @@ import type {
   SkSLUniform,
 } from "canvaskit-wasm";
 
-import { HostObject } from "../HostObject";
+import { IndexedHostObject } from "../HostObject";
 import type { ShaderJS } from "../Shader";
 import { RuntimeEffectShader } from "../Shader/RuntimeEffectShader";
 import { normalizeArray } from "../Core";
 
 export type Textures = { [name: string]: WebGLTexture };
+
 export interface RuntimeEffectContext {
   gl: WebGL2RenderingContext;
   program: WebGLProgram;
   children: {
+    id: string;
     shader: ShaderJS;
     location: WebGLUniformLocation;
     index: number;
@@ -30,13 +32,13 @@ interface UniformProcessingState {
 }
 
 export class RuntimeEffectJS
-  extends HostObject<RuntimeEffect>
+  extends IndexedHostObject<RuntimeEffect>
   implements RuntimeEffect
 {
   private uniformMap: number[] = [];
 
   constructor(private readonly ctx: RuntimeEffectContext) {
-    super();
+    super("runtime-effect");
     const { gl, program } = this.ctx;
     const uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
     for (let i = 0; i < uniformCount; i++) {
@@ -137,6 +139,7 @@ export class RuntimeEffectJS
         const texture = textures[name];
         this.ctx.children.push({
           texture,
+          id: `${this.id}-${name}`,
           shader: child,
           location,
           index: state.shaderIndex,

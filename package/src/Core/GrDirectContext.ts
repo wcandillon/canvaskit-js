@@ -6,10 +6,10 @@ export class GrDirectContextJS
   extends HostObject<GrDirectContext>
   implements GrDirectContext
 {
-  private limit = 5 * 2048 * 2048 * 4;
+  private limit = 5 * 3840 * 2160 * 4;
   private cache: Map<string, ImageBitmap> = new Map();
 
-  constructor() {
+  constructor(public readonly ctx: CanvasRenderingContext2D) {
     super();
   }
 

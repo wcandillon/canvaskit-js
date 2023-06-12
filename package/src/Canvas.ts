@@ -6,6 +6,7 @@ import type {
   EmbindEnumEntity,
   FilterOptions,
   Font,
+  GrDirectContext,
   Image,
   ImageInfo,
   InputFlattenedPointArray,
@@ -28,7 +29,7 @@ import type {
 } from "canvaskit-wasm";
 
 import { PaintJS, nativeBlendMode } from "./Paint";
-import type { ColorSpaceJS, InputColor } from "./Core";
+import type { ColorSpaceJS, GrDirectContextJS, InputColor } from "./Core";
 import {
   DrawableRect,
   DrawablePath,
@@ -58,7 +59,8 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
 
   constructor(
     readonly drawingCtx: CanvasRenderingContext2D,
-    public readonly svgCtx: SVGContext
+    public readonly svgCtx: SVGContext,
+    public readonly grCtx: GrDirectContextJS
   ) {
     super();
     this.stack.push({ ctx: drawingCtx });
@@ -73,7 +75,7 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
   }
 
   get paintCtx() {
-    return { ctx: this.ctx, svgCtx: this.svgCtx };
+    return { ctx: this.ctx, svgCtx: this.svgCtx, grCtx: this.grCtx };
   }
 
   clear(color: InputColor): void {
@@ -443,9 +445,12 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
     const { width, height } = canvas;
     const layer = createTexture(width, height);
     if (paint) {
-      paint.apply({ ctx: layer, svgCtx: this.svgCtx }, () => {
-        layer.drawImage(canvas, 0, 0, width, height);
-      });
+      paint.apply(
+        { ctx: layer, svgCtx: this.svgCtx, grCtx: this.grCtx },
+        () => {
+          layer.drawImage(canvas, 0, 0, width, height);
+        }
+      );
     } else {
       layer.drawImage(canvas, 0, 0);
     }

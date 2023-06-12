@@ -62,14 +62,18 @@ import type {
 } from "canvaskit-wasm";
 
 import type { ColorSpaceJS } from "./Core";
-import { CoreCanvasKit, ImageFormatEnum, MallocObjJS } from "./Core";
+import {
+  GrDirectContextJS,
+  CoreCanvasKit,
+  ImageFormatEnum,
+  MallocObjJS,
+} from "./Core";
 import { SurfaceJS } from "./Surface";
 import { PaintJS } from "./Paint";
 import { ShaderFactory } from "./Shader";
 import { PathJS } from "./Path";
 import { ImageFilterFactory } from "./ImageFilter";
 import { MaskFilterFactory } from "./MaskFilter";
-import { GrDirectContextJS } from "./GrDirectContext";
 import { EmulatedCanvas2DJS } from "./EmulatedCanvas2D";
 import { ImageJS } from "./Image";
 import { RuntimeEffectFactory } from "./RuntimeEffect";
@@ -368,7 +372,7 @@ export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
     if (!ctx) {
       return null;
     }
-    return new SurfaceJS(ctx, true);
+    return new SurfaceJS(ctx, undefined, true);
   }
   MakeImageFromEncodedAsync(
     bytes: Uint8Array | ArrayBuffer,

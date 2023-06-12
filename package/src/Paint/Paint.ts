@@ -5,7 +5,7 @@ import type {
   PathEffect,
 } from "canvaskit-wasm";
 
-import type { Drawable, InputColor } from "../Core";
+import type { Drawable, GrDirectContextJS, InputColor } from "../Core";
 import {
   CustomDrawable,
   StrokeJoin,
@@ -26,6 +26,7 @@ import { nativeBlendMode } from "./BlendMode";
 interface PaintContext {
   ctx: CanvasRenderingContext2D;
   svgCtx: SVGContext;
+  grCtx: GrDirectContextJS;
 }
 
 export class PaintJS extends HostObject<Paint> implements Paint {
@@ -44,15 +45,18 @@ export class PaintJS extends HostObject<Paint> implements Paint {
   apply(paintCtx: PaintContext, input: Drawable | (() => void)) {
     const shape =
       typeof input === "function" ? new CustomDrawable(input) : input;
-    const { ctx } = paintCtx;
+    const { ctx, grCtx } = paintCtx;
     ctx.save();
     this.processFilter(paintCtx);
-    this.processStyle(ctx);
+    this.processStyle(ctx, grCtx);
     shape.draw(ctx);
     ctx.restore();
   }
 
-  private processStyle(ctx: CanvasRenderingContext2D) {
+  private processStyle(
+    ctx: CanvasRenderingContext2D,
+    grCtx: GrDirectContextJS
+  ) {
     let style: CanvasPattern | string | null = null;
     if (this.shader) {
       const bufferCtx = createOffscreenTexture(
@@ -61,7 +65,7 @@ export class PaintJS extends HostObject<Paint> implements Paint {
       );
       const currenTransform = ctx.getTransform();
       bufferCtx.setTransform(currenTransform);
-      const texture = this.shader.paint(bufferCtx);
+      const texture = this.shader.paint(bufferCtx, grCtx);
       const pattern = ctx.createPattern(texture, "no-repeat")!;
       pattern.setTransform(currenTransform.inverse());
       style = pattern;

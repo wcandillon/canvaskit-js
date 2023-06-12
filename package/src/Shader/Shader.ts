@@ -1,6 +1,7 @@
 import type { Shader } from "canvaskit-wasm";
 
 import { HostObject } from "../HostObject";
+import type { GrDirectContextJS } from "../Core";
 
 export abstract class ShaderJS extends HostObject<Shader> implements Shader {
   protected texture: ImageBitmap | null = null;
@@ -11,7 +12,10 @@ export abstract class ShaderJS extends HostObject<Shader> implements Shader {
     this.children = children.length > 0 ? children : null;
   }
 
-  abstract paint(ctx: OffscreenCanvasRenderingContext2D): ImageBitmap;
+  abstract paint(
+    ctx: OffscreenCanvasRenderingContext2D,
+    grCtx: GrDirectContextJS
+  ): ImageBitmap;
 
   dispose() {
     if (this.texture) {
@@ -28,10 +32,7 @@ export abstract class ShaderJS extends HostObject<Shader> implements Shader {
     const m = ctx.getTransform().invertSelf();
     const topLeft = new DOMPoint(0, 0).matrixTransform(m);
     const topRight = new DOMPoint(width, 0).matrixTransform(m);
-    const bottomRight = new DOMPoint(
-      ctx.canvas.width,
-      ctx.canvas.height
-    ).matrixTransform(m);
+    const bottomRight = new DOMPoint(width, height).matrixTransform(m);
     const bottomLeft = new DOMPoint(0, height).matrixTransform(m);
     ctx.beginPath();
     ctx.moveTo(topLeft.x, topLeft.y);

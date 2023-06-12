@@ -5,7 +5,7 @@ import type {
   TracedShader,
 } from "canvaskit-wasm";
 
-import type { ShaderIndex, Textures } from "./RuntimeEffect";
+import type { Textures } from "./RuntimeEffect";
 import { RuntimeEffectJS } from "./RuntimeEffect";
 
 export const RuntimeEffectFactory: IRuntimeEffectFactory = {
@@ -95,7 +95,7 @@ const createContext = (
     const uniformInfo = gl.getActiveUniform(program, i);
     if (uniformInfo && uniformInfo.type === gl.SAMPLER_2D) {
       const texture = gl.createTexture();
-      gl.activeTexture(gl[`TEXTURE${i as ShaderIndex}`]);
+      gl.activeTexture(gl.TEXTURE0 + i);
       gl.bindTexture(gl.TEXTURE_2D, texture);
       textures[uniformInfo.name] = texture!;
     }
