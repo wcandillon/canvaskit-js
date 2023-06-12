@@ -8,9 +8,10 @@ import { ShaderJS } from "./Shader";
 export class RuntimeEffectShader extends ShaderJS {
   constructor(
     private readonly ctx: RuntimeEffectContext,
-    private readonly childrenCtx: RuntimeEffectChildren
+    private readonly childrenCtx: RuntimeEffectChildren,
+    children: ShaderJS[]
   ) {
-    super();
+    super(...children);
   }
 
   paint(ctx: OffscreenCanvasRenderingContext2D) {
@@ -20,11 +21,11 @@ export class RuntimeEffectShader extends ShaderJS {
 
     gl.canvas.width = width;
     gl.canvas.height = height;
-    this.childrenCtx.forEach(({ shader, index, texture }) => {
-      const child = shader.paint(ctx);
+    this.childrenCtx.forEach(({ texture, location }, index) => {
+      const child = this.children![index].paint(ctx);
       gl.activeTexture(gl.TEXTURE0 + index);
       gl.bindTexture(gl.TEXTURE_2D, texture);
-      // Upload the image into the texture
+      gl.uniform1i(location, index);
       gl.texImage2D(
         gl.TEXTURE_2D,
         0,
@@ -36,7 +37,6 @@ export class RuntimeEffectShader extends ShaderJS {
     });
     gl.viewport(0, 0, width, height);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
-    const bitmap = canvas.transferToImageBitmap();
-    return bitmap;
+    return canvas.transferToImageBitmap();
   }
 }

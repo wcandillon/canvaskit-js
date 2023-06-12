@@ -11,21 +11,20 @@ import type { ShaderJS } from "../Shader";
 import { RuntimeEffectShader } from "../Shader/RuntimeEffectShader";
 import { normalizeArray } from "../Core";
 
-export type Textures = { [name: string]: WebGLTexture };
+export interface RuntimeEffectChild {
+  texture: WebGLTexture;
+  location: WebGLUniformLocation;
+}
+
+export type RuntimeEffectChildren = RuntimeEffectChild[];
+
+export type Textures = { [name: string]: RuntimeEffectChild };
 
 export interface RuntimeEffectContext {
   gl: WebGL2RenderingContext;
   program: WebGLProgram;
   textures: Textures;
 }
-
-export interface RuntimeEffectChild {
-  shader: ShaderJS;
-  index: number;
-  texture: WebGLTexture;
-}
-
-export type RuntimeEffectChildren = RuntimeEffectChild[];
 
 interface UniformProcessingState {
   uniformIndex: number;
@@ -59,9 +58,10 @@ export class RuntimeEffectJS
 
   makeShaderWithChildren(
     inputUniforms: MallocObj | Float32Array | number[],
-    children?: ShaderJS[],
+    input?: ShaderJS[],
     localMatrix?: InputMatrix
   ): Shader {
+    const children = input ? input : [];
     const childrenCtx: RuntimeEffectChildren = [];
     const { gl, program, textures } = this.ctx;
     const uniforms = normalizeArray(inputUniforms);
@@ -134,16 +134,8 @@ export class RuntimeEffectJS
         );
       } else if (uniformInfo.type === gl.SAMPLER_2D) {
         const { name } = uniformInfo;
-        const child = (children ?? [])[state.shaderIndex];
-        if (!child) {
-          throw new Error("No shader provided for " + name);
-        }
-        const texture = textures[name];
-        childrenCtx.push({
-          texture,
-          shader: child,
-          index: state.shaderIndex,
-        });
+
+        childrenCtx.push(textures[name]);
         state.shaderIndex++;
       }
     }
@@ -152,7 +144,7 @@ export class RuntimeEffectJS
       console.warn("localMatrix not implemented yet");
     }
 
-    return new RuntimeEffectShader(this.ctx, childrenCtx);
+    return new RuntimeEffectShader(this.ctx, childrenCtx, children);
   }
   getUniform(index: number): SkSLUniform {
     const { gl, program } = this.ctx;

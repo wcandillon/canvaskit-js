@@ -92,15 +92,19 @@ const createContext = (
 
   const numUniforms = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
   for (let i = 0; i < numUniforms; i++) {
-    const uniformInfo = gl.getActiveUniform(program, i);
+    const uniformInfo = gl.getActiveUniform(program, i)!;
+    const location = gl.getUniformLocation(program, uniformInfo.name);
+    if (!location) {
+      throw new Error("Could not get uniform location");
+    }
     if (uniformInfo && uniformInfo.type === gl.SAMPLER_2D) {
-      const texture = gl.createTexture();
+      const texture = gl.createTexture()!;
       gl.activeTexture(gl.TEXTURE0 + i);
       gl.bindTexture(gl.TEXTURE_2D, texture);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-      textures[uniformInfo.name] = texture!;
+      textures[uniformInfo.name] = { texture, location };
     }
   }
 
@@ -118,5 +122,5 @@ const createContext = (
   gl.enableVertexAttribArray(positionLocation);
   gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 
-  return { gl, program, children: [], textures };
+  return { gl, program, textures };
 };

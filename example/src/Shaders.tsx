@@ -1,4 +1,4 @@
-import type { Canvas as CKCanvas, Image, Shader } from "canvaskit-wasm";
+import type { Canvas as CKCanvas, Image } from "canvaskit-wasm";
 
 import type { AnimationValue, Info } from "./components";
 import {

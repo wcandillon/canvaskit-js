@@ -1,9 +1,4 @@
-import type {
-  Surface,
-  Canvas as SkCanvas,
-  Image,
-  CanvasKit,
-} from "canvaskit-wasm";
+import type { Surface, Image, CanvasKit } from "canvaskit-wasm";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { CanvasProps, Info } from "./Canvas";

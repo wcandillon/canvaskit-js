@@ -3,7 +3,7 @@ import type {
   RuntimeEffect,
   Canvas as SkCanvas,
 } from "canvaskit-wasm";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 
 import type { AnimationValue, Info } from "./components";
 import { useClock, useOnDraw } from "./components";
