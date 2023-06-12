@@ -14,7 +14,7 @@ export class BlendShader extends ShaderJS {
     super(child1, child2);
   }
 
-  paintTexture(texture: OffscreenCanvasRenderingContext2D) {
+  paint(texture: OffscreenCanvasRenderingContext2D) {
     const { width, height } = texture.canvas;
     const [child1, child2] = this.children!;
     const t0 = createOffscreenTexture(width, height);

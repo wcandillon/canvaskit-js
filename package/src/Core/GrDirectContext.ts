@@ -6,29 +6,37 @@ export class GrDirectContextJS
   extends HostObject<GrDirectContext>
   implements GrDirectContext
 {
-  private limit = 0;
+  private limit = 5 * 3840 * 2160 * 4;
+  private cache: Map<string, ImageBitmap> = new Map();
 
   constructor(public readonly ctx: CanvasRenderingContext2D) {
     super();
   }
 
-  getResourceCacheLimitBytes(): number {
+  getResourceCacheLimitBytes() {
     return this.limit;
   }
 
-  getResourceCacheUsageBytes(): number {
-    throw new Error("Method not implemented.");
-    // return this.cache.reduce(
-    //   (acc, ctx) => acc + ctx.canvas.width * ctx.canvas.height * 4,
-    //   0
-    // );
+  getResourceCacheUsageBytes() {
+    return Array.from(this.cache.values()).reduce(
+      (acc, bitmap) => acc + bitmap.width * bitmap.height * 4,
+      0
+    );
   }
 
-  releaseResourcesAndAbandonContext(): void {
-    //this.cache = [];
+  releaseResourcesAndAbandonContext() {
+    this.cache.clear();
   }
 
-  setResourceCacheLimitBytes(limit: number): void {
+  setResourceCacheLimitBytes(limit: number) {
     this.limit = limit;
+  }
+
+  get(id: string) {
+    return this.cache.get(id);
+  }
+
+  set(id: string, bitmap: ImageBitmap) {
+    this.cache.set(id, bitmap);
   }
 }

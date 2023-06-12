@@ -14,7 +14,7 @@ export class TwoPointConicalGradient extends Gradient {
     super(colors, pos);
   }
 
-  paintTexture(ctx: OffscreenCanvasRenderingContext2D) {
+  paint(ctx: OffscreenCanvasRenderingContext2D) {
     const { r1, r2, c1, c2 } = this;
     const grd = ctx.createRadialGradient(c1[0], c1[1], r1, c2[0], c2[1], r2);
     this.colors.forEach((color, i) => {

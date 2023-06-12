@@ -1,27 +1,31 @@
-import type { RuntimeEffectContext } from "../RuntimeEffect";
+import type {
+  RuntimeEffectChildren,
+  RuntimeEffectContext,
+} from "../RuntimeEffect";
 
 import { ShaderJS } from "./Shader";
 
 export class RuntimeEffectShader extends ShaderJS {
-  constructor(private readonly ctx: RuntimeEffectContext) {
-    super();
+  constructor(
+    private readonly ctx: RuntimeEffectContext,
+    private readonly childrenCtx: RuntimeEffectChildren,
+    children: ShaderJS[]
+  ) {
+    super(...children);
   }
 
-  dispose() {
-    super.dispose();
-    // TODO: delete gl texture
-  }
-
-  paintTexture(ctx: OffscreenCanvasRenderingContext2D) {
+  paint(ctx: OffscreenCanvasRenderingContext2D) {
     const { gl } = this.ctx;
     const { width, height } = ctx.canvas;
     const canvas = gl.canvas as OffscreenCanvas;
+
     gl.canvas.width = width;
     gl.canvas.height = height;
-    this.ctx.children.forEach(({ shader, location, index }) => {
-      gl.activeTexture(gl[`TEXTURE${index}`]);
-      // Upload the image into the texture
-      const child = shader.paint(ctx);
+    this.childrenCtx.forEach(({ texture, location }, index) => {
+      const child = this.children![index].paint(ctx);
+      gl.activeTexture(gl.TEXTURE0 + index);
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.uniform1i(location, index);
       gl.texImage2D(
         gl.TEXTURE_2D,
         0,
@@ -30,12 +34,9 @@ export class RuntimeEffectShader extends ShaderJS {
         gl.UNSIGNED_BYTE,
         child
       );
-      // Use the texture
-      gl.uniform1i(location, index);
     });
     gl.viewport(0, 0, width, height);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
-    const bitmap = canvas.transferToImageBitmap();
-    return bitmap;
+    return canvas.transferToImageBitmap();
   }
 }

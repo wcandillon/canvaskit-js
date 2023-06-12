@@ -28,7 +28,7 @@ import type {
 } from "canvaskit-wasm";
 
 import { PaintJS, nativeBlendMode } from "./Paint";
-import type { ColorSpaceJS, InputColor } from "./Core";
+import type { ColorSpaceJS, GrDirectContextJS, InputColor } from "./Core";
 import {
   DrawableRect,
   DrawablePath,
@@ -58,7 +58,8 @@ export class CanvasJS extends HostObject<Canvas> implements Canvas {
 
   constructor(
     readonly drawingCtx: CanvasRenderingContext2D,
-    public readonly svgCtx: SVGContext
+    public readonly svgCtx: SVGContext,
+    public readonly grCtx: GrDirectContextJS
   ) {
     super();
     this.stack.push({ ctx: drawingCtx });

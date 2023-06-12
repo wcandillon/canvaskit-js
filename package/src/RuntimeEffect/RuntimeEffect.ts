@@ -11,21 +11,24 @@ import type { ShaderJS } from "../Shader";
 import { RuntimeEffectShader } from "../Shader/RuntimeEffectShader";
 import { normalizeArray } from "../Core";
 
-type ShaderIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
+export interface RuntimeEffectChild {
+  texture: WebGLTexture;
+  location: WebGLUniformLocation;
+}
+
+export type RuntimeEffectChildren = RuntimeEffectChild[];
+
+export type Textures = { [name: string]: RuntimeEffectChild };
 
 export interface RuntimeEffectContext {
   gl: WebGL2RenderingContext;
   program: WebGLProgram;
-  children: {
-    shader: ShaderJS;
-    location: WebGLUniformLocation;
-    index: ShaderIndex;
-  }[];
+  textures: Textures;
 }
 
 interface UniformProcessingState {
   uniformIndex: number;
-  shaderIndex: ShaderIndex;
+  shaderIndex: number;
 }
 
 export class RuntimeEffectJS
@@ -55,10 +58,12 @@ export class RuntimeEffectJS
 
   makeShaderWithChildren(
     inputUniforms: MallocObj | Float32Array | number[],
-    children?: ShaderJS[],
+    input?: ShaderJS[],
     localMatrix?: InputMatrix
   ): Shader {
-    const { gl, program } = this.ctx;
+    const children = input ? input : [];
+    const childrenCtx: RuntimeEffectChildren = [];
+    const { gl, program, textures } = this.ctx;
     const uniforms = normalizeArray(inputUniforms);
     const state: UniformProcessingState = { uniformIndex: 0, shaderIndex: 0 };
     const uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
@@ -129,46 +134,20 @@ export class RuntimeEffectJS
         );
       } else if (uniformInfo.type === gl.SAMPLER_2D) {
         const { name } = uniformInfo;
-        const location = gl.getUniformLocation(program, name);
-        if (!location) {
-          throw new Error("Could not find uniform location for " + name);
-        }
-        const child = (children ?? [])[state.shaderIndex];
-        if (!child) {
-          throw new Error("No shader provided for " + name);
-        }
-        const texture = gl.createTexture();
-        if (!texture) {
-          throw new Error("Could not create texture for " + name);
-        }
-        gl.activeTexture(gl[`TEXTURE${state.shaderIndex}`]);
-        gl.bindTexture(gl.TEXTURE_2D, texture);
 
-        // Set the parameters so we can render any size image
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-        this.ctx.children.push({
-          shader: child,
-          location,
-          index: state.shaderIndex,
-        });
+        childrenCtx.push(textures[name]);
         state.shaderIndex++;
       }
     }
 
-    // If a local matrix is provided, set it as a uniform
     if (localMatrix) {
       console.warn("localMatrix not implemented yet");
-      //throw new Error("localMatrix not implemented yet");
     }
 
-    return new RuntimeEffectShader(this.ctx);
+    return new RuntimeEffectShader(this.ctx, childrenCtx, children);
   }
   getUniform(index: number): SkSLUniform {
     const { gl, program } = this.ctx;
-    // TODO: should exclude texture uniforms.
     const i = this.uniformMap.indexOf(index);
     const uniformInfo = gl.getActiveUniform(program, i);
     if (!uniformInfo) {
@@ -243,7 +222,7 @@ export class RuntimeEffectJS
     }
     return count;
   }
-  getUniformFloatCount(): number {
+  getUniformFloatCount() {
     const { gl, program } = this.ctx;
     let floatCount = 0;
     const uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
@@ -256,7 +235,8 @@ export class RuntimeEffectJS
     }
     return floatCount;
   }
-  getUniformName(index: number): string {
+
+  getUniformName(index: number) {
     const { gl, program } = this.ctx;
     const uniformInfo = gl.getActiveUniform(program, index);
     if (!uniformInfo) {

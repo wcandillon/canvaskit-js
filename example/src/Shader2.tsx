@@ -7,7 +7,7 @@ import type {
 import { useMemo } from "react";
 
 import type { AnimationValue, Info } from "./components";
-import { fitbox, mix, useLoop, useClock, useOnDraw } from "./components";
+import { fitbox, mix, useLoop, useOnDraw } from "./components";
 import { CanvasWASM, useImageWASM } from "./components/CanvasWASM";
 import { useCanvasKitWASM } from "./components/CanvasKitContext";
 import zurich from "./assets/zurich2.jpg";
