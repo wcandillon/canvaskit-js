@@ -1,9 +1,15 @@
-import type { RuntimeEffectContext } from "../RuntimeEffect";
+import type {
+  RuntimeEffectChildren,
+  RuntimeEffectContext,
+} from "../RuntimeEffect";
 
 import { ShaderJS } from "./Shader";
 
 export class RuntimeEffectShader extends ShaderJS {
-  constructor(private readonly ctx: RuntimeEffectContext) {
+  constructor(
+    private readonly ctx: RuntimeEffectContext,
+    private readonly childrenCtx: RuntimeEffectChildren
+  ) {
     super();
   }
 
@@ -14,8 +20,8 @@ export class RuntimeEffectShader extends ShaderJS {
 
     gl.canvas.width = width;
     gl.canvas.height = height;
-    this.ctx.children.forEach(({ shader, index, texture, id }) => {
-      // const child = shader.paint(ctx);
+    this.childrenCtx.forEach(({ shader, index, texture }) => {
+      const child = shader.paint(ctx);
       gl.activeTexture(gl.TEXTURE0 + index);
       gl.bindTexture(gl.TEXTURE_2D, texture);
       // Upload the image into the texture
@@ -25,7 +31,7 @@ export class RuntimeEffectShader extends ShaderJS {
         gl.RGBA,
         gl.RGBA,
         gl.UNSIGNED_BYTE,
-        (shader as any).image
+        child
       );
     });
     gl.viewport(0, 0, width, height);

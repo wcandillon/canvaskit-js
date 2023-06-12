@@ -6,7 +6,7 @@ import type {
   SkSLUniform,
 } from "canvaskit-wasm";
 
-import { IndexedHostObject } from "../HostObject";
+import { HostObject } from "../HostObject";
 import type { ShaderJS } from "../Shader";
 import { RuntimeEffectShader } from "../Shader/RuntimeEffectShader";
 import { normalizeArray } from "../Core";
@@ -16,15 +16,16 @@ export type Textures = { [name: string]: WebGLTexture };
 export interface RuntimeEffectContext {
   gl: WebGL2RenderingContext;
   program: WebGLProgram;
-  children: {
-    id: string;
-    shader: ShaderJS;
-    location: WebGLUniformLocation;
-    index: number;
-    texture: WebGLTexture;
-  }[];
   textures: Textures;
 }
+
+export interface RuntimeEffectChild {
+  shader: ShaderJS;
+  index: number;
+  texture: WebGLTexture;
+}
+
+export type RuntimeEffectChildren = RuntimeEffectChild[];
 
 interface UniformProcessingState {
   uniformIndex: number;
@@ -32,13 +33,13 @@ interface UniformProcessingState {
 }
 
 export class RuntimeEffectJS
-  extends IndexedHostObject<RuntimeEffect>
+  extends HostObject<RuntimeEffect>
   implements RuntimeEffect
 {
   private uniformMap: number[] = [];
 
   constructor(private readonly ctx: RuntimeEffectContext) {
-    super("runtime-effect");
+    super();
     const { gl, program } = this.ctx;
     const uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
     for (let i = 0; i < uniformCount; i++) {
@@ -61,6 +62,7 @@ export class RuntimeEffectJS
     children?: ShaderJS[],
     localMatrix?: InputMatrix
   ): Shader {
+    const childrenCtx: RuntimeEffectChildren = [];
     const { gl, program, textures } = this.ctx;
     const uniforms = normalizeArray(inputUniforms);
     const state: UniformProcessingState = { uniformIndex: 0, shaderIndex: 0 };
@@ -137,11 +139,9 @@ export class RuntimeEffectJS
           throw new Error("No shader provided for " + name);
         }
         const texture = textures[name];
-        this.ctx.children.push({
+        childrenCtx.push({
           texture,
-          id: `${this.id}-${name}`,
           shader: child,
-          location,
           index: state.shaderIndex,
         });
         state.shaderIndex++;
@@ -152,7 +152,7 @@ export class RuntimeEffectJS
       console.warn("localMatrix not implemented yet");
     }
 
-    return new RuntimeEffectShader(this.ctx);
+    return new RuntimeEffectShader(this.ctx, childrenCtx);
   }
   getUniform(index: number): SkSLUniform {
     const { gl, program } = this.ctx;
