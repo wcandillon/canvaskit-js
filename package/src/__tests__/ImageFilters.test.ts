@@ -116,4 +116,46 @@ describe("ImageFilters", () => {
 
     checkImage(image, "snapshots/image-filters/compose.png");
   });
+  it("Blur effect", async () => {
+    const image = await skia.eval(({ CanvasKit, canvas, width }) => {
+      const blur = CanvasKit.ImageFilter.MakeBlur(
+        20,
+        20,
+        CanvasKit.TileMode.Clamp,
+        null
+      );
+      const paint = new CanvasKit.Paint();
+      paint.setColor(CanvasKit.CYAN);
+      paint.setImageFilter(blur);
+      canvas.drawCircle(0, width / 2, width / 2, paint);
+      canvas.drawCircle(width, width / 2, width / 2, paint);
+    });
+
+    checkImage(image, "snapshots/image-filters/blur3.png");
+  });
+  it("Gooey effect", async () => {
+    const image = await skia.eval(({ CanvasKit, canvas, width }) => {
+      const paint = new CanvasKit.Paint();
+      paint.setColor(CanvasKit.CYAN);
+      const blur = CanvasKit.ImageFilter.MakeBlur(
+        20,
+        20,
+        CanvasKit.TileMode.Clamp,
+        null
+      );
+      const cf = CanvasKit.ColorFilter.MakeMatrix([
+        1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 18, -7,
+      ]);
+      const imageFilter = CanvasKit.ImageFilter.MakeCompose(
+        CanvasKit.ImageFilter.MakeColorFilter(cf, null),
+        blur
+      );
+      canvas.drawCircle(0, width / 2, width / 2, paint);
+      canvas.drawCircle(width, width / 2, width / 2, paint);
+      canvas.saveLayer(undefined, undefined, imageFilter);
+      canvas.restore();
+    });
+
+    checkImage(image, "snapshots/image-filters/gooey.png");
+  });
 });

@@ -5,8 +5,10 @@ export class SVGContext {
   private defs: SVGDefsElement = document.createElementNS(ns, "defs");
 
   constructor(id: string) {
-    this.root.setAttribute("id", id);
-    this.root.setAttribute("style", "display: none;");
+    this.root.id = id;
+    this.root.style.width = "0";
+    this.root.style.height = "0";
+    //this.root.setAttribute("style", "display: none;");
     this.defs = document.createElementNS(ns, "defs");
     this.root.appendChild(this.defs);
     document.body.appendChild(this.root);
