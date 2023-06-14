@@ -8,8 +8,8 @@ export abstract class NativeFilter<
 > extends IndexedHostObject<T> {
   protected _filters: SVGFilter[] = [];
 
-  constructor() {
-    super("filter");
+  constructor(type: T) {
+    super(type, "filter");
   }
 
   get filters() {
@@ -21,5 +21,7 @@ export abstract class ImageFilterJS
   extends NativeFilter<"ImageFilter">
   implements ImageFilter
 {
-  __type__ = "ImageFilter" as const;
+  constructor() {
+    super("ImageFilter");
+  }
 }

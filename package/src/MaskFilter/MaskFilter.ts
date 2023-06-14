@@ -6,5 +6,7 @@ export abstract class MaskFilterJS
   extends NativeFilter<"MaskFilter">
   implements MaskFilter
 {
-  __type__ = "MaskFilter" as const;
+  constructor() {
+    super("MaskFilter");
+  }
 }

@@ -54,8 +54,6 @@ interface CanvasContext {
 }
 
 export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
-  __type__ = "Canvas" as const;
-
   private stack: CanvasContext[] = [];
 
   constructor(
@@ -63,7 +61,7 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     public readonly svgCtx: SVGContext,
     public readonly grCtx: GrDirectContextJS
   ) {
-    super();
+    super("Canvas");
     this.stack.push({ ctx: drawingCtx });
   }
 

@@ -173,7 +173,7 @@ export class ColorSpaceJS
   __type__ = "ColorSpace" as const;
 
   constructor(public readonly value: "srgb" | "display-p3" | "adobe-rgb") {
-    super();
+    super("ColorSpace");
   }
 
   getNativeValue() {

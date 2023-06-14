@@ -26,8 +26,8 @@ export abstract class IndexedHostObject<
 > extends HostObject<T> {
   public readonly id;
 
-  constructor(prefix: string) {
-    super();
+  constructor(type: T, prefix: string) {
+    super(type);
     this.id = `${prefix}-${
       Date.now().toString(36) + Math.random().toString(36).substring(2, 9)
     }`;

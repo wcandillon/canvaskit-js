@@ -6,5 +6,7 @@ export abstract class ColorFilterJS
   extends NativeFilter<"ColorFilter">
   implements ColorFilter
 {
-  __type__ = "ColorFilter" as const;
+  constructor() {
+    super("ColorFilter");
+  }
 }

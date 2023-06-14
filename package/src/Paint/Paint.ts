@@ -29,8 +29,6 @@ interface PaintContext {
 }
 
 export class PaintJS extends HostObject<"Paint"> implements Paint {
-  __type__ = "Paint" as const;
-
   private style = PaintStyle.Fill;
   private color = Float32Array.of(0, 0, 0, 1);
   private strokeWidth: number | null = null;
@@ -42,6 +40,10 @@ export class PaintJS extends HostObject<"Paint"> implements Paint {
   private strokeJoin: Miter | null = null;
   private strokeCap: Cap | null = null;
   private blendMode: GlobalCompositeOperation | null = null;
+
+  constructor() {
+    super("Paint");
+  }
 
   apply(paintCtx: PaintContext, input: Drawable | (() => void)) {
     const shape =

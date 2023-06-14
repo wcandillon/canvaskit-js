@@ -35,11 +35,10 @@ export class RuntimeEffectJS
   extends HostObject<"RuntimeEffect">
   implements RuntimeEffect
 {
-  __type__ = "RuntimeEffect" as const;
   private uniformMap: number[] = [];
 
   constructor(private readonly ctx: RuntimeEffectContext) {
-    super();
+    super("RuntimeEffect");
     const { gl, program } = this.ctx;
     const uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
     for (let i = 0; i < uniformCount; i++) {

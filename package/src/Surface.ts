@@ -16,7 +16,6 @@ import { SVGContext } from "./SVG/SVGContext";
 import { CanvasProxyHandler } from "./Core/CanvasProxyHandler";
 
 export class SurfaceJS extends IndexedHostObject<"Surface"> implements Surface {
-  __type__ = "Surface" as const;
   private canvas: Canvas;
   private svgCtx: SVGContext;
   private grCtx: GrDirectContextJS;
@@ -28,7 +27,7 @@ export class SurfaceJS extends IndexedHostObject<"Surface"> implements Surface {
     grCtx?: GrDirectContextJS,
     debug = false
   ) {
-    super("surface");
+    super("Surface", "surface");
     // TODO: move everything to GrDirectContextJS: SVGContext, CanvasRenderingContext2D
     this.svgCtx = new SVGContext(this.id);
     this.grCtx = grCtx ?? new GrDirectContextJS(ctx);
