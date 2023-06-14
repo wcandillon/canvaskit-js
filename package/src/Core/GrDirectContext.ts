@@ -3,9 +3,11 @@ import type { GrDirectContext } from "canvaskit-wasm";
 import { HostObject } from "../HostObject";
 
 export class GrDirectContextJS
-  extends HostObject<GrDirectContext>
+  extends HostObject<"GrDirectContext">
   implements GrDirectContext
 {
+  __type__ = "GrDirectContext" as const;
+
   private limit = 5 * 3840 * 2160 * 4;
   private cache: Map<string, ImageBitmap> = new Map();
 

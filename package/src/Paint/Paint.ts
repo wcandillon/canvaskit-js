@@ -28,7 +28,9 @@ interface PaintContext {
   svgCtx: SVGContext;
 }
 
-export class PaintJS extends HostObject<Paint> implements Paint {
+export class PaintJS extends HostObject<"Paint"> implements Paint {
+  __type__ = "Paint" as const;
+
   private style = PaintStyle.Fill;
   private color = Float32Array.of(0, 0, 0, 1);
   private strokeWidth: number | null = null;

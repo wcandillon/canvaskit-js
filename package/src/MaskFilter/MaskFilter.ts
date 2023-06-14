@@ -1,7 +1,10 @@
-import type { ImageFilter } from "canvaskit-wasm";
+import type { MaskFilter } from "canvaskit-wasm";
 
 import { NativeFilter } from "../ImageFilter";
 
 export abstract class MaskFilterJS
-  extends NativeFilter<ImageFilter>
-  implements ImageFilter {}
+  extends NativeFilter<"MaskFilter">
+  implements MaskFilter
+{
+  __type__ = "MaskFilter" as const;
+}

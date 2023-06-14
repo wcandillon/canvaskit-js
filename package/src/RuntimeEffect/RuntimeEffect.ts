@@ -32,9 +32,10 @@ interface UniformProcessingState {
 }
 
 export class RuntimeEffectJS
-  extends HostObject<RuntimeEffect>
+  extends HostObject<"RuntimeEffect">
   implements RuntimeEffect
 {
+  __type__ = "RuntimeEffect" as const;
   private uniformMap: number[] = [];
 
   constructor(private readonly ctx: RuntimeEffectContext) {

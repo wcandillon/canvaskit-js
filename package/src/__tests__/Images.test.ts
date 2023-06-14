@@ -75,7 +75,7 @@ describe("Images", () => {
         const output = CanvasKit.XYWHRect(0, 0, width, height);
         const paint = new CanvasKit.Paint();
         // const colorFilter = CanvasKit.ImageFilter.MakeColorFilter(cf, null);
-        paint.setMaskFilter(
+        paint.setImageFilter(
           CanvasKit.ImageFilter.MakeBlur(10, 10, CanvasKit.TileMode.Clamp, null)
         );
         const { src, dst } = fitRects("contain", input, output);

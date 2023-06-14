@@ -2,7 +2,9 @@ import type { Shader } from "canvaskit-wasm";
 
 import { HostObject } from "../HostObject";
 
-export abstract class ShaderJS extends HostObject<Shader> implements Shader {
+export abstract class ShaderJS extends HostObject<"Shader"> implements Shader {
+  __type__ = "Shader" as const;
+
   protected texture: ImageBitmap | null = null;
   protected children: ShaderJS[] | null;
 

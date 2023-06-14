@@ -15,7 +15,8 @@ import { GrDirectContextJS, rectToXYWH } from "./Core";
 import { SVGContext } from "./SVG/SVGContext";
 import { CanvasProxyHandler } from "./Core/CanvasProxyHandler";
 
-export class SurfaceJS extends IndexedHostObject<Surface> implements Surface {
+export class SurfaceJS extends IndexedHostObject<"Surface"> implements Surface {
+  __type__ = "Surface" as const;
   private canvas: Canvas;
   private svgCtx: SVGContext;
   private grCtx: GrDirectContextJS;

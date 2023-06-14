@@ -53,7 +53,9 @@ interface CanvasContext {
   clip?: Path2D;
 }
 
-export class CanvasJS extends HostObject<Canvas> implements Canvas {
+export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
+  __type__ = "Canvas" as const;
+
   private stack: CanvasContext[] = [];
 
   constructor(

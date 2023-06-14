@@ -1,9 +1,14 @@
 import type { EmbindObject } from "canvaskit-wasm";
 
-export abstract class HostObject<T extends HostObject<T>>
-  implements EmbindObject<T>
+export abstract class HostObject<T extends string>
+  // TODO: we have a patch in cavanskit that will sanitize this type once landed
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  implements EmbindObject<any>
 {
-  clone(): T {
+  abstract __type__: T;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  clone(): any {
     throw new Error("Method not implemented.");
   }
   delete(): void {}
@@ -17,7 +22,7 @@ export abstract class HostObject<T extends HostObject<T>>
 }
 
 export abstract class IndexedHostObject<
-  T extends HostObject<T>
+  T extends string
 > extends HostObject<T> {
   public readonly id;
 

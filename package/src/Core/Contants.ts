@@ -167,9 +167,11 @@ export enum PointModeEnum {
 export const PointMode = makeEnum<PointModeEnumValues>(PointModeEnum);
 
 export class ColorSpaceJS
-  extends HostObject<CKColorSpace>
+  extends HostObject<"ColorSpace">
   implements CKColorSpace
 {
+  __type__ = "ColorSpace" as const;
+
   constructor(public readonly value: "srgb" | "display-p3" | "adobe-rgb") {
     super();
   }

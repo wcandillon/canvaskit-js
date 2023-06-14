@@ -34,7 +34,8 @@ const dataURLToByteArray = (dataUrl: string) => {
   return byteArray;
 };
 
-export class ImageJS extends HostObject<Image> implements Image {
+export class ImageJS extends HostObject<"Image"> implements Image {
+  __type__ = "Image" as const;
   private image: HTMLCanvasElement;
 
   constructor(source: CanvasImageSource | ImageData) {
