@@ -60,12 +60,11 @@ const unflattenCmds = (cmds: Float32Array): PathCommand[] => {
 };
 
 export class PathJS extends HostObject<"Path"> implements Path {
-  __type__ = "Path" as const;
   private path: PathCommand[] = [];
   private lastPoint: [number, number] = [0, 0];
 
   constructor(cmds?: PathCommand[]) {
-    super();
+    super("Path");
     if (cmds) {
       this.path = cmds;
       this.lastPoint = cmds[cmds.length - 1].slice(-2) as [number, number];

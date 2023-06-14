@@ -5,7 +5,7 @@ export abstract class HostObject<T extends string>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   implements EmbindObject<any>
 {
-  abstract __type__: T;
+  constructor(public readonly __type__: T) {}
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   clone(): any {
