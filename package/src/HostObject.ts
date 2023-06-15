@@ -7,6 +7,7 @@ export abstract class HostObject<T extends string>
 {
   constructor(public readonly __type__: T) {}
 
+  // TODO: remove when upgrading canvaskit
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   clone(): any {
     throw new Error("Method not implemented.");
