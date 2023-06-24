@@ -254,6 +254,37 @@ export class PathBuilder {
     return this;
   }
 
+  cubicCurveTo(
+    controlPoint1: Point,
+    controlPoint2: Point,
+    point: Point,
+    relative = false
+  ) {
+    controlPoint1 = relative
+      ? plus(this.current, controlPoint1)
+      : controlPoint1;
+    controlPoint2 = relative
+      ? plus(this.current, controlPoint2)
+      : controlPoint2;
+    point = relative ? plus(this.current, point) : point;
+    this.path.addCubicComponent(
+      this.current,
+      controlPoint1,
+      controlPoint2,
+      point
+    );
+    this.current = point;
+    return this;
+  }
+
+  quadraticCurveTo(controlPoint: Point, point: Point, relative = false) {
+    point = relative ? plus(this.current, point) : point;
+    controlPoint = relative ? plus(this.current, controlPoint) : controlPoint;
+    this.path.addQuadraticComponent(this.current, controlPoint, point);
+    this.current = point;
+    return this;
+  }
+
   moveTo(p: Point, relative = false) {
     this.current = relative ? plus(this.current, p) : p;
     this.subpathStart = this.current;

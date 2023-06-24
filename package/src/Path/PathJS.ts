@@ -14,6 +14,7 @@ import { HostObject } from "../HostObject";
 import type { Matrix3x3 } from "../Matrix3";
 import { toRad } from "../math/index";
 import { rectToXYWH, rrectToXYWH } from "../Core";
+import { vec } from "../Vector";
 
 import { PathBuilder } from "./PathBuilder";
 
@@ -107,9 +108,11 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
     throw new Error("Method not implemented.");
   }
 
-  close(): SkPath {
-    throw new Error("Method not implemented.");
+  close() {
+    this.path.close();
+    return this;
   }
+
   computeTightBounds(_outputArray?: Float32Array | undefined): Float32Array {
     throw new Error("Method not implemented.");
   }
@@ -132,14 +135,21 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
     throw new Error("Method not implemented.");
   }
   cubicTo(
-    _cpx1: number,
-    _cpy1: number,
-    _cpx2: number,
-    _cpy2: number,
-    _x: number,
-    _y: number
-  ): SkPath {
-    throw new Error("Method not implemented.");
+    cpx1: number,
+    cpy1: number,
+    cpx2: number,
+    cpy2: number,
+    x: number,
+    y: number,
+    relative = false
+  ) {
+    this.path.cubicCurveTo(
+      vec(cpx1, cpy1),
+      vec(cpx2, cpy2),
+      vec(x, y),
+      relative
+    );
+    return this;
   }
   dash(_on: number, _off: number, _phase: number): boolean {
     throw new Error("Method not implemented.");
@@ -165,14 +175,16 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
   isVolatile(): boolean {
     throw new Error("Method not implemented.");
   }
-  lineTo(_x: number, _y: number): SkPath {
-    throw new Error("Method not implemented.");
+  lineTo(x: number, y: number, relative = false) {
+    this.path.lineTo(vec(x, y), relative);
+    return this;
   }
   makeAsWinding(): SkPath | null {
     throw new Error("Method not implemented.");
   }
-  moveTo(_x: number, _y: number): SkPath {
-    throw new Error("Method not implemented.");
+  moveTo(x: number, y: number, relative = false) {
+    this.path.moveTo(vec(x, y), relative);
+    return this;
   }
   offset(_dx: number, _dy: number): SkPath {
     throw new Error("Method not implemented.");
@@ -180,8 +192,9 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
   op(_other: SkPath, _op: EmbindEnumEntity): boolean {
     throw new Error("Method not implemented.");
   }
-  quadTo(_x1: number, _y1: number, _x2: number, _y2: number): SkPath {
-    throw new Error("Method not implemented.");
+  quadTo(x1: number, y1: number, x2: number, y2: number, relative = false) {
+    this.path.quadraticCurveTo(vec(x1, y1), vec(x2, y2), relative);
+    return this;
   }
   rArcTo(
     _rx: number,
@@ -204,14 +217,15 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
     throw new Error("Method not implemented.");
   }
   rCubicTo(
-    _cpx1: number,
-    _cpy1: number,
-    _cpx2: number,
-    _cpy2: number,
-    _x: number,
-    _y: number
-  ): SkPath {
-    throw new Error("Method not implemented.");
+    cpx1: number,
+    cpy1: number,
+    cpx2: number,
+    cpy2: number,
+    x: number,
+    y: number
+  ) {
+    this.cubicTo(cpx1, cpy1, cpx2, cpy2, x, y, true);
+    return this;
   }
   reset(): void {
     throw new Error("Method not implemented.");
@@ -219,14 +233,17 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
   rewind(): void {
     this.reset();
   }
-  rLineTo(_x: number, _y: number): SkPath {
-    throw new Error("Method not implemented.");
+  rLineTo(x: number, y: number): SkPath {
+    this.path.lineTo(vec(x, y), true);
+    return this;
   }
-  rMoveTo(_x: number, _y: number): SkPath {
-    throw new Error("Method not implemented.");
+  rMoveTo(x: number, y: number) {
+    this.path.moveTo(vec(x, y), true);
+    return this;
   }
-  rQuadTo(_x1: number, _y1: number, _x2: number, _y2: number): SkPath {
-    throw new Error("Method not implemented.");
+  rQuadTo(x1: number, y1: number, x2: number, y2: number) {
+    this.path.quadraticCurveTo(vec(x1, y1), vec(x2, y2), true);
+    return this;
   }
   setFillType(_fill: EmbindEnumEntity): void {
     throw new Error("Method not implemented.");
@@ -253,6 +270,7 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
     throw new Error("Method not implemented.");
   }
 
+  // TODO: to remove. We don't need it to draw the path
   getPath2D() {
     return new Path2D(this.toSVGString());
   }

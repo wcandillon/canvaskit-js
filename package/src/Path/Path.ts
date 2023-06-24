@@ -7,18 +7,18 @@ import {
   CubicPathComponent,
 } from "./PathComponent";
 
-enum Convexity {
-  Unknown,
-  Convex,
-}
+// enum Convexity {
+//   Unknown,
+//   Convex,
+// }
 
-enum FillType {
-  NonZero, // The default winding order.
-  Odd,
-  Positive,
-  Negative,
-  AbsGeqTwo,
-}
+// enum FillType {
+//   NonZero, // The default winding order.
+//   Odd,
+//   Positive,
+//   Negative,
+//   AbsGeqTwo,
+// }
 
 enum ComponentType {
   Linear,
@@ -33,8 +33,8 @@ interface ComponentIndexPair {
 }
 
 export class Path {
-  private convexity = Convexity.Unknown;
-  private fillType = FillType.NonZero;
+  // private convexity = Convexity.Unknown;
+  // private fillType = FillType.NonZero;
 
   private components: ComponentIndexPair[] = [];
   private linears: LinearPathComponent[] = [];
