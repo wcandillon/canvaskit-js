@@ -13,16 +13,18 @@ import type {
 import { HostObject } from "../HostObject";
 import type { Matrix3x3 } from "../Matrix3";
 import { toRad } from "../math/index";
-import { rectToXYWH, rrectToXYWH } from "../Core";
+import { PathVerb, normalizeArray, rectToXYWH, rrectToXYWH } from "../Core";
 import { vec } from "../Vector";
 
 import { PathBuilder } from "./PathBuilder";
+import { fromSVGString, toSVGString } from "./SVGPaths";
 
 export class PathJS extends HostObject<"Path"> implements SkPath {
-  private path = new PathBuilder();
+  private path: PathBuilder;
 
-  constructor() {
+  constructor(path?: PathBuilder) {
     super("Path");
+    this.path = path ?? new PathBuilder();
   }
 
   addArc(inputBounds: InputRect, startAngle: number, sweepAngle: number) {
@@ -129,7 +131,8 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
     throw new Error("Method not implemented.");
   }
   copy(): SkPath {
-    throw new Error("Method not implemented.");
+    // TODO: this could be better
+    return PathJS.MakeFromSVGString(this.toSVGString())!;
   }
   countPoints(): number {
     throw new Error("Method not implemented.");
@@ -258,10 +261,10 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
     throw new Error("Method not implemented.");
   }
   toCmds(): Float32Array {
-    throw new Error("Method not implemented.");
+    return Float32Array.of(...this.path.path.toCmds().flat());
   }
-  toSVGString(): string {
-    throw new Error("Method not implemented.");
+  toSVGString() {
+    return toSVGString(this.path.path);
   }
   transform(_m: Matrix3x3): SkPath {
     throw new Error("Method not implemented.");
@@ -278,8 +281,33 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
   static CanInterpolate(_path1: SkPath, _path2: SkPath): boolean {
     throw new Error("Function not implemented.");
   }
-  static MakeFromCmds(_cmds: InputCommands): SkPath | null {
-    throw new Error("Method not implemented.");
+  static MakeFromCmds(input: InputCommands): SkPath | null {
+    const cmds = normalizeArray(input);
+    const path = new PathBuilder();
+    let i = 0;
+    while (i < cmds.length) {
+      const cmd = cmds[i++];
+      if (cmd === PathVerb.Move) {
+        path.moveTo(vec(cmds[i++], cmds[i++]));
+      } else if (cmd === PathVerb.Line) {
+        path.lineTo(vec(cmds[i++], cmds[i++]));
+      } else if (cmd === PathVerb.Cubic) {
+        path.cubicCurveTo(
+          vec(cmds[i++], cmds[i++]),
+          vec(cmds[i++], cmds[i++]),
+          vec(cmds[i++], cmds[i++])
+        );
+      } else if (cmd === PathVerb.Quad) {
+        path.quadraticCurveTo(
+          vec(cmds[i++], cmds[i++]),
+          vec(cmds[i++], cmds[i++])
+        );
+      } else if (cmd === PathVerb.Close) {
+        i++;
+        path.close();
+      }
+    }
+    return new PathJS(path);
   }
   static MakeFromOp(
     _one: SkPath,
@@ -295,8 +323,12 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
   ): SkPath | null {
     throw new Error("Function not implemented.");
   }
-  static MakeFromSVGString(_d: string): SkPath | null {
-    throw new Error("Method not implemented.");
+  static MakeFromSVGString(d: string) {
+    try {
+      return new PathJS(fromSVGString(d));
+    } catch (e) {
+      return null;
+    }
   }
   static MakeFromVerbsPointsWeights(
     _verbs: VerbList,

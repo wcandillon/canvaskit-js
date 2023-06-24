@@ -1,6 +1,7 @@
 import type { Point } from "canvaskit-wasm";
 
 import { equals, minus, normalize, vec } from "../Vector";
+import { PathVerb } from "../Core";
 
 const linearSolve = (t: number, p0: number, p1: number) => {
   return p0 + t * (p1 - p0);
@@ -30,12 +31,17 @@ const cubicSolve = (
 };
 
 interface PathComponent<T extends PathComponent<T>> {
+  toCmd(): number[];
   equals(component: T): boolean;
   solve(t: number): Point;
 }
 
 export class LinearPathComponent implements PathComponent<LinearPathComponent> {
   constructor(private readonly p1: Point, private readonly p2: Point) {}
+
+  toCmd() {
+    return [PathVerb.Line, this.p2[0], this.p2[1]];
+  }
 
   solve(t: number): Point {
     return vec(
@@ -80,6 +86,10 @@ export class QuadraticPathComponent
     private readonly p2: Point
   ) {}
 
+  toCmd() {
+    return [PathVerb.Quad, this.cp[0], this.cp[1], this.p2[0], this.p2[1]];
+  }
+
   solve(t: number): Point {
     return vec(
       quadraticSolve(t, this.p1[0], this.cp[0], this.p2[1]),
@@ -101,6 +111,18 @@ export class CubicPathComponent implements PathComponent<CubicPathComponent> {
     private readonly cp2: Point,
     private readonly p2: Point
   ) {}
+
+  toCmd() {
+    return [
+      PathVerb.Quad,
+      this.cp1[0],
+      this.cp1[1],
+      this.cp2[0],
+      this.cp2[1],
+      this.p2[0],
+      this.p2[1],
+    ];
+  }
 
   equals(p: CubicPathComponent): boolean {
     return (
@@ -126,5 +148,13 @@ export class ContourComponent {
     return (
       equals(this.destination, p.destination) && p.isClosed === this.isClosed
     );
+  }
+
+  toCmd() {
+    if (this.isClosed) {
+      return [PathVerb.Close];
+    } else {
+      return [PathVerb.Line, this.destination[0], this.destination[1]];
+    }
   }
 }

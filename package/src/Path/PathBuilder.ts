@@ -7,7 +7,7 @@ import { ARC_APPROXIMATION_MAGIC, PI_OVER_2, TAU } from "../math";
 import { Path } from "./Path";
 
 export class PathBuilder {
-  private path = new Path();
+  public path = new Path();
   private current = vec(0, 0);
   private subpathStart = vec(0, 0);
 

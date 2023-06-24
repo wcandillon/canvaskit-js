@@ -42,6 +42,21 @@ export class Path {
   private cubics: CubicPathComponent[] = [];
   private contours: ContourComponent[] = [];
 
+  toCmds() {
+    return this.components.map(({ type, index }) => {
+      switch (type) {
+        case ComponentType.Linear:
+          return this.linears[index].toCmd();
+        case ComponentType.Quadratic:
+          return this.quads[index].toCmd();
+        case ComponentType.Cubic:
+          return this.cubics[index].toCmd();
+        case ComponentType.Contour:
+          return this.contours[index].toCmd();
+      }
+    });
+  }
+
   addLinearComponent(p1: Point, p2: Point) {
     this.components.push({
       index: this.linears.length,
