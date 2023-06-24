@@ -95,14 +95,15 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     path.rect(x, y, width, height);
     this._clip(path);
   }
-  clipRRect(
-    rrect: InputRRect,
-    _op: EmbindEnumEntity,
-    _doAntiAlias: boolean
-  ): void {
+  clipRRect(rrect: InputRRect, _op: EmbindEnumEntity, _doAntiAlias: boolean) {
     const { x, y, width, height, radii } = rrectToXYWH(rrect);
     const path = new Path2D();
-    path.roundRect(x, y, width, height, radii);
+    path.roundRect(x, y, width, height, [
+      { x: radii.topLeft[0], y: radii.topLeft[1] },
+      { x: radii.topRight[0], y: radii.topRight[1] },
+      { x: radii.bottomRight[0], y: radii.bottomRight[1] },
+      { x: radii.bottomLeft[0], y: radii.bottomLeft[1] },
+    ]);
     this._clip(path);
   }
   private _clip(path: Path2D) {
@@ -332,7 +333,12 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
   drawRRect(rrect: InputRRect, paint: PaintJS): void {
     paint.apply(this.paintCtx, () => {
       const { x, y, width, height, radii } = rrectToXYWH(rrect);
-      this.ctx.roundRect(x, y, width, height, radii);
+      this.ctx.roundRect(x, y, width, height, [
+        { x: radii.topLeft[0], y: radii.topLeft[1] },
+        { x: radii.topRight[0], y: radii.topRight[1] },
+        { x: radii.bottomRight[0], y: radii.bottomRight[1] },
+        { x: radii.bottomLeft[0], y: radii.bottomLeft[1] },
+      ]);
     });
   }
   drawShadow(

@@ -1,4 +1,6 @@
-import type { InputIRect, InputRRect, InputRect } from "canvaskit-wasm";
+import type { InputIRect, InputRRect, InputRect, Point } from "canvaskit-wasm";
+
+import { vec } from "../Vector";
 
 import { normalizeArray } from "./Values";
 
@@ -44,6 +46,13 @@ export const rrectXY = (input: InputRect, rx: number, ry: number) => {
   );
 };
 
+export interface XYWH {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 export const rectToXYWH = (r: InputRect | InputIRect) => {
   const rect = normalizeArray(r);
   return {
@@ -54,6 +63,13 @@ export const rectToXYWH = (r: InputRect | InputIRect) => {
   };
 };
 
+export interface Radii {
+  topLeft: Point;
+  topRight: Point;
+  bottomRight: Point;
+  bottomLeft: Point;
+}
+
 export const rrectToXYWH = (r: InputRRect) => {
   const rect = normalizeArray(r);
   return {
@@ -61,6 +77,11 @@ export const rrectToXYWH = (r: InputRRect) => {
     y: rect[1],
     width: rect[2] - rect[0],
     height: rect[3] - rect[1],
-    radii: Array.from(rect.slice(4, 8)),
+    radii: {
+      topLeft: vec(rect[4], rect[5]),
+      topRight: vec(rect[6], rect[7]),
+      bottomRight: vec(rect[8], rect[9]),
+      bottomLeft: vec(rect[10], rect[11]),
+    },
   };
 };

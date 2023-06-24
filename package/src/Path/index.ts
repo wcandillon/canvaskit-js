@@ -1,1 +1,1 @@
-export * from "./Path";
+export * from "./PathJS";
