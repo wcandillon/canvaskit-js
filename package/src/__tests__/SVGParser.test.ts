@@ -2,7 +2,7 @@ import { parseSVG } from "../Path/SVG";
 
 describe("SVG Parser", () => {
   it("moveTo", () => {
-    //expect(() => parseSVG("m 10")).toThrow();
+    expect(() => parseSVG("m 10")).toThrow();
     expect(parseSVG("m 10 20")).toEqual([["m", 10, 20]]);
   });
   it("exponents", function () {
@@ -34,9 +34,7 @@ describe("SVG Parser", () => {
   });
 
   it("lineTo", function () {
-    // (function () {
-    //   parseSVG("l 10 10 0");
-    // }).should.throw(/malformed/);
+    expect(() => parseSVG("l 10 10 0")).toThrow();
     expect(parseSVG("l 10,10")).toEqual([["l", 10, 10]]);
     expect(parseSVG("l10 10 10 10")).toEqual([
       ["l", 10, 10],
@@ -70,9 +68,7 @@ describe("SVG Parser", () => {
   });
 
   it("smooth quadratic curveTo", function () {
-    // (function () {
-    //   parseSVG("t 1 2 3");
-    // }).should.throw();
+    expect(() => parseSVG("t 1 2 3")).toThrow();
     expect(parseSVG("T 1 -2e2")).toEqual([["T", 1, -2e2]]);
   });
 
