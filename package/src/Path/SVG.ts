@@ -22,6 +22,19 @@ type Command =
 
 type PathCommand = [Command, ...number[]];
 
+const length = { a: 7, c: 6, h: 1, l: 2, m: 2, q: 4, s: 4, t: 2, v: 1, z: 0 };
+
+const stackCmd = (
+  commands: PathCommand[],
+  cmd: Command,
+  params: number[],
+  size: number
+) => {
+  while (params.length > 0) {
+    commands.push([cmd, ...params.splice(0, size)]);
+  }
+};
+
 export const parseSVG = (svgString: string): PathCommand[] => {
   // RegExp to match segments and numbers
   const segment = /([astvzqmhlc])([^astvzqmhlc]*)/gi;
@@ -42,16 +55,17 @@ export const parseSVG = (svgString: string): PathCommand[] => {
       params.push(parseFloat(numMatch[0]));
     }
 
+    const cmdSize = length[command.toLowerCase() as keyof typeof length];
+
     // overloaded moveTo
     if ((command === "m" || command === "M") && params.length > 2) {
       commands.push([command, ...params.splice(0, 2)]);
       const lineTo = command === "m" ? "l" : "L";
-      while (params.length > 0) {
-        commands.push([lineTo, ...params.splice(0, 2)]);
-      }
+      stackCmd(commands, lineTo, params, cmdSize);
+    } else if (command === "z" || command === "Z") {
+      commands.push([command]);
     } else {
-      // Push to the commands array
-      commands.push([command, ...params]);
+      stackCmd(commands, command, params, cmdSize);
     }
   }
 
