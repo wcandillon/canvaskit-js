@@ -96,12 +96,49 @@ describe("SVG Parser", () => {
     );
   });
 
-  it("smooth curveTo", function () {
-    expect(parseSVG("S 1 2, 3 4").path.toCmds()).toEqual(
-      [[CanvasKit.CUBIC_VERB, 0, 0, 1, 2, 3, 4]].flat()
+  // it("smooth curveTo (1)", function () {
+  //   expect(parseSVG("S 1 2, 3 4").path.toCmds()).toEqual(
+  //     [
+  //       [CanvasKit.MOVE_VERB, 0, 0, CanvasKit.CUBIC_VERB, 0, 0, 1, 2, 3, 4],
+  //     ].flat()
+  //   );
+  // });
+
+  it("smooth curveTo (2)", function () {
+    expect(parseSVG("M 0, 0 S 1 2, 3 4").path.toCmds()).toEqual(
+      [
+        [CanvasKit.MOVE_VERB, 0, 0, CanvasKit.CUBIC_VERB, 0, 0, 1, 2, 3, 4],
+      ].flat()
     );
   });
 
+  it("smooth curveTo (3)", function () {
+    expect(
+      parseSVG("M 10 80 C 40 10, 65 10, 95 80 S 150 150, 180 80").path.toCmds()
+    ).toEqual(
+      [
+        [
+          CanvasKit.MOVE_VERB,
+          10,
+          80,
+          CanvasKit.CUBIC_VERB,
+          40,
+          10,
+          65,
+          10,
+          95,
+          80,
+          CanvasKit.CUBIC_VERB,
+          65,
+          10,
+          150,
+          150,
+          180,
+          80,
+        ],
+      ].flat()
+    );
+  });
   // it("smooth quadratic curveTo", function () {
   //   expect(() => parseSVG("t 1 2 3")).toThrow();
   //   expect(parseSVG("T 1 -2e2")).toEqual([["T", 1, -2e2]]);

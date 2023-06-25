@@ -119,7 +119,7 @@ export class CubicPathComponent implements PathComponent<CubicPathComponent> {
 
   toCmd() {
     return [
-      PathVerb.Quad,
+      PathVerb.Cubic,
       this.cp1[0],
       this.cp1[1],
       this.cp2[0],

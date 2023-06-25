@@ -43,6 +43,9 @@ export class Path {
   private contours: ContourComponent[] = [];
 
   getLastComponent() {
+    if (this.components.length === 0) {
+      return null;
+    }
     const { index, type } = this.components[this.components.length - 1];
     switch (type) {
       case ComponentType.Linear:
