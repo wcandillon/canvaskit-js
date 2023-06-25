@@ -96,9 +96,11 @@ describe("SVG Parser", () => {
     );
   });
 
-  // it("smooth curveTo", function () {
-  //   expect(parseSVG("S 1 2, 3 4")).toEqual([["S", 1, 2, 3, 4]]);
-  // });
+  it("smooth curveTo", function () {
+    expect(parseSVG("S 1 2, 3 4").path.toCmds()).toEqual(
+      [[CanvasKit.CUBIC_VERB, 0, 0, 1, 2, 3, 4]].flat()
+    );
+  });
 
   // it("smooth quadratic curveTo", function () {
   //   expect(() => parseSVG("t 1 2 3")).toThrow();
