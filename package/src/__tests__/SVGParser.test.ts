@@ -6,10 +6,13 @@ describe("SVG Parser", () => {
   it("moveTo", () => {
     expect(() => parseSVG("m 10")).toThrow();
     const path = parseSVG("m 10 20").getPath();
-    expect(path.toSVGString()).toEqual("M10 20");
+    expect(path.toSVGString()).toEqual("");
+    const path2 = parseSVG("m 10 20 l 0 10").getPath();
+    expect(path2.toSVGString()).toEqual("M10 20 L10 30");
   });
+
   it("exponents", function () {
-    const path = parseSVG("m 1e3 2e-3").getPath();
+    const path = parseSVG("m 1e3 2e-3 l 0 0").getPath();
     const [verb, x, y] = path.toCmds();
     expect(verb).toEqual(CanvasKit.MOVE_VERB);
     expect(x).toEqual(1e3);
@@ -17,7 +20,7 @@ describe("SVG Parser", () => {
   });
 
   it("no whitespace between negative sign", function () {
-    const path = parseSVG("M46-86").getPath();
+    const path = parseSVG("M46-86 l 0 0").getPath();
     const [verb, x, y] = path.toCmds();
     expect(verb).toEqual(CanvasKit.MOVE_VERB);
     expect(x).toEqual(46);
