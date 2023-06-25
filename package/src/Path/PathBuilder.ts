@@ -7,9 +7,13 @@ import { ARC_APPROXIMATION_MAGIC, PI_OVER_2, TAU } from "../math";
 import { Path } from "./Path";
 
 export class PathBuilder {
-  public path = new Path();
-  private current = vec(0, 0);
-  private subpathStart = vec(0, 0);
+  private readonly path = new Path();
+  private current: Point = vec(0, 0);
+  private subpathStart: Point | null = null;
+
+  getPath() {
+    return this.path;
+  }
 
   addRoundedRect(rect: XYWH, radii: Radii) {
     if (
@@ -300,9 +304,11 @@ export class PathBuilder {
   }
 
   close() {
-    this.lineTo(this.subpathStart);
-    this.path.setContourClosed(true);
-    this.path.addContourComponent(this.current);
+    if (this.subpathStart) {
+      this.lineTo(this.subpathStart);
+      this.path.setContourClosed(true);
+      this.path.addContourComponent(this.current);
+    }
     return this;
   }
 

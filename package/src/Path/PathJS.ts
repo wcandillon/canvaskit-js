@@ -261,10 +261,10 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
     throw new Error("Method not implemented.");
   }
   toCmds(): Float32Array {
-    return Float32Array.of(...this.path.path.toCmds().flat());
+    return Float32Array.of(...this.path.getPath().toCmds().flat());
   }
   toSVGString() {
-    return this.path.path.toSVGString();
+    return this.path.getPath().toSVGString();
   }
   transform(_m: Matrix3x3): SkPath {
     throw new Error("Method not implemented.");

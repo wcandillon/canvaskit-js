@@ -65,7 +65,7 @@ const stackCmd = (
     } else if (lCmd === "v") {
       path.lineTo(vec(path.getLastPoint()[0], dy + args[0]));
     } else if (lCmd === "s") {
-      const lastComp = path.path.getLastComponent();
+      const lastComp = path.getPath().getLastComponent();
       const cp2 =
         lastComp instanceof CubicPathComponent ? lastComp.cp2 : lastPoint;
       path.cubicCurveTo(
@@ -74,7 +74,7 @@ const stackCmd = (
         plus(delta, vec(args[2], args[3]))
       );
     } else if (lCmd === "t") {
-      const lastComp = path.path.getLastComponent();
+      const lastComp = path.getPath().getLastComponent();
       const cp =
         lastComp instanceof QuadraticPathComponent ? lastComp.cp : lastPoint;
       path.quadraticCurveTo(cp, plus(delta, vec(args[2], args[3])));

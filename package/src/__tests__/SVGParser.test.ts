@@ -5,11 +5,11 @@ import "./setup";
 describe("SVG Parser", () => {
   it("moveTo", () => {
     expect(() => parseSVG("m 10")).toThrow();
-    const { path } = parseSVG("m 10 20");
+    const path = parseSVG("m 10 20").getPath();
     expect(path.toSVGString()).toEqual("M10 20");
   });
   it("exponents", function () {
-    const { path } = parseSVG("m 1e3 2e-3");
+    const path = parseSVG("m 1e3 2e-3").getPath();
     const [verb, x, y] = path.toCmds();
     expect(verb).toEqual(CanvasKit.MOVE_VERB);
     expect(x).toEqual(1e3);
@@ -17,7 +17,7 @@ describe("SVG Parser", () => {
   });
 
   it("no whitespace between negative sign", function () {
-    const { path } = parseSVG("M46-86");
+    const path = parseSVG("M46-86").getPath();
     const [verb, x, y] = path.toCmds();
     expect(verb).toEqual(CanvasKit.MOVE_VERB);
     expect(x).toEqual(46);
@@ -52,12 +52,12 @@ describe("SVG Parser", () => {
 
   it("lineTo", function () {
     expect(() => parseSVG("l 10 10 0")).toThrow();
-    expect(parseSVG("l 10,10").path.toCmds()).toEqual([
+    expect(parseSVG("l 10,10").getPath().toCmds()).toEqual([
       CanvasKit.LINE_VERB,
       10,
       10,
     ]);
-    expect(parseSVG("l10 10 10 10").path.toCmds()).toEqual(
+    expect(parseSVG("l10 10 10 10").getPath().toCmds()).toEqual(
       [
         [CanvasKit.LINE_VERB, 10, 10],
         [CanvasKit.LINE_VERB, 20, 20],
@@ -66,7 +66,7 @@ describe("SVG Parser", () => {
   });
 
   it("horizontalTo", function () {
-    expect(parseSVG("h 10.5").path.toCmds()).toEqual([
+    expect(parseSVG("h 10.5").getPath().toCmds()).toEqual([
       CanvasKit.LINE_VERB,
       10.5,
       0,
@@ -74,7 +74,7 @@ describe("SVG Parser", () => {
   });
 
   it("verticalTo", function () {
-    expect(parseSVG("v 10.5").path.toCmds()).toEqual([
+    expect(parseSVG("v 10.5").getPath().toCmds()).toEqual([
       CanvasKit.LINE_VERB,
       0,
       10.5,
@@ -88,7 +88,7 @@ describe("SVG Parser", () => {
   // });
 
   it("quadratic curveTo", function () {
-    expect(parseSVG("M10 80 Q 95 10 180 80").path.toCmds()).toEqual(
+    expect(parseSVG("M10 80 Q 95 10 180 80").getPath().toCmds()).toEqual(
       [
         [CanvasKit.MOVE_VERB, 10, 80],
         [CanvasKit.QUAD_VERB, 95, 10, 180, 80],
@@ -105,7 +105,7 @@ describe("SVG Parser", () => {
   // });
 
   it("smooth curveTo (2)", function () {
-    expect(parseSVG("M 0, 0 S 1 2, 3 4").path.toCmds()).toEqual(
+    expect(parseSVG("M 0, 0 S 1 2, 3 4").getPath().toCmds()).toEqual(
       [
         [CanvasKit.MOVE_VERB, 0, 0, CanvasKit.CUBIC_VERB, 0, 0, 1, 2, 3, 4],
       ].flat()
@@ -114,7 +114,9 @@ describe("SVG Parser", () => {
 
   it("smooth curveTo (3)", function () {
     expect(
-      parseSVG("M 10 80 C 40 10, 65 10, 95 80 S 150 150, 180 80").path.toCmds()
+      parseSVG("M 10 80 C 40 10, 65 10, 95 80 S 150 150, 180 80")
+        .getPath()
+        .toCmds()
     ).toEqual(
       [
         [
@@ -144,7 +146,21 @@ describe("SVG Parser", () => {
   //   expect(parseSVG("T 1 -2e2")).toEqual([["T", 1, -2e2]]);
   // });
 
-  // it("close", function () {
-  //   expect(parseSVG("z")).toEqual([["z"]]);
-  // });
+  it("close (1)", function () {
+    expect(parseSVG("z").getPath().toCmds()).toEqual([]);
+  });
+
+  it("close (2)", function () {
+    expect(parseSVG("M 0 0 L 10 10 z").getPath().toCmds()).toEqual([
+      CanvasKit.MOVE_VERB,
+      0,
+      0,
+      CanvasKit.LINE_VERB,
+      10,
+      10,
+      CanvasKit.LINE_VERB,
+      0,
+      0,
+    ]);
+  });
 });

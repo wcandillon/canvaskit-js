@@ -160,18 +160,10 @@ export class ContourComponent {
   }
 
   toCmd() {
-    if (this.isClosed) {
-      return [PathVerb.Close];
-    } else {
-      return [PathVerb.Move, this.destination[0], this.destination[1]];
-    }
+    return [PathVerb.Move, this.destination[0], this.destination[1]];
   }
 
   toSVGString() {
-    if (this.isClosed) {
-      return "Z";
-    } else {
-      return `M${this.destination[0]} ${this.destination[1]}`;
-    }
+    return `M${this.destination[0]} ${this.destination[1]}`;
   }
 }

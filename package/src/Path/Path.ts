@@ -92,6 +92,7 @@ export class Path {
     this.quads.push(new QuadraticPathComponent(p1, cp, p2));
     return this;
   }
+
   addCubicComponent(p1: Point, cp1: Point, cp2: Point, p2: Point) {
     this.components.push({
       index: this.cubics.length,
@@ -100,6 +101,7 @@ export class Path {
     this.cubics.push(new CubicPathComponent(p1, cp1, cp2, p2));
     return this;
   }
+
   addContourComponent(destination: Point, isClosed = false) {
     if (
       this.components.length > 0 &&
@@ -119,6 +121,7 @@ export class Path {
     }
     return this;
   }
+
   setContourClosed(isClosed: boolean) {
     this.contours[this.contours.length - 1].isClosed = isClosed;
   }
