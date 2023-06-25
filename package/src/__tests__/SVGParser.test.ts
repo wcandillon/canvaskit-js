@@ -27,31 +27,29 @@ describe("SVG Parser", () => {
     expect(y).toBeCloseTo(-86);
   });
 
-  // it("overloaded moveTo", function () {
-  //   const { path } = parseSVG("m 12.5,52 39,0 0,-40 -39,0 z");
-  //   console.log(path.toCmds());
-  //   console.log(path.toSVGString());
-  //   expect(path.toCmds()).toEqual(
-  //     [
-  //       [CanvasKit.MOVE_VERB, 12.5, 52],
-  //       [CanvasKit.LINE_VERB, 12.5 + 39, 0],
-  //       [CanvasKit.LINE_VERB, 12.5 + 39, 52 - 40],
-  //       [CanvasKit.LINE_VERB, 12.5, 52 - 40],
-  //       [CanvasKit.CLOSE_VERB],
-  //     ].flat()
-  //   );
-  // });
+  it("overloaded moveTo", function () {
+    const path = parseSVG("m 12.5,52 39,0 0,-40 -39,0 z").getPath();
+    expect(path.toCmds()).toEqual(
+      [
+        [CanvasKit.MOVE_VERB, 12.5, 52],
+        [CanvasKit.LINE_VERB, 12.5 + 39, 52],
+        [CanvasKit.LINE_VERB, 12.5 + 39, 52 - 40],
+        [CanvasKit.LINE_VERB, 12.5, 52 - 40],
+        [CanvasKit.CLOSE_VERB],
+      ].flat()
+    );
+  });
 
-  // it("curveTo", function () {
-  //   const a = parseSVG(
-  //     "c 50,0 50,100 100,100 50,0 50,-100 100,-100"
-  //   ).path.toSVGString();
-  //   const b = parseSVG(
-  //     "c 50,0 50,100 100,100 c 50,0 50,-100 100,-100"
-  //   ).path.toSVGString();
-  //   expect(a).toEqual("C50,0 50,100 100,100 C150,100 150,0 200,0");
-  //   expect(a).toEqual(b);
-  // });
+  it("curveTo", function () {
+    const a = parseSVG("c 50,0 50,100 100,100 50,0 50,-100 100,-100")
+      .getPath()
+      .toSVGString();
+    const b = parseSVG("c 50,0 50,100 100,100 c 50,0 50,-100 100,-100")
+      .getPath()
+      .toSVGString();
+    expect(a).toEqual("C50 0 50 100 100 100 C150 100 150 0 200 0");
+    expect(a).toEqual(b);
+  });
 
   it("lineTo", function () {
     expect(() => parseSVG("l 10 10 0")).toThrow();
@@ -84,11 +82,15 @@ describe("SVG Parser", () => {
     ]);
   });
 
-  // it("arcTo", function () {
-  //   expect(parseSVG("A 30 50 0 0 1 162.55 162.45")).toEqual([
-  //     ["A", 30, 50, 0, 0, 1, 162.55, 162.45],
-  //   ]);
-  // });
+  it("arcTo", function () {
+    const svg = parseSVG("M 0 0 A 30 50 0 0 1 162.55 162.45")
+      .getPath()
+      .toSVGString();
+    expect(svg).toEqual(
+      // eslint-disable-next-line max-len
+      "M0 0 C26.915597915649414 -74.81156921386719 85.12305450439453 -99.09265899658203 130.00999450683594 -54.233333587646484 C174.89694213867188 -9.374004364013672 189.46559143066406 87.638427734375 162.5500030517578 162.4499969482422"
+    );
+  });
 
   it("quadratic curveTo", function () {
     expect(parseSVG("M10 80 Q 95 10 180 80").getPath().toCmds()).toEqual(
@@ -99,13 +101,11 @@ describe("SVG Parser", () => {
     );
   });
 
-  // it("smooth curveTo (1)", function () {
-  //   expect(parseSVG("S 1 2, 3 4").path.toCmds()).toEqual(
-  //     [
-  //       [CanvasKit.MOVE_VERB, 0, 0, CanvasKit.CUBIC_VERB, 0, 0, 1, 2, 3, 4],
-  //     ].flat()
-  //   );
-  // });
+  it("smooth curveTo (1)", function () {
+    expect(parseSVG("S 1 2, 3 4").getPath().toCmds()).toEqual(
+      [[CanvasKit.CUBIC_VERB, 0, 0, 1, 2, 3, 4]].flat()
+    );
+  });
 
   it("smooth curveTo (2)", function () {
     expect(parseSVG("M 0, 0 S 1 2, 3 4").getPath().toCmds()).toEqual(
@@ -144,9 +144,21 @@ describe("SVG Parser", () => {
       ].flat()
     );
   });
+
   // it("smooth quadratic curveTo", function () {
   //   expect(() => parseSVG("t 1 2 3")).toThrow();
-  //   expect(parseSVG("T 1 -2e2")).toEqual([["T", 1, -2e2]]);
+  //   const cmds = parseSVG("M 0 0 T 10, 10, 1 -2e2").getPath().toCmds();
+  //   console.log(cmds);
+  //   expect(cmds[3]).toEqual(CanvasKit.QUAD_VERB);
+  //   expect(cmds[4]).toEqual(0);
+  //   expect(cmds[5]).toEqual(0);
+  //   expect(cmds[4]).toEqual(10);
+  //   expect(cmds[5]).toEqual(10);
+  //   expect(cmds[3]).toEqual(CanvasKit.QUAD_VERB);
+  //   expect(cmds[4]).toEqual(0);
+  //   expect(cmds[5]).toEqual(0);
+  //   expect(cmds[8]).toEqual(1);
+  //   expect(cmds[9]).toBeCloseTo(-200);
   // });
 
   it("close (1)", function () {
