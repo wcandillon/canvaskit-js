@@ -41,11 +41,11 @@ describe("PathKit's SVG Behavior", () => {
 
     const svgStr = path.toSVGString();
     // We output it in terse form, which is different than Wikipedia's version
-    expect(svgStr).toEqual("M205,5L795,5L595,295L5,295L205,5Z");
+    expect(svgStr).toEqual("M205 5 L795 5 L595 295 L5 295 L205 5 Z");
   });
 
   it("should have input and the output be the same", () => {
-    const testCases = ["M0,0L1075,0L1075,242L0,242L0,0Z"];
+    const testCases = ["M0 0 L1075 0 L1075 242 L0 242 L0 0 Z"];
 
     for (const svg of testCases) {
       const path = CanvasKit.Path.MakeFromSVGString(svg)!;

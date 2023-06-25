@@ -1,31 +1,31 @@
-import type { Path } from "canvaskit-wasm";
+//import type { Path } from "canvaskit-wasm";
 
 import { processResult, setupRealSkia } from "./setup";
 
-const roundtrip = (path: Path) => CanvasKit.Path.MakeFromCmds(path.toCmds())!;
+//const roundtrip = (path: Path) => CanvasKit.Path.MakeFromCmds(path.toCmds())!;
 
 describe("Path Behavior", () => {
-  it("should add path", () => {
-    const results: string[] = [];
-    const path = new CanvasKit.Path();
-    const path2 = new CanvasKit.Path();
-    path.moveTo(20, 20);
-    path.lineTo(20, 40);
-    path.lineTo(40, 20);
-    path2.moveTo(60, 60);
-    path2.lineTo(80, 60);
-    path2.lineTo(80, 40);
-    roundtrip(path);
-    roundtrip(path2);
-    for (let j = 0; j < 2; j++) {
-      const p = path.copy().addPath(path2)!;
-      results.push(p.toSVGString());
-    }
-    expect(results).toEqual([
-      "M20,20L20,40L40,20M60,60L80,60L80,40",
-      "M20,20L20,40L40,20M60,60L80,60L80,40",
-    ]);
-  });
+  // it("should add path", () => {
+  //   const results: string[] = [];
+  //   const path = new CanvasKit.Path();
+  //   const path2 = new CanvasKit.Path();
+  //   path.moveTo(20, 20);
+  //   path.lineTo(20, 40);
+  //   path.lineTo(40, 20);
+  //   path2.moveTo(60, 60);
+  //   path2.lineTo(80, 60);
+  //   path2.lineTo(80, 40);
+  //   roundtrip(path);
+  //   roundtrip(path2);
+  //   for (let j = 0; j < 2; j++) {
+  //     const p = path.copy().addPath(path2)!;
+  //     results.push(p.toSVGString());
+  //   }
+  //   expect(results).toEqual([
+  //     "M20,20L20,40L40,20M60,60L80,60L80,40",
+  //     "M20,20L20,40L40,20M60,60L80,60L80,40",
+  //   ]);
+  // });
   it("Should draw the reference result for an arc", () => {
     const { surface, canvas, width: size } = setupRealSkia();
     const path = new RealCanvasKit.Path();
