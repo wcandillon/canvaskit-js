@@ -61,21 +61,6 @@ export class Path {
     }
   }
 
-  toCmds() {
-    return this.components.flatMap(({ type, index }) => {
-      switch (type) {
-        case ComponentType.Linear:
-          return this.linears[index].toCmd();
-        case ComponentType.Quadratic:
-          return this.quads[index].toCmd();
-        case ComponentType.Cubic:
-          return this.cubics[index].toCmd();
-        case ComponentType.Contour:
-          return this.contours[index].toCmd();
-      }
-    });
-  }
-
   addLinearComponent(p1: Point, p2: Point) {
     this.components.push({
       index: this.linears.length,
@@ -126,17 +111,56 @@ export class Path {
     this.contours[this.contours.length - 1].isClosed = isClosed;
   }
 
-  toSVGString() {
-    const cmds = this.components.map(({ type, index }) => {
+  toCmds() {
+    return this.components.flatMap(({ type, index }, j) => {
       switch (type) {
         case ComponentType.Linear:
+          const next = this.components[j + 1];
+          const nextIsClosedContour =
+            next &&
+            next.type === ComponentType.Contour &&
+            this.contours[next.index - 1].isClosed;
+          if (nextIsClosedContour) {
+            return [];
+          }
+          return this.linears[index].toCmd();
+        case ComponentType.Quadratic:
+          return this.quads[index].toCmd();
+        case ComponentType.Cubic:
+          return this.cubics[index].toCmd();
+        case ComponentType.Contour:
+          const lastContour = this.contours[index - 1];
+          const shouldMove = j !== this.components.length - 1;
+          const shouldClose = !!(lastContour && lastContour.isClosed);
+          return this.contours[index].toCmd(shouldClose, shouldMove);
+        default:
+          throw new Error(`Unknown component type: ${type}`);
+      }
+    });
+  }
+
+  toSVGString() {
+    const cmds = this.components.map(({ type, index }, j) => {
+      switch (type) {
+        case ComponentType.Linear:
+          const next = this.components[j + 1];
+          const nextIsClosedContour =
+            next &&
+            next.type === ComponentType.Contour &&
+            this.contours[next.index - 1].isClosed;
+          if (nextIsClosedContour) {
+            return "";
+          }
           return this.linears[index].toSVGString();
         case ComponentType.Quadratic:
           return this.quads[index].toSVGString();
         case ComponentType.Cubic:
           return this.cubics[index].toSVGString();
         case ComponentType.Contour:
-          return this.contours[index].toSVGString();
+          const lastContour = this.contours[index - 1];
+          const shouldMove = j !== this.components.length - 1;
+          const shouldClose = !!(lastContour && lastContour.isClosed);
+          return this.contours[index].toSVGString(shouldClose, shouldMove);
         default:
           throw new Error(`Unknown component type: ${type}`);
       }

@@ -159,11 +159,27 @@ export class ContourComponent {
     );
   }
 
-  toCmd() {
-    return [PathVerb.Move, this.destination[0], this.destination[1]];
+  toCmd(shouldClose: boolean, shouldMove: boolean) {
+    const cmd: number[] = [];
+    if (shouldClose) {
+      cmd.push(PathVerb.Close);
+    }
+    if (shouldMove) {
+      cmd.push(...[PathVerb.Move, this.destination[0], this.destination[1]]);
+    }
+    return cmd;
   }
 
-  toSVGString() {
-    return `M${this.destination[0]} ${this.destination[1]}`;
+  toSVGString(shouldClose: boolean, shouldMove: boolean) {
+    let cmd = "";
+    if (shouldClose) {
+      cmd += "Z";
+    }
+    if (shouldMove) {
+      cmd += `${cmd.length > 0 ? " " : ""}M${this.destination[0]} ${
+        this.destination[1]
+      }`;
+    }
+    return cmd;
   }
 }
