@@ -1,5 +1,7 @@
 import type { Point } from "canvaskit-wasm";
 
+import { PathVerb } from "../Core";
+
 import {
   ContourComponent,
   LinearPathComponent,
@@ -140,31 +142,26 @@ export class Path {
   }
 
   toSVGString() {
-    const cmds = this.components.map(({ type, index }, j) => {
-      switch (type) {
-        case ComponentType.Linear:
-          const next = this.components[j + 1];
-          const nextIsClosedContour =
-            next &&
-            next.type === ComponentType.Contour &&
-            this.contours[next.index - 1].isClosed;
-          if (nextIsClosedContour) {
-            return "";
-          }
-          return this.linears[index].toSVGString();
-        case ComponentType.Quadratic:
-          return this.quads[index].toSVGString();
-        case ComponentType.Cubic:
-          return this.cubics[index].toSVGString();
-        case ComponentType.Contour:
-          const lastContour = this.contours[index - 1];
-          const shouldMove = j !== this.components.length - 1;
-          const shouldClose = !!(lastContour && lastContour.isClosed);
-          return this.contours[index].toSVGString(shouldClose, shouldMove);
-        default:
-          throw new Error(`Unknown component type: ${type}`);
+    let svg = "";
+    const cmds = this.toCmds();
+    let i = 0;
+    while (i < cmds.length) {
+      const cmd = cmds[i++];
+      if (cmd === PathVerb.Move) {
+        svg += `M${cmds[i++]} ${cmds[i++]} `;
+      } else if (cmd === PathVerb.Line) {
+        svg += `L${cmds[i++]} ${cmds[i++]} `;
+      } else if (cmd === PathVerb.Cubic) {
+        svg += `C${cmds[i++]} ${cmds[i++]} ${cmds[i++]} ${cmds[i++]} ${
+          cmds[i++]
+        } ${cmds[i++]} `;
+      } else if (cmd === PathVerb.Quad) {
+        svg += `Q${cmds[i++]} ${cmds[i++]} ${cmds[i++]} ${cmds[i++]} `;
+      } else if (cmd === PathVerb.Close) {
+        i++;
+        svg += "Z ";
       }
-    });
-    return cmds.join(" ");
+    }
+    return svg.trim();
   }
 }

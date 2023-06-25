@@ -155,7 +155,7 @@ describe("SVG Parser", () => {
 
   it("close (2)", function () {
     const path = parseSVG("M 0 0 L 10 10 z").getPath();
-    //expect(path.toSVGString()).toEqual("M0 0 L10 10 Z");
+    expect(path.toSVGString()).toEqual("M0 0 L10 10 Z");
     expect(path.toCmds()).toEqual([
       CanvasKit.MOVE_VERB,
       0,
