@@ -34,10 +34,11 @@ interface PathComponent<T extends PathComponent<T>> {
   toCmd(): number[];
   equals(component: T): boolean;
   solve(t: number): Point;
+  toSVGString(): string;
 }
 
 export class LinearPathComponent implements PathComponent<LinearPathComponent> {
-  constructor(private readonly p1: Point, private readonly p2: Point) {}
+  constructor(readonly p1: Point, readonly p2: Point) {}
 
   toCmd() {
     return [PathVerb.Line, this.p2[0], this.p2[1]];
@@ -75,16 +76,16 @@ export class LinearPathComponent implements PathComponent<LinearPathComponent> {
   equals(p: LinearPathComponent): boolean {
     return equals(this.p1, p.p1) && equals(this.p2, p.p2);
   }
+
+  toSVGString() {
+    return `L${this.p2[0]} ${this.p2[1]}`;
+  }
 }
 
 export class QuadraticPathComponent
   implements PathComponent<QuadraticPathComponent>
 {
-  constructor(
-    private readonly p1: Point,
-    private readonly cp: Point,
-    private readonly p2: Point
-  ) {}
+  constructor(readonly p1: Point, readonly cp: Point, readonly p2: Point) {}
 
   toCmd() {
     return [PathVerb.Quad, this.cp[0], this.cp[1], this.p2[0], this.p2[1]];
@@ -102,14 +103,18 @@ export class QuadraticPathComponent
       equals(this.p1, p.p1) && equals(this.cp, p.cp) && equals(this.p2, p.p2)
     );
   }
+
+  toSVGString() {
+    return `Q${this.cp[0]} ${this.cp[1]}, ${this.p2[0]} ${this.p2[1]}`;
+  }
 }
 
 export class CubicPathComponent implements PathComponent<CubicPathComponent> {
   constructor(
-    private readonly p1: Point,
-    private readonly cp1: Point,
-    private readonly cp2: Point,
-    private readonly p2: Point
+    readonly p1: Point,
+    readonly cp1: Point,
+    readonly cp2: Point,
+    readonly p2: Point
   ) {}
 
   toCmd() {
@@ -139,6 +144,10 @@ export class CubicPathComponent implements PathComponent<CubicPathComponent> {
       cubicSolve(t, this.p1[1], this.cp1[1], this.cp2[1], this.p2[1])
     );
   }
+
+  toSVGString() {
+    return `C${this.cp1[0]} ${this.cp1[1]}, ${this.cp2[0]} ${this.cp2[1]}, ${this.p2[0]} ${this.p2[1]}`;
+  }
 }
 
 export class ContourComponent {
@@ -154,7 +163,15 @@ export class ContourComponent {
     if (this.isClosed) {
       return [PathVerb.Close];
     } else {
-      return [PathVerb.Line, this.destination[0], this.destination[1]];
+      return [PathVerb.Move, this.destination[0], this.destination[1]];
+    }
+  }
+
+  toSVGString() {
+    if (this.isClosed) {
+      return "Z";
+    } else {
+      return `M${this.destination[0]} ${this.destination[1]}`;
     }
   }
 }

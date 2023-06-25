@@ -305,4 +305,8 @@ export class PathBuilder {
     this.path.addContourComponent(this.current);
     return this;
   }
+
+  getLastPoint() {
+    return this.current;
+  }
 }

@@ -17,7 +17,7 @@ import { PathVerb, normalizeArray, rectToXYWH, rrectToXYWH } from "../Core";
 import { vec } from "../Vector";
 
 import { PathBuilder } from "./PathBuilder";
-import { fromSVGString, toSVGString } from "./SVGPaths";
+import { parseSVG } from "./SVGParser";
 
 export class PathJS extends HostObject<"Path"> implements SkPath {
   private path: PathBuilder;
@@ -264,7 +264,7 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
     return Float32Array.of(...this.path.path.toCmds().flat());
   }
   toSVGString() {
-    return toSVGString(this.path.path);
+    return this.path.path.toSVGString();
   }
   transform(_m: Matrix3x3): SkPath {
     throw new Error("Method not implemented.");
@@ -325,7 +325,7 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
   }
   static MakeFromSVGString(d: string) {
     try {
-      return new PathJS(fromSVGString(d));
+      return new PathJS(parseSVG(d));
     } catch (e) {
       return null;
     }

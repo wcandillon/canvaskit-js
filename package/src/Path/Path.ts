@@ -42,8 +42,24 @@ export class Path {
   private cubics: CubicPathComponent[] = [];
   private contours: ContourComponent[] = [];
 
+  getLastComponent() {
+    const { index, type } = this.components[this.components.length - 1];
+    switch (type) {
+      case ComponentType.Linear:
+        return this.linears[index];
+      case ComponentType.Quadratic:
+        return this.quads[index];
+      case ComponentType.Cubic:
+        return this.cubics[index];
+      case ComponentType.Contour:
+        return this.contours[index];
+      default:
+        throw new Error(`Unknown component type: ${type}`);
+    }
+  }
+
   toCmds() {
-    return this.components.map(({ type, index }) => {
+    return this.components.flatMap(({ type, index }) => {
       switch (type) {
         case ComponentType.Linear:
           return this.linears[index].toCmd();
@@ -102,5 +118,23 @@ export class Path {
   }
   setContourClosed(isClosed: boolean) {
     this.contours[this.contours.length - 1].isClosed = isClosed;
+  }
+
+  toSVGString() {
+    const cmds = this.components.map(({ type, index }) => {
+      switch (type) {
+        case ComponentType.Linear:
+          return this.linears[index].toSVGString();
+        case ComponentType.Quadratic:
+          return this.quads[index].toSVGString();
+        case ComponentType.Cubic:
+          return this.cubics[index].toSVGString();
+        case ComponentType.Contour:
+          return this.contours[index].toSVGString();
+        default:
+          throw new Error(`Unknown component type: ${type}`);
+      }
+    });
+    return cmds.join(" ");
   }
 }
