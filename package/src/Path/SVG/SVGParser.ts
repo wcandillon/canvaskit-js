@@ -1,8 +1,8 @@
-import { plus, vec } from "../Vector";
+import { plus, vec } from "../../Vector";
+import { PathBuilder } from "../PathBuilder";
+import { CubicPathComponent, QuadraticPathComponent } from "../PathComponent";
 
-import { PathBuilder } from "./PathBuilder";
-import { CubicPathComponent, QuadraticPathComponent } from "./PathComponent";
-import { a2c } from "./SVGPath/Arc";
+import { a2c } from "./Arc";
 
 type Command =
   | "a"

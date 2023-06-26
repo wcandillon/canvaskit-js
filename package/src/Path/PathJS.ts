@@ -17,7 +17,7 @@ import { PathVerb, normalizeArray, rectToXYWH, rrectToXYWH } from "../Core";
 import { vec } from "../Vector";
 
 import { PathBuilder } from "./PathBuilder";
-import { parseSVG } from "./SVGParser";
+import { parseSVG } from "./SVG";
 
 export class PathJS extends HostObject<"Path"> implements SkPath {
   private path: PathBuilder;

@@ -1,4 +1,4 @@
-import { parseSVG } from "../Path/SVGParser";
+import { parseSVG } from "../Path";
 
 import "./setup";
 
