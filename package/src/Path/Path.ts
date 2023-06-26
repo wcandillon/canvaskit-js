@@ -22,6 +22,8 @@ import {
 //   AbsGeqTwo,
 // }
 
+type Applier<T> = (comp: T, index: number) => void;
+
 enum ComponentType {
   Linear,
   Quadratic,
@@ -111,6 +113,38 @@ export class Path {
 
   setContourClosed(isClosed: boolean) {
     this.contours[this.contours.length - 1].isClosed = isClosed;
+  }
+
+  enumerateComponents(
+    linearApplier?: Applier<LinearPathComponent>,
+    quadApplier?: Applier<QuadraticPathComponent>,
+    cubicApplier?: Applier<CubicPathComponent>,
+    contourApplier?: Applier<ContourComponent>
+  ) {
+    this.components.forEach(({ index, type }) => {
+      switch (type) {
+        case ComponentType.Linear:
+          if (linearApplier) {
+            linearApplier(this.linears[index], index);
+          }
+          break;
+        case ComponentType.Quadratic:
+          if (quadApplier) {
+            quadApplier(this.quads[index], index);
+          }
+          break;
+        case ComponentType.Cubic:
+          if (cubicApplier) {
+            cubicApplier(this.cubics[index], index);
+          }
+          break;
+        case ComponentType.Contour:
+          if (contourApplier) {
+            contourApplier(this.contours[index], index);
+          }
+          break;
+      }
+    });
   }
 
   toCmds() {

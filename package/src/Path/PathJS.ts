@@ -47,8 +47,9 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
     return this;
   }
 
-  addPath(_newPath: PathJS, _matrix: Matrix3x3): SkPath | null {
-    throw new Error("Method not implemented.");
+  addPath(newPath: PathJS, _matrix: Matrix3x3) {
+    this.path.addPath(newPath.path.getPath());
+    return this;
   }
 
   addPoly(_points: InputFlattenedPointArray, _close: boolean): SkPath {

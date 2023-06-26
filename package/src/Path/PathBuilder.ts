@@ -15,6 +15,18 @@ export class PathBuilder {
     return this.path;
   }
 
+  addPath(path: Path) {
+    path.enumerateComponents(
+      (linear) => this.path.addLinearComponent(linear.p1, linear.p2),
+      (quad) => this.path.addQuadraticComponent(quad.p1, quad.cp, quad.p2),
+      (cubic) =>
+        this.path.addCubicComponent(cubic.p1, cubic.cp1, cubic.cp2, cubic.p2),
+      (contour) =>
+        this.path.addContourComponent(contour.destination, contour.isClosed)
+    );
+    return this;
+  }
+
   addRoundedRect(rect: XYWH, radii: Radii) {
     if (
       radii.topLeft[0] === 0 &&

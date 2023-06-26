@@ -1,31 +1,33 @@
 //import type { Path } from "canvaskit-wasm";
 
+import type { Path } from "canvaskit-wasm";
+
 import { processResult, setupRealSkia } from "./setup";
 
-//const roundtrip = (path: Path) => CanvasKit.Path.MakeFromCmds(path.toCmds())!;
+const roundtrip = (path: Path) => CanvasKit.Path.MakeFromCmds(path.toCmds())!;
 
 describe("Path Behavior", () => {
-  // it("should add path", () => {
-  //   const results: string[] = [];
-  //   const path = new CanvasKit.Path();
-  //   const path2 = new CanvasKit.Path();
-  //   path.moveTo(20, 20);
-  //   path.lineTo(20, 40);
-  //   path.lineTo(40, 20);
-  //   path2.moveTo(60, 60);
-  //   path2.lineTo(80, 60);
-  //   path2.lineTo(80, 40);
-  //   roundtrip(path);
-  //   roundtrip(path2);
-  //   for (let j = 0; j < 2; j++) {
-  //     const p = path.copy().addPath(path2)!;
-  //     results.push(p.toSVGString());
-  //   }
-  //   expect(results).toEqual([
-  //     "M20,20L20,40L40,20M60,60L80,60L80,40",
-  //     "M20,20L20,40L40,20M60,60L80,60L80,40",
-  //   ]);
-  // });
+  it("should add path", () => {
+    const results: string[] = [];
+    const path = new CanvasKit.Path();
+    const path2 = new CanvasKit.Path();
+    path.moveTo(20, 20);
+    path.lineTo(20, 40);
+    path.lineTo(40, 20);
+    path2.moveTo(60, 60);
+    path2.lineTo(80, 60);
+    path2.lineTo(80, 40);
+    roundtrip(path);
+    roundtrip(path2);
+    for (let j = 0; j < 2; j++) {
+      const p = path.copy().addPath(path2)!;
+      results.push(p.toSVGString());
+    }
+    expect(results).toEqual([
+      "M20 20 L20 40 L40 20 M60 60 L80 60 L80 40",
+      "M20 20 L20 40 L40 20 M60 60 L80 60 L80 40",
+    ]);
+  });
   it("Should draw the reference result for an arc", () => {
     const { surface, canvas, width: size } = setupRealSkia();
     const path = new RealCanvasKit.Path();
@@ -90,47 +92,47 @@ describe("Path Behavior", () => {
     canvas.drawPath(rrectPath, paint);
     processResult(surface, "snapshots/path1.png", true);
   });
-  // it("path_api_example", () => {
-  //   const { canvas, surface } = setupSkia();
-  //   const paint = new CanvasKit.Paint();
-  //   paint.setStrokeWidth(1.0);
-  //   paint.setAntiAlias(true);
-  //   paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
-  //   paint.setStyle(CanvasKit.PaintStyle.Stroke);
+  it("path_api_example", () => {
+    const { canvas, surface } = setupRealSkia();
+    const paint = new RealCanvasKit.Paint();
+    paint.setStrokeWidth(1.0);
+    paint.setAntiAlias(true);
+    paint.setColor(RealCanvasKit.Color(0, 0, 0, 1.0));
+    paint.setStyle(RealCanvasKit.PaintStyle.Stroke);
 
-  //   const path = new CanvasKit.Path();
-  //   path.moveTo(20, 5);
-  //   path.lineTo(30, 20);
-  //   path.lineTo(40, 10);
-  //   path.lineTo(50, 20);
-  //   path.lineTo(60, 0);
-  //   path.lineTo(20, 5);
+    const path = new RealCanvasKit.Path();
+    path.moveTo(20, 5);
+    path.lineTo(30, 20);
+    path.lineTo(40, 10);
+    path.lineTo(50, 20);
+    path.lineTo(60, 0);
+    path.lineTo(20, 5);
 
-  //   path.moveTo(20, 80);
-  //   path.cubicTo(90, 10, 160, 150, 190, 10);
+    path.moveTo(20, 80);
+    path.cubicTo(90, 10, 160, 150, 190, 10);
 
-  //   path.moveTo(36, 148);
-  //   path.quadTo(66, 188, 120, 136);
-  //   path.lineTo(36, 148);
+    path.moveTo(36, 148);
+    path.quadTo(66, 188, 120, 136);
+    path.lineTo(36, 148);
 
-  //   path.moveTo(150, 180);
-  //   path.arcToTangent(150, 100, 50, 200, 20);
-  //   path.lineTo(160, 160);
+    path.moveTo(150, 180);
+    path.arcToTangent(150, 100, 50, 200, 20);
+    path.lineTo(160, 160);
 
-  //   path.moveTo(20, 120);
-  //   path.lineTo(20, 120);
+    path.moveTo(20, 120);
+    path.lineTo(20, 120);
 
-  //   path.transform([2, 0, 0, 0, 2, 0, 0, 0, 1]);
+    path.transform([2, 0, 0, 0, 2, 0, 0, 0, 1]);
 
-  //   canvas.drawPath(path, paint);
+    canvas.drawPath(path, paint);
 
-  //   const rrect = CanvasKit.RRectXY([100, 10, 140, 62], 10, 4);
+    const rrect = RealCanvasKit.RRectXY([100, 10, 140, 62], 10, 4);
 
-  //   const rrectPath = new CanvasKit.Path().addRRect(rrect, true);
+    const rrectPath = new RealCanvasKit.Path().addRRect(rrect, true);
 
-  //   canvas.drawPath(rrectPath, paint);
-  //   processResult(surface, "snapshots/path1.png");
-  // });
+    canvas.drawPath(rrectPath, paint);
+    processResult(surface, "snapshots/path1.png");
+  });
 
   // it("can create a path from an SVG string", () => {
   //   //.This is a parallelogram from
