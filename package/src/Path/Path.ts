@@ -46,6 +46,10 @@ export class Path {
   private cubics: CubicPathComponent[] = [];
   private contours: ContourComponent[] = [];
 
+  getLastContour() {
+    return this.contours[this.contours.length - 1];
+  }
+
   getLastComponent() {
     if (this.components.length === 0) {
       return null;

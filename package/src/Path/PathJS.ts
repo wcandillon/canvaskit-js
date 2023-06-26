@@ -17,7 +17,6 @@ import { PathVerb, normalizeArray, rectToXYWH, rrectToXYWH } from "../Core";
 import { vec } from "../Vector";
 
 import { PathBuilder } from "./PathBuilder";
-import { parseSVG } from "./SVG";
 
 export class PathJS extends HostObject<"Path"> implements SkPath {
   private path: PathBuilder;
@@ -52,8 +51,22 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
     return this;
   }
 
-  addPoly(_points: InputFlattenedPointArray, _close: boolean): SkPath {
-    throw new Error("Method not implemented.");
+  addPoly(input: InputFlattenedPointArray, close: boolean) {
+    const points = normalizeArray(input);
+    points.forEach((x, index) => {
+      const y = points[index + 1];
+      if (index === 0) {
+        // TODO: only inject move if needed
+        this.path.moveTo(vec(x, y));
+      }
+      if (index % 2 === 0) {
+        this.path.lineTo(vec(x, y));
+      }
+    });
+    if (close) {
+      this.path.close();
+    }
+    return this;
   }
   addRect(input: InputRect, _isCCW?: boolean) {
     this.path.addRect(rectToXYWH(input));
@@ -102,11 +115,11 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
   }
 
   arcToTangent(
-    _x1: number,
-    _y1: number,
-    _x2: number,
-    _y2: number,
-    _r: number
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    radius: number
   ): SkPath {
     throw new Error("Method not implemented.");
   }
