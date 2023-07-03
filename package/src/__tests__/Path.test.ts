@@ -3,7 +3,6 @@
 import type { Path } from "canvaskit-wasm";
 
 import { checkImage, processResult, setupRealSkia, skia } from "./setup";
-import { PathJS } from "../Path";
 
 const roundtrip = (path: Path) => CanvasKit.Path.MakeFromCmds(path.toCmds())!;
 
@@ -140,40 +139,40 @@ describe("Path Behavior", () => {
     checkImage(image, "snapshots/hello.png");
   });
 
-  it("Should draw hello polyline", async () => {
-    const { canvas, surface, width } = setupRealSkia();
-    const cls = [
-      "#3FCEBC",
-      "#3СВСЕВ",
-      "#5F96E7",
-      "#816FE3",
-      "#9F5EE2", 
-      "#BD4CEO",
-      "#DE589F",
-      "#FF645E",
-      "#FDA859",
-      "#FAEC54",
-      "#9EE671",
-      "#41E08D"
-    ].map(cl => RealCanvasKit.parseColorString(cl));
-    const paint = new RealCanvasKit.Paint();
-    paint.setStyle(RealCanvasKit.PaintStyle.Stroke);
-    paint.setStrokeWidth(1);
-    paint.setStrokeCap(RealCanvasKit.StrokeCap.Round);
-    paint.setStrokeJoin(RealCanvasKit.StrokeJoin.Round);
-    paint.setShader(RealCanvasKit.Shader.MakeLinearGradient(Float32Array.of(0, 0), Float32Array.of(width, 0), cls, null, CanvasKit.TileMode.Clamp));
-    canvas.translate(51.4, 41.2);
+  // it("Should draw hello polyline", async () => {
+  //   const { canvas, surface, width } = setupRealSkia();
+  //   const cls = [
+  //     "#3FCEBC",
+  //     "#3СВСЕВ",
+  //     "#5F96E7",
+  //     "#816FE3",
+  //     "#9F5EE2", 
+  //     "#BD4CEO",
+  //     "#DE589F",
+  //     "#FF645E",
+  //     "#FDA859",
+  //     "#FAEC54",
+  //     "#9EE671",
+  //     "#41E08D"
+  //   ].map(cl => RealCanvasKit.parseColorString(cl));
+  //   const paint = new RealCanvasKit.Paint();
+  //   paint.setStyle(RealCanvasKit.PaintStyle.Stroke);
+  //   paint.setStrokeWidth(1);
+  //   paint.setStrokeCap(RealCanvasKit.StrokeCap.Round);
+  //   paint.setStrokeJoin(RealCanvasKit.StrokeJoin.Round);
+  //   paint.setShader(RealCanvasKit.Shader.MakeLinearGradient(Float32Array.of(0, 0), Float32Array.of(width, 0), cls, null, CanvasKit.TileMode.Clamp));
+  //   canvas.translate(51.4, 41.2);
 
-    const path = PathJS.MakeFromSVGString(`M2.40002 52.0275C2.40002 52.0275 10.5365 43.1655 17.4294 35.2144C29.4882 21.3085 42.6798 5.06793 31.4685 2.34804C27.395 1.35841 24.2754 5.5404 22.3376 8.82852C14.3396 22.362 11.8546 44.7957 11.7502 63.5753C13.9244 57.0331 21.735 39.7986 29.3476 40.2732C38.14 40.8202 30.4294 53.9982 32.4033 59.7061C35.4526 67.7487 43.8361 61.5024 48.4697 58.2291C56.1228 52.8192 61.0332 48.3903 61.0332 41.8417C61.0332 33.5629 49.6004 36.2168 47.0473 42.8399C45.052 48.0115 45.1308 55.7689 48.3249 59.6529C52.1983 64.3648 60.7542 65.1416 65.9734 60.5723C71.2586 55.9434 75.0191 49.1011 78.0045 44.519C85.5086 32.9925 98.3787 17.516 95.1207 5.57233C94.6778 3.94848 93.2681 2.70772 91.5859 2.64174C83.3153 2.32038 80.8068 20.2891 79.4248 26.7014C78.0258 33.1968 72.9983 54.7942 78.9478 61.5513C85.6171 69.1108 94.5308 55.0261 98.4426 48.4861C99.2943 47.1325 100.131 45.6683 100.874 44.5276C108.38 33.001 121.251 17.5245 117.99 5.58083C117.55 3.95699 116.14 2.71622 114.458 2.65025C106.187 2.32889 103.679 20.2976 102.297 26.71C100.896 33.2053 95.8702 54.8027 101.82 61.5598C108.487 69.1193 119.255 55.6923 121.436 48.7393C124.566 38.7494 131.721 35.6975 140.232 37.5512C130.669 34.6504 123.186 41.6757 121.436 48.8032C120.194 53.862 121.623 59.2315 127.102 62.1281C141.857 69.9259 157.67 44.2339 140.232 37.5512C136.561 37.8917 134.96 42.7611 136.48 47.6582C138.822 55.3603 149.469 56.2754 155.6 53.6641`)!;
-    const points = path.getPathPriv().getPath().polylines();
-    const path2 = new RealCanvasKit.Path();
-    path2.moveTo(points[0][0], points[0][1]);
-    for (let i = 1; i < points.length; i++) {
-      path2.lineTo(points[i][0], points[i][1]);
-    }
-    canvas.drawPath(path2, paint);
-    processResult(surface, "snapshots/hello.png");
-  });
+  //   const path = PathJS.MakeFromSVGString(`M2.40002 52.0275C2.40002 52.0275 10.5365 43.1655 17.4294 35.2144C29.4882 21.3085 42.6798 5.06793 31.4685 2.34804C27.395 1.35841 24.2754 5.5404 22.3376 8.82852C14.3396 22.362 11.8546 44.7957 11.7502 63.5753C13.9244 57.0331 21.735 39.7986 29.3476 40.2732C38.14 40.8202 30.4294 53.9982 32.4033 59.7061C35.4526 67.7487 43.8361 61.5024 48.4697 58.2291C56.1228 52.8192 61.0332 48.3903 61.0332 41.8417C61.0332 33.5629 49.6004 36.2168 47.0473 42.8399C45.052 48.0115 45.1308 55.7689 48.3249 59.6529C52.1983 64.3648 60.7542 65.1416 65.9734 60.5723C71.2586 55.9434 75.0191 49.1011 78.0045 44.519C85.5086 32.9925 98.3787 17.516 95.1207 5.57233C94.6778 3.94848 93.2681 2.70772 91.5859 2.64174C83.3153 2.32038 80.8068 20.2891 79.4248 26.7014C78.0258 33.1968 72.9983 54.7942 78.9478 61.5513C85.6171 69.1108 94.5308 55.0261 98.4426 48.4861C99.2943 47.1325 100.131 45.6683 100.874 44.5276C108.38 33.001 121.251 17.5245 117.99 5.58083C117.55 3.95699 116.14 2.71622 114.458 2.65025C106.187 2.32889 103.679 20.2976 102.297 26.71C100.896 33.2053 95.8702 54.8027 101.82 61.5598C108.487 69.1193 119.255 55.6923 121.436 48.7393C124.566 38.7494 131.721 35.6975 140.232 37.5512C130.669 34.6504 123.186 41.6757 121.436 48.8032C120.194 53.862 121.623 59.2315 127.102 62.1281C141.857 69.9259 157.67 44.2339 140.232 37.5512C136.561 37.8917 134.96 42.7611 136.48 47.6582C138.822 55.3603 149.469 56.2754 155.6 53.6641`)!;
+  //   const points = path.getPathPriv().getPath().polylines();
+  //   const path2 = new RealCanvasKit.Path();
+  //   path2.moveTo(points[0][0], points[0][1]);
+  //   for (let i = 1; i < points.length; i++) {
+  //     path2.lineTo(points[i][0], points[i][1]);
+  //   }
+  //   canvas.drawPath(path2, paint);
+  //   processResult(surface, "snapshots/hello.png");
+  // });
 
   // it("Should trim hello", async () => {
   //   const image = await skia.eval(({ CanvasKit, canvas, width }) => {
