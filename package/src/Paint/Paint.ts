@@ -52,7 +52,7 @@ export class PaintJS extends HostObject<"Paint"> implements Paint {
     ctx.save();
     this.processFilter(paintCtx);
     this.processStyle(ctx);
-    shape.draw(ctx);
+    shape.draw(ctx, this.style === PaintStyle.Stroke);
     ctx.restore();
   }
 

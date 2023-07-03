@@ -32,6 +32,26 @@ export class DrawableRect implements Drawable {
   }
 }
 
+export class DrawableCircle implements Drawable {
+  constructor(
+    private readonly x: number,
+    private readonly y: number,
+    private readonly radius: number
+  ) {}
+
+  draw(ctx: CanvasRenderingContext2D, stroke?: boolean) {
+    const { x, y, radius } = this;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, 2 * Math.PI);
+    if (stroke) {
+      ctx.stroke();
+    } else {
+      ctx.fill();
+    }
+  }
+};
+
+// TODO: remove, doesn't make sense to make assupmtions about the shape
 export class CustomDrawable implements Drawable {
   constructor(
     private readonly drawFn: (ctx: CanvasRenderingContext2D) => void

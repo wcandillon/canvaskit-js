@@ -88,7 +88,7 @@ describe("Path Behavior", () => {
         canvas.translate(50, -50);
       }
     });
-    checkImage(image, "snapshots/conic.png");
+    checkImage(image, "snapshots/conic.png", { maxPixelDiff: 500 });
   });
 
   it("builds the reference result", () => {

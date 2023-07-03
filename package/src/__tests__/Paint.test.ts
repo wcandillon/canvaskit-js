@@ -135,4 +135,18 @@ describe("Paint", () => {
     });
     checkImage(image, "snapshots/paint/black.png");
   });
+
+  it("should draw a shape with a stroke", async () => {
+    const image = await skia.eval(({ CanvasKit, canvas, width }) => {
+      const size = width / 2;
+      const paint = new CanvasKit.Paint();
+      paint.setColor(CanvasKit.parseColorString("cyan"));
+      paint.setStyle(CanvasKit.PaintStyle.Stroke);
+      paint.setStrokeWidth(4);
+      canvas.drawCircle(size, size, size, paint);
+      // We have this unbalenced restore() call on purpose
+      canvas.restore();
+    });
+    checkImage(image, "snapshots/paint/circle-stroke.png");
+  });
 });

@@ -37,6 +37,7 @@ import {
   intAsColor,
   rectToXYWH,
   rrectToXYWH,
+  DrawableCircle,
 } from "./Core";
 import { HostObject } from "./HostObject";
 import { convertDOMMatrixTo3x3, normalizeMatrix } from "./Matrix3";
@@ -140,9 +141,7 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     throw new Error("Method not implemented.");
   }
   drawCircle(cx: number, cy: number, radius: number, paint: PaintJS) {
-    paint.apply(this.paintCtx, () => {
-      this.ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
-    });
+    paint.apply(this.paintCtx, new DrawableCircle(cx, cy, radius));
   }
   drawColor(color: InputColor, blendMode?: EmbindEnumEntity | undefined): void {
     this.ctx.save();
@@ -392,13 +391,17 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     throw new Error("Method not implemented.");
   }
   restore() {
+    if (this.stack.length === 1) {
+      // do nothing
+      return;
+    }
     const { isLayer, imageFilter, ctx } = this.stack.pop()!;
     if (isLayer) {
       if (imageFilter) {
         const paint = new PaintJS();
         paint.setImageFilter(imageFilter);
         paint.apply(this.paintCtx, () => {
-          this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+          this.ctx.resetTransform();
           this.ctx.drawImage(
             ctx.canvas,
             0,
@@ -409,7 +412,7 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
         });
       } else {
         this.ctx.save();
-        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+        this.ctx.resetTransform();
         this.ctx.drawImage(
           ctx.canvas,
           0,
@@ -420,6 +423,7 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
         this.ctx.restore();
       }
     }
+    // TODO: should it be on the else branch?
     this.ctx.restore();
   }
   restoreToCount(saveCount: number): void {
