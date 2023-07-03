@@ -51,6 +51,33 @@ describe("Path Behavior", () => {
     checkImage(image, "snapshots/path-arc.png");
   });
 
+  it("builds the conic to quad reference result", () => {
+    //   https://fiddle.skia.org/c/@Path_ConvertConicToQuads
+    const { canvas, surface } = setupRealSkia();
+    const conicPaint = new RealCanvasKit.Paint();
+    conicPaint.setAntiAlias(true);
+    conicPaint.setStyle(RealCanvasKit.PaintStyle.Stroke);
+    const quadPaint = conicPaint.copy();
+    quadPaint.setColor(RealCanvasKit.Color(1, 0, 0, 1.0));
+    const conic = [Float32Array.of(20, 170), Float32Array.of(80, 170), Float32Array.of(80, 230)];
+    for (const weight of [0.25, 0.5, 0.707, 0.85, 1.0]) {
+      //const quads = RealCanvasKit.Path.ConvertConicToQuads(conic[0], conic[1], conic[2], weight, 1);
+      const path = new RealCanvasKit.Path();
+      path.moveTo(conic[0][0], conic[0][1]);
+      path.conicTo(conic[1][0], conic[1][1], conic[2][0], conic[2][1], weight);
+      canvas.drawPath(path, conicPaint);
+      // path.reset();
+      // path.moveTo(quads[0]);
+      // path.quadTo(quads[1], quads[2]);
+      // path.quadTo(quads[3], quads[4]);
+      canvas.drawPath(path, quadPaint);
+      canvas.translate(50, -50);
+    }
+    processResult(surface, "snapshots/conic.png");
+  });
+
+  
+
   it("builds the reference result", () => {
     const { canvas, surface } = setupRealSkia();
     const paint = new RealCanvasKit.Paint();

@@ -17,6 +17,7 @@ import { PathVerb, normalizeArray, rectToXYWH, rrectToXYWH } from "../Core";
 import { vec } from "../Vector";
 
 import { PathBuilder } from "./PathBuilder";
+import { parseSVG } from "./SVG";
 
 export class PathJS extends HostObject<"Path"> implements SkPath {
   private path: PathBuilder;
@@ -115,11 +116,11 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
   }
 
   arcToTangent(
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number,
-    radius: number
+    _x1: number,
+    _y1: number,
+    _x2: number,
+    _y2: number,
+    _radius: number
   ): SkPath {
     throw new Error("Method not implemented.");
   }
