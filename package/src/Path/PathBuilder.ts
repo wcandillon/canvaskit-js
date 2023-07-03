@@ -5,6 +5,7 @@ import { multiply, multiplyScalar, plus, vec } from "../Vector";
 import { ARC_APPROXIMATION_MAGIC, PI_OVER_2, TAU } from "../math";
 
 import { Path } from "./Path";
+import { ConvertConicToQuads } from "./Conic";
 
 export class PathBuilder {
   private readonly path = new Path();
@@ -24,6 +25,13 @@ export class PathBuilder {
       (contour) =>
         this.path.addContourComponent(contour.destination, contour.isClosed)
     );
+    return this;
+  }
+
+  conicTo(p1: Point, p2: Point, w: number) {
+    const p0 = this.current;
+    const quads = ConvertConicToQuads(p0, p1, p2, w);
+    quads.forEach((quad) => this.path.addQuadraticComponent(quad.p1, quad.cp, quad.p2));
     return this;
   }
 

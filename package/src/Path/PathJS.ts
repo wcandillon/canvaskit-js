@@ -134,13 +134,14 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
     throw new Error("Method not implemented.");
   }
   conicTo(
-    _x1: number,
-    _y1: number,
-    _x2: number,
-    _y2: number,
-    _w: number
-  ): SkPath {
-    throw new Error("Method not implemented.");
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    w: number
+  ) {
+    this.path.conicTo(vec(x1, y1), vec(x2, y2), w);
+    return this;
   }
   contains(_x: number, _y: number): boolean {
     throw new Error("Method not implemented.");
