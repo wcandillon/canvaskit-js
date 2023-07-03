@@ -266,10 +266,10 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     y1: number,
     paint: PaintJS
   ): void {
-    paint.apply(this.paintCtx, () => {
-      this.ctx.moveTo(x0, y0);
-      this.ctx.lineTo(x1, y1);
-    });
+    const path = new Path2D();
+    path.moveTo(x0, y0);
+    path.lineTo(x1, y1);
+    paint.apply(this.paintCtx, new DrawablePath(path));
   }
   drawOval(_oval: InputRect, _paint: Paint): void {
     throw new Error("Method not implemented.");
@@ -281,13 +281,13 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     const topRight = new DOMPoint(width, 0).matrixTransform(m);
     const bottomRight = new DOMPoint(width, height).matrixTransform(m);
     const bottomLeft = new DOMPoint(0, height).matrixTransform(m);
-    paint.apply(this.paintCtx, () => {
-      this.ctx.moveTo(topLeft.x, topLeft.y);
-      this.ctx.lineTo(topRight.x, topRight.y);
-      this.ctx.lineTo(bottomRight.x, bottomRight.y);
-      this.ctx.lineTo(bottomLeft.x, bottomLeft.y);
-      this.ctx.closePath();
-    });
+    const path = new Path2D();
+    path.moveTo(topLeft.x, topLeft.y);
+    path.lineTo(topRight.x, topRight.y);
+    path.lineTo(bottomRight.x, bottomRight.y);
+    path.lineTo(bottomLeft.x, bottomLeft.y);
+    path.closePath();
+    paint.apply(this.paintCtx, new DrawablePath(path));
   }
   drawParagraph(_p: Paragraph, _x: number, _y: number): void {
     throw new Error("Method not implemented.");
@@ -330,15 +330,13 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     this.drawRect(Float32Array.of(left, top, width, height), paint);
   }
   drawRRect(rrect: InputRRect, paint: PaintJS): void {
-    paint.apply(this.paintCtx, () => {
-      const { x, y, width, height, radii } = rrectToXYWH(rrect);
-      this.ctx.roundRect(x, y, width, height, [
-        { x: radii.topLeft[0], y: radii.topLeft[1] },
-        { x: radii.topRight[0], y: radii.topRight[1] },
-        { x: radii.bottomRight[0], y: radii.bottomRight[1] },
-        { x: radii.bottomLeft[0], y: radii.bottomLeft[1] },
-      ]);
-    });
+    const { x, y, width, height, radii } = rrectToXYWH(rrect);
+    const path = new Path2D();
+    path.roundRect(x, y, width, height, [        { x: radii.topLeft[0], y: radii.topLeft[1] },
+      { x: radii.topRight[0], y: radii.topRight[1] },
+      { x: radii.bottomRight[0], y: radii.bottomRight[1] },
+      { x: radii.bottomLeft[0], y: radii.bottomLeft[1] },]);
+    paint.apply(this.paintCtx, new DrawablePath(path));
   }
   drawShadow(
     _path: Path,

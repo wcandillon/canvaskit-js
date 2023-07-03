@@ -51,19 +51,12 @@ export class DrawableCircle implements Drawable {
   }
 };
 
-// TODO: remove, doesn't make sense to make assupmtions about the shape
 export class CustomDrawable implements Drawable {
   constructor(
-    private readonly drawFn: (ctx: CanvasRenderingContext2D) => void
+    private readonly drawFn: (ctx: CanvasRenderingContext2D, stroke?: boolean) => void
   ) {}
 
   draw(ctx: CanvasRenderingContext2D, stroke?: boolean) {
-    ctx.beginPath();
-    this.drawFn(ctx);
-    if (stroke) {
-      ctx.stroke();
-    } else {
-      ctx.fill();
-    }
+    this.drawFn(ctx, stroke);
   }
 }
