@@ -27,6 +27,10 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
     this.path = path ?? new PathBuilder();
   }
 
+  getPathPriv() {
+    return this.path;
+  }
+
   addArc(inputBounds: InputRect, startAngle: number, sweepAngle: number) {
     this.path.addArc(
       rectToXYWH(inputBounds),

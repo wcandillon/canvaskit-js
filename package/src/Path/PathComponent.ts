@@ -51,6 +51,7 @@ interface PathComponent<T extends PathComponent<T>> {
   equals(component: T): boolean;
   solve(t: number): Point;
   createPolyline(scaleFactor?: number): Point[];
+  length(): number;
 }
 
 export class LinearPathComponent implements PathComponent<LinearPathComponent> {
@@ -89,6 +90,10 @@ export class LinearPathComponent implements PathComponent<LinearPathComponent> {
     return normalize(minus(this.p2, this.p1));
   }
 
+  length() {
+    return Math.hypot(this.p2[0] - this.p1[0], this.p2[1] - this.p1[1]);
+  }
+
   equals(p: LinearPathComponent): boolean {
     return equals(this.p1, p.p1) && equals(this.p2, p.p2);
   }
@@ -98,6 +103,18 @@ export class QuadraticPathComponent
   implements PathComponent<QuadraticPathComponent>
 {
   constructor(readonly p1: Point, readonly cp: Point, readonly p2: Point) {}
+
+  length() {
+    const points = this.createPolyline();
+    let length = 0;
+    for (let i = 1; i < points.length; i++) {
+      length += Math.hypot(
+        points[i][0] - points[i - 1][0],
+        points[i][1] - points[i - 1][1]
+      );
+    }
+    return length;
+  }
 
   toCmd() {
     return [PathVerb.Quad, this.cp[0], this.cp[1], this.p2[0], this.p2[1]];
@@ -165,6 +182,11 @@ export class CubicPathComponent implements PathComponent<CubicPathComponent> {
     readonly cp2: Point,
     readonly p2: Point
   ) {}
+
+  length() {
+    const quads = this.toQuadratics(0.1);
+    return quads.reduce((acc, q) => acc + q.length(), 0);
+  }
 
   createPolyline(scaleFactor = 1) {
     const quads = this.toQuadratics(0.1);

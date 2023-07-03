@@ -46,6 +46,28 @@ export class Path {
   private cubics: CubicPathComponent[] = [];
   private contours: ContourComponent[] = [];
 
+  length() {
+    let length = 0;
+    this.enumerateComponents(
+      (linear) => length += linear.length(),
+      (quad) => length += quad.length(),
+      (cubic) => length += cubic.length(),
+      () => {}
+    );
+    return length;
+  }
+
+  polylines() {
+    let points: Point[] = [];
+    this.enumerateComponents(
+      (linear) => points.splice(points.length, 0, ...linear.createPolyline()),
+      (quad) => points.splice(points.length, 0, ...quad.createPolyline()),
+      (cubic) => points.splice(points.length, 0, ...cubic.createPolyline()),
+      () => {}
+    );
+    return points;
+  }
+
   getLastContour() {
     return this.contours[this.contours.length - 1];
   }
@@ -77,6 +99,7 @@ export class Path {
     this.linears.push(new LinearPathComponent(p1, p2));
     return this;
   }
+
   addQuadraticComponent(p1: Point, cp: Point, p2: Point) {
     this.components.push({
       index: this.quads.length,
