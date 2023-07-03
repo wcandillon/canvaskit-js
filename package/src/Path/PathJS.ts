@@ -276,22 +276,55 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
   stroke(_opts?: StrokeOpts | undefined): SkPath | null {
     throw new Error("Method not implemented.");
   }
+
   toCmds(): Float32Array {
-    return Float32Array.of(...this.path.getPath().toCmds().flat());
+    return Float32Array.of(...this.path.getPath().toCmds());
   }
+
   toSVGString() {
     return this.path.getPath().toSVGString();
   }
+
   transform(_m: Matrix3x3): SkPath {
     throw new Error("Method not implemented.");
   }
+
   trim(_startT: number, _stopT: number, _isComplement: boolean): SkPath | null {
     throw new Error("Method not implemented.");
   }
 
-  // TODO: to remove. We don't need it to draw the path
   getPath2D() {
-    return new Path2D(this.toSVGString());
+    const path = new Path2D();
+    const cmds = this.toCmds();
+    let i = 0;
+    while (i < cmds.length) {
+      const cmd = cmds[i++];
+      if (cmd === PathVerb.Move) {
+        path.moveTo(cmds[i++], cmds[i++]);
+      } else if (cmd === PathVerb.Line) {
+        path.lineTo(cmds[i++], cmds[i++]);
+      } else if (cmd === PathVerb.Cubic) {
+        path.bezierCurveTo(
+          cmds[i++],
+          cmds[i++],
+          cmds[i++],
+          cmds[i++],
+          cmds[i++],
+          cmds[i++]
+        );
+      } else if (cmd === PathVerb.Quad) {
+        path.quadraticCurveTo(
+          cmds[i++],
+          cmds[i++],
+          cmds[i++],
+          cmds[i++]
+        );
+      } else if (cmd === PathVerb.Close) {
+        i++;
+        path.closePath();
+      }
+    }
+    return path;
   }
 
   static CanInterpolate(_path1: SkPath, _path2: SkPath): boolean {
