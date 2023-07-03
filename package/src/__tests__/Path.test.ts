@@ -158,7 +158,7 @@ describe("Path Behavior", () => {
     ].map(cl => RealCanvasKit.parseColorString(cl));
     const paint = new RealCanvasKit.Paint();
     paint.setStyle(RealCanvasKit.PaintStyle.Stroke);
-    paint.setStrokeWidth(8);
+    paint.setStrokeWidth(1);
     paint.setStrokeCap(RealCanvasKit.StrokeCap.Round);
     paint.setStrokeJoin(RealCanvasKit.StrokeJoin.Round);
     paint.setShader(RealCanvasKit.Shader.MakeLinearGradient(Float32Array.of(0, 0), Float32Array.of(width, 0), cls, null, CanvasKit.TileMode.Clamp));

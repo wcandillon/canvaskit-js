@@ -1,5 +1,5 @@
 import { Point } from "canvaskit-wasm";
-import { QuadraticPathComponent } from "./PathComponent";
+import { QuadraticPathComponent } from "../PathComponent";
 
 type ConicCurve = {
     p0: Point;

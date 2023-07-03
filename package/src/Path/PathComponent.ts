@@ -11,39 +11,15 @@ import {
   plus,
 } from "../Vector";
 import { PathVerb } from "../Core";
+import { getQuadraticArcLength, quadraticSolve } from "./Geometry/QuadraticBezier";
+import { cubicSolve, getCubicArcLength } from "./Geometry/CubicBezier";
+import { linearSolve } from "./Geometry/Linear";
 
 const defaultCurveTolerance = 1;
-
-const linearSolve = (t: number, p0: number, p1: number) => {
-  return p0 + t * (p1 - p0);
-};
-
-const quadraticSolve = (t: number, p0: number, p1: number, p2: number) => {
-  return (
-    (1 - t) * (1 - t) * p0 + //
-    2 * (1 - t) * t * p1 + //
-    t * t * p2
-  );
-};
 
 const approximateParabolaIntegral = (x: number) => {
   const d = 0.67;
   return x / (1.0 - d + Math.sqrt(Math.sqrt(Math.pow(d, 4) + 0.25 * x * x)));
-};
-
-const cubicSolve = (
-  t: number,
-  p0: number,
-  p1: number,
-  p2: number,
-  p3: number
-): number => {
-  return (
-    (1 - t) * (1 - t) * (1 - t) * p0 +
-    3 * (1 - t) * (1 - t) * t * p1 +
-    3 * (1 - t) * t * t * p2 +
-    t * t * t * p3
-  );
 };
 
 interface PathComponent<T extends PathComponent<T>> {
@@ -51,7 +27,7 @@ interface PathComponent<T extends PathComponent<T>> {
   equals(component: T): boolean;
   solve(t: number): Point;
   createPolyline(scaleFactor?: number): Point[];
-  length(): number;
+  length(t?: number): number;
 }
 
 export class LinearPathComponent implements PathComponent<LinearPathComponent> {
@@ -90,8 +66,8 @@ export class LinearPathComponent implements PathComponent<LinearPathComponent> {
     return normalize(minus(this.p2, this.p1));
   }
 
-  length() {
-    return Math.hypot(this.p2[0] - this.p1[0], this.p2[1] - this.p1[1]);
+  length(t = 1) {
+    return t * Math.hypot(this.p2[0] - this.p1[0], this.p2[1] - this.p1[1]);
   }
 
   equals(p: LinearPathComponent): boolean {
@@ -104,16 +80,8 @@ export class QuadraticPathComponent
 {
   constructor(readonly p1: Point, readonly cp: Point, readonly p2: Point) {}
 
-  length() {
-    const points = this.createPolyline();
-    let length = 0;
-    for (let i = 1; i < points.length; i++) {
-      length += Math.hypot(
-        points[i][0] - points[i - 1][0],
-        points[i][1] - points[i - 1][1]
-      );
-    }
-    return length;
+  length(t = 1) {
+    return getQuadraticArcLength(this.p1, this.cp, this.p2, t);
   }
 
   toCmd() {
@@ -183,9 +151,8 @@ export class CubicPathComponent implements PathComponent<CubicPathComponent> {
     readonly p2: Point
   ) {}
 
-  length() {
-    const quads = this.toQuadratics(0.1);
-    return quads.reduce((acc, q) => acc + q.length(), 0);
+  length(t=1) {
+    return getCubicArcLength(this.p1, this.cp1, this.cp2, this.p2, t);
   }
 
   createPolyline(scaleFactor = 1) {
