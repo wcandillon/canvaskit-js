@@ -25,7 +25,7 @@ const approximateParabolaIntegral = (x: number) => {
 interface PathComponent<T extends PathComponent<T>> {
   toCmd(): number[];
   equals(component: T): boolean;
-  solve(t: number): Point;
+  getPointAtLength(t: number): Point;
   createPolyline(scaleFactor?: number): Point[];
   length(t?: number): number;
 }
@@ -37,7 +37,7 @@ export class LinearPathComponent implements PathComponent<LinearPathComponent> {
     return [PathVerb.Line, this.p2[0], this.p2[1]];
   }
 
-  solve(t: number): Point {
+  getPointAtLength(t: number): Point {
     return vec(
       linearSolve(t, this.p1[0], this.p2[1]),
       linearSolve(t, this.p1[0], this.p2[1])
@@ -88,7 +88,7 @@ export class QuadraticPathComponent
     return [PathVerb.Quad, this.cp[0], this.cp[1], this.p2[0], this.p2[1]];
   }
 
-  solve(t: number): Point {
+  getPointAtLength(t: number): Point {
     return vec(
       quadraticSolve(t, this.p1[0], this.cp[0], this.p2[1]),
       quadraticSolve(t, this.p1[0], this.cp[1], this.p2[1])
@@ -130,7 +130,7 @@ export class QuadraticPathComponent
       const u = i * step;
       const a = a0 + (a2 - a0) * u;
       const t = (approximateParabolaIntegral(a) - u0) * uscale;
-      points.push(this.solve(t));
+      points.push(this.getPointAtLength(t));
     }
     points.push(this.p2);
     return points;
@@ -173,12 +173,12 @@ export class CubicPathComponent implements PathComponent<CubicPathComponent> {
   }
 
   private subsegment(t0: number, t1: number) {
-    const p0 = this.solve(t0);
-    const p3 = this.solve(t1);
+    const p0 = this.getPointAtLength(t0);
+    const p3 = this.getPointAtLength(t1);
     const d = this.lower();
     const scale = (t1 - t0) * (1.0 / 3.0);
-    const p1 = plus(p0, multiplyScalar(d.solve(t0), scale));
-    const p2 = minus(p3, multiplyScalar(d.solve(t1), scale));
+    const p1 = plus(p0, multiplyScalar(d.getPointAtLength(t0), scale));
+    const p2 = minus(p3, multiplyScalar(d.getPointAtLength(t1), scale));
     return new CubicPathComponent(p0, p1, p2, p3);
   }
 
@@ -234,7 +234,7 @@ export class CubicPathComponent implements PathComponent<CubicPathComponent> {
     );
   }
 
-  solve(t: number) {
+  getPointAtLength(t: number) {
     return vec(
       cubicSolve(t, this.p1[0], this.cp1[0], this.cp2[0], this.p2[0]),
       cubicSolve(t, this.p1[1], this.cp1[1], this.cp2[1], this.p2[1])

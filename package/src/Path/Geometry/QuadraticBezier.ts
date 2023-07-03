@@ -8,7 +8,6 @@ export const quadraticSolve = (t: number, p0: number, p1: number, p2: number) =>
   );
 };
 
-
 export const getQuadraticArcLength = (
     p1: Point,
     cp: Point,
