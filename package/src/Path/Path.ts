@@ -3,12 +3,12 @@ import type { Point } from "canvaskit-wasm";
 import { PathVerb } from "../Core";
 import { saturate } from "../math";
 
-import type { PathComponent } from "./PathComponent";
+import type { PathComponent } from "./PathComponents";
 import {
   LinearPathComponent,
   QuadraticPathComponent,
   CubicPathComponent,
-} from "./PathComponent";
+} from "./PathComponents";
 
 class Contour {
   components: PathComponent[] = [];

@@ -1,6 +1,6 @@
 import { plus, vec } from "../../Vector";
 import { PathBuilder } from "../PathBuilder";
-import { CubicPathComponent, QuadraticPathComponent } from "../PathComponent";
+import { CubicPathComponent, QuadraticPathComponent } from "../PathComponents";
 
 import { a2c } from "./Arc";
 

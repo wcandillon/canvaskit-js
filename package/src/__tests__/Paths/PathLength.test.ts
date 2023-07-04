@@ -3,8 +3,10 @@ import type { ContourMeasure, Path } from "canvaskit-wasm";
 import { PathBuilder } from "../../Path/PathBuilder";
 import { vec } from "../../Vector";
 import "../setup";
-import { getQuadraticArcLength } from "../../Path/Geometry/QuadraticBezier";
-import { getCubicArcLength } from "../../Path/Geometry/CubicBezier";
+import {
+  getCubicArcLength,
+  getQuadraticArcLength,
+} from "../../Path/PathComponents";
 
 const totalLength = (path: Path, close = false) => {
   let length = 0;

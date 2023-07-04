@@ -5,7 +5,7 @@ import { multiply, multiplyScalar, plus, vec } from "../Vector";
 import { ARC_APPROXIMATION_MAGIC, PI_OVER_2, TAU } from "../math";
 
 import { Path } from "./Path";
-import { ConvertConicToQuads } from "./Geometry/Conic";
+import { ConvertConicToQuads } from "./Conic";
 
 export class PathBuilder {
   private current: Point = vec(0, 0);
