@@ -331,6 +331,10 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
   static CanInterpolate(_path1: SkPath, _path2: SkPath): boolean {
     throw new Error("Function not implemented.");
   }
+  static MakeFromPrivatePath(path: Path) {
+    return new PathJS(new PathBuilder(path));
+  }
+
   static MakeFromCmds(input: InputCommands): SkPath | null {
     const cmds = normalizeArray(input);
     const path = new PathBuilder();
