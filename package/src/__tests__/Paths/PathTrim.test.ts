@@ -55,7 +55,7 @@ const testTriming = (d: string) => {
         // console.log("Reference:");
         // console.log(JSON.stringify(cmds1, null, 2));
         // console.log("Result:");
-        // console.log(JSON.stringify(cmds2, null, 2));
+        console.log(JSON.stringify(path2.toSVGString(), null, 2));
         const diffString = diff(cmds1, cmds2);
         throw new Error(`Failed at (${start}, ${end}) with path d = ${d} (complement=${complement}):
 ${diffString}`);
