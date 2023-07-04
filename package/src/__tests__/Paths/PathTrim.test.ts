@@ -2,10 +2,10 @@
 /// <reference path="../jest.d.ts" />
 import { diff } from "jest-diff";
 
-import { parseSVG } from "../../Path";
 import { TrimPathEffect } from "../../Path/PathEffects";
 import "../setup";
 import { PathVerb } from "../../Core";
+import { parseSVG } from "../../Path/SVG";
 
 expect.extend({
   toBeApproximatelyEqual(received, argument, tolerance) {

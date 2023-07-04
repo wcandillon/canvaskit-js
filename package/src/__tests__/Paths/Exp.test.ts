@@ -1,10 +1,10 @@
 // eslint-disable-next-line @typescript-eslint/triple-slash-reference
 /// <reference path="../jest.d.ts" />
 
-import { parseSVG } from "../../Path";
 import { TrimPathEffect } from "../../Path/PathEffects";
 import "../setup";
 import { PathVerb } from "../../Core";
+import { parseSVG } from "../../Path/SVG";
 
 expect.extend({
   toBeApproximatelyEqual(received, argument, tolerance) {

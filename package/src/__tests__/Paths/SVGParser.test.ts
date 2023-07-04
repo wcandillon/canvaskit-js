@@ -1,5 +1,4 @@
-import { parseSVG } from "../../Path";
-
+import { parseSVG } from "../../Path/SVG";
 import "../setup";
 
 describe("SVG Parser", () => {
