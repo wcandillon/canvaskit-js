@@ -13,6 +13,7 @@ import { Shader } from "./Shader";
 import { CanvasKitProvider } from "./components/CanvasKitContext";
 import { Shader1 } from "./Shader1";
 import { Shader2 } from "./Shader2";
+import { Hello } from "./Hello";
 
 declare global {
   // eslint-disable-next-line no-var
@@ -58,6 +59,10 @@ const router = createBrowserRouter([
   {
     path: "/playground",
     element: <Playground />,
+  },
+  {
+    path: "/hello",
+    element: <Hello />,
   },
 ]);
 root.render(

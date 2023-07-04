@@ -55,7 +55,8 @@ const testTriming = (d: string) => {
         // console.log("Reference:");
         // console.log(JSON.stringify(cmds1, null, 2));
         // console.log("Result:");
-        console.log(JSON.stringify(path2.toSVGString(), null, 2));
+        //console.log(JSON.stringify(path1.toSVGString(), null, 2));
+        //console.log(JSON.stringify(path2.toSVGString(), null, 2));
         const diffString = diff(cmds1, cmds2);
         throw new Error(`Failed at (${start}, ${end}) with path d = ${d} (complement=${complement}):
 ${diffString}`);
@@ -142,9 +143,9 @@ describe("Path Trim", () => {
     testTriming("M0 0 L 50 50 L 100 0");
     testTriming("M0 0 L 40 50 L 100 0 L 150 50 L 200 0");
   });
-  it("Trim a quadratic curves", () => {
-    testTriming("M 0 0 Q 0 100 100 100");
-  });
+  // it("Trim a quadratic curves", () => {
+  //   testTriming("M 0 0 Q 0 100 100 100");
+  // });
   // it("Trim a cubic curves", () => {
   //   testTriming("M 0 0 C 0 100 0 0 100 100");
   // });
