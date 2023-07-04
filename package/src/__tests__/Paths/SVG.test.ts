@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { processResult, setupRealSkia } from "./setup";
+import { processResult, setupRealSkia } from "../setup";
 
 describe("PathKit's SVG Behavior", () => {
   it("can create a path from an SVG string", () => {

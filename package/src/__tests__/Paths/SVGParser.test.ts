@@ -1,6 +1,6 @@
-import { parseSVG } from "../Path";
+import { parseSVG } from "../../Path";
 
-import "./setup";
+import "../setup";
 
 describe("SVG Parser", () => {
   it("How does CanvasKit handles contour less paths?", () => {

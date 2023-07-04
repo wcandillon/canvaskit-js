@@ -3,7 +3,7 @@
 
 import type { Path } from "canvaskit-wasm";
 
-import { checkImage, processResult, setupRealSkia, skia } from "./setup";
+import { checkImage, processResult, setupRealSkia, skia } from "../setup";
 
 const roundtrip = (path: Path) => CanvasKit.Path.MakeFromCmds(path.toCmds())!;
 
