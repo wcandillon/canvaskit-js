@@ -1,6 +1,7 @@
 import type { Point } from "canvaskit-wasm";
 
 import { PathVerb } from "../Core";
+import { saturate } from "../math";
 
 import type { PathComponent } from "./PathComponent";
 import {
@@ -10,31 +11,32 @@ import {
 } from "./PathComponent";
 
 class Contour {
-  private components: PathComponent[] = [];
+  components: PathComponent[] = [];
 
   constructor(public closed: boolean) {}
 
-  getSegment(start: number, stop: number, dst: Path, _requiresMoveto: boolean) {
-    let currentSegmentOffset = 0;
-    for (let i = 0; i < this.components.length; i++) {
-      const comp = this.components[i];
-      const nextOffset = currentSegmentOffset + comp.length();
-
-      if (start < nextOffset) {
-        dst.addComponent(
-          comp.getSegment(
-            start - currentSegmentOffset,
-            stop - currentSegmentOffset
-          )
-        );
-        //requiresMoveto = false;
-
-        if (stop <= nextOffset) {
-          break;
-        }
-      }
-      currentSegmentOffset = nextOffset;
+  getSegment(startT: number, stopT: number) {
+    const trimmedContour = new Contour(false);
+    const totalLength = this.length();
+    const start = saturate(startT) * totalLength;
+    const stop = saturate(stopT) * totalLength;
+    if (start >= stop) {
+      return trimmedContour;
     }
+    let offset = 0;
+    this.components.forEach((contour) => {
+      const contourLength = contour.length();
+      const nextOffset = offset + contourLength;
+      if (nextOffset <= start || offset >= stop) {
+        return;
+      }
+      const t0 = (start - offset) / contourLength;
+      const t1 = (stop - offset) / contourLength;
+      const partialContour = contour.getSegment(t0, t1);
+      trimmedContour.components.push(partialContour);
+      offset = nextOffset;
+    });
+    return trimmedContour;
   }
 
   enumerateComponents(
@@ -53,10 +55,7 @@ class Contour {
     });
   }
 
-  add(comp: PathComponent) {
-    this.components.push(comp);
-  }
-
+  // TODO: memoize length computation?
   length() {
     return this.components.reduce((acc, c) => acc + c.length(), 0);
   }
@@ -112,7 +111,7 @@ export class Path {
   // private convexity = Convexity.Unknown;
   // private fillType = FillType.NonZero;
 
-  private contours: Contour[] = [];
+  contours: Contour[] = [];
 
   get contour() {
     // SVG doesn't allow for contourless path but Skia add moveTo(0, 0) automatically
@@ -174,22 +173,22 @@ export class Path {
   }
 
   addComponent(comp: PathComponent) {
-    this.contour.add(comp);
+    this.contour.components.push(comp);
     return this;
   }
 
   addLinearComponent(p1: Point, p2: Point) {
-    this.contour.add(new LinearPathComponent(p1, p2));
+    this.contour.components.push(new LinearPathComponent(p1, p2));
     return this;
   }
 
   addQuadraticComponent(p1: Point, cp: Point, p2: Point) {
-    this.contour.add(new QuadraticPathComponent(p1, cp, p2));
+    this.contour.components.push(new QuadraticPathComponent(p1, cp, p2));
     return this;
   }
 
   addCubicComponent(p1: Point, cp1: Point, cp2: Point, p2: Point) {
-    this.contour.add(new CubicPathComponent(p1, cp1, cp2, p2));
+    this.contour.components.push(new CubicPathComponent(p1, cp1, cp2, p2));
     return this;
   }
 

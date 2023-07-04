@@ -38,5 +38,7 @@
     "ts-jest": "^29.1.0",
     "tsup": "^6.7.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "jest-diff": "^29.5.0"
+  }
 }

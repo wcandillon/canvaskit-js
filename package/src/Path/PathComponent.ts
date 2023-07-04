@@ -24,10 +24,9 @@ export class LinearPathComponent implements PathComponent {
   constructor(readonly p1: Point, readonly p2: Point) {}
 
   getSegment(start: number, stop: number): PathComponent {
-    const length = this.length();
     return new LinearPathComponent(
-      this.getPointAtLength(start / length),
-      this.getPointAtLength(stop / length)
+      this.getPointAtLength(start),
+      this.getPointAtLength(stop)
     );
   }
 
@@ -58,10 +57,7 @@ export class LinearPathComponent implements PathComponent {
 export class QuadraticPathComponent implements PathComponent {
   constructor(readonly p1: Point, readonly cp: Point, readonly p2: Point) {}
 
-  getSegment(start: number, stop: number): PathComponent {
-    const t0 = start / this.length();
-    const t1 = stop / this.length();
-
+  getSegment(t0: number, t1: number): PathComponent {
     // First cut at t0
     const p01 = linearSolve2(t0, this.p1, this.cp);
     const p12 = linearSolve2(t0, this.cp, this.p2);
@@ -149,10 +145,7 @@ export class CubicPathComponent implements PathComponent {
     );
   }
 
-  getSegment(start: number, stop: number): PathComponent {
-    const t0 = start / this.length();
-    const t1 = stop / this.length();
-
+  getSegment(t0: number, t1: number): PathComponent {
     // First cut at t0
     const p01 = linearSolve2(t0, this.p1, this.cp1);
     const p12 = linearSolve2(t0, this.cp1, this.cp2);
