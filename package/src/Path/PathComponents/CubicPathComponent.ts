@@ -34,14 +34,14 @@ export class CubicPathComponent implements PathComponent {
     ];
   }
 
-  getPointAtT(t: number) {
+  getPointAt(t: number) {
     return vec(
       cubicSolve(t, this.p1[0], this.cp1[0], this.cp2[0], this.p2[0]),
       cubicSolve(t, this.p1[1], this.cp1[1], this.cp2[1], this.p2[1])
     );
   }
 
-  getSegment(t0: number, t1: number): PathComponent {
+  getSegment(t0: number, t1: number) {
     // First cut at t0
     const p01 = linearSolve2(t0, this.p1, this.cp1);
     const p12 = linearSolve2(t0, this.cp1, this.cp2);

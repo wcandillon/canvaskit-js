@@ -83,6 +83,7 @@ import {
   resolveContext,
 } from "./Core/Platform";
 import { ColorFilterFactory } from "./ColorFilter/ColorFilterFactory";
+import { ContourMeasureIterJS } from "./Path/ContourMeasure";
 
 export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
   private static instance: ICanvasKit | null = null;
@@ -319,7 +320,8 @@ export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
   }
   ImageData!: ImageDataConstructor;
   ParagraphStyle!: ParagraphStyleConstructor;
-  ContourMeasureIter!: ContourMeasureIterConstructor;
+  ContourMeasureIter =
+    ContourMeasureIterJS as unknown as ContourMeasureIterConstructor;
   Font!: FontConstructor;
   Paint: DefaultConstructor<Paint> = PaintJS;
   Path = PathJS as unknown as PathConstructorAndFactory;

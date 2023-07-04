@@ -15,6 +15,22 @@ export class Contour {
 
   constructor(public closed: boolean) {}
 
+  getPointAt(t: number) {
+    const totalLength = this.length();
+    const distance = saturate(t) * totalLength;
+    let offset = 0;
+    for (const component of this.components) {
+      const componentLength = component.length();
+      const nextOffset = offset + componentLength;
+      if (nextOffset >= distance) {
+        const t0 = Math.max(0, (distance - offset) / componentLength);
+        return component.getPointAt(t0);
+      }
+      offset = nextOffset;
+    }
+    return this.getLastComponent().p2;
+  }
+
   getSegment(startT: number, stopT: number) {
     const trimmedContour = new Contour(false);
     const totalLength = this.length();

@@ -9,7 +9,7 @@ import { linearSolve2 } from "./LinearPathComponent";
 export class QuadraticPathComponent implements PathComponent {
   constructor(readonly p1: Point, readonly cp: Point, readonly p2: Point) {}
 
-  getSegment(t0: number, t1: number): PathComponent {
+  getSegment(t0: number, t1: number) {
     // First cut at t0
     const p01 = linearSolve2(t0, this.p1, this.cp);
     const p12 = linearSolve2(t0, this.cp, this.p2);
@@ -39,7 +39,7 @@ export class QuadraticPathComponent implements PathComponent {
     return [PathVerb.Quad, this.cp[0], this.cp[1], this.p2[0], this.p2[1]];
   }
 
-  getPointAtT(t: number): Point {
+  getPointAt(t: number): Point {
     return vec(
       quadraticSolve(t, this.p1[0], this.cp[0], this.p2[0]),
       quadraticSolve(t, this.p1[1], this.cp[1], this.p2[1])

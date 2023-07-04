@@ -12,6 +12,7 @@ import type {
   Image,
   PathConstructorAndFactory,
   Rect,
+  ContourMeasureIterConstructor,
 } from "canvaskit-wasm";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -21,6 +22,7 @@ import puppeteer from "puppeteer";
 
 import { CoreCanvasKit } from "../Core";
 import { PathJS } from "../Path";
+import { ContourMeasureIterJS } from "../Path/ContourMeasure";
 
 import { fitRects } from "./lib/FitRect";
 
@@ -152,6 +154,8 @@ beforeAll(async () => {
 
 class HeadlessCanvasKit extends CoreCanvasKit {
   Path = PathJS as unknown as PathConstructorAndFactory;
+  ContourMeasureIter =
+    ContourMeasureIterJS as unknown as ContourMeasureIterConstructor;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

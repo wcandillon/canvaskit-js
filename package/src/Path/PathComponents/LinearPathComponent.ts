@@ -10,8 +10,8 @@ export class LinearPathComponent implements PathComponent {
 
   getSegment(start: number, stop: number): PathComponent {
     return new LinearPathComponent(
-      this.getPointAtT(start),
-      this.getPointAtT(stop)
+      this.getPointAt(start),
+      this.getPointAt(stop)
     );
   }
 
@@ -23,7 +23,7 @@ export class LinearPathComponent implements PathComponent {
     return `L${this.p2[0]} ${this.p2[1]}`;
   }
 
-  getPointAtT(t: number): Point {
+  getPointAt(t: number): Point {
     return linearSolve2(t, this.p1, this.p2);
   }
 
