@@ -32,6 +32,7 @@ class Contour {
       }
       const t0 = Math.max(0, (start - offset) / componentLength);
       const t1 = Math.min(1, (stop - offset) / componentLength);
+      //console.log(`component.getSegment(${t0}, ${t1});`);
       const partialContour = component.getSegment(t0, t1);
       trimmedContour.components.push(partialContour);
       offset = nextOffset;
