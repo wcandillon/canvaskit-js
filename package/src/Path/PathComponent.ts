@@ -1,6 +1,6 @@
 import type { Point } from "canvaskit-wasm";
 
-import { equals, vec } from "../Vector";
+import { vec } from "../Vector";
 import { PathVerb } from "../Core";
 
 import {
@@ -15,7 +15,6 @@ export interface PathComponent {
   toCmd(): number[];
   toSVGString(): string;
   getSegment(start: number, stop: number): PathComponent;
-  equals(component: this): boolean;
   getPointAtT(t: number): Point;
   length(t?: number): number;
 }
@@ -47,10 +46,6 @@ export class LinearPathComponent implements PathComponent {
 
   length(t = 1) {
     return t * Math.hypot(this.p2[0] - this.p1[0], this.p2[1] - this.p1[1]);
-  }
-
-  equals(p: LinearPathComponent): boolean {
-    return equals(this.p1, p.p1) && equals(this.p2, p.p2);
   }
 }
 
@@ -93,12 +88,6 @@ export class QuadraticPathComponent implements PathComponent {
       quadraticSolve(t, this.p1[1], this.cp[1], this.p2[1])
     );
   }
-
-  equals(p: QuadraticPathComponent) {
-    return (
-      equals(this.p1, p.p1) && equals(this.cp, p.cp) && equals(this.p2, p.p2)
-    );
-  }
 }
 
 export class CubicPathComponent implements PathComponent {
@@ -127,15 +116,6 @@ export class CubicPathComponent implements PathComponent {
       this.p2[0],
       this.p2[1],
     ];
-  }
-
-  equals(p: CubicPathComponent): boolean {
-    return (
-      equals(this.p1, p.p1) &&
-      equals(this.cp1, p.cp1) &&
-      equals(this.cp2, p.cp2) &&
-      equals(this.p2, p.p2)
-    );
   }
 
   getPointAtT(t: number) {
