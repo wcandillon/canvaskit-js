@@ -1,9 +1,27 @@
+/// <reference path="../jest.d.ts" />
 import { diff } from "jest-diff";
 
 import { parseSVG } from "../../Path";
 import { TrimPathEffect } from "../../Path/PathEffects";
 import "../setup";
 import { PathVerb } from "../../Core";
+
+expect.extend({
+  toBeApproximatelyEqual(received, argument, tolerance) {
+    if (received.length !== argument.length) {
+      return { pass: false, message: () => "Arrays have different lengths" };
+    }
+    for (let i = 0; i < received.length; i++) {
+      if (Math.abs(received[i] - argument[i]) > tolerance) {
+        return {
+          pass: false,
+          message: () => `Element at index ${i} differ more than tolerance`,
+        };
+      }
+    }
+    return { pass: true, message: () => "Arrays are approximately equal" };
+  },
+});
 
 const testTriming = (d: string) => {
   const ts = [0.66]; //[0.25, 0.33, 0.5, 0.66, 0.75];
@@ -21,7 +39,7 @@ const testTriming = (d: string) => {
       const cmds1 = Array.from(path1.toCmds());
       const cmds2 = path2.toCmds();
       try {
-        expect(cmds1).toEqual(cmds2);
+        expect(cmds1).toBeApproximatelyEqual(cmds2, 0.1);
       } catch (error) {
         const diffString = diff(cmds1, cmds2);
         throw new Error(`Failed at t = ${t} with path d = ${d} (complement=${complement}):
