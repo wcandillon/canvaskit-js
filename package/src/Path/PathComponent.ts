@@ -11,7 +11,11 @@ import {
   plus,
 } from "../Vector";
 import { PathVerb } from "../Core";
-import { getQuadraticArcLength, quadraticSolve } from "./Geometry/QuadraticBezier";
+
+import {
+  getQuadraticArcLength,
+  quadraticSolve,
+} from "./Geometry/QuadraticBezier";
 import { cubicSolve, getCubicArcLength } from "./Geometry/CubicBezier";
 import { linearSolve } from "./Geometry/Linear";
 
@@ -22,19 +26,25 @@ const approximateParabolaIntegral = (x: number) => {
   return x / (1.0 - d + Math.sqrt(Math.sqrt(Math.pow(d, 4) + 0.25 * x * x)));
 };
 
-interface PathComponent<T extends PathComponent<T>> {
+export interface PathComponent {
+  p1: Point;
   toCmd(): number[];
-  equals(component: T): boolean;
+  toSVGString(): string;
+  equals(component: this): boolean;
   getPointAtLength(t: number): Point;
   createPolyline(scaleFactor?: number): Point[];
   length(t?: number): number;
 }
 
-export class LinearPathComponent implements PathComponent<LinearPathComponent> {
+export class LinearPathComponent implements PathComponent {
   constructor(readonly p1: Point, readonly p2: Point) {}
 
   toCmd() {
     return [PathVerb.Line, this.p2[0], this.p2[1]];
+  }
+
+  toSVGString() {
+    return `L${this.p2[0]} ${this.p2[1]}`;
   }
 
   getPointAtLength(t: number): Point {
@@ -75,13 +85,15 @@ export class LinearPathComponent implements PathComponent<LinearPathComponent> {
   }
 }
 
-export class QuadraticPathComponent
-  implements PathComponent<QuadraticPathComponent>
-{
+export class QuadraticPathComponent implements PathComponent {
   constructor(readonly p1: Point, readonly cp: Point, readonly p2: Point) {}
 
   length(t = 1) {
     return getQuadraticArcLength(this.p1, this.cp, this.p2, t);
+  }
+
+  toSVGString() {
+    return `Q${this.cp[0]} ${this.cp[1]} ${this.p2[0]} ${this.p2[1]}`;
   }
 
   toCmd() {
@@ -143,7 +155,7 @@ export class QuadraticPathComponent
   }
 }
 
-export class CubicPathComponent implements PathComponent<CubicPathComponent> {
+export class CubicPathComponent implements PathComponent {
   constructor(
     readonly p1: Point,
     readonly cp1: Point,
@@ -151,7 +163,7 @@ export class CubicPathComponent implements PathComponent<CubicPathComponent> {
     readonly p2: Point
   ) {}
 
-  length(t=1) {
+  length(t = 1) {
     return getCubicArcLength(this.p1, this.cp1, this.cp2, this.p2, t);
   }
 
@@ -213,6 +225,10 @@ export class CubicPathComponent implements PathComponent<CubicPathComponent> {
     return quads;
   }
 
+  toSVGString() {
+    return `C${this.cp1[0]} ${this.cp1[1]} ${this.cp2[0]} ${this.cp2[1]} ${this.p2[0]} ${this.p2[1]}`;
+  }
+
   toCmd() {
     return [
       PathVerb.Cubic,
@@ -239,26 +255,5 @@ export class CubicPathComponent implements PathComponent<CubicPathComponent> {
       cubicSolve(t, this.p1[0], this.cp1[0], this.cp2[0], this.p2[0]),
       cubicSolve(t, this.p1[1], this.cp1[1], this.cp2[1], this.p2[1])
     );
-  }
-}
-
-export class ContourComponent {
-  constructor(public destination: Point, public isClosed = false) {}
-
-  equals(p: ContourComponent) {
-    return (
-      equals(this.destination, p.destination) && p.isClosed === this.isClosed
-    );
-  }
-
-  toCmd(shouldClose: boolean, shouldMove: boolean) {
-    const cmd: number[] = [];
-    if (shouldClose) {
-      cmd.push(PathVerb.Close);
-    }
-    if (shouldMove) {
-      cmd.push(...[PathVerb.Move, this.destination[0], this.destination[1]]);
-    }
-    return cmd;
   }
 }

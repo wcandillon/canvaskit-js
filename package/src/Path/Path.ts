@@ -2,12 +2,73 @@ import type { Point } from "canvaskit-wasm";
 
 import { PathVerb } from "../Core";
 
+import type { PathComponent } from "./PathComponent";
 import {
-  ContourComponent,
   LinearPathComponent,
   QuadraticPathComponent,
   CubicPathComponent,
 } from "./PathComponent";
+
+class Contour {
+  private components: PathComponent[] = [];
+
+  constructor(public closed: boolean) {}
+
+  enumerateComponents(
+    linearApplier?: Applier<LinearPathComponent>,
+    quadApplier?: Applier<QuadraticPathComponent>,
+    cubicApplier?: Applier<CubicPathComponent>
+  ) {
+    this.components.forEach((comp, index) => {
+      if (comp instanceof LinearPathComponent && linearApplier) {
+        linearApplier(comp, index);
+      } else if (comp instanceof QuadraticPathComponent && quadApplier) {
+        quadApplier(comp, index);
+      } else if (comp instanceof CubicPathComponent && cubicApplier) {
+        cubicApplier(comp, index);
+      }
+    });
+  }
+
+  add(comp: PathComponent) {
+    this.components.push(comp);
+  }
+
+  length() {
+    return this.components.reduce((acc, c) => acc + c.length(), 0);
+  }
+
+  getLastComponent() {
+    return this.components[this.components.length - 1];
+  }
+
+  toCmds() {
+    if (this.components.length === 0) {
+      return [];
+    }
+    const [comp] = this.components;
+    const cmds = [PathVerb.Move, comp.p1[0], comp.p1[1]];
+    const cmdToAdd = this.components.map((c) => c.toCmd());
+    if (this.closed) {
+      cmdToAdd[cmdToAdd.length - 1] = [PathVerb.Close];
+    }
+    cmds.push(...cmdToAdd.flat());
+    return cmds;
+  }
+
+  toSVGString() {
+    if (this.components.length === 0) {
+      return "";
+    }
+    const [comp] = this.components;
+    const cmds = [`M${comp.p1[0]} ${comp.p1[1]}`];
+    cmds.push(...this.components.map((c) => c.toSVGString()));
+    if (this.closed) {
+      cmds[cmds.length - 1] = "Z";
+    }
+    return cmds.join(" ");
+  }
+}
 
 // enum Convexity {
 //   Unknown,
@@ -24,205 +85,84 @@ import {
 
 type Applier<T> = (comp: T, index: number) => void;
 
-enum ComponentType {
-  Linear,
-  Quadratic,
-  Cubic,
-  Contour,
-}
-
-interface ComponentIndexPair {
-  index: number;
-  type: ComponentType;
-}
-
 export class Path {
   // private convexity = Convexity.Unknown;
   // private fillType = FillType.NonZero;
 
-  private components: ComponentIndexPair[] = [];
-  private linears: LinearPathComponent[] = [];
-  private quads: QuadraticPathComponent[] = [];
-  private cubics: CubicPathComponent[] = [];
-  private contours: ContourComponent[] = [];
+  private contours: Contour[] = [];
 
-  length() {
-    let length = 0;
-    this.enumerateComponents(
-      (linear) => length += linear.length(),
-      (quad) => length += quad.length(),
-      (cubic) => length += cubic.length(),
-      () => {}
-    );
-    return length;
-  }
-
-  polylines() {
-    let points: Point[] = [];
-    this.enumerateComponents(
-      (linear) => points.splice(points.length, 0, ...linear.createPolyline()),
-      (quad) => points.splice(points.length, 0, ...quad.createPolyline()),
-      (cubic) => points.splice(points.length, 0, ...cubic.createPolyline()),
-      () => {}
-    );
-    return points;
-  }
-
-  getLastContour() {
+  get contour() {
+    // SVG doesn't allow for contourless path but Skia add moveTo(0, 0) automatically
+    // see SVGParser.test.ts
+    if (this.contours.length === 0) {
+      this.addContour();
+    }
     return this.contours[this.contours.length - 1];
-  }
-
-  getLastComponent() {
-    if (this.components.length === 0) {
-      return null;
-    }
-    const { index, type } = this.components[this.components.length - 1];
-    switch (type) {
-      case ComponentType.Linear:
-        return this.linears[index];
-      case ComponentType.Quadratic:
-        return this.quads[index];
-      case ComponentType.Cubic:
-        return this.cubics[index];
-      case ComponentType.Contour:
-        return this.contours[index];
-      default:
-        throw new Error(`Unknown component type: ${type}`);
-    }
-  }
-
-  addLinearComponent(p1: Point, p2: Point) {
-    this.components.push({
-      index: this.linears.length,
-      type: ComponentType.Linear,
-    });
-    this.linears.push(new LinearPathComponent(p1, p2));
-    return this;
-  }
-
-  addQuadraticComponent(p1: Point, cp: Point, p2: Point) {
-    this.components.push({
-      index: this.quads.length,
-      type: ComponentType.Quadratic,
-    });
-    this.quads.push(new QuadraticPathComponent(p1, cp, p2));
-    return this;
-  }
-
-  addCubicComponent(p1: Point, cp1: Point, cp2: Point, p2: Point) {
-    this.components.push({
-      index: this.cubics.length,
-      type: ComponentType.Cubic,
-    });
-    this.cubics.push(new CubicPathComponent(p1, cp1, cp2, p2));
-    return this;
-  }
-
-  addContourComponent(destination: Point, isClosed = false) {
-    if (
-      this.components.length > 0 &&
-      this.components[this.components.length - 1].type === ComponentType.Contour
-    ) {
-      // Never insert contiguous contours.
-      this.contours[this.contours.length - 1] = new ContourComponent(
-        destination,
-        isClosed
-      );
-    } else {
-      this.contours.push(new ContourComponent(destination, isClosed));
-      this.components.push({
-        index: this.contours.length - 1,
-        type: ComponentType.Contour,
-      });
-    }
-    return this;
-  }
-
-  setContourClosed(isClosed: boolean) {
-    this.contours[this.contours.length - 1].isClosed = isClosed;
   }
 
   enumerateComponents(
     linearApplier?: Applier<LinearPathComponent>,
     quadApplier?: Applier<QuadraticPathComponent>,
     cubicApplier?: Applier<CubicPathComponent>,
-    contourApplier?: Applier<ContourComponent>
+    contourApplier?: Applier<Contour>
   ) {
-    this.components.forEach(({ index, type }) => {
-      switch (type) {
-        case ComponentType.Linear:
-          if (linearApplier) {
-            linearApplier(this.linears[index], index);
-          }
-          break;
-        case ComponentType.Quadratic:
-          if (quadApplier) {
-            quadApplier(this.quads[index], index);
-          }
-          break;
-        case ComponentType.Cubic:
-          if (cubicApplier) {
-            cubicApplier(this.cubics[index], index);
-          }
-          break;
-        case ComponentType.Contour:
-          if (contourApplier) {
-            contourApplier(this.contours[index], index);
-          }
-          break;
+    this.contours.forEach((c, index) => {
+      if (contourApplier) {
+        contourApplier(c, index);
       }
+      c.enumerateComponents(linearApplier, quadApplier, cubicApplier);
     });
+  }
+
+  closeContour() {
+    this.contour.closed = true;
+    return this;
+  }
+
+  isLastContourClosed() {
+    return this.contour.closed;
+  }
+
+  countContours() {
+    return this.contours.length;
   }
 
   toCmds() {
-    return this.components.flatMap(({ type, index }, j) => {
-      switch (type) {
-        case ComponentType.Linear:
-          const next = this.components[j + 1];
-          const nextIsClosedContour =
-            next &&
-            next.type === ComponentType.Contour &&
-            this.contours[next.index - 1].isClosed;
-          if (nextIsClosedContour) {
-            return [];
-          }
-          return this.linears[index].toCmd();
-        case ComponentType.Quadratic:
-          return this.quads[index].toCmd();
-        case ComponentType.Cubic:
-          return this.cubics[index].toCmd();
-        case ComponentType.Contour:
-          const lastContour = this.contours[index - 1];
-          const shouldMove = j !== this.components.length - 1;
-          const shouldClose = !!(lastContour && lastContour.isClosed);
-          return this.contours[index].toCmd(shouldClose, shouldMove);
-        default:
-          throw new Error(`Unknown component type: ${type}`);
-      }
-    });
+    return this.contours.flatMap((c) => c.toCmds());
   }
 
   toSVGString() {
-    let svg = "";
-    const cmds = this.toCmds();
-    let i = 0;
-    while (i < cmds.length) {
-      const cmd = cmds[i++];
-      if (cmd === PathVerb.Move) {
-        svg += `M${cmds[i++]} ${cmds[i++]} `;
-      } else if (cmd === PathVerb.Line) {
-        svg += `L${cmds[i++]} ${cmds[i++]} `;
-      } else if (cmd === PathVerb.Cubic) {
-        svg += `C${cmds[i++]} ${cmds[i++]} ${cmds[i++]} ${cmds[i++]} ${
-          cmds[i++]
-        } ${cmds[i++]} `;
-      } else if (cmd === PathVerb.Quad) {
-        svg += `Q${cmds[i++]} ${cmds[i++]} ${cmds[i++]} ${cmds[i++]} `;
-      } else if (cmd === PathVerb.Close) {
-        i++;
-        svg += "Z ";
-      }
-    }
-    return svg.trim();
+    return this.contours
+      .map((c) => c.toSVGString())
+      .join(" ")
+      .trim();
+  }
+
+  length() {
+    return this.contours.reduce((acc, c) => acc + c.length(), 0);
+  }
+
+  getLastComponent() {
+    return this.contour.getLastComponent();
+  }
+
+  addLinearComponent(p1: Point, p2: Point) {
+    this.contour.add(new LinearPathComponent(p1, p2));
+    return this;
+  }
+
+  addQuadraticComponent(p1: Point, cp: Point, p2: Point) {
+    this.contour.add(new QuadraticPathComponent(p1, cp, p2));
+    return this;
+  }
+
+  addCubicComponent(p1: Point, cp1: Point, cp2: Point, p2: Point) {
+    this.contour.add(new CubicPathComponent(p1, cp1, cp2, p2));
+    return this;
+  }
+
+  addContour(isClosed = false) {
+    this.contours.push(new Contour(isClosed));
+    return this;
   }
 }

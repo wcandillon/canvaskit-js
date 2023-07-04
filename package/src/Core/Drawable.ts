@@ -49,11 +49,14 @@ export class DrawableCircle implements Drawable {
       ctx.fill();
     }
   }
-};
+}
 
 export class CustomDrawable implements Drawable {
   constructor(
-    private readonly drawFn: (ctx: CanvasRenderingContext2D, stroke?: boolean) => void
+    private readonly drawFn: (
+      ctx: CanvasRenderingContext2D,
+      stroke?: boolean
+    ) => void
   ) {}
 
   draw(ctx: CanvasRenderingContext2D, stroke?: boolean) {

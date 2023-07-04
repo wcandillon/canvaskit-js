@@ -3,6 +3,16 @@ import { parseSVG } from "../Path";
 import "./setup";
 
 describe("SVG Parser", () => {
+  it("How does CanvasKit handles contour less paths?", () => {
+    const path = RealCanvasKit.Path.MakeFromSVGString(
+      "c 50,0 50,100 100,100 50,0 50,-100 100,-100"
+    )!;
+    const path2 = parseSVG(
+      "c 50,0 50,100 100,100 50,0 50,-100 100,-100"
+    ).getPath();
+    expect(path).toBeTruthy();
+    expect(Array.from(path.toCmds())).toEqual(path2.toCmds());
+  });
   it("moveTo", () => {
     expect(() => parseSVG("m 10")).toThrow();
     const path = parseSVG("m 10 20").getPath();
@@ -47,19 +57,23 @@ describe("SVG Parser", () => {
     const b = parseSVG("c 50,0 50,100 100,100 c 50,0 50,-100 100,-100")
       .getPath()
       .toSVGString();
-    expect(a).toEqual("C50 0 50 100 100 100 C150 100 150 0 200 0");
+    expect(a).toEqual("M0 0 C50 0 50 100 100 100 C150 100 150 0 200 0");
     expect(a).toEqual(b);
   });
 
   it("lineTo", function () {
     expect(() => parseSVG("l 10 10 0")).toThrow();
     expect(parseSVG("l 10,10").getPath().toCmds()).toEqual([
+      CanvasKit.MOVE_VERB,
+      0,
+      0,
       CanvasKit.LINE_VERB,
       10,
       10,
     ]);
     expect(parseSVG("l10 10 10 10").getPath().toCmds()).toEqual(
       [
+        [CanvasKit.MOVE_VERB, 0, 0],
         [CanvasKit.LINE_VERB, 10, 10],
         [CanvasKit.LINE_VERB, 20, 20],
       ].flat()
@@ -68,6 +82,9 @@ describe("SVG Parser", () => {
 
   it("horizontalTo", function () {
     expect(parseSVG("h 10.5").getPath().toCmds()).toEqual([
+      CanvasKit.MOVE_VERB,
+      0,
+      0,
       CanvasKit.LINE_VERB,
       10.5,
       0,
@@ -76,6 +93,9 @@ describe("SVG Parser", () => {
 
   it("verticalTo", function () {
     expect(parseSVG("v 10.5").getPath().toCmds()).toEqual([
+      CanvasKit.MOVE_VERB,
+      0,
+      0,
       CanvasKit.LINE_VERB,
       0,
       10.5,
@@ -103,7 +123,10 @@ describe("SVG Parser", () => {
 
   it("smooth curveTo (1)", function () {
     expect(parseSVG("S 1 2, 3 4").getPath().toCmds()).toEqual(
-      [[CanvasKit.CUBIC_VERB, 0, 0, 1, 2, 3, 4]].flat()
+      [
+        [CanvasKit.MOVE_VERB, 0, 0],
+        [CanvasKit.CUBIC_VERB, 0, 0, 1, 2, 3, 4],
+      ].flat()
     );
   });
 

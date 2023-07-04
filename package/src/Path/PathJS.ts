@@ -18,6 +18,8 @@ import { vec } from "../Vector";
 
 import { PathBuilder } from "./PathBuilder";
 import { parseSVG } from "./SVG";
+import { TrimPathEffect } from "./PathEffects";
+import type { Path } from "./Path";
 
 export class PathJS extends HostObject<"Path"> implements SkPath {
   private path: PathBuilder;
@@ -27,8 +29,13 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
     this.path = path ?? new PathBuilder();
   }
 
-  getPathPriv() {
-    return this.path;
+  private swap(path: Path) {
+    this.path = new PathBuilder(path);
+    return this;
+  }
+
+  getPath() {
+    return this.path.getPath();
   }
 
   addArc(inputBounds: InputRect, startAngle: number, sweepAngle: number) {
@@ -137,13 +144,7 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
   computeTightBounds(_outputArray?: Float32Array | undefined): Float32Array {
     throw new Error("Method not implemented.");
   }
-  conicTo(
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number,
-    w: number
-  ) {
+  conicTo(x1: number, y1: number, x2: number, y2: number, w: number) {
     this.path.conicTo(vec(x1, y1), vec(x2, y2), w);
     return this;
   }
@@ -281,7 +282,7 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
     throw new Error("Method not implemented.");
   }
 
-  toCmds(): Float32Array {
+  toCmds() {
     return Float32Array.of(...this.path.getPath().toCmds());
   }
 
@@ -293,8 +294,9 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
     throw new Error("Method not implemented.");
   }
 
-  trim(_startT: number, _stopT: number, _isComplement: boolean): SkPath | null {
-    throw new Error("Method not implemented.");
+  trim(startT: number, stopT: number, isComplement: boolean) {
+    const pe = new TrimPathEffect(startT, stopT, isComplement);
+    return this.swap(pe.filterPath(this.path.getPath()));
   }
 
   getPath2D() {
@@ -317,12 +319,7 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
           cmds[i++]
         );
       } else if (cmd === PathVerb.Quad) {
-        path.quadraticCurveTo(
-          cmds[i++],
-          cmds[i++],
-          cmds[i++],
-          cmds[i++]
-        );
+        path.quadraticCurveTo(cmds[i++], cmds[i++], cmds[i++], cmds[i++]);
       } else if (cmd === PathVerb.Close) {
         i++;
         path.closePath();

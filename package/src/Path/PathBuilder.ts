@@ -8,9 +8,10 @@ import { Path } from "./Path";
 import { ConvertConicToQuads } from "./Geometry/Conic";
 
 export class PathBuilder {
-  private readonly path = new Path();
   private current: Point = vec(0, 0);
   private subpathStart: Point | null = null;
+
+  constructor(private readonly path = new Path()) {}
 
   getPath() {
     return this.path;
@@ -22,8 +23,7 @@ export class PathBuilder {
       (quad) => this.path.addQuadraticComponent(quad.p1, quad.cp, quad.p2),
       (cubic) =>
         this.path.addCubicComponent(cubic.p1, cubic.cp1, cubic.cp2, cubic.p2),
-      (contour) =>
-        this.path.addContourComponent(contour.destination, contour.isClosed)
+      (contour) => this.path.addContour(contour.closed)
     );
     return this;
   }
@@ -31,7 +31,9 @@ export class PathBuilder {
   conicTo(p1: Point, p2: Point, w: number) {
     const p0 = this.current;
     const quads = ConvertConicToQuads(p0, p1, p2, w);
-    quads.forEach((quad) => this.path.addQuadraticComponent(quad.p1, quad.cp, quad.p2));
+    quads.forEach((quad) =>
+      this.path.addQuadraticComponent(quad.p1, quad.cp, quad.p2)
+    );
     return this;
   }
 
@@ -312,7 +314,7 @@ export class PathBuilder {
   moveTo(p: Point, relative = false) {
     this.current = relative ? plus(this.current, p) : p;
     this.subpathStart = this.current;
-    this.path.addContourComponent(this.current);
+    this.path.addContour();
     return this;
   }
 
@@ -326,8 +328,8 @@ export class PathBuilder {
   close() {
     if (this.subpathStart) {
       this.lineTo(this.subpathStart);
-      this.path.setContourClosed(true);
-      this.path.addContourComponent(this.current);
+      this.path.closeContour();
+      this.path.addContour();
     }
     return this;
   }

@@ -332,10 +332,12 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
   drawRRect(rrect: InputRRect, paint: PaintJS): void {
     const { x, y, width, height, radii } = rrectToXYWH(rrect);
     const path = new Path2D();
-    path.roundRect(x, y, width, height, [        { x: radii.topLeft[0], y: radii.topLeft[1] },
+    path.roundRect(x, y, width, height, [
+      { x: radii.topLeft[0], y: radii.topLeft[1] },
       { x: radii.topRight[0], y: radii.topRight[1] },
       { x: radii.bottomRight[0], y: radii.bottomRight[1] },
-      { x: radii.bottomLeft[0], y: radii.bottomLeft[1] },]);
+      { x: radii.bottomLeft[0], y: radii.bottomLeft[1] },
+    ]);
     paint.apply(this.paintCtx, new DrawablePath(path));
   }
   drawShadow(

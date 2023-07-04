@@ -1,5 +1,5 @@
-import { Path } from "../Path";
+import type { Path } from "../Path";
 
 export interface PathEffect {
-    filterPath(path: Path): Path;
+  filterPath(path: Path): Path;
 }
