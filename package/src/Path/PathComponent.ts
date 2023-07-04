@@ -13,10 +13,11 @@ import { linearSolve, linearSolve2 } from "./Geometry/Linear";
 export interface PathComponent {
   p1: Point;
   toCmd(): number[];
+  toString(): string;
   toSVGString(): string;
   getSegment(start: number, stop: number): PathComponent;
   equals(component: this): boolean;
-  getPointAtLength(t: number): Point;
+  getPointAtT(t: number): Point;
   length(t?: number): number;
 }
 
@@ -25,9 +26,13 @@ export class LinearPathComponent implements PathComponent {
 
   getSegment(start: number, stop: number): PathComponent {
     return new LinearPathComponent(
-      this.getPointAtLength(start),
-      this.getPointAtLength(stop)
+      this.getPointAtT(start),
+      this.getPointAtT(stop)
     );
+  }
+
+  toString() {
+    return `linear((${this.p1[0]}, ${this.p1[1]})(${this.p2[0]}, ${this.p2[1]}))`;
   }
 
   toCmd() {
@@ -38,10 +43,10 @@ export class LinearPathComponent implements PathComponent {
     return `L${this.p2[0]} ${this.p2[1]}`;
   }
 
-  getPointAtLength(t: number): Point {
+  getPointAtT(t: number): Point {
     return vec(
-      linearSolve(t, this.p1[0], this.p2[1]),
-      linearSolve(t, this.p1[0], this.p2[1])
+      linearSolve(t, this.p1[0], this.p2[0]),
+      linearSolve(t, this.p1[1], this.p2[1])
     );
   }
 
@@ -87,10 +92,10 @@ export class QuadraticPathComponent implements PathComponent {
     return [PathVerb.Quad, this.cp[0], this.cp[1], this.p2[0], this.p2[1]];
   }
 
-  getPointAtLength(t: number): Point {
+  getPointAtT(t: number): Point {
     return vec(
-      quadraticSolve(t, this.p1[0], this.cp[0], this.p2[1]),
-      quadraticSolve(t, this.p1[0], this.cp[1], this.p2[1])
+      quadraticSolve(t, this.p1[0], this.cp[0], this.p2[0]),
+      quadraticSolve(t, this.p1[1], this.cp[1], this.p2[1])
     );
   }
 
@@ -138,7 +143,7 @@ export class CubicPathComponent implements PathComponent {
     );
   }
 
-  getPointAtLength(t: number) {
+  getPointAtT(t: number) {
     return vec(
       cubicSolve(t, this.p1[0], this.cp1[0], this.cp2[0], this.p2[0]),
       cubicSolve(t, this.p1[1], this.cp1[1], this.cp2[1], this.p2[1])

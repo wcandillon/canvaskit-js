@@ -2,8 +2,8 @@ import { diff } from "jest-diff";
 
 import { parseSVG } from "../../Path";
 import { TrimPathEffect } from "../../Path/PathEffects";
-
 import "../setup";
+import { PathVerb } from "../../Core";
 
 const testTriming = (d: string) => {
   const ts = [0.66]; //[0.25, 0.33, 0.5, 0.66, 0.75];
@@ -32,11 +32,32 @@ ${diffString}`);
 };
 
 describe("Path Trim", () => {
+  it("Isolated triming test", () => {
+    const d = "M0 0 L 10 0 L 20 0";
+    const path = parseSVG(d)!.getPath();
+    const pe = new TrimPathEffect(0, 0.75, false);
+    const result = pe.filterPath(path).toCmds();
+    const ref = [
+      PathVerb.Move,
+      0,
+      0,
+      PathVerb.Line,
+      10,
+      0,
+      PathVerb.Line,
+      15,
+      0,
+    ];
+    console.log(JSON.stringify({ ref }, null, 2));
+    console.log(JSON.stringify({ result }, null, 2));
+    expect(result).toEqual(ref);
+  });
   it("Trim lines", () => {
-    // testTriming("M0 0 L 100 100");
-    // testTriming("M0 0 L 1 1");
+    testTriming("M0 0 L 100 100");
+    testTriming("M0 0 L 1 1");
+    testTriming("M0 0 L 10 0 L 20 0");
     testTriming("M0 0 L 50 50 L 100 0");
-    // testTriming("M0 0 L 50 50 L 100 0 L 150 50 L 200 0");
+    testTriming("M0 0 L 50 50 L 100 0 L 150 50 L 200 0");
   });
   //   it("Trim a quadratic curves", () => {
   //     testTriming("M 0 0 Q 0 100 100 100");
