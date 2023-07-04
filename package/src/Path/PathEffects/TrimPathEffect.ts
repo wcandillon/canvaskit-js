@@ -1,5 +1,4 @@
-import type { ContourMeasure } from "../ContourMeasureIter";
-import { ContourMeasureIter } from "../ContourMeasureIter";
+import { saturate } from "../../math";
 import { Path } from "../Path";
 
 import type { PathEffect } from "./PathEffect";
@@ -11,16 +10,15 @@ const addSegments = (
   dst: Path,
   requiresMoveto = true
 ) => {
-  const it = new ContourMeasureIter(src, false);
-
+  const contours = src.getContours();
   let currentSegmentOffset = 0;
   let contourCount = 1;
-  let measure: ContourMeasure | null;
-  while ((measure = it.next())) {
-    const nextOffset = currentSegmentOffset + measure.length();
+  for (let i = 0; i < contours.length; i++) {
+    const contour = contours[i];
+    const nextOffset = currentSegmentOffset + contour.length();
 
     if (start < nextOffset) {
-      measure.getSegment(
+      contour.getSegment(
         start - currentSegmentOffset,
         stop - currentSegmentOffset,
         dst,
@@ -31,11 +29,9 @@ const addSegments = (
         break;
       }
     }
-
     contourCount++;
     currentSegmentOffset = nextOffset;
   }
-
   return contourCount;
 };
 
@@ -50,8 +46,8 @@ export class TrimPathEffect implements PathEffect {
   filterPath(path: Path): Path {
     const result = new Path();
     const length = path.length();
-    const start = this.start * length;
-    const stop = this.end * length;
+    const start = saturate(this.start) * length;
+    const stop = saturate(this.end) * length;
     if (!this.complement) {
       if (start < stop) {
         addSegments(path, start, stop, result);

@@ -14,6 +14,29 @@ class Contour {
 
   constructor(public closed: boolean) {}
 
+  getSegment(start: number, stop: number, dst: Path, _requiresMoveto: boolean) {
+    let currentSegmentOffset = 0;
+    for (let i = 0; i < this.components.length; i++) {
+      const comp = this.components[i];
+      const nextOffset = currentSegmentOffset + comp.length();
+
+      if (start < nextOffset) {
+        dst.addComponent(
+          comp.getSegment(
+            start - currentSegmentOffset,
+            stop - currentSegmentOffset
+          )
+        );
+        //requiresMoveto = false;
+
+        if (stop <= nextOffset) {
+          break;
+        }
+      }
+      currentSegmentOffset = nextOffset;
+    }
+  }
+
   enumerateComponents(
     linearApplier?: Applier<LinearPathComponent>,
     quadApplier?: Applier<QuadraticPathComponent>,
@@ -100,6 +123,10 @@ export class Path {
     return this.contours[this.contours.length - 1];
   }
 
+  getContours() {
+    return this.contours;
+  }
+
   enumerateComponents(
     linearApplier?: Applier<LinearPathComponent>,
     quadApplier?: Applier<QuadraticPathComponent>,
@@ -144,6 +171,11 @@ export class Path {
 
   getLastComponent() {
     return this.contour.getLastComponent();
+  }
+
+  addComponent(comp: PathComponent) {
+    this.contour.add(comp);
+    return this;
   }
 
   addLinearComponent(p1: Point, p2: Point) {
