@@ -30,10 +30,6 @@ export class LinearPathComponent implements PathComponent {
     );
   }
 
-  toString() {
-    return `linear((${this.p1[0]}, ${this.p1[1]})(${this.p2[0]}, ${this.p2[1]}))`;
-  }
-
   toCmd() {
     return [PathVerb.Line, this.p2[0], this.p2[1]];
   }

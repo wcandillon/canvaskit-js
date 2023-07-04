@@ -3,7 +3,7 @@ import type { Point } from "canvaskit-wasm";
 import { vec } from "../../Vector";
 
 export const linearSolve = (t: number, p0: number, p1: number) => {
-  return p0 + t * (p1 - p0);
+  return (1 - t) * p0 + t * p1;
 };
 
 export const linearSolve2 = (t: number, p0: Point, p1: Point) => {

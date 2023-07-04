@@ -142,9 +142,9 @@ describe("Path Trim", () => {
     testTriming("M0 0 L 50 50 L 100 0");
     testTriming("M0 0 L 40 50 L 100 0 L 150 50 L 200 0");
   });
-  // it("Trim a quadratic curves", () => {
-  //   testTriming("M 0 0 Q 0 100 100 100");
-  // });
+  it("Trim a quadratic curves", () => {
+    testTriming("M 0 0 Q 0 100 100 100");
+  });
   // it("Trim a cubic curves", () => {
   //   testTriming("M 0 0 C 0 100 0 0 100 100");
   // });
