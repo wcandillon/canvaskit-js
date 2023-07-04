@@ -24,7 +24,7 @@ expect.extend({
 });
 
 const testTriming = (d: string) => {
-  const ts = [0.66]; //[0.25, 0.33, 0.5, 0.66, 0.75];
+  const ts = [0.25, 0.33, 0.5, 0.66, 0.75];
   const pathRef = RealCanvasKit.Path.MakeFromSVGString(d)!;
   const parsed = parseSVG(d)!;
   expect(parsed).toBeTruthy();
@@ -75,20 +75,10 @@ describe("Path Trim", () => {
     testTriming("M0 0 L 50 50 L 100 0");
     testTriming("M0 0 L 50 50 L 100 0 L 150 50 L 200 0");
   });
-  //   it("Trim a quadratic curves", () => {
-  //     testTriming("M 0 0 Q 0 100 100 100");
-  //   });
-  //   it("Trim a cubic curve", () => {
-  //     const path = RealCanvasKit.Path.MakeFromSVGString(
-  //       "M0 0c 50,0 50,100 100,100 50,0 50,-100 100,-100"
-  //     )!;
-  //     path.trim(0, 0.5, false);
-  //     const path2 = parseSVG(
-  //       "M0 0c 50,0 50,100 100,100 50,0 50,-100 100,-100"
-  //     )!.getPath();
-  //     const pe = new TrimPathEffect(0, 0.5, false);
-  //     pe.filterPath(path2);
-  //     expect(path).toBeTruthy();
-  //     expect(Array.from(path.toCmds())).toEqual(path2.toCmds());
-  //   });
+  // it("Trim a quadratic curves", () => {
+  //   testTriming("M 0 0 Q 0 100 100 100");
+  // });
+  // it("Trim a cubic curves", () => {
+  //   testTriming("M 0 0 C 0 100 0 0 100 100");
+  // });
 });
