@@ -24,15 +24,16 @@ class Contour {
       return trimmedContour;
     }
     let offset = 0;
-    this.components.forEach((contour) => {
-      const contourLength = contour.length();
-      const nextOffset = offset + contourLength;
+    this.components.forEach((component) => {
+      const componentLength = component.length();
+      const nextOffset = offset + componentLength;
       if (nextOffset <= start || offset >= stop) {
         return;
       }
-      const t0 = (start - offset) / contourLength;
-      const t1 = (stop - offset) / contourLength;
-      const partialContour = contour.getSegment(t0, t1);
+      const t0 = Math.max(0, (start - offset) / componentLength);
+      const t1 = Math.min(1, (stop - offset) / componentLength);
+      console.log(`getComponentSegment(${t0}, ${t1})`);
+      const partialContour = component.getSegment(t0, t1);
       trimmedContour.components.push(partialContour);
       offset = nextOffset;
     });
