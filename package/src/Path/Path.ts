@@ -28,6 +28,7 @@ class Contour {
       const componentLength = component.length();
       const nextOffset = offset + componentLength;
       if (nextOffset <= start || offset >= stop) {
+        offset = nextOffset;
         return;
       }
       const t0 = Math.max(0, (start - offset) / componentLength);

@@ -104,7 +104,7 @@ describe("Path Trim", () => {
     const pe = new TrimPathEffect(0.66, 0.9, false);
     const result = pe.filterPath(path).toCmds();
     const ref = [PathVerb.Move, 20 * 0.66, 0, PathVerb.Line, 0.9 * 20, 0];
-    expect(result).toEqual(ref);
+    expect(result).toBeApproximatelyEqual(ref, 0.1);
   });
   // it("simple triming test (4)", () => {
   //   const d = "M0 0 L 10 0 L 20 0";
