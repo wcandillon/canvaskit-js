@@ -13,7 +13,6 @@ import { linearSolve, linearSolve2 } from "./Geometry/Linear";
 export interface PathComponent {
   p1: Point;
   toCmd(): number[];
-  toString(): string;
   toSVGString(): string;
   getSegment(start: number, stop: number): PathComponent;
   equals(component: this): boolean;

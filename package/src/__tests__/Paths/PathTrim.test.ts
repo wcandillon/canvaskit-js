@@ -48,8 +48,6 @@ describe("Path Trim", () => {
       15,
       0,
     ];
-    console.log(JSON.stringify({ ref }, null, 2));
-    console.log(JSON.stringify({ result }, null, 2));
     expect(result).toEqual(ref);
   });
   it("Trim lines", () => {

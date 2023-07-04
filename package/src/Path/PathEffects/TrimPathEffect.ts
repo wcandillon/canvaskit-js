@@ -29,7 +29,6 @@ export class TrimPathEffect implements PathEffect {
       }
       const t0 = Math.max(0, (start - offset) / contourLength);
       const t1 = Math.min(1, (stop - offset) / contourLength);
-      console.log(`getContourSegment(${t0}, ${t1})`);
       const partialContour = contour.getSegment(t0, t1);
       trimmedPath.contours.push(partialContour);
       offset = nextOffset;
