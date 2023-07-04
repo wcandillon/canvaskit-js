@@ -24,8 +24,7 @@ expect.extend({
   },
 });
 
-// TODO: remotve export
-export const testTriming = (d: string) => {
+const testTriming = (d: string) => {
   const ranges = [
     [0, 0.25],
     [0, 0.33],
@@ -53,6 +52,10 @@ export const testTriming = (d: string) => {
       try {
         expect(cmds1).toBeApproximatelyEqual(cmds2, 0.1);
       } catch (error) {
+        // console.log("Reference:");
+        // console.log(JSON.stringify(cmds1, null, 2));
+        // console.log("Result:");
+        // console.log(JSON.stringify(cmds2, null, 2));
         const diffString = diff(cmds1, cmds2);
         throw new Error(`Failed at (${start}, ${end}) with path d = ${d} (complement=${complement}):
 ${diffString}`);
@@ -106,21 +109,39 @@ describe("Path Trim", () => {
     const ref = [PathVerb.Move, 20 * 0.66, 0, PathVerb.Line, 0.9 * 20, 0];
     expect(result).toBeApproximatelyEqual(ref, 0.1);
   });
-  // it("simple triming test (4)", () => {
-  //   const d = "M0 0 L 10 0 L 20 0";
-  //   const path = parseSVG(d)!.getPath();
-  //   const pe = new TrimPathEffect(0.66, 1, false);
-  //   const result = pe.filterPath(path).toCmds();
-  //   const ref = [PathVerb.Move, 20 * 0.66, 0, PathVerb.Line, 20, 0];
-  //   expect(result).toEqual(ref);
-  // });
-  // it("Trim lines", () => {
-  //   testTriming("M0 0 L 100 100");
-  //   testTriming("M0 0 L 1 1");
-  //   testTriming("M0 0 L 10 0 L 20 0");
-  //   testTriming("M0 0 L 50 50 L 100 0");
-  //   testTriming("M0 0 L 50 50 L 100 0 L 150 50 L 200 0");
-  // });
+  it("simple triming test (4)", () => {
+    const d = "M0 0 L 10 0 L 20 0";
+    const path = parseSVG(d)!.getPath();
+    const pe = new TrimPathEffect(0.66, 1, false);
+    const result = pe.filterPath(path).toCmds();
+    const ref = [PathVerb.Move, 20 * 0.66, 0, PathVerb.Line, 20, 0];
+    expect(result).toBeApproximatelyEqual(ref, 0.1);
+  });
+  it("simple triming test (5)", () => {
+    const d = "M0 0 L 50 50 L 100 0 L 150 50 L 200 0";
+    const path = parseSVG(d)!.getPath();
+    const pe = new TrimPathEffect(0.25, 0.75, false);
+    const result = pe.filterPath(path).toCmds();
+    const ref = [
+      PathVerb.Move,
+      50,
+      50,
+      PathVerb.Line,
+      100,
+      0,
+      PathVerb.Line,
+      150,
+      50,
+    ];
+    expect(result).toEqual(ref);
+  });
+  it("Trim lines", () => {
+    testTriming("M0 0 L 100 100");
+    testTriming("M0 0 L 1 1");
+    testTriming("M0 0 L 10 0 L 20 0");
+    testTriming("M0 0 L 50 50 L 100 0");
+    testTriming("M0 0 L 40 50 L 100 0 L 150 50 L 200 0");
+  });
   // it("Trim a quadratic curves", () => {
   //   testTriming("M 0 0 Q 0 100 100 100");
   // });
