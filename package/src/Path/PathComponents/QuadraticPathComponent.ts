@@ -116,13 +116,13 @@ export class QuadraticPathComponent implements PathComponent {
   }
 
   getPointAtLength(length: number) {
-    const t = length / this.length();
-    return this.solve(t);
+    const { x, y } = this.props.getPointAtLength(length);
+    return vec(x, y);
   }
 
   getTangentAtLength(length: number) {
-    const t = length / this.length();
-    return this.solveDerivative(t);
+    const { x, y } = this.props.getTangentAtLength(length);
+    return vec(x, y);
   }
 }
 

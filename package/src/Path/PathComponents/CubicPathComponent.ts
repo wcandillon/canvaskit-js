@@ -52,7 +52,7 @@ export class CubicPathComponent implements PathComponent {
     for (let i = 0; i < quadCount; i++) {
       const t0 = i / quadCount;
       const t1 = (i + 1) / quadCount;
-      const seg = this.Subsegment(t0, t1); // Assuming this.subsegment is defined
+      const seg = this.subsegment(t0, t1); // Assuming this.subsegment is defined
       p1x2 = seg.cp1.map((_, i) => 3.0 * seg.cp1[i] - seg.p1[i]);
       p2x2 = seg.cp2.map((_, i) => 3.0 * seg.cp2[i] - seg.p2[i]);
       const middle = p1x2.map((_, i) => (p1x2[i] + p2x2[i]) / 4.0);
@@ -61,17 +61,17 @@ export class CubicPathComponent implements PathComponent {
     return quads;
   }
 
-  private Subsegment(t0: number, t1: number) {
+  private subsegment(t0: number, t1: number) {
     const p0 = this.solve(t0);
     const p3 = this.solve(t1);
-    const d = this.Lower();
+    const d = this.lower();
     const scale = (t1 - t0) * (1.0 / 3.0);
     const p1 = plus(p0, multiplyScalar(d.solve(t0), scale));
     const p2 = minus(p3, multiplyScalar(d.solve(t1), scale));
     return new CubicPathComponent(p0, p1, p2, p3);
   }
 
-  private Lower() {
+  private lower() {
     return new QuadraticPathComponent(
       multiplyScalar(minus(this.cp1, this.p1), 3),
       multiplyScalar(minus(this.cp2, this.cp1), 3),
