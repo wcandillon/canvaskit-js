@@ -6,7 +6,7 @@ export interface PathComponent {
   toCmd(): number[];
   toSVGString(): string;
   getSegment(start: number, stop: number): PathComponent;
-  getPosAt(t: number): Point;
-  getTanAt(t: number): Point;
+  getPointAtLength(length: number): Point;
+  getTangentAtLength(length: number): Point;
   length(): number;
 }

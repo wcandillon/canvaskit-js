@@ -26,8 +26,8 @@ beforeAll(() => {
 describe("Single contour values", () => {
   test.each(paths)("%s: getTotalLength()", (d) => {
     const [reference, test] = singleContours[d];
-    const length = reference.getTotalLength();
-    expect(length).toBeApproximatelyEqual(test.getTotalLength(), 1);
+    const length = reference.length();
+    expect(length).toBeApproximatelyEqual(test.length(), 1);
   });
   const dt = paths.flatMap((d) => [
     [d, 0.3],
@@ -36,7 +36,7 @@ describe("Single contour values", () => {
   ]) as [string, number][];
   test.each(dt)("%s: posTan(%d)", (d, t) => {
     const [reference, test] = singleContours[d];
-    const length = t * reference.getTotalLength();
+    const length = t * reference.length();
     const posTanRef = reference.getPosTan(length);
     const posTan = test.getPosTan(length);
     expect(posTanRef).toBeApproximatelyEqual(posTan, 1);

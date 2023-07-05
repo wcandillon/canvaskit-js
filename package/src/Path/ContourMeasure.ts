@@ -18,15 +18,16 @@ class ContourMeasureJS
   }
 
   getPosTan(distance: number, output = new Float32Array(4)) {
-    const length = this.length();
-    this.contour.getPosTan(distance / length, output);
+    this.contour.getPosTanAtLength(distance, output);
     return output;
   }
 
   getSegment(startD: number, stopD: number, _startWithMoveTo = true) {
     const result = new PathJS();
     const length = this.length();
-    const contour = this.contour.getSegment(startD / length, stopD / length);
+    const t0 = startD / length;
+    const t1 = stopD / length;
+    const contour = this.contour.getSegment(t0, t1);
     result.getPath().contours.push(contour);
     return result;
   }

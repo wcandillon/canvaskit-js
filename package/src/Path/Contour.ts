@@ -16,18 +16,16 @@ export class Contour {
 
   constructor(public closed: boolean) {}
 
-  getPosTan(t: number, output: Float32Array) {
-    const totalLength = this.length();
-    const distance = saturate(t) * totalLength;
+  getPosTanAtLength(length: number, output: Float32Array) {
     let found = false;
     let offset = 0;
     for (const component of this.components) {
       const componentLength = component.length();
       const nextOffset = offset + componentLength;
-      if (nextOffset >= distance) {
-        const t0 = Math.max(0, (distance - offset) / componentLength);
-        const pos = component.getPosAt(t0);
-        const tan = component.getTanAt(t0);
+      if (nextOffset >= length) {
+        const l0 = Math.max(0, length - offset);
+        const pos = component.getPointAtLength(l0);
+        const tan = component.getTangentAtLength(l0);
         output[0] = pos[0];
         output[1] = pos[1];
         output[2] = tan[0];
@@ -44,10 +42,10 @@ export class Contour {
   }
 
   getSegment(startT: number, stopT: number) {
-    const trimmedContour = new Contour(false);
     const totalLength = this.length();
     const start = saturate(startT) * totalLength;
     const stop = saturate(stopT) * totalLength;
+    const trimmedContour = new Contour(false);
     if (start >= stop) {
       return trimmedContour;
     }

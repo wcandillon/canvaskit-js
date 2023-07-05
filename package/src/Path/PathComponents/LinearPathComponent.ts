@@ -1,4 +1,5 @@
 import type { Point } from "canvaskit-wasm";
+import { svgPathProperties } from "svg-path-properties";
 
 import { PathVerb } from "../../Core";
 import { vec } from "../../Vector";
@@ -9,7 +10,10 @@ export class LinearPathComponent implements PathComponent {
   constructor(readonly p1: Point, readonly p2: Point) {}
 
   getSegment(start: number, stop: number): PathComponent {
-    return new LinearPathComponent(this.getPosAt(start), this.getPosAt(stop));
+    return new LinearPathComponent(
+      linearSolve2(start, this.p1, this.p2),
+      linearSolve2(stop, this.p1, this.p2)
+    );
   }
 
   toCmd() {
@@ -20,19 +24,27 @@ export class LinearPathComponent implements PathComponent {
     return `L${this.p2[0]} ${this.p2[1]}`;
   }
 
-  getPosAt(t: number): Point {
-    return linearSolve2(t, this.p1, this.p2);
+  getPointAtLength(length: number) {
+    const props = new svgPathProperties(
+      `M ${this.p1[0]} ${this.p1[1]} L ${this.p2[0]} ${this.p2[1]}`
+    );
+    const { x, y } = props.getPointAtLength(length);
+    return vec(x, y);
   }
 
-  getTanAt(_: number): Point {
-    const dx = this.p2[0] - this.p1[0];
-    const dy = this.p2[1] - this.p1[1];
-    const magnitude = Math.hypot(dx, dy);
-    return vec(dx / magnitude, dy / magnitude);
+  getTangentAtLength(_: number) {
+    const props = new svgPathProperties(
+      `M ${this.p1[0]} ${this.p1[1]} L ${this.p2[0]} ${this.p2[1]}`
+    );
+    const { x, y } = props.getTangentAtLength(_);
+    return vec(x, y);
   }
 
   length() {
-    return Math.hypot(this.p2[0] - this.p1[0], this.p2[1] - this.p1[1]);
+    const props = new svgPathProperties(
+      `M ${this.p1[0]} ${this.p1[1]} L ${this.p2[0]} ${this.p2[1]}`
+    );
+    return props.getTotalLength();
   }
 }
 

@@ -39,7 +39,8 @@ export class QuadraticPathComponent implements PathComponent {
     return [PathVerb.Quad, this.cp[0], this.cp[1], this.p2[0], this.p2[1]];
   }
 
-  getPosAt(t: number): Point {
+  getPointAtLength(length: number): Point {
+    const t = length / this.length();
     const xs = [this.p1[0], this.cp[0], this.p2[0]];
     const ys = [this.p1[1], this.cp[1], this.p2[1]];
     const x =
@@ -55,7 +56,8 @@ export class QuadraticPathComponent implements PathComponent {
     return vec(x, y);
   }
 
-  getTanAt(t: number): Point {
+  getTangentAtLength(length: number): Point {
+    const t = length / this.length();
     const dx =
       2 * ((1 - t) * (this.cp[0] - this.p1[0]) + t * (this.p2[0] - this.cp[0]));
     const dy =
@@ -90,7 +92,7 @@ const getQuadraticArcLength = (p1: Point, cp: Point, p2: Point) => {
   const uuk = u * u + k > 0 ? Math.sqrt(u * u + k) : 0;
   const bbk = b * b + k > 0 ? Math.sqrt(b * b + k) : 0;
   const term =
-    b + Math.sqrt(b * b + k) !== 0 && (u + uuk) / (b + bbk) != 0
+    b + Math.sqrt(b * b + k) !== 0 && (u + uuk) / (b + bbk) !== 0
       ? k * Math.log(Math.abs((u + uuk) / (b + bbk)))
       : 0;
 
