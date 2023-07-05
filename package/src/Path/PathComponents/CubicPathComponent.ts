@@ -35,10 +35,19 @@ export class CubicPathComponent implements PathComponent {
   }
 
   getPosAt(t: number) {
-    return vec(
-      cubicSolve(t, this.p1[0], this.cp1[0], this.cp2[0], this.p2[0]),
-      cubicSolve(t, this.p1[1], this.cp1[1], this.cp2[1], this.p2[1])
-    );
+    const xs = [this.p1[0], this.cp1[0], this.cp2[0], this.p2[0]];
+    const ys = [this.p1[1], this.cp1[1], this.cp2[1], this.p2[1]];
+    const x =
+      (1 - t) * (1 - t) * (1 - t) * xs[0] +
+      3 * (1 - t) * (1 - t) * t * xs[1] +
+      3 * (1 - t) * t * t * xs[2] +
+      t * t * t * xs[3];
+    const y =
+      (1 - t) * (1 - t) * (1 - t) * ys[0] +
+      3 * (1 - t) * (1 - t) * t * ys[1] +
+      3 * (1 - t) * t * t * ys[2] +
+      t * t * t * ys[3];
+    return vec(x, y);
   }
 
   getTanAt(t: number): Point {
@@ -81,21 +90,6 @@ export class CubicPathComponent implements PathComponent {
     return new CubicPathComponent(p03, p01_, p02_, p03_);
   }
 }
-
-const cubicSolve = (
-  t: number,
-  p0: number,
-  p1: number,
-  p2: number,
-  p3: number
-): number => {
-  return (
-    (1 - t) * (1 - t) * (1 - t) * p0 +
-    3 * (1 - t) * (1 - t) * t * p1 +
-    3 * (1 - t) * t * t * p2 +
-    t * t * t * p3
-  );
-};
 
 const getDerivative = (derivative: number, t: number, vs: number[]): number => {
   // the derivative of any 't'-less function is zero.
@@ -146,13 +140,7 @@ export const getCubicArcLength = (
   const ys = [p1[1], cp1[1], cp2[1], p2[1]];
   let sum: number;
   let correctedT: number;
-
-  /*if (xs.length >= tValues.length) {
-            throw new Error('too high n bezier');
-          }*/
-
   const n = 20;
-
   const z = 0.5;
   sum = 0;
   for (let i = 0; i < n; i++) {

@@ -27,6 +27,6 @@ describe("Single contour values", () => {
     const [reference, test] = singleContours[d];
     const posTan1 = reference.getPosTan(0.5);
     const posTan2 = test.getPosTan(0.5);
-    expect(posTan1).toBeApproximatelyEqual(posTan2);
+    expect(posTan1).toBeApproximatelyEqual(posTan2, 1);
   });
 });

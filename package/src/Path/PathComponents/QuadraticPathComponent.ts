@@ -40,10 +40,19 @@ export class QuadraticPathComponent implements PathComponent {
   }
 
   getPosAt(t: number): Point {
-    return vec(
-      quadraticSolve(t, this.p1[0], this.cp[0], this.p2[0]),
-      quadraticSolve(t, this.p1[1], this.cp[1], this.p2[1])
-    );
+    const xs = [this.p1[0], this.cp[0], this.p2[0]];
+    const ys = [this.p1[1], this.cp[1], this.p2[1]];
+    const x =
+      (1 - t) * (1 - t) * (1 - t) * xs[0] +
+      3 * (1 - t) * (1 - t) * t * xs[1] +
+      3 * (1 - t) * t * t * xs[2] +
+      t * t * t * xs[3];
+    const y =
+      (1 - t) * (1 - t) * (1 - t) * ys[0] +
+      3 * (1 - t) * (1 - t) * t * ys[1] +
+      3 * (1 - t) * t * t * ys[2] +
+      t * t * t * ys[3];
+    return vec(x, y);
   }
 
   getTanAt(t: number): Point {
@@ -56,14 +65,6 @@ export class QuadraticPathComponent implements PathComponent {
     return vec(dx / magnitude, dy / magnitude);
   }
 }
-
-const quadraticSolve = (t: number, p0: number, p1: number, p2: number) => {
-  return (
-    (1 - t) * (1 - t) * p0 + //
-    2 * (1 - t) * t * p1 + //
-    t * t * p2
-  );
-};
 
 //export const getQuadraticArcLength = (p1: Point, cp: Point, p2: Point) => {
 export const getQuadraticArcLength = (p1: Point, cp: Point, p2: Point) => {
