@@ -5,6 +5,7 @@ import { vec } from "../../Vector";
 
 import type { PathComponent } from "./PathComponent";
 import { linearSolve2 } from "./LinearPathComponent";
+import { t2length } from "./QuadraticPathComponent";
 
 export class CubicPathComponent implements PathComponent {
   constructor(
@@ -114,42 +115,6 @@ const cubicDerivative = (xs: number[], ys: number[], t: number) => {
     t
   );
   return derivative;
-};
-
-const t2length = (
-  length: number,
-  totalLength: number,
-  func: (t: number) => number
-) => {
-  let error = 1;
-  let t = length / totalLength;
-  let step = (length - func(t)) / totalLength;
-
-  let numIterations = 0;
-  while (error > 0.001) {
-    const increasedTLength = func(t + step);
-    const increasedTError = Math.abs(length - increasedTLength) / totalLength;
-    if (increasedTError < error) {
-      error = increasedTError;
-      t += step;
-    } else {
-      const decreasedTLength = func(t - step);
-      const decreasedTError = Math.abs(length - decreasedTLength) / totalLength;
-      if (decreasedTError < error) {
-        error = decreasedTError;
-        t -= step;
-      } else {
-        step /= 2;
-      }
-    }
-
-    numIterations++;
-    if (numIterations > 500) {
-      break;
-    }
-  }
-
-  return t;
 };
 
 const getCubicArcLength = (xs: number[], ys: number[], t = 1) => {
