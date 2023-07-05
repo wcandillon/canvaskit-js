@@ -110,6 +110,32 @@ const cubicDerivative = (xs: number[], ys: number[], t: number) => {
   return derivative;
 };
 
+const getCubicArcLength = (xs: number[], ys: number[], t = 1) => {
+  let sum: number;
+  let correctedT: number;
+
+  /*if (xs.length >= tValues.length) {
+        throw new Error('too high n bezier');
+      }*/
+
+  const n = 20;
+
+  const z = t / 2;
+  sum = 0;
+  for (let i = 0; i < n; i++) {
+    correctedT = z * tValues[n][i] + z;
+    sum += cValues[n][i] * BFunc(xs, ys, correctedT);
+  }
+  return z * sum;
+};
+
+const BFunc = (xs: number[], ys: number[], t: number) => {
+  const xbase = getDerivative(1, t, xs);
+  const ybase = getDerivative(1, t, ys);
+  const combined = xbase * xbase + ybase * ybase;
+  return Math.sqrt(combined);
+};
+
 const getDerivative = (derivative: number, t: number, vs: number[]): number => {
   // the derivative of any 't'-less function is zero.
   const n = vs.length - 1;
@@ -140,32 +166,6 @@ const getDerivative = (derivative: number, t: number, vs: number[]): number => {
     }
     return getDerivative(derivative - 1, t, _vs);
   }
-};
-
-const BFunc = (xs: number[], ys: number[], t: number) => {
-  const xbase = getDerivative(1, t, xs);
-  const ybase = getDerivative(1, t, ys);
-  const combined = xbase * xbase + ybase * ybase;
-  return Math.sqrt(combined);
-};
-
-const getCubicArcLength = (xs: number[], ys: number[]) => {
-  let sum: number;
-  let correctedT: number;
-
-  /*if (xs.length >= tValues.length) {
-        throw new Error('too high n bezier');
-      }*/
-
-  const n = 20;
-
-  const z = 1 / 2;
-  sum = 0;
-  for (let i = 0; i < n; i++) {
-    correctedT = z * tValues[n][i] + z;
-    sum += cValues[n][i] * BFunc(xs, ys, correctedT);
-  }
-  return z * sum;
 };
 
 // Legendre-Gauss abscissae (xi values, defined at i=n as the roots of the nth order Legendre polynomial Pn(x))
