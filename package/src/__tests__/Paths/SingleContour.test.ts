@@ -35,11 +35,11 @@ describe("Single contour values", () => {
     [d, 0.7],
   ]) as [string, number][];
   test.each(dt)("%s: posTan(%d)", (d, t) => {
-    const [reference] = singleContours[d];
+    const [reference, test] = singleContours[d];
     const length = t * reference.getTotalLength();
     const posTanRef = reference.getPosTan(length);
-    // const posTan = test.getPosTan(length);
-    //expect(posTanRef).toBeApproximatelyEqual(posTan, 1);
+    const posTan = test.getPosTan(length);
+    expect(posTanRef).toBeApproximatelyEqual(posTan, 1);
     const props = new svgPathProperties(d);
     const pos = props.getPointAtLength(length);
     const tan = props.getTangentAtLength(length);
