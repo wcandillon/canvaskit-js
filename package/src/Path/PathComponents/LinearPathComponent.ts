@@ -26,7 +26,7 @@ export class LinearPathComponent implements PathComponent {
 
   getPointAtLength(length: number) {
     const t = length / this.length();
-    return linearSolve2(t, this.p1, this.p2);
+    return linearSolve(t, this.p1, this.p2);
   }
 
   getTangentAtLength(_: number) {
@@ -41,5 +41,5 @@ export class LinearPathComponent implements PathComponent {
   }
 }
 
-export const linearSolve2 = (t: number, p0: Point, p1: Point) =>
+export const linearSolve = (t: number, p0: Point, p1: Point) =>
   vec((1 - t) * p0[0] + t * p1[0], (1 - t) * p0[1] + t * p1[1]);
