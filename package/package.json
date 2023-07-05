@@ -39,5 +39,7 @@
     "ts-jest": "^29.1.0",
     "tsup": "^6.7.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "svg-path-properties": "^1.2.0"
+  }
 }
