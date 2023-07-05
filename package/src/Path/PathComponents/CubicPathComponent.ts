@@ -105,10 +105,10 @@ export class CubicPathComponent implements PathComponent {
   }
 
   polyline(): Point[] {
-    const quads = this.toQuadraticPathComponents(1);
+    const quads = this.toQuadraticPathComponents(0.4);
     const points: Point[] = [this.p1];
     for (const quad of quads) {
-      points.push(...quad.fillPointsForPolyline(1));
+      points.push(...quad.fillPointsForPolyline(0.4));
     }
     return points;
   }
