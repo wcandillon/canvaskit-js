@@ -23,16 +23,16 @@ describe("Single contour values", () => {
     const length = reference.getTotalLength();
     expect(length).toBeApproximatelyEqual(test.getTotalLength(), 0.3);
   });
-  const posTans = paths.flatMap((d) => [
+  const dt = paths.flatMap((d) => [
     [d, 0.3],
     [d, 0.5],
     [d, 0.7],
   ]) as [string, number][];
-  test.each(posTans)("%s: posTan(%d)", (d, t) => {
+  test.each(dt)("%s: posTan(%d)", (d, t) => {
     const [reference, test] = singleContours[d];
-    const length = reference.getTotalLength();
-    const posTan1 = reference.getPosTan(t * length);
-    const posTan2 = test.getPosTan(t * length);
-    expect(posTan1).toBeApproximatelyEqual(posTan2, 1);
+    const length = t * reference.getTotalLength();
+    const posTanRef = reference.getPosTan(length);
+    const posTan = test.getPosTan(length);
+    expect(posTanRef).toBeApproximatelyEqual(posTan, 1);
   });
 });
