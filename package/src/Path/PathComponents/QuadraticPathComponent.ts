@@ -69,11 +69,6 @@ const quadraticSolve = (t: number, p0: number, p1: number, p2: number) => {
 export const getQuadraticArcLength = (p1: Point, cp: Point, p2: Point) => {
   const xs = [p1[0], cp[0], p2[0]];
   const ys = [p1[1], cp[1], p2[1]];
-  /*
-    xs: number[],
-  ys: number[],
-  */
-  const t = 1;
   const ax = xs[0] - 2 * xs[1] + xs[2];
   const ay = ys[0] - 2 * ys[1] + ys[2];
   const bx = 2 * xs[1] - 2 * xs[0];
@@ -84,13 +79,11 @@ export const getQuadraticArcLength = (p1: Point, cp: Point, p2: Point) => {
   const C = bx * bx + by * by;
 
   if (A === 0) {
-    return (
-      t * Math.sqrt(Math.pow(xs[2] - xs[0], 2) + Math.pow(ys[2] - ys[0], 2))
-    );
+    return Math.sqrt(Math.pow(xs[2] - xs[0], 2) + Math.pow(ys[2] - ys[0], 2));
   }
   const b = B / (2 * A);
   const c = C / A;
-  const u = t + b;
+  const u = 1 + b;
   const k = c - b * b;
 
   const uuk = u * u + k > 0 ? Math.sqrt(u * u + k) : 0;

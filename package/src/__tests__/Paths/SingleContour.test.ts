@@ -23,4 +23,10 @@ describe("Single contour values", () => {
     const length = reference.getTotalLength();
     expect(length).toBeApproximatelyEqual(test.getTotalLength(), 0.3);
   });
+  test.each(paths)("Check posTan(0.5) for %s", (d) => {
+    const [reference, test] = singleContours[d];
+    const posTan1 = reference.getPosTan(0.5);
+    const posTan2 = test.getPosTan(0.5);
+    expect(posTan1).toBeApproximatelyEqual(posTan2);
+  });
 });
