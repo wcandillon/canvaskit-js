@@ -7,6 +7,7 @@ import type { PathComponent } from "./PathComponent";
 
 export class LinearPathComponent implements PathComponent {
   constructor(readonly p1: Point, readonly p2: Point) {}
+
   getSegment(start: number, stop: number): PathComponent {
     return new LinearPathComponent(this.getPosAt(start), this.getPosAt(stop));
   }
