@@ -17,7 +17,11 @@ expect.extend({
       return { pass: false, message: () => "Arrays have different lengths" };
     }
     for (let i = 0; i < received.length; i++) {
-      if (Math.abs(received[i] - argument[i]) > tolerance) {
+      if (
+        isNaN(argument[i]) ||
+        isNaN(received[i]) ||
+        Math.abs(received[i] - argument[i]) > tolerance
+      ) {
         const diffString = diff(received, argument);
         return {
           pass: false,
