@@ -37,21 +37,21 @@ export class CubicPathComponent implements PathComponent {
     ];
   }
 
-  getPointAtLength(t: number) {
+  getPointAtLength(length: number) {
     const props = new svgPathProperties(
       // eslint-disable-next-line max-len
       `M${this.p1[0]} ${this.p1[1]} C${this.cp1[0]} ${this.cp1[1]} ${this.cp2[0]} ${this.cp2[1]} ${this.p2[0]} ${this.p2[1]}`
     );
-    const pos = props.getPointAtLength(t * props.getTotalLength());
+    const pos = props.getPointAtLength(length);
     return vec(pos.x, pos.y);
   }
 
-  getTangentAtLength(t: number): Point {
+  getTangentAtLength(length: number): Point {
     const props = new svgPathProperties(
       // eslint-disable-next-line max-len
       `M${this.p1[0]} ${this.p1[1]} C${this.cp1[0]} ${this.cp1[1]} ${this.cp2[0]} ${this.cp2[1]} ${this.p2[0]} ${this.p2[1]}`
     );
-    const tan = props.getTangentAtLength(t * props.getTotalLength());
+    const tan = props.getTangentAtLength(length);
     return vec(tan.x, tan.y);
   }
 
