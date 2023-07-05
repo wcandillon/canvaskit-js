@@ -14,9 +14,6 @@ import type {
   Rect,
   ContourMeasureIterConstructor,
 } from "canvaskit-wasm";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import CanvasKitInit from "canvaskit-wasm/bin/full/canvaskit";
 import type { Browser, Page } from "puppeteer";
 import puppeteer from "puppeteer";
 
@@ -136,6 +133,9 @@ class RemoteSurface {
 export const skia = new RemoteSurface();
 
 beforeAll(async () => {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const CanvasKitInit = require("canvaskit-wasm/full");
+  global.RealCanvasKit = await CanvasKitInit({});
   await skia.init();
 });
 
@@ -147,12 +147,6 @@ declare global {
   var CanvasKit: CanvasKitType;
   var RealCanvasKit: CanvasKitType;
 }
-
-beforeAll(async () => {
-  // The CanvasKit API is stored on the global object and used
-  // to create the JsiSKApi in the Skia.web.ts file.
-  global.RealCanvasKit = await CanvasKitInit({});
-});
 
 class HeadlessCanvasKit extends CoreCanvasKit {
   Path = PathJS as unknown as PathConstructorAndFactory;
