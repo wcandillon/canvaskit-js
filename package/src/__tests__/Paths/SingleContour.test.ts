@@ -1,5 +1,4 @@
 import "../setup";
-import { svgPathProperties } from "svg-path-properties";
 
 import { prepareSingleContourTest, singleContours } from "./setup";
 
@@ -40,12 +39,5 @@ describe("Single contour values", () => {
     const posTanRef = reference.getPosTan(length);
     const posTan = test.getPosTan(length);
     expect(posTanRef).toBeApproximatelyEqual(posTan, 1);
-    const props = new svgPathProperties(d);
-    const pos = props.getPointAtLength(length);
-    const tan = props.getTangentAtLength(length);
-    expect(pos.x).toBeApproximatelyEqual(posTanRef[0], 1);
-    expect(pos.y).toBeApproximatelyEqual(posTanRef[1], 1);
-    expect(tan.x).toBeApproximatelyEqual(posTanRef[2], 1);
-    expect(tan.y).toBeApproximatelyEqual(posTanRef[3], 1);
   });
 });

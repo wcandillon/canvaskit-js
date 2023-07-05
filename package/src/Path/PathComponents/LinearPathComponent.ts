@@ -24,12 +24,12 @@ export class LinearPathComponent implements PathComponent {
     return `L${this.p2[0]} ${this.p2[1]}`;
   }
 
-  getPointAtLength(length: number): Point {
+  getPointAtLength(length: number) {
     const t = length / this.length();
     return linearSolve2(t, this.p1, this.p2);
   }
 
-  getTangentAtLength(_: number): Point {
+  getTangentAtLength(_: number) {
     const dx = this.p2[0] - this.p1[0];
     const dy = this.p2[1] - this.p1[1];
     const magnitude = Math.hypot(dx, dy);
