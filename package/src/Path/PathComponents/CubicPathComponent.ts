@@ -34,11 +34,27 @@ export class CubicPathComponent implements PathComponent {
     ];
   }
 
-  getPointAt(t: number) {
+  getPosAt(t: number) {
     return vec(
       cubicSolve(t, this.p1[0], this.cp1[0], this.cp2[0], this.p2[0]),
       cubicSolve(t, this.p1[1], this.cp1[1], this.cp2[1], this.p2[1])
     );
+  }
+
+  getTanAt(t: number): Point {
+    const dx =
+      3 *
+      ((1 - t) ** 2 * (this.cp1[0] - this.p1[0]) +
+        2 * (1 - t) * t * (this.cp2[0] - this.cp1[0]) +
+        t ** 2 * (this.p2[0] - this.cp2[0]));
+    const dy =
+      3 *
+      ((1 - t) ** 2 * (this.cp1[1] - this.p1[1]) +
+        2 * (1 - t) * t * (this.cp2[1] - this.cp1[1]) +
+        t ** 2 * (this.p2[1] - this.cp2[1]));
+
+    const magnitude = Math.hypot(dx, dy);
+    return vec(dx / magnitude, dy / magnitude);
   }
 
   getSegment(t0: number, t1: number) {

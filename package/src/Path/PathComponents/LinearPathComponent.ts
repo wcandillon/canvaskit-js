@@ -7,12 +7,8 @@ import type { PathComponent } from "./PathComponent";
 
 export class LinearPathComponent implements PathComponent {
   constructor(readonly p1: Point, readonly p2: Point) {}
-
   getSegment(start: number, stop: number): PathComponent {
-    return new LinearPathComponent(
-      this.getPointAt(start),
-      this.getPointAt(stop)
-    );
+    return new LinearPathComponent(this.getPosAt(start), this.getPosAt(stop));
   }
 
   toCmd() {
@@ -23,8 +19,15 @@ export class LinearPathComponent implements PathComponent {
     return `L${this.p2[0]} ${this.p2[1]}`;
   }
 
-  getPointAt(t: number): Point {
+  getPosAt(t: number): Point {
     return linearSolve2(t, this.p1, this.p2);
+  }
+
+  getTanAt(_: number): Point {
+    const dx = this.p2[0] - this.p1[0];
+    const dy = this.p2[1] - this.p1[1];
+    const magnitude = Math.hypot(dx, dy);
+    return vec(dx / magnitude, dy / magnitude);
   }
 
   length(t = 1) {

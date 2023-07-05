@@ -1,4 +1,3 @@
-/* eslint-disable prefer-destructuring */
 import type { ContourMeasure, ContourMeasureIter } from "canvaskit-wasm";
 
 import { HostObject } from "../HostObject";
@@ -20,9 +19,7 @@ class ContourMeasureJS
 
   getPosTan(distance: number, output = new Float32Array(4)) {
     const length = this.length();
-    const pos = this.contour.getPointAt(distance / length);
-    output[0] = pos[0];
-    output[1] = pos[1];
+    this.contour.getPosTan(distance / length, output);
     return output;
   }
 

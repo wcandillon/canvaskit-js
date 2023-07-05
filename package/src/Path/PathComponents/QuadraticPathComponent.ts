@@ -39,11 +39,21 @@ export class QuadraticPathComponent implements PathComponent {
     return [PathVerb.Quad, this.cp[0], this.cp[1], this.p2[0], this.p2[1]];
   }
 
-  getPointAt(t: number): Point {
+  getPosAt(t: number): Point {
     return vec(
       quadraticSolve(t, this.p1[0], this.cp[0], this.p2[0]),
       quadraticSolve(t, this.p1[1], this.cp[1], this.p2[1])
     );
+  }
+
+  getTanAt(t: number): Point {
+    const dx =
+      2 * ((1 - t) * (this.cp[0] - this.p1[0]) + t * (this.p2[0] - this.cp[0]));
+    const dy =
+      2 * ((1 - t) * (this.cp[1] - this.p1[1]) + t * (this.p2[1] - this.cp[1]));
+
+    const magnitude = Math.hypot(dx, dy);
+    return vec(dx / magnitude, dy / magnitude);
   }
 }
 

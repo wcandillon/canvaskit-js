@@ -1,3 +1,4 @@
+/* eslint-disable prefer-destructuring */
 import { PathVerb } from "../Core";
 import { saturate } from "../math";
 
@@ -15,20 +16,31 @@ export class Contour {
 
   constructor(public closed: boolean) {}
 
-  getPointAt(t: number) {
+  getPosTan(t: number, output: Float32Array) {
     const totalLength = this.length();
     const distance = saturate(t) * totalLength;
+    let found = false;
     let offset = 0;
     for (const component of this.components) {
       const componentLength = component.length();
       const nextOffset = offset + componentLength;
       if (nextOffset >= distance) {
         const t0 = Math.max(0, (distance - offset) / componentLength);
-        return component.getPointAt(t0);
+        const pos = component.getPosAt(t0);
+        const tan = component.getTanAt(t0);
+        output[0] = pos[0];
+        output[1] = pos[1];
+        output[2] = tan[0];
+        output[3] = tan[1];
+        found = true;
       }
       offset = nextOffset;
     }
-    return this.getLastComponent().p2;
+    if (!found) {
+      const p2 = this.getLastComponent().p2;
+      output[0] = p2[0];
+      output[1] = p2[1];
+    }
   }
 
   getSegment(startT: number, stopT: number) {

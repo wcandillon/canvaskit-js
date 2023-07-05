@@ -26,6 +26,8 @@ import { ContourMeasureIterJS } from "../Path/ContourMeasure";
 
 import { fitRects } from "./lib/FitRect";
 
+import "./matchers";
+
 const DEBUG = process.env.DEBUG === "true";
 
 export interface DrawingContext {
