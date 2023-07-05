@@ -31,8 +31,8 @@ export class LinearPathComponent implements PathComponent {
     return vec(dx / magnitude, dy / magnitude);
   }
 
-  length(t = 1) {
-    return t * Math.hypot(this.p2[0] - this.p1[0], this.p2[1] - this.p1[1]);
+  length() {
+    return Math.hypot(this.p2[0] - this.p1[0], this.p2[1] - this.p1[1]);
   }
 }
 

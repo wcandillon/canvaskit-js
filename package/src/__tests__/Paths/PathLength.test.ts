@@ -51,7 +51,7 @@ describe("Path Length", () => {
     const cp = vec(50, 100);
     const p2 = vec(100, 0);
 
-    expect(getQuadraticArcLength(p1, cp, p2, 1)).toBeCloseTo(lengthRef, 0);
+    expect(getQuadraticArcLength(p1, cp, p2)).toBeCloseTo(lengthRef, 0);
   });
   it("Quadratic curve path (2)", () => {
     const pathRef = new RealCanvasKit.Path();
@@ -76,7 +76,7 @@ describe("Path Length", () => {
     const cp2 = vec(66, 100);
     const p2 = vec(100, 0);
 
-    expect(getCubicArcLength(p1, cp1, cp2, p2, 1)).toBeCloseTo(lengthRef, 0);
+    expect(getCubicArcLength(p1, cp1, cp2, p2)).toBeCloseTo(lengthRef, 0);
   });
   it("Cubic curve path (2)", () => {
     const pathRef = new RealCanvasKit.Path();

@@ -14,8 +14,8 @@ export class CubicPathComponent implements PathComponent {
     readonly p2: Point
   ) {}
 
-  length(t = 1) {
-    return getCubicArcLength(this.p1, this.cp1, this.cp2, this.p2, t);
+  length() {
+    return getCubicArcLength(this.p1, this.cp1, this.cp2, this.p2);
   }
 
   toSVGString() {
@@ -140,8 +140,7 @@ export const getCubicArcLength = (
   p1: Point,
   cp1: Point,
   cp2: Point,
-  p2: Point,
-  t: number
+  p2: Point
 ) => {
   const xs = [p1[0], cp1[0], cp2[0], p2[0]];
   const ys = [p1[1], cp1[1], cp2[1], p2[1]];
@@ -154,7 +153,7 @@ export const getCubicArcLength = (
 
   const n = 20;
 
-  const z = t / 2;
+  const z = 0.5;
   sum = 0;
   for (let i = 0; i < n; i++) {
     correctedT = z * tValues[n][i] + z;

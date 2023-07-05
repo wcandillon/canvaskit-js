@@ -8,5 +8,5 @@ export interface PathComponent {
   getSegment(start: number, stop: number): PathComponent;
   getPosAt(t: number): Point;
   getTanAt(t: number): Point;
-  length(t?: number): number;
+  length(): number;
 }
