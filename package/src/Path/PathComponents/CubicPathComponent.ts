@@ -1,5 +1,4 @@
 import type { Point } from "canvaskit-wasm";
-import { svgPathProperties } from "svg-path-properties";
 
 import { PathVerb } from "../../Core";
 import { vec } from "../../Vector";
@@ -58,12 +57,23 @@ export class CubicPathComponent implements PathComponent {
   }
 
   getTangentAtLength(length: number): Point {
-    const props = new svgPathProperties(
-      // eslint-disable-next-line max-len
-      `M${this.p1[0]} ${this.p1[1]} C${this.cp1[0]} ${this.cp1[1]} ${this.cp2[0]} ${this.cp2[1]} ${this.p2[0]} ${this.p2[1]}`
+    const xs = [this.p1[0], this.cp1[0], this.cp2[0], this.p2[0]];
+    const xy = [this.p1[1], this.cp1[1], this.cp2[1], this.p2[1]];
+    const t = t2length(length, this.length(), (i) =>
+      getCubicArcLength(xs, xy, i)
     );
-    const tan = props.getTangentAtLength(length);
-    return vec(tan.x, tan.y);
+
+    const derivative = cubicDerivative(xs, xy, t);
+    const mdl = Math.sqrt(
+      derivative[0] * derivative[0] + derivative[1] * derivative[1]
+    );
+    let tangent: Point;
+    if (mdl > 0) {
+      tangent = vec(derivative[0] / mdl, derivative[1] / mdl);
+    } else {
+      tangent = vec(0, 0);
+    }
+    return tangent;
   }
 
   getSegment(t0: number, t1: number) {
@@ -90,6 +100,21 @@ export class CubicPathComponent implements PathComponent {
     return new CubicPathComponent(p03, p01_, p02_, p03_);
   }
 }
+
+const quadraticPoint = (xs: number[], ys: number[], t: number): Point => {
+  const x = (1 - t) * (1 - t) * xs[0] + 2 * (1 - t) * t * xs[1] + t * t * xs[2];
+  const y = (1 - t) * (1 - t) * ys[0] + 2 * (1 - t) * t * ys[1] + t * t * ys[2];
+  return vec(x, y);
+};
+
+const cubicDerivative = (xs: number[], ys: number[], t: number) => {
+  const derivative = quadraticPoint(
+    [3 * (xs[1] - xs[0]), 3 * (xs[2] - xs[1]), 3 * (xs[3] - xs[2])],
+    [3 * (ys[1] - ys[0]), 3 * (ys[2] - ys[1]), 3 * (ys[3] - ys[2])],
+    t
+  );
+  return derivative;
+};
 
 const t2length = (
   length: number,
