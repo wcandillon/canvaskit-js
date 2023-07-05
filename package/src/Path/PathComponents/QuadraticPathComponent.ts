@@ -19,6 +19,10 @@ export class QuadraticPathComponent implements PathComponent {
   }
 
   polyline(scaleFactor = 1) {
+    return this.fillPointsForPolyline(scaleFactor);
+  }
+
+  fillPointsForPolyline(scaleFactor: number) {
     const points: Point[] = [this.p1];
     const tolerance = kDefaultCurveTolerance / scaleFactor;
     const sqrtTolerance = Math.sqrt(tolerance);

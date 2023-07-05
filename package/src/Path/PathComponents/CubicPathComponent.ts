@@ -1,11 +1,13 @@
+/* eslint-disable @typescript-eslint/no-shadow */
 import type { Point } from "canvaskit-wasm";
 import { svgPathProperties } from "svg-path-properties";
 
 import { PathVerb } from "../../Core";
-import { vec } from "../../Vector";
+import { minus, multiplyScalar, plus, vec } from "../../Vector";
 
 import type { PathComponent } from "./PathComponent";
 import { linearSolve } from "./LinearPathComponent";
+import { QuadraticPathComponent } from "./QuadraticPathComponent";
 
 export class CubicPathComponent implements PathComponent {
   props: ReturnType<typeof svgPathProperties>;
@@ -22,7 +24,59 @@ export class CubicPathComponent implements PathComponent {
   }
 
   length() {
-    return this.props.getTotalLength();
+    const totalLength = this.polyline().reduce(
+      (acc, p, i, arr) =>
+        i === 0
+          ? 0
+          : acc + Math.hypot(p[0] - arr[i - 1][0], p[1] - arr[i - 1][1]),
+      0
+    );
+    return totalLength; //this.props.getTotalLength();
+  }
+
+  private toQuadraticPathComponents(
+    accuracy: number
+  ): QuadraticPathComponent[] {
+    const quads: QuadraticPathComponent[] = [];
+
+    const maxHypot2 = 432.0 * accuracy * accuracy;
+    let p1x2 = this.cp1.map((_, i) => 3.0 * this.cp1[i] - this.p1[i]);
+    let p2x2 = this.cp2.map((_, i) => 3.0 * this.cp2[i] - this.p2[i]);
+    const p = p2x2.map((_, i) => p2x2[i] - p1x2[i]);
+    const err = p.reduce((a, b) => a + b * b, 0);
+    const quadCount = Math.max(
+      1,
+      Math.ceil(Math.pow(err / maxHypot2, 1 / 6.0))
+    );
+
+    for (let i = 0; i < quadCount; i++) {
+      const t0 = i / quadCount;
+      const t1 = (i + 1) / quadCount;
+      const seg = this.Subsegment(t0, t1); // Assuming this.subsegment is defined
+      p1x2 = seg.cp1.map((_, i) => 3.0 * seg.cp1[i] - seg.p1[i]);
+      p2x2 = seg.cp2.map((_, i) => 3.0 * seg.cp2[i] - seg.p2[i]);
+      const middle = p1x2.map((_, i) => (p1x2[i] + p2x2[i]) / 4.0);
+      quads.push(new QuadraticPathComponent(seg.p1, middle, seg.p2));
+    }
+    return quads;
+  }
+
+  private Subsegment(t0: number, t1: number) {
+    const p0 = this.solve(t0);
+    const p3 = this.solve(t1);
+    const d = this.Lower();
+    const scale = (t1 - t0) * (1.0 / 3.0);
+    const p1 = plus(p0, multiplyScalar(d.solve(t0), scale));
+    const p2 = minus(p3, multiplyScalar(d.solve(t1), scale));
+    return new CubicPathComponent(p0, p1, p2, p3);
+  }
+
+  private Lower() {
+    return new QuadraticPathComponent(
+      multiplyScalar(minus(this.cp1, this.p1), 3),
+      multiplyScalar(minus(this.cp2, this.cp1), 3),
+      multiplyScalar(minus(this.p2, this.cp2), 3)
+    );
   }
 
   toSVGString() {
@@ -51,11 +105,19 @@ export class CubicPathComponent implements PathComponent {
   }
 
   polyline(): Point[] {
-    throw new Error("Method not implemented.");
+    const quads = this.toQuadraticPathComponents(0.1);
+    const points: Point[] = [this.p1];
+    for (const quad of quads) {
+      points.push(...quad.fillPointsForPolyline(0.1));
+    }
+    return points;
   }
 
-  solve(_t: number): Point {
-    throw new Error("Method not implemented.");
+  solve(t: number): Point {
+    return vec(
+      cubicSolve(t, this.p1[0], this.cp1[0], this.cp2[0], this.p2[0]),
+      cubicSolve(t, this.p1[1], this.cp1[1], this.cp2[1], this.p2[1])
+    );
   }
 
   solveDerivative(_t: number): Float32Array {
@@ -86,3 +148,15 @@ export class CubicPathComponent implements PathComponent {
     return new CubicPathComponent(p03, p01_, p02_, p03_);
   }
 }
+
+const cubicSolve = (
+  t: number,
+  p0: number,
+  p1: number,
+  p2: number,
+  p3: number
+) =>
+  (1 - t) * (1 - t) * (1 - t) * p0 +
+  3 * (1 - t) * (1 - t) * t * p1 +
+  3 * (1 - t) * t * t * p2 +
+  t * t * t * p3;
