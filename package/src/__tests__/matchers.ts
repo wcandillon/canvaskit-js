@@ -4,7 +4,15 @@
 import { diff } from "jest-diff";
 
 expect.extend({
-  toBeApproximatelyEqual(received, argument, tolerance = 0.1) {
+  toBeApproximatelyEqual(_received, _argument, tolerance = 0.1) {
+    const received =
+      Array.isArray(_received) || _received instanceof Float32Array
+        ? _received
+        : [_received];
+    const argument =
+      Array.isArray(_argument) || _received instanceof Float32Array
+        ? _argument
+        : [_argument];
     if (received.length !== argument.length) {
       return { pass: false, message: () => "Arrays have different lengths" };
     }

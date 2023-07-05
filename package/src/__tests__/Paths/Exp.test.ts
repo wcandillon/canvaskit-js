@@ -1,27 +1,7 @@
-// eslint-disable-next-line @typescript-eslint/triple-slash-reference
-/// <reference path="../jest.d.ts" />
-
 import { TrimPathEffect } from "../../Path/PathEffects";
 import "../setup";
 import { PathVerb } from "../../Core";
 import { parseSVG } from "../../Path/SVG";
-
-expect.extend({
-  toBeApproximatelyEqual(received, argument, tolerance) {
-    if (received.length !== argument.length) {
-      return { pass: false, message: () => "Arrays have different lengths" };
-    }
-    for (let i = 0; i < received.length; i++) {
-      if (Math.abs(received[i] - argument[i]) > tolerance) {
-        return {
-          pass: false,
-          message: () => `Element at index ${i} differ more than tolerance`,
-        };
-      }
-    }
-    return { pass: true, message: () => "Arrays are approximately equal" };
-  },
-});
 
 describe("Path Trim", () => {
   it("simple triming test (1)", () => {
