@@ -50,6 +50,18 @@ export class CubicPathComponent implements PathComponent {
     return vec(x, y);
   }
 
+  polyline(): Point[] {
+    throw new Error("Method not implemented.");
+  }
+
+  solve(_t: number): Point {
+    throw new Error("Method not implemented.");
+  }
+
+  solveDerivative(_t: number): Float32Array {
+    throw new Error("Method not implemented.");
+  }
+
   getSegment(t0: number, t1: number) {
     // First cut at t0
     const p01 = linearSolve(t0, this.p1, this.cp1);

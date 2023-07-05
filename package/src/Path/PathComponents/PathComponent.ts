@@ -9,4 +9,7 @@ export interface PathComponent {
   getPointAtLength(length: number): Point;
   getTangentAtLength(length: number): Point;
   length(): number;
+  polyline(): Point[];
+  solve(t: number): Point;
+  solveDerivative(t: number): Point;
 }

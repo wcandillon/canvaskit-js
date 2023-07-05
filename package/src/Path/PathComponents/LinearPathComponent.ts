@@ -8,6 +8,10 @@ import type { PathComponent } from "./PathComponent";
 export class LinearPathComponent implements PathComponent {
   constructor(readonly p1: Point, readonly p2: Point) {}
 
+  polyline() {
+    return [this.p2];
+  }
+
   getSegment(start: number, stop: number): PathComponent {
     const length = this.length();
     return new LinearPathComponent(
@@ -30,14 +34,22 @@ export class LinearPathComponent implements PathComponent {
   }
 
   getTangentAtLength(_: number) {
-    const dx = this.p2[0] - this.p1[0];
-    const dy = this.p2[1] - this.p1[1];
-    const magnitude = Math.hypot(dx, dy);
-    return vec(dx / magnitude, dy / magnitude);
+    return this.solveDerivative(_);
   }
 
   length() {
     return Math.hypot(this.p2[0] - this.p1[0], this.p2[1] - this.p1[1]);
+  }
+
+  solve(t: number) {
+    return linearSolve(t, this.p1, this.p2);
+  }
+
+  solveDerivative(_: number) {
+    const dx = this.p2[0] - this.p1[0];
+    const dy = this.p2[1] - this.p1[1];
+    const magnitude = Math.hypot(dx, dy);
+    return vec(dx / magnitude, dy / magnitude);
   }
 }
 
