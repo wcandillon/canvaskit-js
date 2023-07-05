@@ -3,10 +3,6 @@ import type { ContourMeasure, Path } from "canvaskit-wasm";
 import { PathBuilder } from "../../Path/PathBuilder";
 import { vec } from "../../Vector";
 import "../setup";
-import {
-  getCubicArcLength,
-  getQuadraticArcLength,
-} from "../../Path/PathComponents";
 
 const totalLength = (path: Path, close = false) => {
   let length = 0;
@@ -41,18 +37,7 @@ describe("Path Length", () => {
     path.close();
     expect(path.getPath().length()).toBe(Math.hypot(100, 100) + 100 + 100);
   });
-  it("Quadratic curve path (1)", () => {
-    const pathRef = new RealCanvasKit.Path();
-    pathRef.moveTo(0, 0);
-    pathRef.quadTo(50, 100, 100, 0);
-    const lengthRef = totalLength(pathRef);
 
-    const p1 = vec(0, 0);
-    const cp = vec(50, 100);
-    const p2 = vec(100, 0);
-
-    expect(getQuadraticArcLength(p1, cp, p2)).toBeCloseTo(lengthRef, 0);
-  });
   it("Quadratic curve path (2)", () => {
     const pathRef = new RealCanvasKit.Path();
     pathRef.moveTo(0, 0);
@@ -65,19 +50,7 @@ describe("Path Length", () => {
 
     expect(path.getPath().length()).toBeCloseTo(lengthRef, 0);
   });
-  it("Cubic curve path (1)", () => {
-    const pathRef = new RealCanvasKit.Path();
-    pathRef.moveTo(0, 0);
-    pathRef.cubicTo(33, 100, 66, 100, 100, 0);
-    const lengthRef = totalLength(pathRef);
 
-    const p1 = vec(0, 0);
-    const cp1 = vec(33, 100);
-    const cp2 = vec(66, 100);
-    const p2 = vec(100, 0);
-
-    expect(getCubicArcLength(p1, cp1, cp2, p2)).toBeCloseTo(lengthRef, 0);
-  });
   it("Cubic curve path (2)", () => {
     const pathRef = new RealCanvasKit.Path();
     pathRef.moveTo(0, 0);
