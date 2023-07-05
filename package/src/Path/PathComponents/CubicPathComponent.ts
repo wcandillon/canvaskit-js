@@ -38,12 +38,23 @@ export class CubicPathComponent implements PathComponent {
   }
 
   getPointAtLength(length: number) {
-    const props = new svgPathProperties(
-      // eslint-disable-next-line max-len
-      `M${this.p1[0]} ${this.p1[1]} C${this.cp1[0]} ${this.cp1[1]} ${this.cp2[0]} ${this.cp2[1]} ${this.p2[0]} ${this.p2[1]}`
-    );
-    const pos = props.getPointAtLength(length);
-    return vec(pos.x, pos.y);
+    const xs = [this.p1[0], this.cp1[0], this.cp2[0], this.p2[0]];
+    const ys = [this.p1[1], this.cp1[1], this.cp2[1], this.p2[1]];
+    const t = t2length(length, this.length(), (i) => {
+      return getCubicArcLength(xs, ys, i);
+    });
+    const x =
+      (1 - t) * (1 - t) * (1 - t) * xs[0] +
+      3 * (1 - t) * (1 - t) * t * xs[1] +
+      3 * (1 - t) * t * t * xs[2] +
+      t * t * t * xs[3];
+    const y =
+      (1 - t) * (1 - t) * (1 - t) * ys[0] +
+      3 * (1 - t) * (1 - t) * t * ys[1] +
+      3 * (1 - t) * t * t * ys[2] +
+      t * t * t * ys[3];
+
+    return vec(x, y);
   }
 
   getTangentAtLength(length: number): Point {
@@ -80,13 +91,53 @@ export class CubicPathComponent implements PathComponent {
   }
 }
 
-const getCubicArcLength = (xs: number[], ys: number[]) => {
+const t2length = (
+  length: number,
+  totalLength: number,
+  func: (t: number) => number
+) => {
+  let error = 1;
+  let t = length / totalLength;
+  let step = (length - func(t)) / totalLength;
+
+  let numIterations = 0;
+  while (error > 0.001) {
+    const increasedTLength = func(t + step);
+    const increasedTError = Math.abs(length - increasedTLength) / totalLength;
+    if (increasedTError < error) {
+      error = increasedTError;
+      t += step;
+    } else {
+      const decreasedTLength = func(t - step);
+      const decreasedTError = Math.abs(length - decreasedTLength) / totalLength;
+      if (decreasedTError < error) {
+        error = decreasedTError;
+        t -= step;
+      } else {
+        step /= 2;
+      }
+    }
+
+    numIterations++;
+    if (numIterations > 500) {
+      break;
+    }
+  }
+
+  return t;
+};
+
+const getCubicArcLength = (xs: number[], ys: number[], t = 1) => {
   let sum: number;
   let correctedT: number;
 
+  /*if (xs.length >= tValues.length) {
+        throw new Error('too high n bezier');
+      }*/
+
   const n = 20;
 
-  const z = 0.5;
+  const z = t / 2;
   sum = 0;
   for (let i = 0; i < n; i++) {
     correctedT = z * tValues[n][i] + z;
