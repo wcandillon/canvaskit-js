@@ -68,22 +68,20 @@ export class QuadraticPathComponent implements PathComponent {
   }
 }
 
-//export const getQuadraticArcLength = (p1: Point, cp: Point, p2: Point) => {
 const getQuadraticArcLength = (p1: Point, cp: Point, p2: Point) => {
-  const xs = [p1[0], cp[0], p2[0]];
-  const ys = [p1[1], cp[1], p2[1]];
-  const ax = xs[0] - 2 * xs[1] + xs[2];
-  const ay = ys[0] - 2 * ys[1] + ys[2];
-  const bx = 2 * xs[1] - 2 * xs[0];
-  const by = 2 * ys[1] - 2 * ys[0];
+  const ax = p1[0] - 2 * cp[0] + p2[0];
+  const ay = p1[1] - 2 * cp[1] + p2[1];
+  const bx = 2 * cp[0] - 2 * p1[0];
+  const by = 2 * cp[1] - 2 * p1[1];
 
   const A = 4 * (ax * ax + ay * ay);
   const B = 4 * (ax * bx + ay * by);
   const C = bx * bx + by * by;
 
   if (A === 0) {
-    return Math.sqrt(Math.pow(xs[2] - xs[0], 2) + Math.pow(ys[2] - ys[0], 2));
+    return Math.sqrt(Math.pow(p2[0] - p1[0], 2) + Math.pow(p2[1] - p1[1], 2));
   }
+
   const b = B / (2 * A);
   const c = C / A;
   const u = 1 + b;
