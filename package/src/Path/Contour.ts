@@ -1,4 +1,3 @@
-/* eslint-disable prefer-destructuring */
 import { PathVerb } from "../Core";
 
 import type { PathComponent } from "./PathComponents";
@@ -15,8 +14,7 @@ export class Contour {
 
   constructor(public closed: boolean) {}
 
-  getPosTanAtLength(length: number, output: Float32Array) {
-    let found = false;
+  getPosTanAtLength(length: number) {
     let offset = 0;
     for (const component of this.components) {
       const componentLength = component.length();
@@ -25,19 +23,11 @@ export class Contour {
         const l0 = Math.max(0, length - offset);
         const pos = component.pointAtLength(l0);
         const tan = component.tangentAtLength(l0);
-        output[0] = pos[0];
-        output[1] = pos[1];
-        output[2] = tan[0];
-        output[3] = tan[1];
-        found = true;
+        return [pos, tan];
       }
       offset = nextOffset;
     }
-    if (!found) {
-      const p2 = this.getLastComponent().p2;
-      output[0] = p2[0];
-      output[1] = p2[1];
-    }
+    throw new Error("length out of bounds");
   }
 
   getSegment(start: number, stop: number) {

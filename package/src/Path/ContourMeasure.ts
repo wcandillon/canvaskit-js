@@ -18,7 +18,11 @@ export class ContourMeasureJS
   }
 
   getPosTan(distance: number, output = new Float32Array(4)) {
-    this.contour.getPosTanAtLength(distance, output);
+    const result = this.contour.getPosTanAtLength(distance);
+    output[0] = result[0][0];
+    output[1] = result[0][1];
+    output[2] = result[1][0];
+    output[3] = result[1][1];
     return output;
   }
 
