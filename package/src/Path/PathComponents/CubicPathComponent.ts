@@ -7,19 +7,16 @@ import { minus, multiplyScalar, plus, vec } from "../../Vector";
 import type { PathComponent } from "./PathComponent";
 import { linearSolve, Polyline } from "./Polyline";
 import { QuadraticPathComponent } from "./QuadraticPathComponent";
+import { Flatennable } from "./Flattenable";
 
-export class CubicPathComponent implements PathComponent {
-  private _polyline: Polyline | null = null;
-
+export class CubicPathComponent extends Flatennable implements PathComponent {
   constructor(
     readonly p1: Point,
     readonly cp1: Point,
     readonly cp2: Point,
     readonly p2: Point
-  ) {}
-
-  length() {
-    return this.polyline.length();
+  ) {
+    super();
   }
 
   private toQuadraticPathComponents(
@@ -82,22 +79,8 @@ export class CubicPathComponent implements PathComponent {
       this.p2[1],
     ];
   }
-  getPointAtLength(length: number) {
-    return this.polyline.getPointAtLength(length)!;
-  }
 
-  getTangentAtLength(length: number) {
-    return this.polyline.getTangentAtLength(length)!;
-  }
-
-  get polyline() {
-    if (!this._polyline) {
-      this._polyline = this.createPolyline();
-    }
-    return this._polyline;
-  }
-
-  private createPolyline() {
+  createPolyline() {
     const quads = this.toQuadraticPathComponents(0.4);
     const points: Point[] = [this.p1];
     for (const quad of quads) {

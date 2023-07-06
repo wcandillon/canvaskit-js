@@ -2,7 +2,9 @@ import type { Point } from "canvaskit-wasm";
 
 import { dist, vec } from "../../Vector";
 
-export class Polyline {
+import type { PathProperties } from "./PathComponent";
+
+export class Polyline implements PathProperties {
   readonly points: Point[];
   cumulativeLengths: number[];
 
@@ -15,26 +17,8 @@ export class Polyline {
     return this.cumulativeLengths[this.cumulativeLengths.length - 1];
   }
 
-  calculateCumulativeLengths(): number[] {
-    const cumulativeLengths = [0];
-    for (let i = 1; i < this.points.length; i++) {
-      const previousPoint = this.points[i - 1];
-      const currentPoint = this.points[i];
-      const segmentLength = dist(previousPoint, currentPoint);
-      cumulativeLengths[i] = cumulativeLengths[i - 1] + segmentLength;
-    }
-    return cumulativeLengths;
-  }
-
-  getPointAtLength(length: number): Point | null {
-    if (length < 0 || length > this.length()) {
-      return null;
-    }
-
-    const index = this.cumulativeLengths.findIndex((l) => l > length);
-    if (index < 0) {
-      return null;
-    }
+  getPointAtLength(length: number) {
+    const index = this.findIndex(length);
 
     const previousPoint = this.points[index - 1];
     const currentPoint = this.points[index];
@@ -49,23 +33,36 @@ export class Polyline {
     );
   }
 
-  getTangentAtLength(length: number): Point | null {
-    if (
-      length < 0 ||
-      length > this.cumulativeLengths[this.cumulativeLengths.length - 1]
-    ) {
-      return null;
-    }
-
-    const index = this.cumulativeLengths.findIndex((l) => l > length);
-    if (index < 0) {
-      return null;
-    }
+  getTangentAtLength(length: number) {
+    const index = this.findIndex(length);
 
     const previousPoint = this.points[index - 1];
     const currentPoint = this.points[index];
 
     return derivativeSolve(previousPoint, currentPoint);
+  }
+
+  private findIndex(length: number) {
+    if (length < 0 || length > this.length()) {
+      throw new Error("Length out of bounds");
+    }
+
+    const index = this.cumulativeLengths.findIndex((l) => l > length);
+    if (index < 0) {
+      throw new Error("No point found");
+    }
+    return index;
+  }
+
+  private calculateCumulativeLengths() {
+    const cumulativeLengths = [0];
+    for (let i = 1; i < this.points.length; i++) {
+      const previousPoint = this.points[i - 1];
+      const currentPoint = this.points[i];
+      const segmentLength = dist(previousPoint, currentPoint);
+      cumulativeLengths[i] = cumulativeLengths[i - 1] + segmentLength;
+    }
+    return cumulativeLengths;
   }
 }
 

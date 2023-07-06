@@ -5,19 +5,16 @@ import { PathVerb } from "../../Core";
 
 import type { PathComponent } from "./PathComponent";
 import { Polyline, linearSolve } from "./Polyline";
+import { Flatennable } from "./Flattenable";
 
 const kDefaultCurveTolerance = 0.1;
 
-export class QuadraticPathComponent implements PathComponent {
-  private _polyline: Polyline | null = null;
-
-  constructor(readonly p1: Point, readonly cp: Point, readonly p2: Point) {}
-
-  get polyline() {
-    if (!this._polyline) {
-      this._polyline = this.createPolyline();
-    }
-    return this._polyline;
+export class QuadraticPathComponent
+  extends Flatennable
+  implements PathComponent
+{
+  constructor(readonly p1: Point, readonly cp: Point, readonly p2: Point) {
+    super();
   }
 
   createPolyline() {
@@ -99,24 +96,12 @@ export class QuadraticPathComponent implements PathComponent {
     return new QuadraticPathComponent(p02, p01_, p02_);
   }
 
-  length() {
-    return this.polyline.length();
-  }
-
   toSVGString() {
     return `Q${this.cp[0]} ${this.cp[1]} ${this.p2[0]} ${this.p2[1]}`;
   }
 
   toCmd() {
     return [PathVerb.Quad, this.cp[0], this.cp[1], this.p2[0], this.p2[1]];
-  }
-
-  getPointAtLength(length: number): Point {
-    return this.polyline.getPointAtLength(length)!;
-  }
-
-  getTangentAtLength(length: number) {
-    return this.polyline.getTangentAtLength(length)!;
   }
 }
 

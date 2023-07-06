@@ -4,14 +4,10 @@ import { PathVerb } from "../../Core";
 import { vec } from "../../Vector";
 
 import type { PathComponent } from "./PathComponent";
-import { Polyline, linearSolve } from "./Polyline";
+import { linearSolve } from "./Polyline";
 
 export class LinearPathComponent implements PathComponent {
-  polyline: Polyline;
-
-  constructor(readonly p1: Point, readonly p2: Point) {
-    this.polyline = new Polyline([p1, p2]);
-  }
+  constructor(readonly p1: Point, readonly p2: Point) {}
 
   getSegment(start: number, stop: number): PathComponent {
     const length = this.length();
