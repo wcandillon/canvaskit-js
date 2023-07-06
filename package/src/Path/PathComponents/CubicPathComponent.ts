@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import type { Point } from "canvaskit-wasm";
-import { svgPathProperties } from "svg-path-properties";
 
 import { PathVerb } from "../../Core";
 import { minus, multiplyScalar, plus, vec } from "../../Vector";
@@ -8,20 +7,15 @@ import { minus, multiplyScalar, plus, vec } from "../../Vector";
 import type { PathComponent } from "./PathComponent";
 import { linearSolve } from "./LinearPathComponent";
 import { QuadraticPathComponent } from "./QuadraticPathComponent";
+import { Polyline } from "./Polyline";
 
 export class CubicPathComponent implements PathComponent {
-  props: ReturnType<typeof svgPathProperties>;
-
   constructor(
     readonly p1: Point,
     readonly cp1: Point,
     readonly cp2: Point,
     readonly p2: Point
-  ) {
-    this.props = new svgPathProperties(
-      `M${p1[0]} ${p1[1]} C${cp1[0]} ${cp1[1]} ${cp2[0]} ${cp2[1]} ${p2[0]} ${p2[1]}`
-    );
-  }
+  ) {}
 
   length() {
     const totalLength = this.polyline().reduce(
@@ -95,13 +89,13 @@ export class CubicPathComponent implements PathComponent {
     ];
   }
   getPointAtLength(length: number) {
-    const { x, y } = this.props.getPointAtLength(length);
-    return vec(x, y);
+    const polyline = new Polyline(this.polyline());
+    return polyline.getPointAtLength(length)!;
   }
 
   getTangentAtLength(length: number) {
-    const { x, y } = this.props.getTangentAtLength(length);
-    return vec(x, y);
+    const polyline = new Polyline(this.polyline());
+    return polyline.getTangentAtLength(length)!;
   }
 
   polyline(): Point[] {
@@ -113,14 +107,14 @@ export class CubicPathComponent implements PathComponent {
     return points;
   }
 
-  solve(t: number): Point {
+  solve(t: number) {
     return vec(
       cubicSolve(t, this.p1[0], this.cp1[0], this.cp2[0], this.p2[0]),
       cubicSolve(t, this.p1[1], this.cp1[1], this.cp2[1], this.p2[1])
     );
   }
 
-  solveDerivative(t: number): Float32Array {
+  solveDerivative(t: number) {
     return vec(
       cubicSolveDerivative(t, this.p1[0], this.cp1[0], this.cp2[0], this.p2[0]),
       cubicSolveDerivative(t, this.p1[1], this.cp1[1], this.cp2[1], this.p2[1])

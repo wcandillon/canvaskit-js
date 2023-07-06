@@ -83,7 +83,6 @@ export class Contour {
     });
   }
 
-  // TODO: memoize length computation?
   length() {
     return this.components.reduce((acc, c) => acc + c.length(), 0);
   }

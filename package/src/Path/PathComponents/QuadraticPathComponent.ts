@@ -1,22 +1,16 @@
 import type { Point } from "canvaskit-wasm";
-import { svgPathProperties } from "svg-path-properties";
 
 import { cross, dot, minus, vec } from "../../Vector";
 import { PathVerb } from "../../Core";
 
 import type { PathComponent } from "./PathComponent";
 import { linearSolve } from "./LinearPathComponent";
+import { Polyline } from "./Polyline";
 
 const kDefaultCurveTolerance = 0.1;
 
 export class QuadraticPathComponent implements PathComponent {
-  props: ReturnType<typeof svgPathProperties>;
-
-  constructor(readonly p1: Point, readonly cp: Point, readonly p2: Point) {
-    this.props = new svgPathProperties(
-      `M${p1[0]} ${p1[1]} Q${cp[0]} ${cp[1]} ${p2[0]} ${p2[1]}`
-    );
-  }
+  constructor(readonly p1: Point, readonly cp: Point, readonly p2: Point) {}
 
   polyline(scaleFactor = 1) {
     return this.fillPointsForPolyline(scaleFactor);
@@ -115,14 +109,14 @@ export class QuadraticPathComponent implements PathComponent {
     return [PathVerb.Quad, this.cp[0], this.cp[1], this.p2[0], this.p2[1]];
   }
 
-  getPointAtLength(length: number) {
-    const { x, y } = this.props.getPointAtLength(length);
-    return vec(x, y);
+  getPointAtLength(length: number): Point {
+    const polyline = new Polyline(this.polyline());
+    return polyline.getPointAtLength(length)!;
   }
 
   getTangentAtLength(length: number) {
-    const { x, y } = this.props.getTangentAtLength(length);
-    return vec(x, y);
+    const polyline = new Polyline(this.polyline());
+    return polyline.getTangentAtLength(length)!;
   }
 }
 
