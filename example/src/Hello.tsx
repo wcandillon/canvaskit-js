@@ -2,7 +2,7 @@
 import type { Canvas as CKCanvas } from "canvaskit-wasm";
 
 import type { AnimationValue, Info } from "./components";
-import { useClock, Canvas, useOnDraw, useLoop } from "./components";
+import { Canvas, useOnDraw, useLoop } from "./components";
 
 /*
 <svg width="3953" height="1292" viewBox="0 0 3953 1292" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -46,7 +46,7 @@ const path = CanvasKit.Path.MakeFromSVGString(
 const drawShader = (
   progress: AnimationValue,
   canvas: CKCanvas,
-  { width, height }: Info
+  _info: Info
 ) => {
   const pathToDraw = path.copy().trim(0, 1 - progress.value, false)!;
   canvas.save();

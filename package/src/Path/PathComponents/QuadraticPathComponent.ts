@@ -74,24 +74,17 @@ export class QuadraticPathComponent
   segment(t0: number, t1: number) {
     const p0 = this.solve(t0); // get the start point of the segment
     const p2 = this.solve(t1); // get the end point of the segment
-    const d = this.derivative(); // get the derivative of the path
     const scale = t1 - t0; // scale factor
     // calculate the control point for the new path segment
-    const cp = plus(p0, multiplyScalar(d.solve(t0), scale));
+    const cp = plus(p0, multiplyScalar(this.solveDerivative(t0), scale));
     return new QuadraticPathComponent(p0, cp, p2);
   }
 
-  private derivative() {
-    return {
-      solve: (t: number): Point => {
-        const oneMinusT = 1 - t;
-        const cpMinusP1 = minus(this.cp, this.p1);
-        const p2MinusCp = minus(this.p2, this.cp);
-        const firstTerm = multiplyScalar(cpMinusP1, oneMinusT);
-        const secondTerm = multiplyScalar(p2MinusCp, t);
-        return multiplyScalar(plus(firstTerm, secondTerm), 2);
-      },
-    };
+  private solveDerivative(t: number) {
+    return vec(
+      quadratiSolvecDerivative(t, this.p1[0], this.cp[0], this.p2[0]),
+      quadratiSolvecDerivative(t, this.p1[1], this.cp[1], this.p2[1])
+    );
   }
 
   toSVGString() {
@@ -113,3 +106,12 @@ const quadraticSolve = (t: number, p0: number, p1: number, p2: number) =>
   (1 - t) * (1 - t) * p0 + //
   2 * (1 - t) * t * p1 + //
   t * t * p2;
+
+const quadratiSolvecDerivative = (
+  t: number,
+  p0: number,
+  p1: number,
+  p2: number
+) =>
+  2 * (1 - t) * (p1 - p0) + //
+  2 * t * (p2 - p1);
