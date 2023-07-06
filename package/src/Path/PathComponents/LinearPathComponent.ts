@@ -1,10 +1,9 @@
 import type { Point } from "canvaskit-wasm";
 
 import { PathVerb } from "../../Core";
-import { vec } from "../../Vector";
 
 import type { PathComponent } from "./PathComponent";
-import { linearSolve } from "./Polyline";
+import { derivativeSolve, linearSolve } from "./Polyline";
 
 export class LinearPathComponent implements PathComponent {
   constructor(readonly p1: Point, readonly p2: Point) {}
@@ -31,21 +30,10 @@ export class LinearPathComponent implements PathComponent {
   }
 
   tangentAtLength(_: number) {
-    return this.solveDerivative(_);
+    return derivativeSolve(this.p1, this.p2);
   }
 
   length() {
     return Math.hypot(this.p2[0] - this.p1[0], this.p2[1] - this.p1[1]);
-  }
-
-  solve(t: number) {
-    return linearSolve(t, this.p1, this.p2);
-  }
-
-  solveDerivative(_: number) {
-    const dx = this.p2[0] - this.p1[0];
-    const dy = this.p2[1] - this.p1[1];
-    const magnitude = Math.hypot(dx, dy);
-    return vec(dx / magnitude, dy / magnitude);
   }
 }

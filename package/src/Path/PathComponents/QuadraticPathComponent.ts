@@ -7,7 +7,7 @@ import type { PathComponent } from "./PathComponent";
 import { Polyline, linearSolve } from "./Polyline";
 import { Flatennable } from "./Flattenable";
 
-const kDefaultCurveTolerance = 0.1;
+const defaultCurveTolerance = 0.1;
 
 export class QuadraticPathComponent
   extends Flatennable
@@ -23,7 +23,7 @@ export class QuadraticPathComponent
 
   fillPointsForPolyline(scaleFactor = 1) {
     const points: Point[] = [this.p1];
-    const tolerance = kDefaultCurveTolerance / scaleFactor;
+    const tolerance = defaultCurveTolerance / scaleFactor;
     const sqrtTolerance = Math.sqrt(tolerance);
 
     const d01 = minus(this.cp, this.p1);
@@ -71,13 +71,6 @@ export class QuadraticPathComponent
     );
   }
 
-  solveDerivative(t: number) {
-    return vec(
-      quadraticSolveDerivative(t, this.p1[0], this.cp[0], this.p2[0]),
-      quadraticSolveDerivative(t, this.p1[1], this.cp[1], this.p2[1])
-    );
-  }
-
   segment(t0: number, t1: number) {
     // First cut at t0
     const p01 = linearSolve(t0, this.p1, this.cp);
@@ -115,12 +108,3 @@ const quadraticSolve = (t: number, p0: number, p1: number, p2: number) =>
   (1 - t) * (1 - t) * p0 + //
   2 * (1 - t) * t * p1 + //
   t * t * p2;
-
-const quadraticSolveDerivative = (
-  t: number,
-  p0: number,
-  p1: number,
-  p2: number
-) =>
-  2 * (1 - t) * (p1 - p0) + //
-  2 * t * (p2 - p1);

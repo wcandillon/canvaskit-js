@@ -96,13 +96,6 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
     );
   }
 
-  solveDerivative(t: number) {
-    return vec(
-      cubicSolveDerivative(t, this.p1[0], this.cp1[0], this.cp2[0], this.p2[0]),
-      cubicSolveDerivative(t, this.p1[1], this.cp1[1], this.cp2[1], this.p2[1])
-    );
-  }
-
   segment(t0: number, t1: number) {
     // First cut at t0
     const p01 = linearSolve(t0, this.p1, this.cp1);
@@ -139,15 +132,3 @@ const cubicSolve = (
   3 * (1 - t) * (1 - t) * t * p1 +
   3 * (1 - t) * t * t * p2 +
   t * t * t * p3;
-
-const cubicSolveDerivative = (
-  t: number,
-  p0: number,
-  p1: number,
-  p2: number,
-  p3: number
-) =>
-  -3 * p0 * Math.pow(1 - t, 2) +
-  p1 * (3 * Math.pow(1 - t, 2) - 6 * (1 - t) * t) +
-  p2 * (6 * (1 - t) * t - 3 * Math.pow(t, 2)) +
-  3 * p3 * Math.pow(t, 2);
