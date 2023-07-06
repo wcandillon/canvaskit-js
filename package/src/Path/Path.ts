@@ -21,6 +21,10 @@ export class Path {
     return this.contours[this.contours.length - 1];
   }
 
+  polylines() {
+    return this.contours.map((c) => c.getPolyline()).flat();
+  }
+
   getContours() {
     return this.contours;
   }

@@ -9,6 +9,7 @@ export interface PathProperties {
 export interface PathComponent extends PathProperties {
   p1: Point;
   p2: Point;
+  getPolyline(): Point[];
   toCmd(): number[];
   toSVGString(): string;
   segment(start: number, stop: number): PathComponent;

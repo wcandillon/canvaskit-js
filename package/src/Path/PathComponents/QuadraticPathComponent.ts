@@ -21,6 +21,10 @@ export class QuadraticPathComponent
     return new Polyline(this.fillPointsForPolyline());
   }
 
+  getPolyline() {
+    return this.polyline.points;
+  }
+
   fillPointsForPolyline(points: Point[] = [], scaleFactor = 1) {
     points.push(this.p1);
     const tolerance = defaultCurveTolerance / scaleFactor;

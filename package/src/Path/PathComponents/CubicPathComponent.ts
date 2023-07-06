@@ -46,6 +46,10 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
     return quads;
   }
 
+  getPolyline() {
+    return this.polyline.points;
+  }
+
   segment(t0: number, t1: number) {
     const p0 = this.solve(t0);
     const p3 = this.solve(t1);

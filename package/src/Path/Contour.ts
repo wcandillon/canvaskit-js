@@ -14,6 +14,10 @@ export class Contour {
 
   constructor(public closed: boolean) {}
 
+  getPolyline() {
+    return this.components.flatMap((c) => c.getPolyline());
+  }
+
   getPosTanAtLength(length: number) {
     let offset = 0;
     for (const component of this.components) {

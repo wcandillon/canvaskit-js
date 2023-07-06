@@ -9,6 +9,10 @@ import { derivativeSolve, linearSolve } from "./Polyline";
 export class LinearPathComponent implements PathComponent {
   constructor(readonly p1: Point, readonly p2: Point) {}
 
+  getPolyline() {
+    return [this.p1, this.p2];
+  }
+
   segment(start: number, stop: number): PathComponent {
     const length = this.length();
     return new LinearPathComponent(
