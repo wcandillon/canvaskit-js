@@ -30,6 +30,10 @@ jobs:
         working-directory: package
         run: yarn lint
 
+      - name: Build
+        working-directory: package
+        run: yarn build
+
       - name: Tests
         working-directory: package
         run: |
