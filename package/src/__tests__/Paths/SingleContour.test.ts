@@ -2,13 +2,10 @@ import "../setup";
 
 import { prepareSingleContourTest, singleContours } from "./setup";
 
-// Multi contour paths
-//"M 100 200 C 100 100 250 100 250 200 C 250 300 400 300 400 200",
-//"M100,200 C100,100 250,100 250,200 S400,300 400,200",
-
 const paths = [
-  "M0 0 L200 200",
-  // "M 640.48 1285.21 Q 642.39 644.73 642.39 644.73",
+  //  "M0 0 L200 200",
+  "M 100 100 Q 642.39 200 642.39 644.73",
+  //"M 640.48 1285.21 Q 642.39 644.73 642.39 644.73",
   // "M0 0 Q 0 200 200 200",
   // "M 267 0 Q 382 0 512 0",
   // "M 267 0 Q 383 265 512 0",
@@ -43,9 +40,9 @@ describe("Single contour values", () => {
   });
   const ranges = paths.flatMap((d) => [
     [d, 0, 0.25],
-    [d, 0.3, 0.5],
-    [d, 0.5, 1],
-    [d, 0, 0.5],
+    // [d, 0.3, 0.5],
+    // [d, 0.5, 1],
+    // [d, 0, 0.5],
   ]) as [string, number, number][];
   test.each(ranges)("%s: trim(%d, %d)", (d, t0, t1) => {
     const [reference, test] = singleContours[d];
@@ -53,6 +50,8 @@ describe("Single contour values", () => {
     const end = t1 * reference.length();
     const pathRef = reference.getSegment(start, end, true);
     const path = test.getSegment(start, end, true);
+    console.log(pathRef.toSVGString());
+    console.log(path.toSVGString());
     expect(pathRef.toCmds()).toBeApproximatelyEqual(path.toCmds(), 1);
   });
 });

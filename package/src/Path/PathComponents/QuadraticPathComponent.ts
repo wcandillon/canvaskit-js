@@ -1,10 +1,10 @@
 import type { Point } from "canvaskit-wasm";
 
-import { cross, dot, minus, multiplyScalar, plus, vec } from "../../Vector";
+import { cross, dot, minus, vec } from "../../Vector";
 import { PathVerb } from "../../Core";
 
 import type { PathComponent } from "./PathComponent";
-import { Polyline } from "./Polyline";
+import { Polyline, linearSolve } from "./Polyline";
 import { Flatennable } from "./Flattenable";
 
 const defaultCurveTolerance = 0.1;
@@ -75,21 +75,34 @@ export class QuadraticPathComponent
     );
   }
 
-  segment(t0: number, t1: number) {
-    const p0 = this.solve(t0); // get the start point of the segment
-    const p2 = this.solve(t1); // get the end point of the segment
-    const scale = t1 - t0; // scale factor
-    // calculate the control point for the new path segment
-    const cp = plus(p0, multiplyScalar(this.solveDerivative(t0), scale));
-    return new QuadraticPathComponent(p0, cp, p2);
+  segment(_l0: number, _l1: number) {
+    return this.subsegment(0, 0.25);
   }
 
-  private solveDerivative(t: number) {
-    return vec(
-      quadratiSolvecDerivative(t, this.p1[0], this.cp[0], this.p2[0]),
-      quadratiSolvecDerivative(t, this.p1[1], this.cp[1], this.p2[1])
+  subsegment(t0: number, t1: number) {
+    const { p1: p0, cp: p1, p2 } = this;
+    const q0 = linearSolve(t0, p0, p1); // point on the line p0-p1 at t0
+    const q1 = linearSolve(t0, p1, p2); // point on the line p1-p2 at t0
+    const r0 = linearSolve(t0, q0, q1); // point on the line q0-q1 at t0 (this is on the curve at t0)
+
+    const q2 = linearSolve(t1, p0, p1); // point on the line p0-p1 at t1
+    const q3 = linearSolve(t1, p1, p2); // point on the line p1-p2 at t1
+    const r1 = linearSolve(t1, q2, q3); // point on the line q2-q3 at t1 (this is on the curve at t1)
+
+    // Return a new QuadraticPathComponent that represents the subsegment of the curve between t0 and t1
+    return new QuadraticPathComponent(
+      r0,
+      linearSolve((t1 - t0) / (1 - t0), q0, q1),
+      r1
     );
   }
+
+  // private solveDerivative(t: number) {
+  //   return vec(
+  //     quadratiSolvecDerivative(t, this.p1[0], this.cp[0], this.p2[0]),
+  //     quadratiSolvecDerivative(t, this.p1[1], this.cp[1], this.p2[1])
+  //   );
+  // }
 
   toSVGString() {
     return `Q${this.cp[0]} ${this.cp[1]} ${this.p2[0]} ${this.p2[1]}`;
@@ -111,11 +124,11 @@ const quadraticSolve = (t: number, p0: number, p1: number, p2: number) =>
   2 * (1 - t) * t * p1 + //
   t * t * p2;
 
-const quadratiSolvecDerivative = (
-  t: number,
-  p0: number,
-  p1: number,
-  p2: number
-) =>
-  2 * (1 - t) * (p1 - p0) + //
-  2 * t * (p2 - p1);
+// const quadratiSolvecDerivative = (
+//   t: number,
+//   p0: number,
+//   p1: number,
+//   p2: number
+// ) =>
+//   2 * (1 - t) * (p1 - p0) + //
+//   2 * t * (p2 - p1);

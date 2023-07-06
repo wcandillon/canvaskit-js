@@ -37,7 +37,7 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
     for (let i = 0; i < quadCount; i++) {
       const t0 = i / quadCount;
       const t1 = (i + 1) / quadCount;
-      const seg = this.segment(t0, t1);
+      const seg = this.subsegment(t0, t1);
       p1x2 = seg.cp1.map((_, i) => 3.0 * seg.cp1[i] - seg.p1[i]);
       p2x2 = seg.cp2.map((_, i) => 3.0 * seg.cp2[i] - seg.p2[i]);
       const middle = p1x2.map((_, i) => (p1x2[i] + p2x2[i]) / 4.0);
@@ -50,7 +50,13 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
     return this.polyline.points;
   }
 
-  segment(t0: number, t1: number) {
+  segment(l0: number, l1: number) {
+    const t0 = l0 / this.length();
+    const t1 = l1 / this.length();
+    return this.subsegment(t0, t1);
+  }
+
+  private subsegment(t0: number, t1: number) {
     const p0 = this.solve(t0);
     const p3 = this.solve(t1);
     const d = this.lower();
