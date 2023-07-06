@@ -80,39 +80,23 @@ export class QuadraticPathComponent
     );
   }
 
-  segment(l0: number, l1: number) {
-    const t0 = this.polyline.getTAtLength(l0);
-    const t1 = this.polyline.getTAtLength(l1);
-    return this.subsegment(t0, t1);
-  }
-
-  subsegment(t0: number, t1: number) {
+  chopAt(t: number) {
     const { p1: p0, cp: p1, p2 } = this;
 
-    const q0 = linearSolve(t0, p0, p1); // point on the line p0-p1 at t0
-    const q1 = linearSolve(t0, p1, p2); // point on the line p1-p2 at t0
-    const r0 = linearSolve(t0, q0, q1); // point on the line q0-q1 at t0 (this is on the curve at t0)
+    const p01: Point = linearSolve(t, p0, p1);
+    const p12: Point = linearSolve(t, p1, p2);
 
-    const q2 = linearSolve(t1, p0, p1); // point on the line p0-p1 at t1
-    const q3 = linearSolve(t1, p1, p2); // point on the line p1-p2 at t1
-    const r1 = linearSolve(t1, q2, q3); // point on the line q2-q3 at t1 (this is on the curve at t1)
-
-    const newCp = this.solve((t0 + t1) / 2); // new control point is the midpoint on the original curve
-
-    // Return a new QuadraticPathComponent that represents the subsegment of the curve between t0 and t1
-    return new QuadraticPathComponent(
-      r0,
-      linearSolve((t1 - t0) / (1 - t0), q0, q1),
-      r1
-    );
+    return [
+      new QuadraticPathComponent(p0, p01, linearSolve(t, p01, p12)),
+      new QuadraticPathComponent(linearSolve(t, p01, p12), p12, p2),
+    ];
   }
 
-  // private solveDerivative(t: number) {
-  //   return vec(
-  //     quadratiSolvecDerivative(t, this.p1[0], this.cp[0], this.p2[0]),
-  //     quadratiSolvecDerivative(t, this.p1[1], this.cp[1], this.p2[1])
-  //   );
-  // }
+  segment(l0: number, l1: number) {
+    const t1 = this.polyline.getTAtLength(l1);
+    const q1 = this.chopAt(t1)[0];
+    return q1.chopAt(q1.polyline.getTAtLength(l0))[1];
+  }
 
   toSVGString() {
     return `Q${this.cp[0]} ${this.cp[1]} ${this.p2[0]} ${this.p2[1]}`;
