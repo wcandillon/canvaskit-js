@@ -2,6 +2,9 @@ import type { Point } from "canvaskit-wasm";
 
 export const vec = (x = 0, y = 0): Point => Float32Array.of(x, y);
 
+export const dist = (p1: Point, p2: Point) =>
+  Math.hypot(p2[0] - p1[0], p2[1] - p1[1]);
+
 export const equals = (p1: Point, p2: Point): boolean =>
   p1[0] === p2[0] && p1[1] === p2[1];
 

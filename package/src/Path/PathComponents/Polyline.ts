@@ -1,3 +1,7 @@
+import { dist, vec } from "../../Vector";
+
+import { derivativeSolve } from "./LinearPathComponent";
+
 type Point = Float32Array;
 
 export class Polyline {
@@ -9,25 +13,23 @@ export class Polyline {
     this.cumulativeLengths = this.calculateCumulativeLengths();
   }
 
+  length() {
+    return this.cumulativeLengths[this.cumulativeLengths.length - 1];
+  }
+
   calculateCumulativeLengths(): number[] {
     const cumulativeLengths = [0];
     for (let i = 1; i < this.points.length; i++) {
       const previousPoint = this.points[i - 1];
       const currentPoint = this.points[i];
-      const segmentLength = Math.sqrt(
-        Math.pow(currentPoint[0] - previousPoint[0], 2) +
-          Math.pow(currentPoint[1] - previousPoint[1], 2)
-      );
+      const segmentLength = dist(previousPoint, currentPoint);
       cumulativeLengths[i] = cumulativeLengths[i - 1] + segmentLength;
     }
     return cumulativeLengths;
   }
 
   getPointAtLength(length: number): Point | null {
-    if (
-      length < 0 ||
-      length > this.cumulativeLengths[this.cumulativeLengths.length - 1]
-    ) {
+    if (length < 0 || length > this.length()) {
       return null;
     }
 
@@ -43,10 +45,10 @@ export class Polyline {
     const segmentPosition =
       (length - this.cumulativeLengths[index - 1]) / segmentLength;
 
-    return new Float32Array([
+    return vec(
       previousPoint[0] + segmentPosition * (currentPoint[0] - previousPoint[0]),
-      previousPoint[1] + segmentPosition * (currentPoint[1] - previousPoint[1]),
-    ]);
+      previousPoint[1] + segmentPosition * (currentPoint[1] - previousPoint[1])
+    );
   }
 
   getTangentAtLength(length: number): Point | null {
@@ -65,13 +67,6 @@ export class Polyline {
     const previousPoint = this.points[index - 1];
     const currentPoint = this.points[index];
 
-    // Calculate the normalized direction vector
-    let dx = currentPoint[0] - previousPoint[0];
-    let dy = currentPoint[1] - previousPoint[1];
-    const mag = Math.sqrt(dx * dx + dy * dy);
-    dx /= mag;
-    dy /= mag;
-
-    return new Float32Array([dx, dy]);
+    return derivativeSolve(previousPoint, currentPoint);
   }
 }

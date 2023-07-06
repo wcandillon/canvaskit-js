@@ -55,3 +55,10 @@ export class LinearPathComponent implements PathComponent {
 
 export const linearSolve = (t: number, p0: Point, p1: Point) =>
   vec((1 - t) * p0[0] + t * p1[0], (1 - t) * p0[1] + t * p1[1]);
+
+export const derivativeSolve = (p1: Point, p2: Point) => {
+  const dx = p2[0] - p1[0];
+  const dy = p2[1] - p1[1];
+  const magnitude = Math.hypot(dx, dy);
+  return vec(dx / magnitude, dy / magnitude);
+};
