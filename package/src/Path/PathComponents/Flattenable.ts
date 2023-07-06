@@ -13,12 +13,12 @@ export abstract class Flatennable implements PathProperties {
     return this._polyline;
   }
 
-  getPointAtLength(length: number) {
-    return this.polyline.getPointAtLength(length);
+  pointAtLength(length: number) {
+    return this.polyline.pointAtLength(length);
   }
 
-  getTangentAtLength(length: number) {
-    return this.polyline.getTangentAtLength(length);
+  tangentAtLength(length: number) {
+    return this.polyline.tangentAtLength(length);
   }
 
   length(): number {

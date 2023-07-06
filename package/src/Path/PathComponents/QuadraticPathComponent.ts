@@ -78,7 +78,7 @@ export class QuadraticPathComponent
     );
   }
 
-  getSegment(t0: number, t1: number) {
+  segment(t0: number, t1: number) {
     // First cut at t0
     const p01 = linearSolve(t0, this.p1, this.cp);
     const p12 = linearSolve(t0, this.cp, this.p2);

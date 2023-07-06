@@ -103,7 +103,7 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
     );
   }
 
-  getSegment(t0: number, t1: number) {
+  segment(t0: number, t1: number) {
     // First cut at t0
     const p01 = linearSolve(t0, this.p1, this.cp1);
     const p12 = linearSolve(t0, this.cp1, this.cp2);

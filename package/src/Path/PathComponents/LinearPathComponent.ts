@@ -9,11 +9,11 @@ import { linearSolve } from "./Polyline";
 export class LinearPathComponent implements PathComponent {
   constructor(readonly p1: Point, readonly p2: Point) {}
 
-  getSegment(start: number, stop: number): PathComponent {
+  segment(start: number, stop: number): PathComponent {
     const length = this.length();
     return new LinearPathComponent(
-      this.getPointAtLength(start * length),
-      this.getPointAtLength(stop * length)
+      this.pointAtLength(start * length),
+      this.pointAtLength(stop * length)
     );
   }
 
@@ -25,12 +25,12 @@ export class LinearPathComponent implements PathComponent {
     return `L${this.p2[0]} ${this.p2[1]}`;
   }
 
-  getPointAtLength(length: number) {
+  pointAtLength(length: number) {
     const t = length / this.length();
     return linearSolve(t, this.p1, this.p2);
   }
 
-  getTangentAtLength(_: number) {
+  tangentAtLength(_: number) {
     return this.solveDerivative(_);
   }
 

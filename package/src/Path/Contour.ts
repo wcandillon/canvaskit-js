@@ -24,8 +24,8 @@ export class Contour {
       const nextOffset = offset + componentLength;
       if (nextOffset >= length) {
         const l0 = Math.max(0, length - offset);
-        const pos = component.getPointAtLength(l0);
-        const tan = component.getTangentAtLength(l0);
+        const pos = component.pointAtLength(l0);
+        const tan = component.tangentAtLength(l0);
         output[0] = pos[0];
         output[1] = pos[1];
         output[2] = tan[0];
@@ -60,7 +60,7 @@ export class Contour {
       const t0 = Math.max(0, (start - offset) / componentLength);
       const t1 = Math.min(1, (stop - offset) / componentLength);
       //console.log(`component.getSegment(${t0}, ${t1});`);
-      const partialContour = component.getSegment(t0, t1);
+      const partialContour = component.segment(t0, t1);
       trimmedContour.components.push(partialContour);
       offset = nextOffset;
     });

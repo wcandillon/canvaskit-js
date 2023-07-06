@@ -17,7 +17,7 @@ export class Polyline implements PathProperties {
     return this.cumulativeLengths[this.cumulativeLengths.length - 1];
   }
 
-  getPointAtLength(length: number) {
+  pointAtLength(length: number) {
     const index = this.findIndex(length);
 
     const previousPoint = this.points[index - 1];
@@ -33,7 +33,7 @@ export class Polyline implements PathProperties {
     );
   }
 
-  getTangentAtLength(length: number) {
+  tangentAtLength(length: number) {
     const index = this.findIndex(length);
 
     const previousPoint = this.points[index - 1];
