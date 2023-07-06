@@ -18,15 +18,19 @@ export class QuadraticPathComponent
   }
 
   createPolyline() {
-    return new Polyline(this.fillPointsForPolyline());
+    const { points, tValues } = this.fillPointsForPolyline();
+    return new Polyline(points, tValues);
   }
 
   getPolyline() {
     return this.polyline.points;
   }
 
-  fillPointsForPolyline(points: Point[] = [], scaleFactor = 1) {
+  fillPointsForPolyline(scaleFactor = 1) {
+    const points: Point[] = [];
+    const tValues: number[] = [];
     points.push(this.p1);
+    tValues.push(0);
     const tolerance = defaultCurveTolerance / scaleFactor;
     const sqrtTolerance = Math.sqrt(tolerance);
 
@@ -62,10 +66,11 @@ export class QuadraticPathComponent
       const a = a0 + (a2 - a0) * u;
       const t = (approximateParabolaIntegral(a) - u0) * uScale;
       points.push(this.solve(t));
+      tValues.push(t);
     }
     points.push(this.p2);
-
-    return points;
+    tValues.push(1);
+    return { points, tValues };
   }
 
   solve(t: number) {
@@ -75,8 +80,10 @@ export class QuadraticPathComponent
     );
   }
 
-  segment(_l0: number, _l1: number) {
-    return this.subsegment(0, 0.25);
+  segment(l0: number, l1: number) {
+    const t0 = this.polyline.getTAtLength(l0);
+    const t1 = this.polyline.getTAtLength(l1);
+    return this.subsegment(t0, t1);
   }
 
   subsegment(t0: number, t1: number) {

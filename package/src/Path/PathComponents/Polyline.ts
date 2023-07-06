@@ -5,16 +5,27 @@ import { dist, vec } from "../../Vector";
 import type { PathProperties } from "./PathComponent";
 
 export class Polyline implements PathProperties {
-  readonly points: Point[];
   cumulativeLengths: number[];
 
-  constructor(points: Point[]) {
-    this.points = points;
+  constructor(readonly points: Point[], readonly tValues: number[]) {
     this.cumulativeLengths = this.calculateCumulativeLengths();
   }
 
   length() {
     return this.cumulativeLengths[this.cumulativeLengths.length - 1];
+  }
+
+  getTAtLength(length: number) {
+    const index = this.findIndex(length);
+
+    const previousT = this.tValues[index - 1];
+    const currentT = this.tValues[index];
+    const segmentLength =
+      this.cumulativeLengths[index] - this.cumulativeLengths[index - 1];
+    const segmentPosition =
+      (length - this.cumulativeLengths[index - 1]) / segmentLength;
+
+    return previousT + segmentPosition * (currentT - previousT);
   }
 
   pointAtLength(length: number) {

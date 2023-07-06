@@ -19,9 +19,8 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
     super();
   }
 
-  private toQuadraticPathComponents(
-    accuracy: number
-  ): QuadraticPathComponent[] {
+  // TODO: make private
+  toQuadraticPathComponents(accuracy: number): QuadraticPathComponent[] {
     const quads: QuadraticPathComponent[] = [];
 
     const maxHypot2 = 432.0 * accuracy * accuracy;
@@ -91,12 +90,12 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
   }
 
   createPolyline() {
-    const quads = this.toQuadraticPathComponents(0.4);
-    const points: Point[] = [this.p1];
-    for (const quad of quads) {
-      quad.fillPointsForPolyline(points, 0.4);
-    }
-    return new Polyline(points);
+    //    const quads = this.toQuadraticPathComponents(0.4);
+    // const points: Point[] = [this.p1];
+    // for (const quad of quads) {
+    //   // quad.fillPointsForPolyline(points, 0.4);
+    // }
+    return new Polyline([], []);
   }
 
   solve(t: number) {
