@@ -28,10 +28,7 @@ export class ContourMeasureJS
 
   getSegment(startD: number, stopD: number, _startWithMoveTo = true) {
     const result = new PathJS();
-    const length = this.length();
-    const t0 = startD / length;
-    const t1 = stopD / length;
-    const contour = this.contour.getSegment(t0, t1);
+    const contour = this.contour.getSegment(startD, stopD);
     result.getPath().contours.push(contour);
     return result;
   }

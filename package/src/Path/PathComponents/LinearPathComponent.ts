@@ -14,10 +14,9 @@ export class LinearPathComponent implements PathComponent {
   }
 
   segment(start: number, stop: number): PathComponent {
-    const length = this.length();
     return new LinearPathComponent(
-      this.pointAtLength(start * length),
-      this.pointAtLength(stop * length)
+      this.pointAtLength(start),
+      this.pointAtLength(stop)
     );
   }
 
