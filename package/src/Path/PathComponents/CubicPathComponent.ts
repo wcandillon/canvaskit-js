@@ -5,7 +5,7 @@ import { PathVerb } from "../../Core";
 import { minus, multiplyScalar, plus, vec } from "../../Vector";
 
 import type { PathComponent } from "./PathComponent";
-import { linearSolve, Polyline } from "./Polyline";
+import { Polyline } from "./Polyline";
 import { QuadraticPathComponent } from "./QuadraticPathComponent";
 import { Flatennable } from "./Flattenable";
 
@@ -37,7 +37,7 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
     for (let i = 0; i < quadCount; i++) {
       const t0 = i / quadCount;
       const t1 = (i + 1) / quadCount;
-      const seg = this.subsegment(t0, t1); // Assuming this.subsegment is defined
+      const seg = this.segment(t0, t1);
       p1x2 = seg.cp1.map((_, i) => 3.0 * seg.cp1[i] - seg.p1[i]);
       p2x2 = seg.cp2.map((_, i) => 3.0 * seg.cp2[i] - seg.p2[i]);
       const middle = p1x2.map((_, i) => (p1x2[i] + p2x2[i]) / 4.0);
@@ -46,7 +46,7 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
     return quads;
   }
 
-  private subsegment(t0: number, t1: number) {
+  segment(t0: number, t1: number) {
     const p0 = this.solve(t0);
     const p3 = this.solve(t1);
     const d = this.lower();
@@ -84,7 +84,7 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
     const quads = this.toQuadraticPathComponents(0.4);
     const points: Point[] = [this.p1];
     for (const quad of quads) {
-      points.push(...quad.fillPointsForPolyline(0.4));
+      quad.fillPointsForPolyline(points, 0.4);
     }
     return new Polyline(points);
   }
@@ -94,30 +94,6 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
       cubicSolve(t, this.p1[0], this.cp1[0], this.cp2[0], this.p2[0]),
       cubicSolve(t, this.p1[1], this.cp1[1], this.cp2[1], this.p2[1])
     );
-  }
-
-  segment(t0: number, t1: number) {
-    // First cut at t0
-    const p01 = linearSolve(t0, this.p1, this.cp1);
-    const p12 = linearSolve(t0, this.cp1, this.cp2);
-    const p23 = linearSolve(t0, this.cp2, this.p2);
-    const p02 = linearSolve(t0, p01, p12);
-    const p13 = linearSolve(t0, p12, p23);
-    const p03 = linearSolve(t0, p02, p13);
-
-    // Scale t1 to the new curve (from 0 to t0)
-    const t1Scaled = (t1 - t0) / (1 - t0);
-
-    // Second cut at t1Scaled
-    const p01_ = linearSolve(t1Scaled, p01, p12);
-    const p12_ = linearSolve(t1Scaled, p12, p23);
-    const p23_ = linearSolve(t1Scaled, p13, this.p2);
-    const p02_ = linearSolve(t1Scaled, p01_, p12_);
-    const p13_ = linearSolve(t1Scaled, p12_, p23_);
-    const p03_ = linearSolve(t1Scaled, p02_, p13_);
-
-    // The segment is from p03 to p03_
-    return new CubicPathComponent(p03, p01_, p02_, p03_);
   }
 }
 

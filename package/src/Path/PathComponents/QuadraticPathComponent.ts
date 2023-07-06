@@ -1,10 +1,10 @@
 import type { Point } from "canvaskit-wasm";
 
-import { cross, dot, minus, vec } from "../../Vector";
+import { cross, dot, minus, multiplyScalar, plus, vec } from "../../Vector";
 import { PathVerb } from "../../Core";
 
 import type { PathComponent } from "./PathComponent";
-import { Polyline, linearSolve } from "./Polyline";
+import { Polyline } from "./Polyline";
 import { Flatennable } from "./Flattenable";
 
 const defaultCurveTolerance = 0.1;
@@ -21,8 +21,8 @@ export class QuadraticPathComponent
     return new Polyline(this.fillPointsForPolyline());
   }
 
-  fillPointsForPolyline(scaleFactor = 1) {
-    const points: Point[] = [this.p1];
+  fillPointsForPolyline(points: Point[] = [], scaleFactor = 1) {
+    points.push(this.p1);
     const tolerance = defaultCurveTolerance / scaleFactor;
     const sqrtTolerance = Math.sqrt(tolerance);
 
@@ -72,21 +72,26 @@ export class QuadraticPathComponent
   }
 
   segment(t0: number, t1: number) {
-    // First cut at t0
-    const p01 = linearSolve(t0, this.p1, this.cp);
-    const p12 = linearSolve(t0, this.cp, this.p2);
-    const p02 = linearSolve(t0, p01, p12);
+    const p0 = this.solve(t0); // get the start point of the segment
+    const p2 = this.solve(t1); // get the end point of the segment
+    const d = this.derivative(); // get the derivative of the path
+    const scale = t1 - t0; // scale factor
+    // calculate the control point for the new path segment
+    const cp = plus(p0, multiplyScalar(d.solve(t0), scale));
+    return new QuadraticPathComponent(p0, cp, p2);
+  }
 
-    // Scale t1 to the new curve (from 0 to t0)
-    const t1Scaled = (t1 - t0) / (1 - t0);
-
-    // Second cut at t1Scaled
-    const p01_ = linearSolve(t1Scaled, p01, p12);
-    const p12_ = linearSolve(t1Scaled, p12, this.p2);
-    const p02_ = linearSolve(t1Scaled, p01_, p12_);
-
-    // The segment is from p02 to p02_
-    return new QuadraticPathComponent(p02, p01_, p02_);
+  private derivative() {
+    return {
+      solve: (t: number): Point => {
+        const oneMinusT = 1 - t;
+        const cpMinusP1 = minus(this.cp, this.p1);
+        const p2MinusCp = minus(this.p2, this.cp);
+        const firstTerm = multiplyScalar(cpMinusP1, oneMinusT);
+        const secondTerm = multiplyScalar(p2MinusCp, t);
+        return multiplyScalar(plus(firstTerm, secondTerm), 2);
+      },
+    };
   }
 
   toSVGString() {

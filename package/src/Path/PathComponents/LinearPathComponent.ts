@@ -1,6 +1,7 @@
 import type { Point } from "canvaskit-wasm";
 
 import { PathVerb } from "../../Core";
+import { dist } from "../../Vector";
 
 import type { PathComponent } from "./PathComponent";
 import { derivativeSolve, linearSolve } from "./Polyline";
@@ -34,6 +35,6 @@ export class LinearPathComponent implements PathComponent {
   }
 
   length() {
-    return Math.hypot(this.p2[0] - this.p1[0], this.p2[1] - this.p1[1]);
+    return dist(this.p1, this.p2);
   }
 }
