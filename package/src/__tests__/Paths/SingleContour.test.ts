@@ -3,10 +3,11 @@ import "../setup";
 import { prepareSingleContourTest, singleContours } from "./setup";
 
 const paths = [
-  //  "M0 0 L200 200",
-  "M 100 100 Q 642.39 200 642.39 644.73",
+  "M0 0 L200 200",
+  "M 100 100 Q 667 101 642.39 644.73",
+  //"M 100 100 Q 642.39 200 642.39 644.73",
   //"M 640.48 1285.21 Q 642.39 644.73 642.39 644.73",
-  // "M0 0 Q 0 200 200 200",
+  //"M0 0 Q 0 200 200 200",
   // "M 267 0 Q 382 0 512 0",
   // "M 267 0 Q 383 265 512 0",
   // "M200 200 C 275 100 575 100 500 200",
@@ -39,8 +40,8 @@ describe("Single contour values", () => {
     expect(posTanRef).toBeApproximatelyEqual(posTan, 1);
   });
   const ranges = paths.flatMap((d) => [
-    [d, 0, 0.25],
-    // [d, 0.3, 0.5],
+    //    [d, 0, 0.25],
+    [d, 0.3, 0.5],
     // [d, 0.5, 1],
     // [d, 0, 0.5],
   ]) as [string, number, number][];

@@ -88,6 +88,7 @@ export class QuadraticPathComponent
 
   subsegment(t0: number, t1: number) {
     const { p1: p0, cp: p1, p2 } = this;
+
     const q0 = linearSolve(t0, p0, p1); // point on the line p0-p1 at t0
     const q1 = linearSolve(t0, p1, p2); // point on the line p1-p2 at t0
     const r0 = linearSolve(t0, q0, q1); // point on the line q0-q1 at t0 (this is on the curve at t0)
@@ -95,6 +96,8 @@ export class QuadraticPathComponent
     const q2 = linearSolve(t1, p0, p1); // point on the line p0-p1 at t1
     const q3 = linearSolve(t1, p1, p2); // point on the line p1-p2 at t1
     const r1 = linearSolve(t1, q2, q3); // point on the line q2-q3 at t1 (this is on the curve at t1)
+
+    const newCp = this.solve((t0 + t1) / 2); // new control point is the midpoint on the original curve
 
     // Return a new QuadraticPathComponent that represents the subsegment of the curve between t0 and t1
     return new QuadraticPathComponent(
