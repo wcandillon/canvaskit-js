@@ -5,7 +5,7 @@ import { HostObject } from "../HostObject";
 import { PathJS } from "./PathJS";
 import type { Contour } from "./Contour";
 
-class ContourMeasureJS
+export class ContourMeasureJS
   extends HostObject<"ContourMeasure">
   implements ContourMeasure
 {
