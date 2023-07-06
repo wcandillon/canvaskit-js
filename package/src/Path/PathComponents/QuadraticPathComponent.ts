@@ -4,19 +4,27 @@ import { cross, dot, minus, vec } from "../../Vector";
 import { PathVerb } from "../../Core";
 
 import type { PathComponent } from "./PathComponent";
-import { linearSolve } from "./LinearPathComponent";
-import { Polyline } from "./Polyline";
+import { Polyline, linearSolve } from "./Polyline";
 
 const kDefaultCurveTolerance = 0.1;
 
 export class QuadraticPathComponent implements PathComponent {
+  private _polyline: Polyline | null = null;
+
   constructor(readonly p1: Point, readonly cp: Point, readonly p2: Point) {}
 
-  polyline(scaleFactor = 1) {
-    return this.fillPointsForPolyline(scaleFactor);
+  get polyline() {
+    if (!this._polyline) {
+      this._polyline = this.createPolyline();
+    }
+    return this._polyline;
   }
 
-  fillPointsForPolyline(scaleFactor: number) {
+  createPolyline() {
+    return new Polyline(this.fillPointsForPolyline());
+  }
+
+  fillPointsForPolyline(scaleFactor = 1) {
     const points: Point[] = [this.p1];
     const tolerance = kDefaultCurveTolerance / scaleFactor;
     const sqrtTolerance = Math.sqrt(tolerance);
@@ -92,13 +100,7 @@ export class QuadraticPathComponent implements PathComponent {
   }
 
   length() {
-    const length = this.polyline().reduce((acc, p, i, arr) => {
-      if (i === 0) {
-        return acc;
-      }
-      return acc + Math.hypot(arr[i - 1][0] - p[0], arr[i - 1][1] - p[1]);
-    }, 0);
-    return length;
+    return this.polyline.length();
   }
 
   toSVGString() {
@@ -110,13 +112,11 @@ export class QuadraticPathComponent implements PathComponent {
   }
 
   getPointAtLength(length: number): Point {
-    const polyline = new Polyline(this.polyline());
-    return polyline.getPointAtLength(length)!;
+    return this.polyline.getPointAtLength(length)!;
   }
 
   getTangentAtLength(length: number) {
-    const polyline = new Polyline(this.polyline());
-    return polyline.getTangentAtLength(length)!;
+    return this.polyline.getTangentAtLength(length)!;
   }
 }
 

@@ -4,12 +4,13 @@ import { PathVerb } from "../../Core";
 import { vec } from "../../Vector";
 
 import type { PathComponent } from "./PathComponent";
+import { Polyline, linearSolve } from "./Polyline";
 
 export class LinearPathComponent implements PathComponent {
-  constructor(readonly p1: Point, readonly p2: Point) {}
+  polyline: Polyline;
 
-  polyline() {
-    return [this.p2];
+  constructor(readonly p1: Point, readonly p2: Point) {
+    this.polyline = new Polyline([p1, p2]);
   }
 
   getSegment(start: number, stop: number): PathComponent {
@@ -52,13 +53,3 @@ export class LinearPathComponent implements PathComponent {
     return vec(dx / magnitude, dy / magnitude);
   }
 }
-
-export const linearSolve = (t: number, p0: Point, p1: Point) =>
-  vec((1 - t) * p0[0] + t * p1[0], (1 - t) * p0[1] + t * p1[1]);
-
-export const derivativeSolve = (p1: Point, p2: Point) => {
-  const dx = p2[0] - p1[0];
-  const dy = p2[1] - p1[1];
-  const magnitude = Math.hypot(dx, dy);
-  return vec(dx / magnitude, dy / magnitude);
-};

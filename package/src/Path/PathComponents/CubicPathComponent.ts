@@ -5,11 +5,12 @@ import { PathVerb } from "../../Core";
 import { minus, multiplyScalar, plus, vec } from "../../Vector";
 
 import type { PathComponent } from "./PathComponent";
-import { linearSolve } from "./LinearPathComponent";
+import { linearSolve, Polyline } from "./Polyline";
 import { QuadraticPathComponent } from "./QuadraticPathComponent";
-import { Polyline } from "./Polyline";
 
 export class CubicPathComponent implements PathComponent {
+  private _polyline: Polyline | null = null;
+
   constructor(
     readonly p1: Point,
     readonly cp1: Point,
@@ -18,14 +19,7 @@ export class CubicPathComponent implements PathComponent {
   ) {}
 
   length() {
-    const totalLength = this.polyline().reduce(
-      (acc, p, i, arr) =>
-        i === 0
-          ? 0
-          : acc + Math.hypot(p[0] - arr[i - 1][0], p[1] - arr[i - 1][1]),
-      0
-    );
-    return totalLength; //this.props.getTotalLength();
+    return this.polyline.length();
   }
 
   private toQuadraticPathComponents(
@@ -89,22 +83,27 @@ export class CubicPathComponent implements PathComponent {
     ];
   }
   getPointAtLength(length: number) {
-    const polyline = new Polyline(this.polyline());
-    return polyline.getPointAtLength(length)!;
+    return this.polyline.getPointAtLength(length)!;
   }
 
   getTangentAtLength(length: number) {
-    const polyline = new Polyline(this.polyline());
-    return polyline.getTangentAtLength(length)!;
+    return this.polyline.getTangentAtLength(length)!;
   }
 
-  polyline(): Point[] {
+  get polyline() {
+    if (!this._polyline) {
+      this._polyline = this.createPolyline();
+    }
+    return this._polyline;
+  }
+
+  private createPolyline() {
     const quads = this.toQuadraticPathComponents(0.4);
     const points: Point[] = [this.p1];
     for (const quad of quads) {
       points.push(...quad.fillPointsForPolyline(0.4));
     }
-    return points;
+    return new Polyline(points);
   }
 
   solve(t: number) {

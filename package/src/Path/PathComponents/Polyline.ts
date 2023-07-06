@@ -1,8 +1,6 @@
+import type { Point } from "canvaskit-wasm";
+
 import { dist, vec } from "../../Vector";
-
-import { derivativeSolve } from "./LinearPathComponent";
-
-type Point = Float32Array;
 
 export class Polyline {
   readonly points: Point[];
@@ -70,3 +68,13 @@ export class Polyline {
     return derivativeSolve(previousPoint, currentPoint);
   }
 }
+
+export const linearSolve = (t: number, p0: Point, p1: Point) =>
+  vec((1 - t) * p0[0] + t * p1[0], (1 - t) * p0[1] + t * p1[1]);
+
+export const derivativeSolve = (p1: Point, p2: Point) => {
+  const dx = p2[0] - p1[0];
+  const dy = p2[1] - p1[1];
+  const magnitude = Math.hypot(dx, dy);
+  return vec(dx / magnitude, dy / magnitude);
+};
