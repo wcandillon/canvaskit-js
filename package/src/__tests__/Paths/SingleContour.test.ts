@@ -8,12 +8,12 @@ import { prepareSingleContourTest, singleContours } from "./setup";
 
 const paths = [
   "M0 0 L200 200",
-  "M 640.48 1285.21 Q 642.39 644.73 642.39 644.73",
-  "M0 0 Q 0 200 200 200",
-  "M 267 0 Q 382 0 512 0",
-  "M 267 0 Q 383 265 512 0",
-  "M200 200 C 275 100 575 100 500 200",
-  "M0 0 C 0 200 0 200 200 200",
+  // "M 640.48 1285.21 Q 642.39 644.73 642.39 644.73",
+  // "M0 0 Q 0 200 200 200",
+  // "M 267 0 Q 382 0 512 0",
+  // "M 267 0 Q 383 265 512 0",
+  // "M200 200 C 275 100 575 100 500 200",
+  // "M0 0 C 0 200 0 200 200 200",
 ];
 
 beforeAll(() => {
@@ -41,18 +41,18 @@ describe("Single contour values", () => {
     const posTan = test.getPosTan(length);
     expect(posTanRef).toBeApproximatelyEqual(posTan, 1);
   });
-  // const ranges = paths.flatMap((d) => [
-  //   [d, 0, 0.25],
-  //   [d, 0.3, 0.5],
-  //   [d, 0.5, 1],
-  //   [d, 0, 0.5],
-  // ]) as [string, number, number][];
-  // test.each(ranges)("%s: trim(%d, %d)", (d, t0, t1) => {
-  //   const [reference, test] = singleContours[d];
-  //   const start = t0 * reference.length();
-  //   const end = t1 * reference.length();
-  //   const pathRef = reference.getSegment(start, end, true);
-  //   const path = test.getSegment(start, end, true);
-  //   expect(pathRef.toCmds()).toBeApproximatelyEqual(path.toCmds(), 1);
-  // });
+  const ranges = paths.flatMap((d) => [
+    [d, 0, 0.25],
+    // [d, 0.3, 0.5],
+    // [d, 0.5, 1],
+    // [d, 0, 0.5],
+  ]) as [string, number, number][];
+  test.each(ranges)("%s: trim(%d, %d)", (d, t0, t1) => {
+    const [reference, test] = singleContours[d];
+    const start = t0 * reference.length();
+    const end = t1 * reference.length();
+    const pathRef = reference.getSegment(start, end, true);
+    const path = test.getSegment(start, end, true);
+    expect(pathRef.toCmds()).toBeApproximatelyEqual(path.toCmds(), 1);
+  });
 });

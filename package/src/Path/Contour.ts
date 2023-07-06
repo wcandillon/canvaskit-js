@@ -1,6 +1,5 @@
 /* eslint-disable prefer-destructuring */
 import { PathVerb } from "../Core";
-import { saturate } from "../math";
 
 import type { PathComponent } from "./PathComponents";
 import {
@@ -41,10 +40,7 @@ export class Contour {
     }
   }
 
-  getSegment(startT: number, stopT: number) {
-    const totalLength = this.length();
-    const start = saturate(startT) * totalLength;
-    const stop = saturate(stopT) * totalLength;
+  getSegment(start: number, stop: number) {
     const trimmedContour = new Contour(false);
     if (start >= stop) {
       return trimmedContour;
@@ -57,10 +53,10 @@ export class Contour {
         offset = nextOffset;
         return;
       }
-      const t0 = Math.max(0, (start - offset) / componentLength);
-      const t1 = Math.min(1, (stop - offset) / componentLength);
+      const l0 = Math.max(0, (start - offset) / componentLength);
+      const l1 = Math.min(componentLength, (stop - offset) / componentLength);
       //console.log(`component.getSegment(${t0}, ${t1});`);
-      const partialContour = component.segment(t0, t1);
+      const partialContour = component.segment(l0, l1);
       trimmedContour.components.push(partialContour);
       offset = nextOffset;
     });
