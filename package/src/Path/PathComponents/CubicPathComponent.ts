@@ -30,10 +30,11 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
     let offset = 0;
     for (const quad of quads) {
       const scale = quad.length() / totalLength;
-      quad.polyline.items.forEach(({ point, t }) => {
+      quad.polyline.items.forEach(({ t }) => {
+        const newT = offset + t * scale;
         items.push({
-          point,
-          t: offset + t * scale,
+          point: this.solve(newT),
+          t: newT,
         });
       });
       offset += scale;
