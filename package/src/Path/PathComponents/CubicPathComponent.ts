@@ -5,8 +5,7 @@ import { PathVerb } from "../../Core";
 import { minus, multiplyScalar, plus, vec } from "../../Vector";
 
 import type { PathComponent } from "./PathComponent";
-import { linearSolve, PolyQuad } from "./Polyline";
-import type { Index } from "./Polyline";
+import { LinearLUT, linearSolve } from "./Polyline";
 import { QuadraticPathComponent } from "./QuadraticPathComponent";
 import { Flatennable } from "./Flattenable";
 
@@ -21,20 +20,19 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
   }
 
   createPolyline() {
-    const quads = this.toQuadraticPathComponents(0.4);
-    const polyQuads: Index<QuadraticPathComponent>[] = [];
-    for (const quad of quads) {
-      polyQuads.push({
-        point: quad.p1,
-        value: quad,
-      });
-    }
-    return new PolyQuad(polyQuads);
+    // const quads = this.toQuadraticPathComponents(0.4);
+    // const polyQuads: Index<QuadraticPathComponent>[] = [];
+    // for (const quad of quads) {
+    //   polyQuads.push({
+    //     point: quad.p1,
+    //     value: quad,
+    //   });
+    // }
+    return new LinearLUT([]);
   }
 
-  private toQuadraticPathComponents(
-    accuracy: number
-  ): QuadraticPathComponent[] {
+  // TODO: make private
+  toQuadraticPathComponents(accuracy: number): QuadraticPathComponent[] {
     const quads: QuadraticPathComponent[] = [];
 
     const maxHypot2 = 432.0 * accuracy * accuracy;

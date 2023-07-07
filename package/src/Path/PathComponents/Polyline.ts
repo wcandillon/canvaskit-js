@@ -2,17 +2,12 @@ import type { Point } from "canvaskit-wasm";
 
 import { dist, vec } from "../../Vector";
 
-import type { QuadraticPathComponent } from "./QuadraticPathComponent";
+export type LinearLUTItem = { t: number; point: Point };
 
-export interface Index<T> {
-  point: Point;
-  value: T;
-}
-
-class LengthIndex<T> {
+export class LinearLUT {
   private readonly cumulativeLengths: number[];
 
-  constructor(private readonly items: Index<T>[]) {
+  constructor(private readonly items: LinearLUTItem[]) {
     this.cumulativeLengths = this.calculateCumulativeLengths();
   }
 
@@ -20,17 +15,16 @@ class LengthIndex<T> {
     return this.cumulativeLengths[this.cumulativeLengths.length - 1];
   }
 
-  rangeAtLength(length: number) {
+  tAtLength(length: number) {
     const index = this.findIndex(length);
     if (index === -1) {
       throw new Error(`Index not found for length ${length}`);
     }
-    return {
-      l1: this.cumulativeLengths[index - 1],
-      i1: this.items[index - 1].value,
-      l2: this.cumulativeLengths[index],
-      i2: this.items[index].value,
-    };
+    const prev = this.items[index - 1].t;
+    const next = this.items[index].t;
+    const l1 = this.cumulativeLengths[index - 1];
+    const l2 = this.cumulativeLengths[index];
+    return lerp((length - l1) / (l2 - l1), prev, next);
   }
 
   private findIndex(length: number): number {
@@ -59,35 +53,6 @@ class LengthIndex<T> {
 export interface TLookup {
   tAtLength(length: number): number;
   length(): number;
-}
-
-export class Polyline extends LengthIndex<number> implements TLookup {
-  constructor(index: Index<number>[]) {
-    super(index);
-  }
-
-  tAtLength(length: number) {
-    const { l1, i1, l2, i2 } = this.rangeAtLength(length);
-    return lerp((length - l1) / (l2 - l1), i1, i2);
-  }
-}
-
-export class PolyQuad
-  extends LengthIndex<QuadraticPathComponent>
-  implements TLookup
-{
-  constructor(index: Index<QuadraticPathComponent>[]) {
-    super(index);
-  }
-  tAtLength(length: number): number {
-    const { l1, i1, l2, i2 } = this.rangeAtLength(length);
-    return (
-      i1.tAtLength(length - l1) +
-      ((i2.tAtLength(length - l2) - i1.tAtLength(length - l1)) *
-        (l2 - length)) /
-        (l2 - l1)
-    );
-  }
 }
 
 const lerp = (t: number, a: number, b: number) => (1 - t) * a + t * b;

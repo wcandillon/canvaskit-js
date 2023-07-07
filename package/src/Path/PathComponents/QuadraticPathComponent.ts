@@ -4,8 +4,8 @@ import { cross, dot, minus, normalize, vec } from "../../Vector";
 import { PathVerb } from "../../Core";
 
 import type { PathComponent } from "./PathComponent";
-import type { Index, TLookup } from "./Polyline";
-import { Polyline, linearSolve } from "./Polyline";
+import type { LinearLUTItem } from "./Polyline";
+import { LinearLUT, linearSolve } from "./Polyline";
 import { Flatennable } from "./Flattenable";
 
 const defaultCurveTolerance = 0.1;
@@ -18,13 +18,12 @@ export class QuadraticPathComponent
     super();
   }
 
-  createPolyline(): TLookup {
-    return new Polyline(this.fillPolyline());
+  createPolyline() {
+    return new LinearLUT(this.fillPolyline());
   }
 
   fillPolyline(scaleFactor = 1) {
-    const points: Index<number>[] = [];
-    points.push({ value: 0, point: this.p1 });
+    const points: LinearLUTItem[] = [{ t: 0, point: this.p1 }];
     const tolerance = defaultCurveTolerance / scaleFactor;
     const sqrtTolerance = Math.sqrt(tolerance);
 
@@ -59,9 +58,9 @@ export class QuadraticPathComponent
       const u = i * step;
       const a = a0 + (a2 - a0) * u;
       const t = (approximateParabolaIntegral(a) - u0) * uScale;
-      points.push({ value: t, point: this.solve(t) });
+      points.push({ t, point: this.solve(t) });
     }
-    points.push({ value: 1, point: this.p2 });
+    points.push({ t: 1, point: this.p2 });
     return points;
   }
 
