@@ -5,7 +5,7 @@ import { PathVerb } from "../../Core";
 import { minus, multiplyScalar, plus, vec } from "../../Vector";
 
 import type { PathComponent } from "./PathComponent";
-import type { Polyline } from "./Polyline";
+import { linearSolve, type Polyline } from "./Polyline";
 import { QuadraticPathComponent } from "./QuadraticPathComponent";
 import { Flatennable } from "./Flattenable";
 import { PolylineContour } from "./PolylineContour";
@@ -64,10 +64,30 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
     return quads;
   }
 
+  private chop(t: number, side: "left" | "right") {
+    const { p1: p0, cp1: p1, cp2: p2, p2: p3 } = this;
+
+    const p01 = linearSolve(t, p0, p1);
+    const p12 = linearSolve(t, p1, p2);
+    const p23 = linearSolve(t, p2, p3);
+
+    const p012 = linearSolve(t, p01, p12);
+    const p123 = linearSolve(t, p12, p23);
+
+    const p0123 = linearSolve(t, p012, p123);
+
+    if (side === "left") {
+      return new CubicPathComponent(p0, p01, p012, p0123);
+    } else {
+      return new CubicPathComponent(p0123, p123, p23, p3);
+    }
+  }
+
   segment(l0: number, l1: number) {
-    const t0 = l0 / this.length();
-    const t1 = l1 / this.length();
-    return this.subsegment(t0, t1);
+    const t0 = this.polyline.getTAtLength(l1);
+    const c1 = this.chop(t0, "left");
+    const t1 = c1.polyline.getTAtLength(l0);
+    return c1.chop(t1, "right");
   }
 
   private subsegment(t0: number, t1: number) {
