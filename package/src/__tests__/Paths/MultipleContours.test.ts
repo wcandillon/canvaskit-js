@@ -19,7 +19,7 @@ beforeAll(() => {
   }
 });
 
-const tolerance = 3;
+const tolerance = 2;
 describe("Multiple contour values", () => {
   test.each(paths)("%s: getTotalLength()", (d) => {
     const [reference, test] = multipleContours[d];

@@ -2,10 +2,17 @@
 import type { Point } from "canvaskit-wasm";
 
 import { PathVerb } from "../../Core";
-import { minus, multiplyScalar, normalize, plus, vec } from "../../Vector";
+import {
+  dist,
+  minus,
+  multiplyScalar,
+  normalize,
+  plus,
+  vec,
+} from "../../Vector";
+import { saturate } from "../../math";
 
 import type { PathComponent } from "./PathComponent";
-import type { PolylineItem } from "./Polyline";
 import { Polyline, linearSolve } from "./Polyline";
 import { QuadraticPathComponent } from "./QuadraticPathComponent";
 import { Flatennable } from "./Flattenable";
@@ -21,23 +28,31 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
   }
 
   createPolyline() {
-    const items: PolylineItem[] = [];
-    const quads = this.toQuadraticPathComponents(0.4);
-    const totalLength = quads.reduce(
-      (acc, segment) => acc + segment.length(),
-      0
+    const items = this.toQuadraticPathComponents(0.4).flatMap((quad) =>
+      quad.fillPolyline()
     );
+    const totalLength = items.reduce((acc, _, i) => {
+      if (i === 0) {
+        return 0;
+      }
+      return acc + dist(items[i - 1].point, items[i].point);
+    }, 0);
     let offset = 0;
-    for (const quad of quads) {
-      const scale = quad.length() / totalLength;
-      quad.polyline.items.forEach(({ t }) => {
-        const newT = offset + t * scale;
-        items.push({
-          point: this.solve(newT),
-          t: newT,
-        });
-      });
-      offset += scale;
+    for (let i = 0; i < items.length; i++) {
+      if (i === 0) {
+        items[0].t = 0;
+        items[0].point = this.p1;
+      } else if (i === items.length - 1) {
+        items[i].t = 1;
+        items[i].point = this.p2;
+      } else {
+        const prev = items[i - 1].point;
+        const current = items[i].point;
+        const nextOffset = saturate(offset + dist(prev, current) / totalLength);
+        items[i].t = nextOffset;
+        items[i].point = this.solve(items[i].t);
+        offset = nextOffset;
+      }
     }
     return new Polyline(items);
   }
