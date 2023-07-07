@@ -2,6 +2,8 @@ import type { Point } from "canvaskit-wasm";
 
 import { dist, vec } from "../../Vector";
 
+import type { QuadraticPathComponent } from "./QuadraticPathComponent";
+
 export interface Index<T> {
   point: Point;
   value: T;
@@ -70,8 +72,11 @@ export class Polyline extends LengthIndex<number> implements TLookup {
   }
 }
 
-export class PolylineContour extends LengthIndex<Polyline> implements TLookup {
-  constructor(index: Index<Polyline>[]) {
+export class PolyQuad
+  extends LengthIndex<QuadraticPathComponent>
+  implements TLookup
+{
+  constructor(index: Index<QuadraticPathComponent>[]) {
     super(index);
   }
   tAtLength(length: number): number {

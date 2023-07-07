@@ -5,7 +5,7 @@ import { PathVerb } from "../../Core";
 import { minus, multiplyScalar, plus, vec } from "../../Vector";
 
 import type { PathComponent } from "./PathComponent";
-import { linearSolve, PolylineContour, Polyline } from "./Polyline";
+import { linearSolve, PolyQuad } from "./Polyline";
 import type { Index } from "./Polyline";
 import { QuadraticPathComponent } from "./QuadraticPathComponent";
 import { Flatennable } from "./Flattenable";
@@ -22,21 +22,14 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
 
   createPolyline() {
     const quads = this.toQuadraticPathComponents(0.4);
-    const polylines: Index<Polyline>[] = [];
-
+    const polyQuads: Index<QuadraticPathComponent>[] = [];
     for (const quad of quads) {
-      const polyline = quad.fillPolyline(0.4);
-      polylines.push({
-        point: polyline[0].point,
-        value: new Polyline(polyline),
+      polyQuads.push({
+        point: quad.p1,
+        value: quad,
       });
     }
-
-    // if (polylines.length === 1) {
-    //   return polylines[0];
-    // }
-
-    return new PolylineContour(polylines);
+    return new PolyQuad(polyQuads);
   }
 
   private toQuadraticPathComponents(
