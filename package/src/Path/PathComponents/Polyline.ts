@@ -4,7 +4,12 @@ import { dist, vec } from "../../Vector";
 
 export type LinearLUTItem = { t: number; point: Point };
 
-export class LinearLUT {
+export interface LUT {
+  tAtLength(length: number): number;
+  length(): number;
+}
+
+export class LinearLUT implements LUT {
   private readonly cumulativeLengths: number[];
 
   constructor(private readonly items: LinearLUTItem[]) {
@@ -48,11 +53,6 @@ export class LinearLUT {
     }
     return cumulativeLengths;
   }
-}
-
-export interface TLookup {
-  tAtLength(length: number): number;
-  length(): number;
 }
 
 const lerp = (t: number, a: number, b: number) => (1 - t) * a + t * b;

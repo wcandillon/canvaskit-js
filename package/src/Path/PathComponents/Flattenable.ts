@@ -1,9 +1,9 @@
-import type { TLookup } from "./Polyline";
+import type { LUT } from "./Polyline";
 
 export abstract class Flatennable {
-  private _polyline: TLookup | null = null;
+  private _polyline: LUT | null = null;
 
-  abstract createPolyline(): TLookup;
+  abstract createPolyline(): LUT;
 
   get polyline() {
     if (this._polyline === null) {
