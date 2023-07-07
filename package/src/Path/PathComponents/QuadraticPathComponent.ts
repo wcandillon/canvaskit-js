@@ -22,10 +22,6 @@ export class QuadraticPathComponent
     return new Polyline(points, tValues);
   }
 
-  getPolyline() {
-    return this.polyline.points;
-  }
-
   fillPointsForPolyline(scaleFactor = 1) {
     const points: Point[] = [];
     const tValues: number[] = [];
