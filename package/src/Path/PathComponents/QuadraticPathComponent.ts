@@ -1,5 +1,4 @@
 import type { Point } from "canvaskit-wasm";
-import { Bezier } from "bezier-js";
 
 import { cross, dot, minus, vec } from "../../Vector";
 import { PathVerb } from "../../Core";
@@ -111,10 +110,10 @@ export class QuadraticPathComponent
   }
 
   segment(l0: number, l1: number) {
-    const t0 = this.polyline.getTAtLength(l0);
-    const q1 = this.chop(t0)[1];
-    const t1 = q1.polyline.getTAtLength(l1 - l0);
-    return q1.chop(t1)[0];
+    const t0 = this.polyline.getTAtLength(l1);
+    const q1 = this.chop(t0)[0];
+    const t1 = q1.polyline.getTAtLength(l0);
+    return q1.chop(t1)[1];
   }
 
   toSVGString() {
