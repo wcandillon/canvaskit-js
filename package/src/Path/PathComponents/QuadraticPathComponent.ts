@@ -80,40 +80,23 @@ export class QuadraticPathComponent
     );
   }
 
-  chop(t: number) {
+  private chop(t: number, side: "left" | "right") {
     const { p1: p0, cp: p1, p2 } = this;
 
     const p01: Point = linearSolve(t, p0, p1);
     const p12: Point = linearSolve(t, p1, p2);
-
-    return [
-      new QuadraticPathComponent(p0, p01, linearSolve(t, p01, p12)),
-      new QuadraticPathComponent(linearSolve(t, p01, p12), p12, p2),
-    ];
-  }
-
-  split(t1: number, t2?: number) {
-    const bezier = new Bezier(
-      this.p1[0],
-      this.p1[1],
-      this.cp[0],
-      this.cp[1],
-      this.p2[0],
-      this.p2[1]
-    );
-    const c = bezier.split(t1, t2);
-    return new QuadraticPathComponent(
-      vec(c.points[0].x, c.points[0].y),
-      vec(c.points[1].x, c.points[1].y),
-      vec(c.points[2].x, c.points[2].y)
-    );
+    if (side === "left") {
+      return new QuadraticPathComponent(p0, p01, linearSolve(t, p01, p12));
+    } else {
+      return new QuadraticPathComponent(linearSolve(t, p01, p12), p12, p2);
+    }
   }
 
   segment(l0: number, l1: number) {
     const t0 = this.polyline.getTAtLength(l1);
-    const q1 = this.chop(t0)[0];
+    const q1 = this.chop(t0, "left");
     const t1 = q1.polyline.getTAtLength(l0);
-    return q1.chop(t1)[1];
+    return q1.chop(t1, "right");
   }
 
   toSVGString() {
