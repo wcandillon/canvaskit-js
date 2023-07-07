@@ -27,6 +27,7 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
     super();
   }
 
+  // alternative implementation https://gist.github.com/wcandillon/c6df05d80e036d19ad25456555912b62
   createPolyline() {
     const items = this.toQuadraticPathComponents(0.4).flatMap((quad) =>
       quad.fillPolyline()
