@@ -1,4 +1,8 @@
-import type { ContourMeasure, ContourMeasureIter } from "canvaskit-wasm";
+import type {
+  ContourMeasure,
+  ContourMeasureIter,
+  Path as SkPath,
+} from "canvaskit-wasm";
 
 export const prepareSingleContourTest = (
   d: string
@@ -17,12 +21,16 @@ class ContoursMeasureTest {
   length = 0;
   contours: ContourMeasure[] = [];
 
-  constructor(it: ContourMeasureIter) {
+  constructor(readonly path: SkPath, it: ContourMeasureIter) {
     let c: ContourMeasure | null = null;
     while ((c = it.next())) {
       this.length += c.length();
       this.contours.push(c);
     }
+  }
+
+  trim(start: number, end: number) {
+    return this.path.trim(start, end, false);
   }
 }
 
@@ -39,7 +47,7 @@ export const prepareMultipleContourTest = (
   const contourItRef = new RealCanvasKit.ContourMeasureIter(pathRef, false, 1);
   const contourIt = new CanvasKit.ContourMeasureIter(path, false, 1);
   return [
-    new ContoursMeasureTest(contourItRef),
-    new ContoursMeasureTest(contourIt),
+    new ContoursMeasureTest(pathRef, contourItRef),
+    new ContoursMeasureTest(path, contourIt),
   ];
 };

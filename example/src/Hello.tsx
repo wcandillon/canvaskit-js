@@ -48,6 +48,7 @@ const drawShader = (
   canvas: CKCanvas,
   _info: Info
 ) => {
+  console.log({ t0: 0, t1: 1 - progress.value });
   const pathToDraw = path.copy().trim(0, 1 - progress.value, false)!;
   canvas.save();
   canvas.scale(0.8, 0.8);

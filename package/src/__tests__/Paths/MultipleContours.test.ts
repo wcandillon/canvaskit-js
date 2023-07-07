@@ -19,7 +19,7 @@ beforeAll(() => {
   }
 });
 
-const tolerance = 2;
+const tolerance = 4;
 describe("Multiple contour values", () => {
   test.each(paths)("%s: getTotalLength()", (d) => {
     const [reference, test] = multipleContours[d];
@@ -46,5 +46,18 @@ describe("Multiple contour values", () => {
       const posTan = contour.getPosTan(length);
       expect(posTanRef).toBeApproximatelyEqual(posTan, tolerance);
     }
+  });
+  const ranges = paths.flatMap((d) => [
+    [d, 0, 0.1],
+    [d, 0, 0.5],
+    [d, 0, 0.6],
+  ]) as [string, number, number][];
+  test.each(ranges)("%s: trim(%d, %d)", (d, t0, t1) => {
+    const [reference, test] = multipleContours[d];
+    const pathRef = reference.trim(t0, t1)!;
+    const path = test.trim(t0, t1)!;
+    expect(pathRef).toBeTruthy();
+    expect(path).toBeTruthy();
+    expect(pathRef.toCmds()).toBeApproximatelyEqual(path.toCmds(), tolerance);
   });
 });

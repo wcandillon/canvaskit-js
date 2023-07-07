@@ -16,6 +16,11 @@ export class Polyline {
   }
 
   tAtLength(length: number) {
+    if (length === 0) {
+      return 0;
+    } else if (length === this.length()) {
+      return 1;
+    }
     const index = this.findIndex(length);
     if (index === -1) {
       throw new Error(`Index not found for length ${length}`);
