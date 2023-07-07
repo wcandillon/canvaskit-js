@@ -1,9 +1,9 @@
-import type { LUT } from "./Polyline";
+import type { Polyline } from "./Polyline";
 
 export abstract class Flatennable {
-  private _polyline: LUT | null = null;
+  private _polyline: Polyline | null = null;
 
-  abstract createPolyline(): LUT;
+  abstract createPolyline(): Polyline;
 
   get polyline() {
     if (this._polyline === null) {

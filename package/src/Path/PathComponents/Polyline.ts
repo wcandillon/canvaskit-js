@@ -2,18 +2,12 @@ import type { Point } from "canvaskit-wasm";
 
 import { dist, vec } from "../../Vector";
 
-export type LinearLUTItem = { t: number; point: Point };
+export type PolylineItem = { t: number; point: Point };
 
-export interface LUT {
-  items: LinearLUTItem[];
-  tAtLength(length: number): number;
-  length(): number;
-}
-
-export class LinearLUT implements LUT {
+export class Polyline {
   private readonly cumulativeLengths: number[];
 
-  constructor(readonly items: LinearLUTItem[]) {
+  constructor(readonly items: PolylineItem[]) {
     this.cumulativeLengths = this.calculateCumulativeLengths();
   }
 

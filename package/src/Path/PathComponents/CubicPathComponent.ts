@@ -5,8 +5,8 @@ import { PathVerb } from "../../Core";
 import { minus, multiplyScalar, normalize, plus, vec } from "../../Vector";
 
 import type { PathComponent } from "./PathComponent";
-import type { LinearLUTItem } from "./Polyline";
-import { LinearLUT, linearSolve } from "./Polyline";
+import type { PolylineItem } from "./Polyline";
+import { Polyline, linearSolve } from "./Polyline";
 import { QuadraticPathComponent } from "./QuadraticPathComponent";
 import { Flatennable } from "./Flattenable";
 
@@ -21,9 +21,7 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
   }
 
   createPolyline() {
-    const items: LinearLUTItem[] = [];
-    // TODO: this could be faster if we don't calculate the polylines of the unterlying quadratic segments
-    // TODO: maybe it is even better/faster to go blind here and generate a sample LUT Table?
+    const items: PolylineItem[] = [];
     const quads = this.toQuadraticPathComponents(0.4);
     const totalLength = quads.reduce(
       (acc, segment) => acc + segment.length(),
@@ -41,7 +39,7 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
       });
       offset += scale;
     }
-    return new LinearLUT(items);
+    return new Polyline(items);
   }
 
   private toQuadraticPathComponents(accuracy: number) {

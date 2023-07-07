@@ -4,8 +4,8 @@ import { cross, dot, minus, normalize, vec } from "../../Vector";
 import { PathVerb } from "../../Core";
 
 import type { PathComponent } from "./PathComponent";
-import type { LinearLUTItem } from "./Polyline";
-import { LinearLUT, linearSolve } from "./Polyline";
+import type { PolylineItem } from "./Polyline";
+import { Polyline, linearSolve } from "./Polyline";
 import { Flatennable } from "./Flattenable";
 
 const defaultCurveTolerance = 0.1;
@@ -19,11 +19,11 @@ export class QuadraticPathComponent
   }
 
   createPolyline() {
-    return new LinearLUT(this.fillPolyline());
+    return new Polyline(this.fillPolyline());
   }
 
   fillPolyline(scaleFactor = 1) {
-    const points: LinearLUTItem[] = [{ t: 0, point: this.p1 }];
+    const points: PolylineItem[] = [{ t: 0, point: this.p1 }];
     const tolerance = defaultCurveTolerance / scaleFactor;
     const sqrtTolerance = Math.sqrt(tolerance);
 
