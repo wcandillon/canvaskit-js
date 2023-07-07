@@ -80,7 +80,13 @@ export class QuadraticPathComponent
     );
   }
 
-  chopAt(t: number) {
+  private chopAt(t: number) {
+    // if (t === 0) {
+    //   return [new QuadraticPathComponent(this.p1, this.p1, this.p1), this];
+    // } else if (t === 1) {
+    //   return [this, new QuadraticPathComponent(this.p2, this.p2, this.p2)];
+    // }
+
     const { p1: p0, cp: p1, p2 } = this;
 
     const p01: Point = linearSolve(t, p0, p1);
@@ -93,8 +99,10 @@ export class QuadraticPathComponent
   }
 
   segment(l0: number, l1: number) {
-    const q1 = this.chopAt(this.polyline.getTAtLength(l1))[0];
-    return q1.chopAt(q1.polyline.getTAtLength(l0))[1];
+    const t0 = this.polyline.getTAtLength(l0);
+    const q1 = this.chopAt(t0)[1];
+    const t1 = q1.polyline.getTAtLength(l1 - l0);
+    return q1.chopAt(t1)[0];
   }
 
   toSVGString() {
