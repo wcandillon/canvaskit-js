@@ -7,7 +7,7 @@ export interface Index<T> {
   value: T;
 }
 
-export class LengthIndex<T> {
+class LengthIndex<T> {
   private readonly cumulativeLengths: number[];
 
   constructor(private readonly items: Index<T>[]) {
@@ -54,7 +54,12 @@ export class LengthIndex<T> {
   }
 }
 
-export class Polyline extends LengthIndex<number> {
+export interface TLookup {
+  tAtLength(length: number): number;
+  length(): number;
+}
+
+export class Polyline extends LengthIndex<number> implements TLookup {
   constructor(index: Index<number>[]) {
     super(index);
   }
@@ -62,6 +67,21 @@ export class Polyline extends LengthIndex<number> {
   tAtLength(length: number) {
     const { l1, i1, l2, i2 } = this.rangeAtLength(length);
     return lerp((length - l1) / (l2 - l1), i1, i2);
+  }
+}
+
+export class PolylineContour extends LengthIndex<Polyline> implements TLookup {
+  constructor(index: Index<Polyline>[]) {
+    super(index);
+  }
+  tAtLength(length: number): number {
+    const { l1, i1, l2, i2 } = this.rangeAtLength(length);
+    return (
+      i1.tAtLength(length - l1) +
+      ((i2.tAtLength(length - l2) - i1.tAtLength(length - l1)) *
+        (l2 - length)) /
+        (l2 - l1)
+    );
   }
 }
 

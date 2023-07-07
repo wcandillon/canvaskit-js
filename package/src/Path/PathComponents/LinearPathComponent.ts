@@ -11,8 +11,8 @@ export class LinearPathComponent implements PathComponent {
 
   segment(start: number, stop: number): PathComponent {
     return new LinearPathComponent(
-      this.pointAtLength(start),
-      this.pointAtLength(stop)
+      this.solve(this.tAtLength(start)),
+      this.solve(this.tAtLength(stop))
     );
   }
 
@@ -34,15 +34,6 @@ export class LinearPathComponent implements PathComponent {
 
   toSVGString() {
     return `L${this.p2[0]} ${this.p2[1]}`;
-  }
-
-  pointAtLength(length: number) {
-    const t = this.tAtLength(length);
-    return linearSolve(t, this.p1, this.p2);
-  }
-
-  tangentAtLength(_: number) {
-    return this.solveDerivative();
   }
 
   length() {

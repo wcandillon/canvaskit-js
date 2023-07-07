@@ -46,10 +46,7 @@ describe("Single contour values", () => {
     const length = t * reference.length();
     const posTanRef = reference.getPosTan(length);
     const posTan = test.getPosTan(length);
-    expect(posTanRef.subarray(0, 2)).toBeApproximatelyEqual(
-      posTan.subarray(0, 2),
-      1
-    );
+    expect(posTanRef).toBeApproximatelyEqual(posTan, 1);
   });
   const ranges = paths.flatMap((d) => [
     [d, 0, 0.25],

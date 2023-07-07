@@ -21,8 +21,9 @@ export class Contour {
       const nextOffset = offset + componentLength;
       if (nextOffset >= length) {
         const l0 = Math.max(0, length - offset);
-        const pos = component.pointAtLength(l0);
-        const tan = component.tangentAtLength(l0);
+        const t = component.tAtLength(l0);
+        const pos = component.solve(t);
+        const tan = component.solveDerivative(t);
         return [pos, tan];
       }
       offset = nextOffset;

@@ -10,8 +10,6 @@ export interface PathComponent {
   segment(start: number, stop: number): PathComponent;
 
   tAtLength(length: number): number;
-  pointAtLength(length: number): Point;
-  tangentAtLength(length: number): Point;
 
   length(): number;
 

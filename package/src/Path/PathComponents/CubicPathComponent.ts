@@ -5,7 +5,8 @@ import { PathVerb } from "../../Core";
 import { minus, multiplyScalar, plus, vec } from "../../Vector";
 
 import type { PathComponent } from "./PathComponent";
-import { linearSolve, type Polyline } from "./Polyline";
+import { linearSolve, PolylineContour, Polyline } from "./Polyline";
+import type { Index } from "./Polyline";
 import { QuadraticPathComponent } from "./QuadraticPathComponent";
 import { Flatennable } from "./Flattenable";
 
@@ -21,18 +22,21 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
 
   createPolyline() {
     const quads = this.toQuadraticPathComponents(0.4);
-    const polylines: Polyline[] = [];
+    const polylines: Index<Polyline>[] = [];
 
     for (const quad of quads) {
-      const polyline = quad.createPolyline(0.4);
-      polylines.push(polyline);
+      const polyline = quad.fillPolyline(0.4);
+      polylines.push({
+        point: polyline[0].point,
+        value: new Polyline(polyline),
+      });
     }
 
-    //  if (polylines.length === 1) {
-    return polylines[0];
-    //  }
+    // if (polylines.length === 1) {
+    //   return polylines[0];
+    // }
 
-    //  return new PolylineContour(polylines);
+    return new PolylineContour(polylines);
   }
 
   private toQuadraticPathComponents(
@@ -79,16 +83,6 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
     } else {
       return new CubicPathComponent(p0123, p123, p23, p3);
     }
-  }
-
-  pointAtLength(length: number) {
-    const t = this.polyline.tAtLength(length);
-    return this.solve(t);
-  }
-
-  tangentAtLength(length: number) {
-    const t = this.polyline.tAtLength(length);
-    return this.solveDerivative(t);
   }
 
   segment(l0: number, l1: number) {
