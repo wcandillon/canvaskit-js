@@ -1,6 +1,6 @@
 import type { Point } from "canvaskit-wasm";
 
-import { cross, dot, minus, vec } from "../../Vector";
+import { cross, dot, minus, normalize, vec } from "../../Vector";
 import { PathVerb } from "../../Core";
 
 import type { PathComponent } from "./PathComponent";
@@ -100,9 +100,11 @@ export class QuadraticPathComponent
   }
 
   solveDerivative(t: number) {
-    return vec(
-      quadraticSolveDerivative(t, this.p1[0], this.cp[0], this.p2[0]),
-      quadraticSolveDerivative(t, this.p1[1], this.cp[1], this.p2[1])
+    return normalize(
+      vec(
+        quadraticSolveDerivative(t, this.p1[0], this.cp[0], this.p2[0]),
+        quadraticSolveDerivative(t, this.p1[1], this.cp[1], this.p2[1])
+      )
     );
   }
 }
