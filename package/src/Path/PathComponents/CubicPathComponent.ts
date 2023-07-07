@@ -86,9 +86,9 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
   }
 
   segment(l0: number, l1: number) {
-    const t0 = this.polyline.tAtLength(l1);
+    const t0 = this.tAtLength(l1);
     const c1 = this.chop(t0, "left");
-    const t1 = c1.polyline.tAtLength(l0);
+    const t1 = c1.tAtLength(l0);
     return c1.chop(t1, "right");
   }
 

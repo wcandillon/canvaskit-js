@@ -78,9 +78,9 @@ export class QuadraticPathComponent
   }
 
   segment(l0: number, l1: number) {
-    const t0 = this.polyline.tAtLength(l1);
+    const t0 = this.tAtLength(l1);
     const q1 = this.chop(t0, "left");
-    const t1 = q1.polyline.tAtLength(l0);
+    const t1 = q1.tAtLength(l0);
     return q1.chop(t1, "right");
   }
 
