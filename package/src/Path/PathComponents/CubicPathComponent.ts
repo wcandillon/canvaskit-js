@@ -22,6 +22,8 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
 
   createPolyline() {
     const items: LinearLUTItem[] = [];
+    // TODO: this could be faster if we don't calculate the polylines of the unterlying quadratic segments
+    // TODO: maybe it is even better/faster to go blind here and generate a sample LUT Table?
     const quads = this.toQuadraticPathComponents(0.4);
     const totalLength = quads.reduce(
       (acc, segment) => acc + segment.length(),
