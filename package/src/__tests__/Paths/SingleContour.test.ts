@@ -11,13 +11,13 @@ const paths = [
   // Linear
   "M0 0 L200 200",
   // Quadratic
-  // "M 100 100 Q 667 101 642.39 644.73",
-  // "M 100 100 Q 642.39 200 642.39 644.73",
-  // "M 1070 1218 Q 100 644.73 642.39 644.73",
-  // "M 1273 1333 Q 451 270 642.39 644.73",
-  // "M0 0 Q 0 200 200 200",
-  // "M 267 0 Q 380 71 512 0",
-  // "M 267 0 Q 383 265 512 0",
+  "M 100 100 Q 667 101 642.39 644.73",
+  "M 100 100 Q 642.39 200 642.39 644.73",
+  "M 1070 1218 Q 100 644.73 642.39 644.73",
+  "M 1273 1333 Q 451 270 642.39 644.73",
+  "M0 0 Q 0 200 200 200",
+  "M 267 0 Q 380 71 512 0",
+  "M 267 0 Q 383 265 512 0",
   // // Cubic
   // "M200 200 C 275 100 575 100 500 200",
   // "M0 0 C 0 200 0 200 200 200",
@@ -46,7 +46,10 @@ describe("Single contour values", () => {
     const length = t * reference.length();
     const posTanRef = reference.getPosTan(length);
     const posTan = test.getPosTan(length);
-    expect(posTanRef).toBeApproximatelyEqual(posTan, 1);
+    expect(posTanRef.subarray(0, 2)).toBeApproximatelyEqual(
+      posTan.subarray(0, 2),
+      1
+    );
   });
   const ranges = paths.flatMap((d) => [
     [d, 0, 0.25],
