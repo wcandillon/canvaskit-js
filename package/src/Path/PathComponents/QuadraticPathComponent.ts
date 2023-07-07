@@ -81,7 +81,7 @@ export class QuadraticPathComponent
     );
   }
 
-  hull(t: number) {
+  chop(t: number) {
     const { p1: p0, cp: p1, p2 } = this;
 
     const p01: Point = linearSolve(t, p0, p1);
@@ -112,8 +112,9 @@ export class QuadraticPathComponent
 
   segment(l0: number, l1: number) {
     const t0 = this.polyline.getTAtLength(l0);
-    const t1 = this.polyline.getTAtLength(l1);
-    return this.split(t0, t1);
+    const q1 = this.chop(t0)[1];
+    const t1 = q1.polyline.getTAtLength(l1 - l0);
+    return q1.chop(t1)[0];
   }
 
   toSVGString() {
