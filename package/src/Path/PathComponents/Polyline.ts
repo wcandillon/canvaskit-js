@@ -56,6 +56,8 @@ export class Polyline implements PathProperties {
   private findIndex(length: number) {
     if (length < 0 || length > this.length()) {
       throw new Error("Length out of bounds");
+    } else if (length === this.length()) {
+      return this.cumulativeLengths.length - 1;
     }
 
     const index = this.cumulativeLengths.findIndex((l) => l > length);

@@ -48,10 +48,10 @@ describe("Single contour values", () => {
     expect(posTanRef).toBeApproximatelyEqual(posTan, 1);
   });
   const ranges = paths.flatMap((d) => [
-    //[d, 0, 0.25],
+    [d, 0, 0.25],
     [d, 0.3, 0.5],
-    // [d, 0.5, 1],
-    //  [d, 0.2, 0.6],
+    [d, 0.5, 1],
+    [d, 0.2, 0.6],
   ]) as [string, number, number][];
   test.each(ranges)("%s: trim(%d, %d)", (d, t0, t1) => {
     const [reference, test] = singleContours[d];
