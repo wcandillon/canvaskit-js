@@ -13,4 +13,6 @@ export interface PathComponent extends PathProperties {
   toCmd(): number[];
   toSVGString(): string;
   segment(start: number, stop: number): PathComponent;
+  solve(t: number): Point;
+  solveDerivative(t: number): Point;
 }

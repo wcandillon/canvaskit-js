@@ -8,7 +8,6 @@ import type { PathComponent } from "./PathComponent";
 import { linearSolve, type Polyline } from "./Polyline";
 import { QuadraticPathComponent } from "./QuadraticPathComponent";
 import { Flatennable } from "./Flattenable";
-import { PolylineContour } from "./PolylineContour";
 
 export class CubicPathComponent extends Flatennable implements PathComponent {
   constructor(
@@ -29,11 +28,11 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
       polylines.push(polyline);
     }
 
-    if (polylines.length === 1) {
-      return polylines[0];
-    }
+    //  if (polylines.length === 1) {
+    return polylines[0];
+    //  }
 
-    return new PolylineContour(polylines);
+    //  return new PolylineContour(polylines);
   }
 
   private toQuadraticPathComponents(
@@ -80,6 +79,16 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
     } else {
       return new CubicPathComponent(p0123, p123, p23, p3);
     }
+  }
+
+  pointAtLength(length: number) {
+    const t = this.polyline.tAtLength(length);
+    return this.solve(t);
+  }
+
+  tangentAtLength(length: number) {
+    const t = this.polyline.tAtLength(length);
+    return this.solveDerivative(t);
   }
 
   segment(l0: number, l1: number) {
@@ -129,6 +138,13 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
       cubicSolve(t, this.p1[1], this.cp1[1], this.cp2[1], this.p2[1])
     );
   }
+
+  solveDerivative(t: number) {
+    return vec(
+      cubicSolveDerivative(t, this.p1[0], this.cp1[0], this.cp2[0], this.p2[0]),
+      cubicSolveDerivative(t, this.p1[1], this.cp1[1], this.cp2[1], this.p2[1])
+    );
+  }
 }
 
 const cubicSolve = (
@@ -142,3 +158,14 @@ const cubicSolve = (
   3 * (1 - t) * (1 - t) * t * p1 +
   3 * (1 - t) * t * t * p2 +
   t * t * t * p3;
+
+const cubicSolveDerivative = (
+  t: number,
+  p1: number,
+  cp1: number,
+  cp2: number,
+  p2: number
+) =>
+  3 * (1 - t) * (1 - t) * (cp1 - p1) +
+  6 * (1 - t) * t * (cp2 - cp1) +
+  3 * t * t * (p2 - cp2);

@@ -2,12 +2,15 @@ import type { Point } from "canvaskit-wasm";
 
 import { dist, vec } from "../../Vector";
 
-import type { PathProperties } from "./PathComponent";
+export interface Index<T> {
+  point: Point;
+  value: T;
+}
 
-export class Polyline implements PathProperties {
-  cumulativeLengths: number[];
+export class LengthIndex<T> {
+  private readonly cumulativeLengths: number[];
 
-  constructor(readonly points: Point[], readonly tValues: number[]) {
+  constructor(private readonly items: Index<T>[]) {
     this.cumulativeLengths = this.calculateCumulativeLengths();
   }
 
@@ -15,45 +18,20 @@ export class Polyline implements PathProperties {
     return this.cumulativeLengths[this.cumulativeLengths.length - 1];
   }
 
-  tAtLength(length: number) {
+  rangeAtLength(length: number) {
     const index = this.findIndex(length);
-
-    const previousT = this.tValues[index - 1];
-    const currentT = this.tValues[index];
-    const segmentLength =
-      this.cumulativeLengths[index] - this.cumulativeLengths[index - 1];
-    const segmentPosition =
-      (length - this.cumulativeLengths[index - 1]) / segmentLength;
-
-    return previousT + segmentPosition * (currentT - previousT);
+    if (index === -1) {
+      throw new Error(`Index not found for length ${length}`);
+    }
+    return {
+      l1: this.cumulativeLengths[index - 1],
+      i1: this.items[index - 1].value,
+      l2: this.cumulativeLengths[index],
+      i2: this.items[index].value,
+    };
   }
 
-  pointAtLength(length: number) {
-    const index = this.findIndex(length);
-
-    const previousPoint = this.points[index - 1];
-    const currentPoint = this.points[index];
-    const segmentLength =
-      this.cumulativeLengths[index] - this.cumulativeLengths[index - 1];
-    const segmentPosition =
-      (length - this.cumulativeLengths[index - 1]) / segmentLength;
-
-    return vec(
-      previousPoint[0] + segmentPosition * (currentPoint[0] - previousPoint[0]),
-      previousPoint[1] + segmentPosition * (currentPoint[1] - previousPoint[1])
-    );
-  }
-
-  tangentAtLength(length: number) {
-    const index = this.findIndex(length);
-
-    const previousPoint = this.points[index - 1];
-    const currentPoint = this.points[index];
-
-    return derivativeSolve(previousPoint, currentPoint);
-  }
-
-  private findIndex(length: number) {
+  private findIndex(length: number): number {
     if (length < 0 || length > this.length()) {
       throw new Error(`Length out of bounds ${length} - ${this.length()}`);
     } else if (length === this.length()) {
@@ -61,28 +39,38 @@ export class Polyline implements PathProperties {
     }
 
     const index = this.cumulativeLengths.findIndex((l) => l > length);
-    if (index < 0) {
-      throw new Error("No point found");
-    }
     return index;
   }
 
-  private calculateCumulativeLengths() {
-    const cumulativeLengths = [0];
-    for (let i = 1; i < this.points.length; i++) {
-      const previousPoint = this.points[i - 1];
-      const currentPoint = this.points[i];
-      const segmentLength = dist(previousPoint, currentPoint);
+  private calculateCumulativeLengths(): number[] {
+    const cumulativeLengths: number[] = [0];
+    for (let i = 1; i < this.items.length; i++) {
+      const previousItem = this.items[i - 1];
+      const currentItem = this.items[i];
+      const segmentLength = dist(currentItem.point, previousItem.point);
       cumulativeLengths[i] = cumulativeLengths[i - 1] + segmentLength;
     }
     return cumulativeLengths;
   }
 }
 
-export const linearSolve = (t: number, p0: Point, p1: Point) =>
-  vec((1 - t) * p0[0] + t * p1[0], (1 - t) * p0[1] + t * p1[1]);
+export class Polyline extends LengthIndex<number> {
+  constructor(index: Index<number>[]) {
+    super(index);
+  }
 
-export const derivativeSolve = (p1: Point, p2: Point) => {
+  tAtLength(length: number) {
+    const { l1, i1, l2, i2 } = this.rangeAtLength(length);
+    return lerp((length - l1) / (l2 - l1), i1, i2);
+  }
+}
+
+const lerp = (t: number, a: number, b: number) => (1 - t) * a + t * b;
+
+export const linearSolve = (t: number, p0: Point, p1: Point) =>
+  vec(lerp(p0[0], p1[0], t), lerp(p0[1], p1[1], t));
+
+export const linearSolveDerivative = (p1: Point, p2: Point) => {
   const dx = p2[0] - p1[0];
   const dy = p2[1] - p1[1];
   const magnitude = Math.hypot(dx, dy);

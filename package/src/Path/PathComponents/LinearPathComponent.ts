@@ -4,7 +4,7 @@ import { PathVerb } from "../../Core";
 import { dist } from "../../Vector";
 
 import type { PathComponent } from "./PathComponent";
-import { derivativeSolve, linearSolve } from "./Polyline";
+import { linearSolve, linearSolveDerivative } from "./Polyline";
 
 export class LinearPathComponent implements PathComponent {
   constructor(readonly p1: Point, readonly p2: Point) {}
@@ -14,6 +14,14 @@ export class LinearPathComponent implements PathComponent {
       this.pointAtLength(start),
       this.pointAtLength(stop)
     );
+  }
+
+  solve(t: number): Float32Array {
+    return linearSolve(t, this.p1, this.p2);
+  }
+
+  solveDerivative(): Float32Array {
+    return linearSolveDerivative(this.p1, this.p2);
   }
 
   tAtLength(length: number) {
@@ -34,7 +42,7 @@ export class LinearPathComponent implements PathComponent {
   }
 
   tangentAtLength(_: number) {
-    return derivativeSolve(this.p1, this.p2);
+    return this.solveDerivative();
   }
 
   length() {

@@ -4,6 +4,7 @@ import { cross, dot, minus, vec } from "../../Vector";
 import { PathVerb } from "../../Core";
 
 import type { PathComponent } from "./PathComponent";
+import type { Index } from "./Polyline";
 import { Polyline, linearSolve } from "./Polyline";
 import { Flatennable } from "./Flattenable";
 
@@ -18,10 +19,8 @@ export class QuadraticPathComponent
   }
 
   createPolyline(scaleFactor = 1) {
-    const points: Point[] = [];
-    const tValues: number[] = [];
-    points.push(this.p1);
-    tValues.push(0);
+    const points: Index<number>[] = [];
+    points.push({ value: 0, point: this.p1 });
     const tolerance = defaultCurveTolerance / scaleFactor;
     const sqrtTolerance = Math.sqrt(tolerance);
 
@@ -56,18 +55,23 @@ export class QuadraticPathComponent
       const u = i * step;
       const a = a0 + (a2 - a0) * u;
       const t = (approximateParabolaIntegral(a) - u0) * uScale;
-      points.push(this.solve(t));
-      tValues.push(t);
+      points.push({ value: t, point: this.solve(t) });
     }
-    points.push(this.p2);
-    tValues.push(1);
-    return new Polyline(points, tValues);
+    points.push({ value: 1, point: this.p2 });
+    return new Polyline(points);
   }
 
   solve(t: number) {
     return vec(
       quadraticSolve(t, this.p1[0], this.cp[0], this.p2[0]),
       quadraticSolve(t, this.p1[1], this.cp[1], this.p2[1])
+    );
+  }
+
+  solveDerivative(t: number) {
+    return vec(
+      quadratiSolvecDerivative(t, this.p1[0], this.cp[0], this.p2[0]),
+      quadratiSolvecDerivative(t, this.p1[1], this.cp[1], this.p2[1])
     );
   }
 
@@ -81,6 +85,16 @@ export class QuadraticPathComponent
     } else {
       return new QuadraticPathComponent(linearSolve(t, p01, p12), p12, p2);
     }
+  }
+
+  pointAtLength(length: number) {
+    const t = this.polyline.tAtLength(length);
+    return this.solve(t);
+  }
+
+  tangentAtLength(length: number) {
+    const t = this.polyline.tAtLength(length);
+    return this.solveDerivative(t);
   }
 
   segment(l0: number, l1: number) {
@@ -110,11 +124,11 @@ const quadraticSolve = (t: number, p0: number, p1: number, p2: number) =>
   2 * (1 - t) * t * p1 + //
   t * t * p2;
 
-// const quadratiSolvecDerivative = (
-//   t: number,
-//   p0: number,
-//   p1: number,
-//   p2: number
-// ) =>
-//   2 * (1 - t) * (p1 - p0) + //
-//   2 * t * (p2 - p1);
+const quadratiSolvecDerivative = (
+  t: number,
+  p0: number,
+  p1: number,
+  p2: number
+) =>
+  2 * (1 - t) * (p1 - p0) + //
+  2 * t * (p2 - p1);
