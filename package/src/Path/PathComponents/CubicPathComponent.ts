@@ -2,9 +2,10 @@
 import type { Point } from "canvaskit-wasm";
 
 import { PathVerb } from "../../Core";
-import { minus, multiplyScalar, plus, vec } from "../../Vector";
+import { minus, multiplyScalar, normalize, plus, vec } from "../../Vector";
 
 import type { PathComponent } from "./PathComponent";
+import type { LinearLUTItem } from "./Polyline";
 import { LinearLUT, linearSolve } from "./Polyline";
 import { QuadraticPathComponent } from "./QuadraticPathComponent";
 import { Flatennable } from "./Flattenable";
@@ -20,19 +21,27 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
   }
 
   createPolyline() {
-    // const quads = this.toQuadraticPathComponents(0.4);
-    // const polyQuads: Index<QuadraticPathComponent>[] = [];
-    // for (const quad of quads) {
-    //   polyQuads.push({
-    //     point: quad.p1,
-    //     value: quad,
-    //   });
-    // }
-    return new LinearLUT([]);
+    const items: LinearLUTItem[] = [];
+    const quads = this.toQuadraticPathComponents(0.4);
+    const totalLength = quads.reduce(
+      (acc, segment) => acc + segment.length(),
+      0
+    );
+    let offset = 0;
+    for (const quad of quads) {
+      const scale = quad.length() / totalLength;
+      quad.polyline.items.forEach(({ point, t }) => {
+        items.push({
+          point,
+          t: offset + t * scale,
+        });
+      });
+      offset += scale;
+    }
+    return new LinearLUT(items);
   }
 
-  // TODO: make private
-  toQuadraticPathComponents(accuracy: number): QuadraticPathComponent[] {
+  private toQuadraticPathComponents(accuracy: number) {
     const quads: QuadraticPathComponent[] = [];
 
     const maxHypot2 = 432.0 * accuracy * accuracy;
@@ -125,9 +134,23 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
   }
 
   solveDerivative(t: number) {
-    return vec(
-      cubicSolveDerivative(t, this.p1[0], this.cp1[0], this.cp2[0], this.p2[0]),
-      cubicSolveDerivative(t, this.p1[1], this.cp1[1], this.cp2[1], this.p2[1])
+    return normalize(
+      vec(
+        cubicSolveDerivative(
+          t,
+          this.p1[0],
+          this.cp1[0],
+          this.cp2[0],
+          this.p2[0]
+        ),
+        cubicSolveDerivative(
+          t,
+          this.p1[1],
+          this.cp1[1],
+          this.cp2[1],
+          this.p2[1]
+        )
+      )
     );
   }
 }

@@ -5,6 +5,7 @@ import { dist, vec } from "../../Vector";
 export type LinearLUTItem = { t: number; point: Point };
 
 export interface LUT {
+  items: LinearLUTItem[];
   tAtLength(length: number): number;
   length(): number;
 }
@@ -12,7 +13,7 @@ export interface LUT {
 export class LinearLUT implements LUT {
   private readonly cumulativeLengths: number[];
 
-  constructor(private readonly items: LinearLUTItem[]) {
+  constructor(readonly items: LinearLUTItem[]) {
     this.cumulativeLengths = this.calculateCumulativeLengths();
   }
 
