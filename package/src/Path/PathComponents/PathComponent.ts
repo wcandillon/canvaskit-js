@@ -3,6 +3,7 @@ import type { Point } from "canvaskit-wasm";
 export interface PathProperties {
   pointAtLength(length: number): Point;
   tangentAtLength(length: number): Point;
+  tAtLength(length: number): number;
   length(): number;
 }
 

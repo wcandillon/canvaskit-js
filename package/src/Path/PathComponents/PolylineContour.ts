@@ -18,9 +18,9 @@ export class PolylineContour implements PathProperties {
     return polyline.tangentAtLength(length - offset);
   }
 
-  getTAtLength(length: number) {
+  tAtLength(length: number) {
     const { polyline, offset } = this.findPolyline(length);
-    return polyline.getTAtLength(length - offset);
+    return polyline.tAtLength(length - offset);
   }
 
   length(): number {

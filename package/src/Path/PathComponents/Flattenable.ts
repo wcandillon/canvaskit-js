@@ -1,16 +1,19 @@
 import type { PathProperties } from "./PathComponent";
-import type { Polyline } from "./Polyline";
 
 export abstract class Flatennable implements PathProperties {
-  private _polyline: Polyline | null = null;
+  private _polyline: PathProperties | null = null;
 
-  abstract createPolyline(): Polyline;
+  abstract createPolyline(): PathProperties;
 
-  get polyline(): Polyline {
+  get polyline() {
     if (this._polyline === null) {
       this._polyline = this.createPolyline();
     }
     return this._polyline;
+  }
+
+  tAtLength(length: number) {
+    return this.polyline.tAtLength(length);
   }
 
   pointAtLength(length: number) {

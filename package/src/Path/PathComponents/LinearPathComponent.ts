@@ -16,6 +16,10 @@ export class LinearPathComponent implements PathComponent {
     );
   }
 
+  tAtLength(length: number) {
+    return length / this.length();
+  }
+
   toCmd() {
     return [PathVerb.Line, this.p2[0], this.p2[1]];
   }

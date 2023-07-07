@@ -33,8 +33,7 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
       return polylines[0];
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return new PolylineContour(polylines) as any;
+    return new PolylineContour(polylines);
   }
 
   private toQuadraticPathComponents(
@@ -84,9 +83,9 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
   }
 
   segment(l0: number, l1: number) {
-    const t0 = this.polyline.getTAtLength(l1);
+    const t0 = this.polyline.tAtLength(l1);
     const c1 = this.chop(t0, "left");
-    const t1 = c1.polyline.getTAtLength(l0);
+    const t1 = c1.polyline.tAtLength(l0);
     return c1.chop(t1, "right");
   }
 

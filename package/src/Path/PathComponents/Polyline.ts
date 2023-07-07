@@ -15,7 +15,7 @@ export class Polyline implements PathProperties {
     return this.cumulativeLengths[this.cumulativeLengths.length - 1];
   }
 
-  getTAtLength(length: number) {
+  tAtLength(length: number) {
     const index = this.findIndex(length);
 
     const previousT = this.tValues[index - 1];
