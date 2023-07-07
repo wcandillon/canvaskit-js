@@ -68,7 +68,7 @@ export class Polyline extends LengthIndex<number> {
 const lerp = (t: number, a: number, b: number) => (1 - t) * a + t * b;
 
 export const linearSolve = (t: number, p0: Point, p1: Point) =>
-  vec(lerp(p0[0], p1[0], t), lerp(p0[1], p1[1], t));
+  vec(lerp(t, p0[0], p1[0]), lerp(t, p0[1], p1[1]));
 
 export const linearSolveDerivative = (p1: Point, p2: Point) => {
   const dx = p2[0] - p1[0];

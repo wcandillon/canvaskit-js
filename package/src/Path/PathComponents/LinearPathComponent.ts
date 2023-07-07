@@ -16,11 +16,11 @@ export class LinearPathComponent implements PathComponent {
     );
   }
 
-  solve(t: number): Float32Array {
+  solve(t: number) {
     return linearSolve(t, this.p1, this.p2);
   }
 
-  solveDerivative(): Float32Array {
+  solveDerivative() {
     return linearSolveDerivative(this.p1, this.p2);
   }
 
@@ -37,7 +37,7 @@ export class LinearPathComponent implements PathComponent {
   }
 
   pointAtLength(length: number) {
-    const t = length / this.length();
+    const t = this.tAtLength(length);
     return linearSolve(t, this.p1, this.p2);
   }
 
