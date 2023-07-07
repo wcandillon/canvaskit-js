@@ -1,4 +1,5 @@
 import type { Point } from "canvaskit-wasm";
+import { Bezier } from "bezier-js";
 
 import { cross, dot, minus, vec } from "../../Vector";
 import { PathVerb } from "../../Core";
@@ -80,13 +81,7 @@ export class QuadraticPathComponent
     );
   }
 
-  private chopAt(t: number) {
-    // if (t === 0) {
-    //   return [new QuadraticPathComponent(this.p1, this.p1, this.p1), this];
-    // } else if (t === 1) {
-    //   return [this, new QuadraticPathComponent(this.p2, this.p2, this.p2)];
-    // }
-
+  hull(t: number) {
     const { p1: p0, cp: p1, p2 } = this;
 
     const p01: Point = linearSolve(t, p0, p1);
@@ -98,11 +93,27 @@ export class QuadraticPathComponent
     ];
   }
 
+  split(t1: number, t2?: number) {
+    const bezier = new Bezier(
+      this.p1[0],
+      this.p1[1],
+      this.cp[0],
+      this.cp[1],
+      this.p2[0],
+      this.p2[1]
+    );
+    const c = bezier.split(t1, t2);
+    return new QuadraticPathComponent(
+      vec(c.points[0].x, c.points[0].y),
+      vec(c.points[1].x, c.points[1].y),
+      vec(c.points[2].x, c.points[2].y)
+    );
+  }
+
   segment(l0: number, l1: number) {
     const t0 = this.polyline.getTAtLength(l0);
-    const q1 = this.chopAt(t0)[1];
-    const t1 = q1.polyline.getTAtLength(l1 - l0);
-    return q1.chopAt(t1)[0];
+    const t1 = this.polyline.getTAtLength(l1);
+    return this.split(t0, t1);
   }
 
   toSVGString() {
