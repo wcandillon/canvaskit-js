@@ -5,9 +5,10 @@ import { PathVerb } from "../../Core";
 import { minus, multiplyScalar, plus, vec } from "../../Vector";
 
 import type { PathComponent } from "./PathComponent";
-import { Polyline } from "./Polyline";
+import type { Polyline } from "./Polyline";
 import { QuadraticPathComponent } from "./QuadraticPathComponent";
 import { Flatennable } from "./Flattenable";
+import { PolylineContour } from "./PolylineContour";
 
 export class CubicPathComponent extends Flatennable implements PathComponent {
   constructor(
@@ -17,6 +18,23 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
     readonly p2: Point
   ) {
     super();
+  }
+
+  createPolyline() {
+    const quads = this.toQuadraticPathComponents(0.4);
+    const polylines: Polyline[] = [];
+
+    for (const quad of quads) {
+      const polyline = quad.createPolyline(0.4);
+      polylines.push(polyline);
+    }
+
+    if (polylines.length === 1) {
+      return polylines[0];
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return new PolylineContour(polylines) as any;
   }
 
   private toQuadraticPathComponents(
@@ -84,16 +102,6 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
       this.p2[0],
       this.p2[1],
     ];
-  }
-
-  createPolyline() {
-    const quads = this.toQuadraticPathComponents(0.4);
-    const points: Point[] = [];
-    for (const quad of quads) {
-      const { points: p } = quad.fillPointsForPolyline(0.4);
-      points.push(...p);
-    }
-    return new Polyline(points, []);
   }
 
   solve(t: number) {

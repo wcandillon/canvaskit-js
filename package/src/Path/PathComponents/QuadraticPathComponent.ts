@@ -17,12 +17,7 @@ export class QuadraticPathComponent
     super();
   }
 
-  createPolyline() {
-    const { points, tValues } = this.fillPointsForPolyline();
-    return new Polyline(points, tValues);
-  }
-
-  fillPointsForPolyline(scaleFactor = 1) {
+  createPolyline(scaleFactor = 1) {
     const points: Point[] = [];
     const tValues: number[] = [];
     points.push(this.p1);
@@ -66,7 +61,7 @@ export class QuadraticPathComponent
     }
     points.push(this.p2);
     tValues.push(1);
-    return { points, tValues };
+    return new Polyline(points, tValues);
   }
 
   solve(t: number) {
