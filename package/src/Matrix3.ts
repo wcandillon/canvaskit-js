@@ -1,4 +1,3 @@
-/* eslint-disable prefer-destructuring */
 import type {
   AngleInRadians,
   InputMatrix,
@@ -9,13 +8,15 @@ export type Matrix3x3 = number[];
 
 export const nativeMatrix = (matrix: InputMatrix) => {
   if (Array.isArray(matrix)) {
-    return new DOMMatrix(matrix);
+    return new DOMMatrix(matrix.slice(0, 6));
   } else if (matrix instanceof Float32Array) {
-    return DOMMatrix.fromFloat32Array(matrix);
+    return DOMMatrix.fromFloat32Array(matrix.slice(0, 6));
   } else if (matrix instanceof DOMMatrix) {
     return matrix;
   } else {
-    return DOMMatrix.fromFloat32Array(matrix.toTypedArray() as Float32Array);
+    return DOMMatrix.fromFloat32Array(
+      (matrix.toTypedArray() as Float32Array).slice(0, 6)
+    );
   }
 };
 
@@ -83,14 +84,12 @@ export const convertDOMMatrixTo3x3 = (matrix: DOMMatrix) => {
   ];
 };
 
-export const transformPoint = (
-  matrix: Matrix3x3,
-  point: number[]
-): number[] => {
-  const x = matrix[0] * point[0] + matrix[1] * point[1] + matrix[2] * point[2];
-  const y = matrix[3] * point[0] + matrix[4] * point[1] + matrix[5] * point[2];
-  const w = matrix[6] * point[0] + matrix[7] * point[1] + matrix[8] * point[2];
-  return [x / w, y / w];
+export const transformPoint = (matrix: Matrix3x3, ...point: number[]) => {
+  console.log({ matrix, point });
+  const x = matrix[0] * point[0] + matrix[1] * point[1] + matrix[2] * 1;
+  const y = matrix[3] * point[0] + matrix[4] * point[1] + matrix[5] * 1;
+  const w = matrix[6] * point[0] + matrix[7] * point[1] + matrix[8] * 1;
+  return Float32Array.of(x / w, y / w);
 };
 
 export const Matrix3: Matrix3x3Helpers = {

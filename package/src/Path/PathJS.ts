@@ -11,7 +11,7 @@ import type {
 } from "canvaskit-wasm";
 
 import { HostObject } from "../HostObject";
-import type { Matrix3x3 } from "../Matrix3";
+import { nativeMatrix, type Matrix3x3, transformPoint } from "../Matrix3";
 import { toRad } from "../math/index";
 import { PathVerb, normalizeArray, rectToXYWH, rrectToXYWH } from "../Core";
 import { vec } from "../Vector";
@@ -290,8 +290,35 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
     return this.path.getPath().toSVGString();
   }
 
-  transform(_m: Matrix3x3): SkPath {
-    throw new Error("Method not implemented.");
+  transform(m3: Matrix3x3): SkPath {
+    const path = new PathBuilder();
+    const cmds = this.toCmds();
+    let i = 0;
+    while (i < cmds.length) {
+      const cmd = cmds[i++];
+      if (cmd === PathVerb.Move) {
+        const to = transformPoint(m3, cmds[i++], cmds[i++]);
+        path.moveTo(to);
+      } else if (cmd === PathVerb.Line) {
+        const to = transformPoint(m3, cmds[i++], cmds[i++]);
+        path.lineTo(to);
+      } else if (cmd === PathVerb.Cubic) {
+        const cp1 = transformPoint(m3, cmds[i++], cmds[i++]);
+        const cp2 = transformPoint(m3, cmds[i++], cmds[i++]);
+        const to = transformPoint(m3, cmds[i++], cmds[i++]);
+        console.log({ to: to[0] });
+        path.cubicCurveTo(cp1, cp2, to);
+      } else if (cmd === PathVerb.Quad) {
+        const cp = transformPoint(m3, cmds[i++], cmds[i++]);
+        const to = transformPoint(m3, cmds[i++], cmds[i++]);
+        path.quadraticCurveTo(cp, to);
+      } else if (cmd === PathVerb.Close) {
+        i++;
+        path.close();
+      }
+    }
+    this.path = path;
+    return this;
   }
 
   trim(startT: number, stopT: number, isComplement: boolean) {
@@ -330,9 +357,6 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
 
   static CanInterpolate(_path1: SkPath, _path2: SkPath): boolean {
     throw new Error("Function not implemented.");
-  }
-  static MakeFromPrivatePath(path: Path) {
-    return new PathJS(new PathBuilder(path));
   }
 
   static MakeFromCmds(input: InputCommands): SkPath | null {
