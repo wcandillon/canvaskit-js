@@ -5,10 +5,12 @@ describe("Simple Text", () => {
     const image = await skia.eval(({ CanvasKit, canvas }) => {
       const paint = new CanvasKit.Paint();
       paint.setColor(CanvasKit.CYAN);
-      const font = new CanvasKit.Font(null, 64);
+      const font = new CanvasKit.Font();
       canvas.drawText("Hello World", 10, 50, paint, font);
     });
-    checkImage(image, "snapshots/simple-text-default.png");
+    checkImage(image, "snapshots/text/simple-text-default.png", {
+      overwrite: true,
+    });
   });
   it("should draw a simple text (2)", async () => {
     const image = await skia.eval(
@@ -19,6 +21,22 @@ describe("Simple Text", () => {
         canvas.drawText("Hello Roboto", 10, 50, paint, font);
       }
     );
-    checkImage(image, "snapshots/simple-text.png");
+    checkImage(image, "snapshots/text/simple-text-light.png", {
+      overwrite: true,
+    });
+  });
+
+  it("should draw a simple text (3)", async () => {
+    const image = await skia.eval(
+      ({ CanvasKit, canvas, assets: { RobotoMedium } }) => {
+        const paint = new CanvasKit.Paint();
+        paint.setColor(CanvasKit.CYAN);
+        const font = new CanvasKit.Font(RobotoMedium, 64);
+        canvas.drawText("Hello Roboto", 10, 50, paint, font);
+      }
+    );
+    checkImage(image, "snapshots/text/simple-text-medium.png", {
+      overwrite: true,
+    });
   });
 });

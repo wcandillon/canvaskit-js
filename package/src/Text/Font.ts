@@ -9,23 +9,23 @@ import type {
 
 import { HostObject } from "../HostObject";
 
-import type { TypefaceJS } from "./Typeface";
+import { TypefaceJS } from "./Typeface";
 
 export class FontJS extends HostObject<"Font"> implements Font {
+  private typeface: TypefaceJS;
+
   constructor(
-    readonly typeface?: TypefaceJS | null,
-    readonly size?: number,
+    typeface?: TypefaceJS | null,
+    readonly size = 14,
     _scaleX?: number,
     _skewX?: number
   ) {
     super("Font");
+    this.typeface = typeface ?? new TypefaceJS("sans-serif");
   }
 
   fontStyle() {
-    if (this.typeface) {
-      return `${this.size}px ${this.typeface.familyName}`;
-    }
-    return null;
+    return `${this.size}px ${this.typeface.familyName}`;
   }
 
   getMetrics(): FontMetrics {

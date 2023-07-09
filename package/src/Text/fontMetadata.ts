@@ -49,10 +49,20 @@ const names = [
   "preferredSubfamily",
 ] as const;
 
-export const fontMetadata = (data: ArrayBuffer) => {
+export const postScriptName = (data: ArrayBuffer) => {
   const metadata = parseFonts(data);
-  return metadata.typoFamilyName || metadata.fontFamily;
+  return metadata.postScriptName;
 };
+
+// export const fontMetadata = (data: ArrayBuffer) => {
+//   const metadata = parseFonts(data);
+//   return (
+//     metadata.typoFamilyName ??
+//     metadata.fontFamily ??
+//     metadata.fullName ??
+//     metadata.postScriptName
+//   );
+// };
 
 const parseFonts = (data: ArrayBuffer) => {
   const view = new DataView(data);
