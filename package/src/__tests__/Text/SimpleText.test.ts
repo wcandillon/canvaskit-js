@@ -8,9 +8,7 @@ describe("Simple Text", () => {
       const font = new CanvasKit.Font();
       canvas.drawText("Hello World", 10, 50, paint, font);
     });
-    checkImage(image, "snapshots/text/simple-text-default.png", {
-      overwrite: true,
-    });
+    checkImage(image, "snapshots/text/simple-text-default.png");
   });
   it("should draw a simple text (2)", async () => {
     const image = await skia.eval(
@@ -21,9 +19,7 @@ describe("Simple Text", () => {
         canvas.drawText("Hello Roboto", 10, 50, paint, font);
       }
     );
-    checkImage(image, "snapshots/text/simple-text-light.png", {
-      overwrite: true,
-    });
+    checkImage(image, "snapshots/text/simple-text-light.png");
   });
 
   it("should draw a simple text (3)", async () => {
@@ -35,8 +31,6 @@ describe("Simple Text", () => {
         canvas.drawText("Hello Roboto", 10, 50, paint, font);
       }
     );
-    checkImage(image, "snapshots/text/simple-text-medium.png", {
-      overwrite: true,
-    });
+    checkImage(image, "snapshots/text/simple-text-medium.png");
   });
 });
