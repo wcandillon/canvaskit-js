@@ -63,3 +63,23 @@ export class CustomDrawable implements Drawable {
     this.drawFn(ctx, stroke);
   }
 }
+
+export class DrawableText implements Drawable {
+  constructor(
+    private readonly text: string,
+    private readonly x: number,
+    private readonly y: number,
+    private readonly font: string | null
+  ) {}
+
+  draw(ctx: CanvasRenderingContext2D, stroke?: boolean) {
+    if (this.font) {
+      ctx.font = this.font;
+    }
+    if (stroke) {
+      ctx.strokeText(this.text, this.x, this.y);
+    } else {
+      ctx.fillText(this.text, this.x, this.y);
+    }
+  }
+}

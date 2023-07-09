@@ -49,14 +49,12 @@ const names = [
   "preferredSubfamily",
 ] as const;
 
-interface TypefaceMetadata {
-  typoFamilyName: string;
-  typoSubfamilyName: string;
-  fontFamily: string;
-  fontSubfamily: string;
-}
+export const fontMetadata = (data: ArrayBuffer) => {
+  const metadata = parseFonts(data);
+  return metadata.typoFamilyName || metadata.fontFamily;
+};
 
-export const getFontMetadata = (data: ArrayBuffer): TypefaceMetadata => {
+const parseFonts = (data: ArrayBuffer) => {
   const view = new DataView(data);
   const tag = readASCII(view, 0, 4);
   // If the file is a TrueType Collection
@@ -68,33 +66,34 @@ export const getFontMetadata = (data: ArrayBuffer): TypefaceMetadata => {
     for (let i = 0; i < numF; i++) {
       const foff = readUint(view, offset);
       offset += 4;
-      fnts.push(readFont(view, foff));
+      fnts.push(parseFont(view, foff));
     }
-    throw new Error("TrueType Collection fonts are not supported yet");
+    return fnts[0];
   } else {
-    return readFont(view, 0);
+    return parseFont(view, 0);
   }
 };
 
-const readFont = (view: DataView, offset: number): TypefaceMetadata => {
+const parseFont = (view: DataView, offset: number) => {
   offset += 4;
   const numTables = readUshort(view, offset);
   offset += 8;
 
   for (let i = 0; i < numTables; i++) {
     const tag = readASCII(view, offset, 4);
+
     offset += 8;
     const toffset = readUint(view, offset);
     offset += 8;
     if (tag === "name") {
-      return parse(view, toffset);
+      return parseTable(view, toffset);
     }
   }
 
   throw new Error("Failed to parse file");
 };
 
-const parse = (view: DataView, offset = 0): TypefaceMetadata => {
+const parseTable = (view: DataView, offset = 0) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const obj: Record<string, any> = {};
   offset += 2;
@@ -156,6 +155,6 @@ const parse = (view: DataView, offset = 0): TypefaceMetadata => {
     tname = p;
     break;
   }
-  console.log("returning name table with languageID " + obj[tname]._lang);
+  //console.log("returning name table with languageID " + obj[tname]._lang);
   return obj[tname];
 };

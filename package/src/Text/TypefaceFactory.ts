@@ -1,10 +1,14 @@
 import type {
-  TypefaceFactory as SkTypeFaceFactory,
+  TypefaceFactory as CKTypeFaceFactory,
   Typeface,
 } from "canvaskit-wasm";
 
-export class TypefaceFactory implements SkTypeFaceFactory {
-  MakeFreeTypeFaceFromData(_fontData: ArrayBuffer): Typeface {
-    return new TypeFaceJS("Hello");
-  }
-}
+import { loadFont } from "./loadFont";
+import { TypefaceJS } from "./Typeface";
+
+export const TypefaceFactory: CKTypeFaceFactory = {
+  MakeFreeTypeFaceFromData(fontData: ArrayBuffer): Typeface {
+    const name = loadFont(fontData);
+    return new TypefaceJS(name);
+  },
+};

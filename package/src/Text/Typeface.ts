@@ -6,10 +6,11 @@ export class TypefaceJS extends HostObject<"Typeface"> implements Typeface {
   constructor(readonly familyName: string) {
     super("Typeface");
   }
+
   getGlyphIDs(
-    str: string,
-    numCodePoints?: number | undefined,
-    output?: Uint16Array | undefined
+    _str: string,
+    _numCodePoints?: number | undefined,
+    _output?: Uint16Array | undefined
   ): Uint16Array {
     throw new Error("Method not implemented.");
   }

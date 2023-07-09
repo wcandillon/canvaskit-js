@@ -1,4 +1,3 @@
-/* eslint-disable prefer-destructuring */
 import type {
   Canvas,
   ColorIntArray,
@@ -38,6 +37,7 @@ import {
   rectToXYWH,
   rrectToXYWH,
   DrawableCircle,
+  DrawableText,
 } from "./Core";
 import { HostObject } from "./HostObject";
 import { convertDOMMatrixTo3x3, normalizeMatrix } from "./Matrix3";
@@ -46,6 +46,7 @@ import type { PathJS } from "./Path";
 import type { ImageJS } from "./Image";
 import type { ImageFilterJS } from "./ImageFilter";
 import type { SVGContext } from "./SVG";
+import type { FontJS } from "./Text";
 
 interface CanvasContext {
   imageFilter?: ImageFilterJS;
@@ -352,13 +353,13 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     throw new Error("Method not implemented.");
   }
   drawText(
-    _str: string,
-    _x: number,
-    _y: number,
-    _paint: Paint,
-    _font: Font
+    str: string,
+    x: number,
+    y: number,
+    paint: PaintJS,
+    font: FontJS
   ): void {
-    throw new Error("Method not implemented.");
+    paint.apply(this.paintCtx, new DrawableText(str, x, y, font.fontStyle()));
   }
   drawTextBlob(_blob: TextBlob, _x: number, _y: number, _paint: Paint): void {
     throw new Error("Method not implemented.");

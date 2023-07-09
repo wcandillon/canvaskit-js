@@ -13,6 +13,7 @@ import type {
   PathConstructorAndFactory,
   Rect,
   ContourMeasureIterConstructor,
+  Typeface,
 } from "canvaskit-wasm";
 import type { Browser, Page } from "puppeteer";
 import puppeteer from "puppeteer";
@@ -29,13 +30,16 @@ const DEBUG = process.env.DEBUG === "true";
 
 export const RobotoLight = fs.readFileSync(
   "./src/__tests__/assets/Roboto-Light.ttf"
-).buffer;
+);
 export const RobotoMedium = fs.readFileSync(
   "./src/__tests__/assets/Roboto-Medium.ttf"
-).buffer;
+);
 export const Pacifico = fs.readFileSync(
   "./src/__tests__/assets/Pacifico-Regular.ttf"
-).buffer;
+);
+export const RoboBlackItalic = fs.readFileSync(
+  "./src/__tests__/assets/Roboto-BlackItalic.ttf"
+);
 
 export interface DrawingContext {
   CanvasKit: CanvasKit;
@@ -44,7 +48,12 @@ export interface DrawingContext {
   height: number;
   canvas: Canvas;
   center: { x: number; y: number };
-  assets: { zurich: Image; oslo: Image };
+  assets: {
+    zurich: Image;
+    oslo: Image;
+    RobotoLight: Typeface;
+    RobotoMedium: Typeface;
+  };
   lib: {
     fitRects: (fit: string, src: Rect, dst: Rect) => { src: Rect; dst: Rect };
   };
@@ -78,11 +87,15 @@ class RemoteSurface {
     await page.evaluate(
       `const zurichRaw = new Uint8Array([${zurich.join(",")}]);
        const osloRaw = new Uint8Array([${oslo.join(",")}]);
+       const RobotoLight = new Uint8Array([${RobotoLight.join(",")}]);
+       const RobotoMedium = new Uint8Array([${RobotoMedium.join(",")}]);
        const assets = {};
+       assets.RobotoLight = CanvasKit.Typeface.MakeFreeTypeFaceFromData(RobotoLight.buffer);
+       assets.RobotoMedium = CanvasKit.Typeface.MakeFreeTypeFaceFromData(RobotoMedium.buffer);
        Promise.all([
         CanvasKit.MakeImageFromEncodedAsync(zurichRaw),
         CanvasKit.MakeImageFromEncodedAsync(osloRaw)
-       ]).then(([zurich, oslo]) => {
+       ]).then(([zurich, oslo, RobotoLight, RobotoMedium]) => {
           assets.zurich = zurich;
           assets.oslo = oslo;
        });

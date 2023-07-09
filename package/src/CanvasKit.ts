@@ -15,7 +15,6 @@ import type {
   DefaultConstructor,
   EmbindEnumEntity,
   FontCollectionFactory,
-  FontConstructor,
   GlyphRunFlagValues,
   GrDirectContext,
   ImageDataConstructor,
@@ -51,15 +50,14 @@ import type {
   TonalColorsInput,
   TonalColorsOutput,
   TypedArrayConstructor,
-  TypefaceFactory,
   TypefaceFontProviderFactory,
   VectorHelpers,
   Vertices,
   WebGLOptions,
   WebGPUCanvasContext,
   WebGPUCanvasOptions,
+  FontConstructor,
 } from "canvaskit-wasm";
-import { FontMgrFactory, FontMgrFactory } from "canvaskit-wasm";
 
 import type { ColorSpaceJS } from "./Core";
 import {
@@ -84,6 +82,7 @@ import {
 } from "./Core/Platform";
 import { ColorFilterFactory } from "./ColorFilter/ColorFilterFactory";
 import { ContourMeasureIterJS } from "./Path/ContourMeasure";
+import { FontJS, FontMgrFactory, TypefaceFactory } from "./Text";
 
 export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
   private static instance: ICanvasKit | null = null;
@@ -322,7 +321,7 @@ export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
   ParagraphStyle!: ParagraphStyleConstructor;
   ContourMeasureIter =
     ContourMeasureIterJS as unknown as ContourMeasureIterConstructor;
-  Font!: FontConstructor;
+  Font = FontJS as FontConstructor;
   Paint: DefaultConstructor<Paint> = PaintJS;
   Path = PathJS as unknown as PathConstructorAndFactory;
   PictureRecorder!: DefaultConstructor<PictureRecorder>;
@@ -337,7 +336,7 @@ export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
   RuntimeEffect = RuntimeEffectFactory;
   Shader = ShaderFactory;
   TextBlob!: TextBlobFactory;
-  Typeface!: TypefaceFactory;
+  Typeface = TypefaceFactory;
   TypefaceFontProvider!: TypefaceFontProviderFactory;
   ColorMatrix!: ColorMatrixHelpers;
   M44!: Matrix4x4Helpers;
