@@ -27,6 +27,16 @@ import "./matchers";
 
 const DEBUG = process.env.DEBUG === "true";
 
+export const RobotoLight = fs.readFileSync(
+  "./src/__tests__/assets/Roboto-Light.ttf"
+).buffer;
+export const RobotoMedium = fs.readFileSync(
+  "./src/__tests__/assets/Roboto-Medium.ttf"
+).buffer;
+export const Pacifico = fs.readFileSync(
+  "./src/__tests__/assets/Pacifico-Regular.ttf"
+).buffer;
+
 export interface DrawingContext {
   CanvasKit: CanvasKit;
   surface: Surface;

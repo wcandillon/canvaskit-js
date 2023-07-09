@@ -16,7 +16,6 @@ import type {
   EmbindEnumEntity,
   FontCollectionFactory,
   FontConstructor,
-  FontMgrFactory,
   GlyphRunFlagValues,
   GrDirectContext,
   ImageDataConstructor,
@@ -60,6 +59,7 @@ import type {
   WebGPUCanvasContext,
   WebGPUCanvasOptions,
 } from "canvaskit-wasm";
+import { FontMgrFactory, FontMgrFactory } from "canvaskit-wasm";
 
 import type { ColorSpaceJS } from "./Core";
 import {
@@ -330,7 +330,7 @@ export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
   ParagraphBuilder!: ParagraphBuilderFactory;
   ColorFilter = ColorFilterFactory;
   FontCollection!: FontCollectionFactory;
-  FontMgr!: FontMgrFactory;
+  FontMgr = FontMgrFactory;
   ImageFilter = ImageFilterFactory;
   MaskFilter = MaskFilterFactory;
   PathEffect!: PathEffectFactory;
