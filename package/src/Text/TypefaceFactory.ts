@@ -3,8 +3,8 @@ import type {
   Typeface,
 } from "canvaskit-wasm";
 
-import { loadFont } from "./loadFont";
 import { TypefaceJS } from "./Typeface";
+import { loadFont } from "./TypefaceFont";
 
 export const TypefaceFactory: CKTypeFaceFactory = {
   MakeFreeTypeFaceFromData(fontData: ArrayBuffer): Typeface {

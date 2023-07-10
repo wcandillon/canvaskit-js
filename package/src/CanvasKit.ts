@@ -26,7 +26,6 @@ import type {
   ManagedSkottieAnimation,
   Matrix4x4Helpers,
   Paint,
-  ParagraphBuilderFactory,
   ParagraphStyleConstructor,
   PartialImageInfo,
   Path,
@@ -50,7 +49,6 @@ import type {
   TonalColorsInput,
   TonalColorsOutput,
   TypedArrayConstructor,
-  TypefaceFontProviderFactory,
   VectorHelpers,
   Vertices,
   WebGLOptions,
@@ -82,7 +80,12 @@ import {
 } from "./Core/Platform";
 import { ColorFilterFactory } from "./ColorFilter/ColorFilterFactory";
 import { ContourMeasureIterJS } from "./Path/ContourMeasure";
-import { FontJS, FontMgrFactory, TypefaceFactory } from "./Text";
+import {
+  FontJS,
+  FontMgrFactory,
+  TypefaceFactory,
+  TypefaceFontProviderFactory,
+} from "./Text";
 
 export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
   private static instance: ICanvasKit | null = null;
@@ -326,7 +329,7 @@ export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
   Path = PathJS as unknown as PathConstructorAndFactory;
   PictureRecorder!: DefaultConstructor<PictureRecorder>;
   TextStyle!: TextStyleConstructor;
-  ParagraphBuilder!: ParagraphBuilderFactory;
+  ParagraphBuilder = ParagraphBuilderFactory;
   ColorFilter = ColorFilterFactory;
   FontCollection!: FontCollectionFactory;
   FontMgr = FontMgrFactory;
@@ -337,7 +340,7 @@ export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
   Shader = ShaderFactory;
   TextBlob!: TextBlobFactory;
   Typeface = TypefaceFactory;
-  TypefaceFontProvider!: TypefaceFontProviderFactory;
+  TypefaceFontProvider = TypefaceFontProviderFactory;
   ColorMatrix!: ColorMatrixHelpers;
   M44!: Matrix4x4Helpers;
   Vector!: VectorHelpers;

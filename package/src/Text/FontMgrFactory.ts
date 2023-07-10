@@ -1,7 +1,7 @@
 import type { FontMgrFactory as CKFontMgrFactory } from "canvaskit-wasm";
 
-import { loadFont } from "./loadFont";
 import { FontMgrJS } from "./FontMgr";
+import { loadFont } from "./TypefaceFont";
 
 export const FontMgrFactory: CKFontMgrFactory = {
   FromData(...buffers: ArrayBuffer[]) {
