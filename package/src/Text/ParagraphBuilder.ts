@@ -13,44 +13,43 @@ import type {
 
 import { HostObject } from "../HostObject";
 
-class ParagraphNode {
-  private text = "";
+interface StyleNode {
+  textStyle: TextStyle;
+  fg?: Paint;
+  bg?: Paint;
+}
 
-  child: ParagraphNode | null = null;
-
-  constructor(
-    readonly parent: ParagraphNode | null,
-    private readonly textStyle: TextStyle,
-    private fg?: Paint,
-    private bg?: Paint
-  ) {}
-
-  addText(str: string) {
-    this.text += str;
-  }
+interface TextNode {
+  style: StyleNode;
+  text: string;
 }
 
 export class ParagraphBuilderJS
   extends HostObject<"ParagraphBuilder">
   implements ParagraphBuilder
 {
-  private root: ParagraphNode;
-  private current: ParagraphNode;
-  private text = "";
+  private stack: StyleNode[];
+  private nodes: TextNode[];
 
   constructor(
-    private readonly style: ParagraphStyle,
+    private readonly pStyle: ParagraphStyle,
     _fontSrc: TypefaceFontProvider
   ) {
     super("ParagraphBuilder");
-    this.root = new ParagraphNode(null, style.textStyle ?? {});
-    this.current = this.root;
+    const textStyle = this.pStyle.textStyle ?? {};
+    const style = { textStyle };
+    this.stack = [style];
+    this.nodes = [{ style, text: "" }];
   }
 
-  addText(str: string): void {
-    this.current.addText(str);
-    this.text += str;
+  get current() {
+    return this.nodes[this.nodes.length - 1];
   }
+
+  addText(str: string) {
+    this.current.text += str;
+  }
+
   build(): Paragraph {
     throw new Error("Method not implemented.");
   }
@@ -73,29 +72,32 @@ export class ParagraphBuilderJS
     throw new Error("Method not implemented.");
   }
   getText(): string {
-    return this.text;
+    throw new Error("Method not implemented.");
   }
-  pop(): void {
-    if (this.current.parent) {
-      this.current = this.current.parent;
-    } else {
-      throw new Error("Cannot pop root node");
+  pop() {
+    if (this.stack.length === 0) {
+      throw new Error("Cannot pop from empty stack");
     }
+    this.stack.pop();
   }
-  pushStyle(textStyle: TextStyle): void {
-    const child = new ParagraphNode(this.current, textStyle);
-    this.current.child = child;
-    this.current = child;
+
+  pushStyle(textStyle: TextStyle) {
+    const style = { textStyle };
+    this.stack.push(style);
+    this.nodes.push({ style, text: "" });
   }
-  pushPaintStyle(textStyle: TextStyle, fg: Paint, bg: Paint): void {
-    const child = new ParagraphNode(this.current, textStyle, fg, bg);
-    this.current.child = child;
-    this.current = child;
+
+  pushPaintStyle(textStyle: TextStyle, fg: Paint, bg: Paint) {
+    const style = { textStyle, fg, bg };
+    this.stack.push(style);
+    this.nodes.push({ style, text: "" });
   }
-  reset(): void {
-    this.root = new ParagraphNode(null, {});
-    this.current = this.root;
-    this.text = "";
+
+  reset() {
+    const textStyle = this.pStyle.textStyle ?? {};
+    const style = { textStyle };
+    this.stack = [style];
+    this.nodes = [{ style, text: "" }];
   }
 
   addPlaceholder(

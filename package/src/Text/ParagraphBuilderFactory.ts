@@ -37,7 +37,7 @@ export const ParagraphBuilderFactory: CKParagraphBuilderFactory = {
   ): ShapedLine[] {
     throw new Error("Function not implemented.");
   },
-  RequiresClientICU: function (): boolean {
-    return true;
+  RequiresClientICU: function () {
+    return false;
   },
 };
