@@ -24,12 +24,19 @@ interface TextNode {
   text: string;
 }
 
+interface Token {
+  text: string;
+  style: StyleNode;
+  metrics: TextMetrics;
+}
+
 export class ParagraphBuilderJS
   extends HostObject<"ParagraphBuilder">
   implements ParagraphBuilder
 {
   private stack: StyleNode[];
   private nodes: TextNode[];
+  private text: string;
 
   constructor(
     private readonly pStyle: ParagraphStyle,
@@ -40,6 +47,7 @@ export class ParagraphBuilderJS
     const style = { textStyle };
     this.stack = [style];
     this.nodes = [{ style, text: "" }];
+    this.text = "";
   }
 
   get current() {
@@ -51,7 +59,7 @@ export class ParagraphBuilderJS
   }
 
   build(): Paragraph {
-    throw new Error("Method not implemented.");
+    const segmenterFr = new Intl.Segmenter("en");
   }
   setWordsUtf8(_words: InputWords): void {
     throw new Error("Method not implemented.");
@@ -71,8 +79,8 @@ export class ParagraphBuilderJS
   setLineBreaksUtf16(_lineBreaks: InputLineBreaks): void {
     throw new Error("Method not implemented.");
   }
-  getText(): string {
-    throw new Error("Method not implemented.");
+  getText() {
+    return this.text;
   }
   pop() {
     if (this.stack.length === 0) {
@@ -98,6 +106,7 @@ export class ParagraphBuilderJS
     const style = { textStyle };
     this.stack = [style];
     this.nodes = [{ style, text: "" }];
+    this.text = "";
   }
 
   addPlaceholder(
