@@ -306,7 +306,6 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
         const cp1 = transformPoint(m3, cmds[i++], cmds[i++]);
         const cp2 = transformPoint(m3, cmds[i++], cmds[i++]);
         const to = transformPoint(m3, cmds[i++], cmds[i++]);
-        console.log({ to: to[0] });
         path.cubicCurveTo(cp1, cp2, to);
       } else if (cmd === PathVerb.Quad) {
         const cp = transformPoint(m3, cmds[i++], cmds[i++]);

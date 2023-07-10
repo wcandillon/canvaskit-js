@@ -26,7 +26,7 @@ const colors = [
 
 const paint = new CanvasKit.Paint();
 paint.setStyle(CanvasKit.PaintStyle.Stroke);
-paint.setStrokeWidth(70);
+paint.setStrokeWidth(50);
 paint.setStrokeCap(CanvasKit.StrokeCap.Round);
 paint.setStrokeJoin(CanvasKit.StrokeJoin.Round);
 paint.setShader(
