@@ -13,21 +13,11 @@ import type {
 
 import { HostObject } from "../HostObject";
 
-interface StyleNode {
-  textStyle: TextStyle;
-  fg?: Paint;
-  bg?: Paint;
-}
+import { ParagraphJS, type StyleNode, type Token } from "./Paragraph";
 
 interface TextNode {
   style: StyleNode;
   text: string;
-}
-
-interface Token {
-  text: string;
-  style: StyleNode;
-  metrics: TextMetrics;
 }
 
 export class ParagraphBuilderJS
@@ -58,8 +48,24 @@ export class ParagraphBuilderJS
     this.current.text += str;
   }
 
-  build(): Paragraph {
-    const segmenterFr = new Intl.Segmenter("en");
+  build() {
+    const tokens: Token[] = [];
+    for (const node of this.nodes) {
+      const segmenter = new Intl.Segmenter("en");
+      const segments = segmenter.segment(node.text);
+      for (const segment of segments) {
+        tokens.push({
+          text: segment.segment,
+          style: node.style,
+          metrics: getTextMetrics(
+            this.pStyle,
+            node.style.textStyle,
+            segment.segment
+          ),
+        });
+      }
+    }
+    return new ParagraphJS(tokens);
   }
   setWordsUtf8(_words: InputWords): void {
     throw new Error("Method not implemented.");
@@ -119,3 +125,31 @@ export class ParagraphBuilderJS
     throw new Error("Method not implemented.");
   }
 }
+
+const offscreen = new OffscreenCanvas(1, 1);
+const ctx = offscreen.getContext("2d")!;
+
+const drawingStyles = (pStyle: ParagraphStyle, style: TextStyle) => {
+  const fontFamilies = style.fontFamilies
+    ? pStyle.textStyle?.fontFamilies?.join()
+    : "sans-serif";
+  const size = style.fontSize ? pStyle.textStyle?.fontSize : 14;
+  const font = `${size}px ${fontFamilies}`;
+  // TODO: add enum for text align
+  //const align = pStyle.textAlign ?? "left";
+  // TODO: add enum for text direction
+  //const direction = pStyle.textDirection ?? "ltr";
+  return {
+    font,
+  };
+};
+
+const getTextMetrics = (
+  pStyle: ParagraphStyle,
+  style: TextStyle,
+  text: string
+): TextMetrics => {
+  const { font } = drawingStyles(pStyle, style);
+  ctx.font = font;
+  return ctx.measureText(text);
+};
