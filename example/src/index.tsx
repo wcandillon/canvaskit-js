@@ -15,6 +15,7 @@ import { Shader1 } from "./Shader1";
 import { Shader2 } from "./Shader2";
 import { Hello } from "./Hello";
 import { Paragraph } from "./Paragraph";
+import { Paragraph2 } from "./Paragraph2";
 
 declare global {
   // eslint-disable-next-line no-var
@@ -52,6 +53,10 @@ const router = createBrowserRouter([
   {
     path: "/paragraph",
     element: <Paragraph />,
+  },
+  {
+    path: "/paragraph2",
+    element: <Paragraph2 />,
   },
   {
     path: "/shader1",

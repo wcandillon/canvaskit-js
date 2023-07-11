@@ -31,7 +31,7 @@ export interface Token extends TextRenderingData {
   y: number;
 }
 
-const heightMultiplier = 1.6;
+const lineHeightMultiplier = 1.6;
 
 export class ParagraphJS extends HostObject<"Paragraph"> implements Paragraph {
   constructor(readonly pStyle: ParagraphStyle, readonly tokens: Token[]) {
@@ -91,10 +91,16 @@ export class ParagraphJS extends HostObject<"Paragraph"> implements Paragraph {
 
     for (let i = 0; i < this.tokens.length; i++) {
       const token = this.tokens[i];
+
+      // Skip whitespace at the beginning of a new line
       if (x + token.metrics.width > width) {
         x = 0;
         y += lineHeight;
         lineHeight = 0;
+
+        if (token.text === " ") {
+          continue;
+        }
       }
 
       token.x = x;
@@ -105,7 +111,7 @@ export class ParagraphJS extends HostObject<"Paragraph"> implements Paragraph {
         lineHeight,
         (token.metrics.actualBoundingBoxAscent +
           token.metrics.actualBoundingBoxDescent) *
-          heightMultiplier
+          lineHeightMultiplier
       );
     }
   }

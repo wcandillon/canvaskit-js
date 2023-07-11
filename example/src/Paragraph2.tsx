@@ -1,7 +1,7 @@
 import type { Canvas as CKCanvas } from "canvaskit-wasm";
 
 import type { AnimationValue, Info } from "./components";
-import { Canvas, useLoop, useOnDraw } from "./components";
+import { Canvas, mix, useLoop, useOnDraw } from "./components";
 
 const paraStyle = new CanvasKit.ParagraphStyle({
   textStyle: {
@@ -32,44 +32,26 @@ paint.setStrokeWidth(4);
 const padding = 64;
 
 // 300 -> 600
-const wrapTo = 600;
-const height = 600;
 
 const drawParagraph = (
-  _progress: AnimationValue,
+  progress: AnimationValue,
   canvas: CKCanvas,
   _info: Info
 ) => {
-  // mix(progress.value, padding + 100, padding + 1024);
+  const wrapTo = mix(progress.value, padding + 200, padding + 1000);
+  const height = 600;
   canvas.drawLine(padding + wrapTo, 0, padding + wrapTo, height, paint);
 
   paragraph.layout(wrapTo);
   canvas.drawParagraph(paragraph, padding, padding);
 };
 
-export const Paragraph = () => {
+export const Paragraph2 = () => {
   const progress = useLoop();
   const onDraw = useOnDraw(drawParagraph.bind(null, progress));
   return (
     <div style={{ display: "flex", flex: 1 }}>
-      <div style={{ flex: 1, display: "flex" }}>
-        <Canvas onDraw={onDraw} deps={[progress]} />
-      </div>
-      <div style={{ flex: 1, display: "flex", position: "relative" }}>
-        <div style={{ width: wrapTo, fontSize: 64, fontFamily: "sans-serif" }}>
-          The quick brown fox 🦊 ate a zesty hamburgerfons 🍔. The 👩‍👩‍👧‍👧 laughed.
-        </div>
-        <div
-          style={{
-            backgroundColor: "black",
-            width: 4,
-            height,
-            position: "absolute",
-            top: 0,
-            left: wrapTo,
-          }}
-        />
-      </div>
+      <Canvas onDraw={onDraw} deps={[progress]} />
     </div>
   );
 };
