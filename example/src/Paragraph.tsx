@@ -12,6 +12,7 @@ const paraStyle = new CanvasKit.ParagraphStyle({
   //textAlign: CanvasKit.TextAlign.Left,
   maxLines: 7,
   ellipsis: "...",
+  heightMultiplier: 1.2,
 });
 
 const tf = CanvasKit.TypefaceFontProvider.Make();

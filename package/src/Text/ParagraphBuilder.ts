@@ -62,7 +62,7 @@ export class ParagraphBuilderJS
         });
       }
     }
-    return new ParagraphJS(tokens);
+    return new ParagraphJS(this.pStyle, tokens);
   }
   setWordsUtf8(_words: InputWords): void {
     throw new Error("Method not implemented.");

@@ -8,6 +8,7 @@ import type {
   ShapedLine,
   TextStyle,
   URange,
+  ParagraphStyle,
 } from "canvaskit-wasm";
 
 import { HostObject } from "../HostObject";
@@ -30,8 +31,10 @@ export interface Token extends TextRenderingData {
   y: number;
 }
 
+const heightMultiplier = 1.6;
+
 export class ParagraphJS extends HostObject<"Paragraph"> implements Paragraph {
-  constructor(readonly tokens: Token[]) {
+  constructor(readonly pStyle: ParagraphStyle, readonly tokens: Token[]) {
     super("Paragraph");
   }
   didExceedMaxLines(): boolean {
@@ -100,8 +103,9 @@ export class ParagraphJS extends HostObject<"Paragraph"> implements Paragraph {
       x += token.metrics.width;
       lineHeight = Math.max(
         lineHeight,
-        token.metrics.actualBoundingBoxAscent +
-          token.metrics.actualBoundingBoxDescent
+        (token.metrics.actualBoundingBoxAscent +
+          token.metrics.actualBoundingBoxDescent) *
+          heightMultiplier
       );
     }
   }
