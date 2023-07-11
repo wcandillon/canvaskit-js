@@ -47,6 +47,7 @@ import type { ImageJS } from "./Image";
 import type { ImageFilterJS } from "./ImageFilter";
 import type { SVGContext } from "./SVG";
 import type { FontJS } from "./Text";
+import type { ParagraphJS } from "./Text/Paragraph";
 
 interface CanvasContext {
   imageFilter?: ImageFilterJS;
@@ -290,8 +291,8 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     path.closePath();
     paint.apply(this.paintCtx, new DrawablePath(path));
   }
-  drawParagraph(_p: Paragraph, _x: number, _y: number): void {
-    throw new Error("Method not implemented.");
+  drawParagraph(p: ParagraphJS, x: number, y: number): void {
+    p.drawParagraph(this.paintCtx.ctx, x, y);
   }
   drawPath(path: PathJS, paint: PaintJS): void {
     paint.apply(this.paintCtx, new DrawablePath(path.getPath2D()));

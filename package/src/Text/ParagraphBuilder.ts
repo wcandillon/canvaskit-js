@@ -4,7 +4,6 @@ import type {
   InputLineBreaks,
   InputWords,
   Paint,
-  Paragraph,
   ParagraphBuilder,
   ParagraphStyle,
   TextStyle,
@@ -51,9 +50,11 @@ export class ParagraphBuilderJS
   build() {
     const tokens: Token[] = [];
     for (const node of this.nodes) {
-      const segmenter = new Intl.Segmenter("en");
+      const segmenter = new Intl.Segmenter("en", { granularity: "word" });
       const segments = segmenter.segment(node.text);
       for (const segment of segments) {
+        console.log(segment.segment);
+
         tokens.push({
           text: segment.segment,
           style: node.style,
@@ -62,6 +63,8 @@ export class ParagraphBuilderJS
             node.style.textStyle,
             segment.segment
           ),
+          x: 0,
+          y: 0,
         });
       }
     }

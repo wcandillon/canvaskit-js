@@ -22,6 +22,9 @@ export const Menu = () => {
         <Link to="hello">Hello</Link>
       </li>
       <li>
+        <Link to="paragraph">Paragraph</Link>
+      </li>
+      <li>
         <Link to="shader1">Shader 1 (WASM)</Link>
       </li>
       <li>

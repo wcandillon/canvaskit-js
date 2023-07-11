@@ -14,6 +14,7 @@ import { CanvasKitProvider } from "./components/CanvasKitContext";
 import { Shader1 } from "./Shader1";
 import { Shader2 } from "./Shader2";
 import { Hello } from "./Hello";
+import { Paragraph } from "./Paragraph";
 
 declare global {
   // eslint-disable-next-line no-var
@@ -47,6 +48,10 @@ const router = createBrowserRouter([
   {
     path: "/shaders",
     element: <Shaders />,
+  },
+  {
+    path: "/paragraph",
+    element: <Paragraph />,
   },
   {
     path: "/shader1",

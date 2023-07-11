@@ -11,6 +11,7 @@ import type {
 } from "canvaskit-wasm";
 
 import { HostObject } from "../HostObject";
+import type { PaintJS } from "../Paint";
 
 export interface StyleNode {
   textStyle: TextStyle;
@@ -22,6 +23,8 @@ export interface Token {
   text: string;
   style: StyleNode;
   metrics: TextMetrics;
+  x: number;
+  y: number;
 }
 
 export class ParagraphJS extends HostObject<"Paragraph"> implements Paragraph {
@@ -75,10 +78,42 @@ export class ParagraphJS extends HostObject<"Paragraph"> implements Paragraph {
   getShapedLines(): ShapedLine[] {
     throw new Error("Method not implemented.");
   }
-  layout(_width: number): void {
-    throw new Error("Method not implemented.");
+  layout(width: number): void {
+    let x = 0;
+    let y = 0;
+    let lineHeight = 0;
+
+    for (let i = 0; i < this.tokens.length; i++) {
+      const token = this.tokens[i];
+      if (x + token.metrics.width > width) {
+        x = 0;
+        y += lineHeight;
+        lineHeight = 0;
+      }
+
+      token.x = x;
+      token.y = y;
+
+      x += token.metrics.width;
+      lineHeight = Math.max(
+        lineHeight,
+        token.metrics.actualBoundingBoxAscent +
+          token.metrics.actualBoundingBoxDescent
+      );
+    }
   }
   unresolvedCodepoints(): number[] {
     throw new Error("Method not implemented.");
+  }
+
+  drawParagraph(
+    ctx: CanvasRenderingContext2D,
+    offsetX: number,
+    offsetY: number
+  ) {
+    for (const token of this.tokens) {
+      const { text, x, y } = token;
+      ctx.fillText(text, x + offsetX, y + offsetY);
+    }
   }
 }

@@ -86,6 +86,8 @@ import {
   TypefaceFactory,
   TypefaceFontProviderFactory,
 } from "./Text";
+import { ParagraphBuilderFactory } from "./Text/ParagraphBuilderFactory";
+import { ParagraphStyle } from "./Text/ParagraphStyle";
 
 export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
   private static instance: ICanvasKit | null = null;
@@ -321,7 +323,7 @@ export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
     throw new Error("Method not implemented.");
   }
   ImageData!: ImageDataConstructor;
-  ParagraphStyle!: ParagraphStyleConstructor;
+  ParagraphStyle = ParagraphStyle as unknown as ParagraphStyleConstructor;
   ContourMeasureIter =
     ContourMeasureIterJS as unknown as ContourMeasureIterConstructor;
   Font = FontJS as FontConstructor;
