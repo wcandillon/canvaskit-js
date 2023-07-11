@@ -18,7 +18,6 @@ import type {
   InputVector3,
   MallocObj,
   Paint,
-  Paragraph,
   Path,
   SkPicture,
   Surface,
