@@ -53,16 +53,10 @@ export class ParagraphBuilderJS
       const segmenter = new Intl.Segmenter("en", { granularity: "word" });
       const segments = segmenter.segment(node.text);
       for (const segment of segments) {
-        console.log(segment.segment);
-
         tokens.push({
           text: segment.segment,
           style: node.style,
-          metrics: getTextMetrics(
-            this.pStyle,
-            node.style.textStyle,
-            segment.segment
-          ),
+          ...getTextData(this.pStyle, node.style.textStyle, segment.segment),
           x: 0,
           y: 0,
         });
@@ -132,7 +126,7 @@ export class ParagraphBuilderJS
 const offscreen = new OffscreenCanvas(1, 1);
 const ctx = offscreen.getContext("2d")!;
 
-const drawingStyles = (pStyle: ParagraphStyle, style: TextStyle) => {
+const computeNativeStyle = (pStyle: ParagraphStyle, style: TextStyle) => {
   const fontFamilies = style.fontFamilies
     ? pStyle.textStyle?.fontFamilies?.join()
     : "sans-serif";
@@ -147,12 +141,13 @@ const drawingStyles = (pStyle: ParagraphStyle, style: TextStyle) => {
   };
 };
 
-const getTextMetrics = (
+const getTextData = (
   pStyle: ParagraphStyle,
   style: TextStyle,
   text: string
-): TextMetrics => {
-  const { font } = drawingStyles(pStyle, style);
-  ctx.font = font;
-  return ctx.measureText(text);
+): { nativeStyle: Partial<CanvasTextDrawingStyles>; metrics: TextMetrics } => {
+  const nativeStyle = computeNativeStyle(pStyle, style);
+  ctx.font = nativeStyle.font;
+  const metrics = ctx.measureText(text);
+  return { metrics, nativeStyle };
 };

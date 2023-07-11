@@ -11,7 +11,6 @@ import type {
 } from "canvaskit-wasm";
 
 import { HostObject } from "../HostObject";
-import type { PaintJS } from "../Paint";
 
 export interface StyleNode {
   textStyle: TextStyle;
@@ -19,10 +18,14 @@ export interface StyleNode {
   bg?: Paint;
 }
 
-export interface Token {
+interface TextRenderingData {
+  nativeStyle: Partial<CanvasTextDrawingStyles>;
+  metrics: TextMetrics;
+}
+
+export interface Token extends TextRenderingData {
   text: string;
   style: StyleNode;
-  metrics: TextMetrics;
   x: number;
   y: number;
 }
@@ -113,6 +116,12 @@ export class ParagraphJS extends HostObject<"Paragraph"> implements Paragraph {
   ) {
     for (const token of this.tokens) {
       const { text, x, y } = token;
+      const {
+        nativeStyle: { font },
+      } = token;
+      if (font) {
+        ctx.font = font;
+      }
       ctx.fillText(text, x + offsetX, y + offsetY);
     }
   }

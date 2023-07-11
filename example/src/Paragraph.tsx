@@ -7,7 +7,7 @@ const paraStyle = new CanvasKit.ParagraphStyle({
   textStyle: {
     color: CanvasKit.BLACK,
     fontFamilies: ["Roboto"],
-    fontSize: 28,
+    fontSize: 64,
   },
   // textAlign: CanvasKit.TextAlign.Left,
 });
@@ -21,12 +21,20 @@ const builder = CanvasKit.ParagraphBuilder.MakeFromFontProvider(paraStyle, tf);
 builder.addText(text);
 const paragraph = builder.build();
 
+const paint = new CanvasKit.Paint();
+paint.setColor(CanvasKit.BLACK);
+paint.setStyle(CanvasKit.PaintStyle.Stroke);
+paint.setStrokeWidth(4);
+
 const drawParagraph = (
   progress: AnimationValue,
   canvas: CKCanvas,
   _info: Info
 ) => {
-  paragraph.layout(mix(progress.value, 100, 1024));
+  const wrapTo = mix(progress.value, 16 + 100, 16 + 1024);
+  canvas.drawLine(wrapTo, 0, wrapTo, 400, paint);
+
+  paragraph.layout(wrapTo);
   canvas.drawParagraph(paragraph, 16, 16);
 };
 
