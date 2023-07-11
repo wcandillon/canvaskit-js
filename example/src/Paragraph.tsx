@@ -28,15 +28,18 @@ paint.setColor(CanvasKit.BLACK);
 paint.setStyle(CanvasKit.PaintStyle.Stroke);
 paint.setStrokeWidth(4);
 
-const padding = 16;
+const padding = 64;
+
+const wrapTo = 400;
+const height = 600;
 
 const drawParagraph = (
   _progress: AnimationValue,
   canvas: CKCanvas,
   _info: Info
 ) => {
-  const wrapTo = 800; // mix(progress.value, padding + 100, padding + 1024);
-  canvas.drawLine(wrapTo, 0, wrapTo, 400, paint);
+  // mix(progress.value, padding + 100, padding + 1024);
+  canvas.drawLine(padding + wrapTo, 0, padding + wrapTo, height, paint);
 
   paragraph.layout(wrapTo);
   canvas.drawParagraph(paragraph, padding, padding);
@@ -45,5 +48,26 @@ const drawParagraph = (
 export const Paragraph = () => {
   const progress = useLoop();
   const onDraw = useOnDraw(drawParagraph.bind(null, progress));
-  return <Canvas onDraw={onDraw} deps={[progress]} />;
+  return (
+    <div style={{ display: "flex", flex: 1 }}>
+      <div style={{ flex: 1, display: "flex" }}>
+        <Canvas onDraw={onDraw} deps={[progress]} />
+      </div>
+      <div style={{ flex: 1, display: "flex", position: "relative" }}>
+        <div style={{ width: wrapTo, fontSize: 64, fontFamily: "sans-serif" }}>
+          The quick brown fox 🦊 ate a zesty hamburgerfons 🍔. The 👩‍👩‍👧‍👧 laughed.
+        </div>
+        <div
+          style={{
+            backgroundColor: "black",
+            width: 4,
+            height,
+            position: "absolute",
+            top: 0,
+            left: wrapTo,
+          }}
+        />
+      </div>
+    </div>
+  );
 };
