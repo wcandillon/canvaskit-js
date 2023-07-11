@@ -3,9 +3,9 @@ import { Pacifico, RobotoLight, RobotoMedium, RoboBlackItalic } from "../setup";
 
 describe("FontMgr", () => {
   it("should read the font metadata properly", () => {
-    expect(postScriptName(RobotoLight.buffer)).toBe("Roboto");
-    expect(postScriptName(RoboBlackItalic.buffer)).toBe("Roboto");
-    expect(postScriptName(RobotoMedium.buffer)).toBe("Roboto");
-    expect(postScriptName(Pacifico.buffer)).toBe("Pacifico");
+    expect(postScriptName(RobotoLight.buffer)).toBe("Roboto-Light");
+    expect(postScriptName(RoboBlackItalic.buffer)).toBe("Roboto-BlackItalic");
+    expect(postScriptName(RobotoMedium.buffer)).toBe("Roboto-Medium");
+    expect(postScriptName(Pacifico.buffer)).toBe("Pacifico-Regular");
   });
 });
