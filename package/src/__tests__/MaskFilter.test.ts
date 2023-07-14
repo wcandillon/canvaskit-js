@@ -2,7 +2,7 @@ import { checkImage, processResult, setupRealSkia, skia } from "./setup";
 
 describe("MaskFilter", () => {
   it("Solid mask filter", async () => {
-    const image = await skia.eval(({ CanvasKit, width, height, canvas }) => {
+    const image = await skia.draw(({ CanvasKit, width, height, canvas }) => {
       const paint = new CanvasKit.Paint();
       paint.setBlendMode(CanvasKit.BlendMode.Multiply);
       paint.setMaskFilter(
@@ -25,7 +25,7 @@ describe("MaskFilter", () => {
     checkImage(image, "snapshots/image-filters/solid-blur.png");
   });
   it("Normal mask filter", async () => {
-    const image = await skia.eval(({ CanvasKit, width, height, canvas }) => {
+    const image = await skia.draw(({ CanvasKit, width, height, canvas }) => {
       const paint = new CanvasKit.Paint();
       paint.setBlendMode(CanvasKit.BlendMode.Multiply);
       paint.setMaskFilter(
@@ -73,7 +73,7 @@ describe("MaskFilter", () => {
   });
 
   it("Inner mask filter", async () => {
-    const image = await skia.eval(({ CanvasKit, width, height, canvas }) => {
+    const image = await skia.draw(({ CanvasKit, width, height, canvas }) => {
       const paint = new CanvasKit.Paint();
       paint.setBlendMode(CanvasKit.BlendMode.Multiply);
       paint.setMaskFilter(
@@ -97,7 +97,7 @@ describe("MaskFilter", () => {
   });
 
   it("Outer mask filter", async () => {
-    const image = await skia.eval(({ CanvasKit, width, height, canvas }) => {
+    const image = await skia.draw(({ CanvasKit, width, height, canvas }) => {
       const paint = new CanvasKit.Paint();
       paint.setBlendMode(CanvasKit.BlendMode.Multiply);
       paint.setMaskFilter(

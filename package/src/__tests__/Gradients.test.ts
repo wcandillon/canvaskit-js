@@ -2,7 +2,7 @@ import { checkImage, processResult, setupRealSkia, skia } from "./setup";
 
 describe("Gradients", () => {
   it("should draw a linear gradient 1", async () => {
-    const image = await skia.eval(({ CanvasKit, canvas, width }) => {
+    const image = await skia.draw(({ CanvasKit, canvas, width }) => {
       const paint = new CanvasKit.Paint();
       const shader = CanvasKit.Shader.MakeLinearGradient(
         [0, 0],
@@ -17,7 +17,7 @@ describe("Gradients", () => {
     checkImage(image, "snapshots/gradients/linear-gradient1.png");
   });
   it("should draw a radial gradient 1", async () => {
-    const image = await skia.eval(({ CanvasKit, canvas, width }) => {
+    const image = await skia.draw(({ CanvasKit, canvas, width }) => {
       const paint = new CanvasKit.Paint();
       const radius = Math.sqrt(width ** 2 + width ** 2);
       const shader = CanvasKit.Shader.MakeRadialGradient(
@@ -33,7 +33,7 @@ describe("Gradients", () => {
     checkImage(image, "snapshots/gradients/radial-gradient1.png");
   });
   it("should draw a sweep gradient", async () => {
-    const image = await skia.eval(({ CanvasKit, canvas, width }) => {
+    const image = await skia.draw(({ CanvasKit, canvas, width }) => {
       const paint = new CanvasKit.Paint();
       const cx = width / 2;
       const cy = width / 2;
@@ -50,7 +50,7 @@ describe("Gradients", () => {
     checkImage(image, "snapshots/gradients/sweep-gradient.png");
   });
   it("should draw a two point conical gradient", async () => {
-    const image = await skia.eval(({ CanvasKit, canvas, width }) => {
+    const image = await skia.draw(({ CanvasKit, canvas, width }) => {
       const paint = new CanvasKit.Paint();
       const cx = width / 2;
       const cy = width / 2;
@@ -91,7 +91,7 @@ describe("Gradients", () => {
     processResult(surface, "snapshots/gradients/two-point-gradient2.png");
   });
   it("should draw a two point conical gradient (2)", async () => {
-    const image = await skia.eval(({ CanvasKit, canvas, width }) => {
+    const image = await skia.draw(({ CanvasKit, canvas, width }) => {
       const cx = width / 2;
       const cy = width / 2;
       const shader = CanvasKit.Shader.MakeTwoPointConicalGradient(

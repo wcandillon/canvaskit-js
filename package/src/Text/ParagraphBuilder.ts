@@ -13,6 +13,7 @@ import type {
 import { HostObject } from "../HostObject";
 
 import { ParagraphJS, type StyleNode, type Token } from "./Paragraph";
+import { TextContext } from "./NativeText";
 
 interface TextNode {
   style: StyleNode;
@@ -127,9 +128,6 @@ export class ParagraphBuilderJS
   }
 }
 
-const offscreen = new OffscreenCanvas(1, 1);
-const ctx = offscreen.getContext("2d")!;
-
 const computeNativeStyle = (pStyle: ParagraphStyle, style: TextStyle) => {
   const fontFamilies = style.fontFamilies
     ? pStyle.textStyle?.fontFamilies?.join()
@@ -151,7 +149,7 @@ const getTextData = (
   text: string
 ): { nativeStyle: Partial<CanvasTextDrawingStyles>; metrics: TextMetrics } => {
   const nativeStyle = computeNativeStyle(pStyle, style);
-  ctx.font = nativeStyle.font;
-  const metrics = ctx.measureText(text);
+  TextContext.font = nativeStyle.font;
+  const metrics = TextContext.measureText(text);
   return { metrics, nativeStyle };
 };

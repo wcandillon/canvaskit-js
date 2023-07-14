@@ -11,7 +11,7 @@ export interface PolarPoint {
 
 describe("Shapes", () => {
   it("should clear a paint", async () => {
-    const image = await skia.eval(({ CanvasKit, canvas }) => {
+    const image = await skia.draw(({ CanvasKit, canvas }) => {
       const paint = new CanvasKit.Paint();
       paint.setColor(CanvasKit.RED);
       canvas.drawPaint(paint);
@@ -20,7 +20,7 @@ describe("Shapes", () => {
     checkImage(image, "snapshots/transparent.png");
   });
   it("should draw a paint", async () => {
-    const image = await skia.eval(({ CanvasKit, canvas }) => {
+    const image = await skia.draw(({ CanvasKit, canvas }) => {
       const paint = new CanvasKit.Paint();
       paint.setColor(CanvasKit.RED);
       canvas.drawPaint(paint);
@@ -29,7 +29,7 @@ describe("Shapes", () => {
   });
 
   it("should draw a color", async () => {
-    const image = await skia.eval(({ CanvasKit, canvas }) => {
+    const image = await skia.draw(({ CanvasKit, canvas }) => {
       const color = CanvasKit.parseColorString("#242b38");
       canvas.drawColor(color);
     });
@@ -37,7 +37,7 @@ describe("Shapes", () => {
   });
 
   it("should draw a circle", async () => {
-    const image = await skia.eval(({ CanvasKit, canvas, width, height }) => {
+    const image = await skia.draw(({ CanvasKit, canvas, width, height }) => {
       const paint = new CanvasKit.Paint();
       paint.setColor(CanvasKit.CYAN);
       canvas.drawCircle(width / 2, height / 2, width / 2, paint);
@@ -46,7 +46,7 @@ describe("Shapes", () => {
   });
 
   it("should draw a circle2", async () => {
-    const image = await skia.eval(({ CanvasKit, canvas, width, height }) => {
+    const image = await skia.draw(({ CanvasKit, canvas, width, height }) => {
       const paint = new CanvasKit.Paint();
       paint.setColor(CanvasKit.CYAN);
       canvas.drawCircle(25, height / 2, width / 2, paint);
@@ -56,7 +56,7 @@ describe("Shapes", () => {
   });
 
   it("should draw the hello world example", async () => {
-    const image = await skia.eval(({ CanvasKit, canvas, width, height }) => {
+    const image = await skia.draw(({ CanvasKit, canvas, width, height }) => {
       const paint = new CanvasKit.Paint();
       paint.setBlendMode(CanvasKit.BlendMode.Multiply);
 
@@ -139,21 +139,21 @@ describe("Shapes", () => {
   skia.addFunction("demo", demo);
 
   it("should draw the apple breathe example at progress=0", async () => {
-    const image = await skia.eval((ctx) => {
+    const image = await skia.draw((ctx) => {
       demo(ctx, 0);
     });
     checkImage(image, "snapshots/breathe0.png");
   });
 
   it("should draw the apple breathe example at progress=half", async () => {
-    const image = await skia.eval((ctx) => {
+    const image = await skia.draw((ctx) => {
       demo(ctx, 0.5);
     });
     checkImage(image, "snapshots/breathe-half.png");
   });
 
   it("should draw the apple breathe example at progress=1", async () => {
-    const image = await skia.eval((ctx) => {
+    const image = await skia.draw((ctx) => {
       demo(ctx, 1);
     });
     checkImage(image, "snapshots/breathe1.png");

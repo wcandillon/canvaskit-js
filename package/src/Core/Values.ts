@@ -1,4 +1,8 @@
-import type { MallocObj, TypedArray } from "canvaskit-wasm";
+import type {
+  MallocObj,
+  TypedArray,
+  TypedArrayConstructor,
+} from "canvaskit-wasm";
 
 export class MallocObjJS<T extends TypedArray> implements MallocObj {
   byteOffset = 0;
@@ -21,11 +25,14 @@ export const isMalloc = (v: unknown): v is MallocObj => {
   return typeof v === "object" && v !== null && "toTypedArray" in v;
 };
 
-export const normalizeArray = <T>(arr: MallocObj | T | number[]) => {
+export const normalizeArray = <T>(
+  arr: MallocObj | T | number[],
+  Constructor: TypedArrayConstructor = Float32Array
+) => {
   if (isMalloc(arr)) {
     return arr.toTypedArray() as T;
   } else if (Array.isArray(arr)) {
-    return new Float32Array(arr);
+    return new Constructor(arr) as T;
   }
   return arr;
 };

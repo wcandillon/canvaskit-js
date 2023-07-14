@@ -2,7 +2,7 @@ import { checkImage, processResult, setupRealSkia, skia } from "./setup";
 
 describe("Transforms", () => {
   it("should rotate on a pivot point", async () => {
-    const image = await skia.eval(
+    const image = await skia.draw(
       ({ CanvasKit, width, height, canvas, center }) => {
         const paint = new CanvasKit.Paint();
         paint.setColor(CanvasKit.CYAN);
@@ -16,7 +16,7 @@ describe("Transforms", () => {
   });
 
   it("should respect a pivot point", async () => {
-    const image = await skia.eval(
+    const image = await skia.draw(
       ({ CanvasKit, width, height, canvas, center }) => {
         const paint = new CanvasKit.Paint();
         paint.setColor(CanvasKit.CYAN);
@@ -31,7 +31,7 @@ describe("Transforms", () => {
     checkImage(image, "snapshots/rotate.png");
   });
   it("4 scaled and translated rounded rectangles", async () => {
-    const image = await skia.eval(
+    const image = await skia.draw(
       ({ CanvasKit, width, height, canvas, center }) => {
         const paints = ["#61DAFB", "#fb61da", "#dafb61", "#61fbcf"].map(
           (color) => {
@@ -121,7 +121,7 @@ describe("Transforms", () => {
     processResult(surface, "snapshots/circle-gradient2.png");
   });
   it("should draw the circle centered", async () => {
-    const image = await skia.eval(
+    const image = await skia.draw(
       ({ CanvasKit, width, canvas, height, center }) => {
         const mix = (value: number, x: number, y: number) =>
           x * (1 - value) + y * value;
@@ -150,7 +150,7 @@ describe("Transforms", () => {
     checkImage(image, "snapshots/circle-gradient.png");
   });
   it("should draw the circle centered (2)", async () => {
-    const image = await skia.eval(
+    const image = await skia.draw(
       ({ CanvasKit, width, canvas, height, center }) => {
         const mix = (value: number, x: number, y: number) =>
           x * (1 - value) + y * value;
@@ -177,7 +177,7 @@ describe("Transforms", () => {
     checkImage(image, "snapshots/circle-gradient2.png");
   });
   it("should draw the circle centered (3)", async () => {
-    const image = await skia.eval(
+    const image = await skia.draw(
       ({ CanvasKit, canvas }) => {
         canvas.drawColor(CanvasKit.BLACK);
         const paint = new CanvasKit.Paint();

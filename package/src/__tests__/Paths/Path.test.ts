@@ -41,7 +41,7 @@ describe("Path Behavior", () => {
   });
 
   it("Should draw an arc", async () => {
-    const image = await skia.eval(({ CanvasKit, canvas, width: size }) => {
+    const image = await skia.draw(({ CanvasKit, canvas, width: size }) => {
       const path = new CanvasKit.Path();
       const arcRect = CanvasKit.XYWHRect(0, 0, size, size);
       path.addArc(arcRect, 45, 270);
@@ -77,7 +77,7 @@ describe("Path Behavior", () => {
   });
 
   it("Should draw a conic", async () => {
-    const image = await skia.eval(({ CanvasKit, canvas }) => {
+    const image = await skia.draw(({ CanvasKit, canvas }) => {
       const conicPaint = new CanvasKit.Paint();
       conicPaint.setAntiAlias(true);
       conicPaint.setStyle(CanvasKit.PaintStyle.Stroke);
@@ -111,7 +111,7 @@ describe("Path Behavior", () => {
   //</svg>
 
   it("Should draw hello", async () => {
-    const image = await skia.eval(({ CanvasKit, canvas, width }) => {
+    const image = await skia.draw(({ CanvasKit, canvas, width }) => {
       const colors = [
         "#3FCEBC",
         "#3СВСЕВ",
@@ -150,7 +150,7 @@ describe("Path Behavior", () => {
   });
 
   it("Should trim hello", async () => {
-    const image = await skia.eval(({ CanvasKit, canvas, width }) => {
+    const image = await skia.draw(({ CanvasKit, canvas, width }) => {
       const colors = [
         "#3FCEBC",
         "#3СВСЕВ",

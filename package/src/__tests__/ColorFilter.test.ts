@@ -2,7 +2,7 @@ import { checkImage, skia } from "./setup";
 
 describe("ColorFilter", () => {
   it("should apply a color filter matrix", async () => {
-    const image = await skia.eval(
+    const image = await skia.draw(
       ({
         CanvasKit,
         canvas,

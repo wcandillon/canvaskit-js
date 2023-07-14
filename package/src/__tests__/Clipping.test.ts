@@ -2,7 +2,7 @@ import { checkImage, skia } from "./setup";
 
 describe("Clipping", () => {
   it("Clip Rect", async () => {
-    const image = await skia.eval(({ CanvasKit, width, canvas }) => {
+    const image = await skia.draw(({ CanvasKit, width, canvas }) => {
       const r = width / 2;
       canvas.drawColor(CanvasKit.BLACK);
       const paint = new CanvasKit.Paint();

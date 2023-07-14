@@ -2,13 +2,13 @@ import { checkImage, skia } from "./setup";
 
 describe("Images", () => {
   it("should display an image", async () => {
-    const image = await skia.eval(({ canvas, assets: { zurich } }) => {
+    const image = await skia.draw(({ canvas, assets: { zurich } }) => {
       canvas.drawImage(zurich, 0, 0, null);
     });
     checkImage(image, "snapshots/zurich.png");
   });
   it("should strecht an image to fit", async () => {
-    const image = await skia.eval(
+    const image = await skia.draw(
       ({ canvas, width, height, assets: { zurich } }) => {
         const src = CanvasKit.XYWHRect(0, 0, zurich.width(), zurich.height());
         const dst = CanvasKit.XYWHRect(0, 0, width, height);
@@ -20,7 +20,7 @@ describe("Images", () => {
   });
 
   it("should display an image with cover", async () => {
-    const image = await skia.eval(
+    const image = await skia.draw(
       ({ canvas, width, height, assets: { zurich }, lib: { fitRects } }) => {
         const input = CanvasKit.XYWHRect(0, 0, zurich.width(), zurich.height());
         const output = CanvasKit.XYWHRect(0, 0, width, height);
@@ -33,7 +33,7 @@ describe("Images", () => {
   });
 
   it("should display an image and clip it", async () => {
-    const image = await skia.eval(
+    const image = await skia.draw(
       ({ canvas, width, height, assets: { zurich }, lib: { fitRects } }) => {
         const input = CanvasKit.XYWHRect(0, 0, zurich.width(), zurich.height());
         const output = CanvasKit.XYWHRect(0, 0, width, height);
@@ -56,7 +56,7 @@ describe("Images", () => {
   });
 
   it("should display an image with contain", async () => {
-    const image = await skia.eval(
+    const image = await skia.draw(
       ({ canvas, width, height, assets: { zurich }, lib: { fitRects } }) => {
         const input = CanvasKit.XYWHRect(0, 0, zurich.width(), zurich.height());
         const output = CanvasKit.XYWHRect(0, 0, width, height);
@@ -69,7 +69,7 @@ describe("Images", () => {
   });
 
   it("should display an image with contain and blurred", async () => {
-    const image = await skia.eval(
+    const image = await skia.draw(
       ({ canvas, width, height, assets: { zurich }, lib: { fitRects } }) => {
         const input = CanvasKit.XYWHRect(0, 0, zurich.width(), zurich.height());
         const output = CanvasKit.XYWHRect(0, 0, width, height);

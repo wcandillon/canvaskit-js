@@ -2,7 +2,7 @@ import { checkImage, processResult, setupRealSkia, skia } from "./setup";
 
 describe("Paint", () => {
   it("should calculate local coordinates from device coordinates", async () => {
-    const image = await skia.eval(
+    const image = await skia.draw(
       ({ canvas }) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const ctx = (canvas as any).ctx as CanvasRenderingContext2D;
@@ -47,7 +47,7 @@ describe("Paint", () => {
     processResult(surface, "snapshots/paint/black.png");
   });
   it("should draw a paint", async () => {
-    const image = await skia.eval(({ CanvasKit, canvas }) => {
+    const image = await skia.draw(({ CanvasKit, canvas }) => {
       canvas.save();
       canvas.scale(3, 1.5);
       canvas.translate(100, 100);
@@ -59,7 +59,7 @@ describe("Paint", () => {
   });
 
   it("should draw a paint (2)", async () => {
-    const image = await skia.eval(({ CanvasKit, canvas }) => {
+    const image = await skia.draw(({ CanvasKit, canvas }) => {
       canvas.save();
       canvas.scale(0.5, 1.5);
       canvas.translate(100, 100);
@@ -72,7 +72,7 @@ describe("Paint", () => {
   });
 
   it("should draw a paint (3)", async () => {
-    const image = await skia.eval(({ CanvasKit, canvas }) => {
+    const image = await skia.draw(({ CanvasKit, canvas }) => {
       canvas.save();
       canvas.scale(0.5, 1.5);
       canvas.translate(100, 100);
@@ -104,7 +104,7 @@ describe("Paint", () => {
     processResult(surface, "snapshots/paint/clip.png");
   });
   it("should only fill the clip", async () => {
-    const image = await skia.eval(({ CanvasKit, canvas }) => {
+    const image = await skia.draw(({ CanvasKit, canvas }) => {
       canvas.save();
       const colors = [CanvasKit.RED, CanvasKit.GREEN, CanvasKit.BLUE];
       const pos = [0, 0.5, 1];
@@ -127,7 +127,7 @@ describe("Paint", () => {
   });
 
   it("should clear", async () => {
-    const image = await skia.eval(({ CanvasKit, canvas }) => {
+    const image = await skia.draw(({ CanvasKit, canvas }) => {
       canvas.save();
       canvas.translate(100, 100);
       canvas.clear(CanvasKit.BLACK);
@@ -137,7 +137,7 @@ describe("Paint", () => {
   });
 
   it("should draw a shape with a stroke", async () => {
-    const image = await skia.eval(({ CanvasKit, canvas, width }) => {
+    const image = await skia.draw(({ CanvasKit, canvas, width }) => {
       const size = width / 2;
       const paint = new CanvasKit.Paint();
       paint.setColor(CanvasKit.parseColorString("cyan"));

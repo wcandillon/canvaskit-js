@@ -116,7 +116,7 @@ class RemoteSurface {
     this.functions[name] = fn.toString();
   }
 
-  async eval(fn: (opts: DrawingContext) => unknown, opts?: EvalOptions) {
+  async draw(fn: (opts: DrawingContext) => unknown, opts?: EvalOptions) {
     const { width, height } = { ...defaultEvalOptions, ...opts };
     if (!this.page) {
       throw new Error("RemoteSurface not initialized");

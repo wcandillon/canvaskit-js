@@ -36,7 +36,7 @@ describe("BackdropFilter", () => {
     processResult(surface, "snapshots/backdrop-filters/reference.png", true);
   });
   it("Blur backdrop filter", async () => {
-    const image = await skia.eval(({ CanvasKit, width, canvas }) => {
+    const image = await skia.draw(({ CanvasKit, width, canvas }) => {
       const r = width / 2;
       canvas.drawColor(CanvasKit.BLACK);
       const paint = new CanvasKit.Paint();
@@ -74,7 +74,7 @@ describe("BackdropFilter", () => {
   });
 
   it("Blur backdrop filter (2)", async () => {
-    const image = await skia.eval(
+    const image = await skia.draw(
       ({ CanvasKit, width, canvas, center }) => {
         const mix = (value: number, x: number, y: number) =>
           x * (1 - value) + y * value;
@@ -115,7 +115,7 @@ describe("BackdropFilter", () => {
     checkImage(image, "snapshots/backdrop-filters/backdrop-blur.png");
   });
   it("Blur backdrop filter (3)", async () => {
-    const image = await skia.eval(
+    const image = await skia.draw(
       ({ CanvasKit, width, canvas, center }) => {
         const mix = (value: number, x: number, y: number) =>
           x * (1 - value) + y * value;

@@ -2,7 +2,7 @@ import { checkImage, skia } from "./setup";
 
 describe("Shaders", () => {
   it("should blend Colors", async () => {
-    const image = await skia.eval(({ CanvasKit, canvas }) => {
+    const image = await skia.draw(({ CanvasKit, canvas }) => {
       const color = `
   void main() {
     gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);

@@ -27,7 +27,7 @@ describe("Coordinates", () => {
     processResult(surface, "snapshots/coordinates/test1.png");
   });
   it("Test shader local coordinates", async () => {
-    const image = await skia.eval(
+    const image = await skia.draw(
       ({ CanvasKit, canvas }) => {
         const pd = 2;
         canvas.save();
@@ -83,7 +83,7 @@ describe("Coordinates", () => {
     processResult(surface, "snapshots/coordinates/test2.png");
   });
   it("should draw a gradient", async () => {
-    const image = await skia.eval(
+    const image = await skia.draw(
       ({ CanvasKit, canvas }) => {
         canvas.save();
         const width = 256;

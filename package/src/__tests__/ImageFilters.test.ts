@@ -2,7 +2,7 @@ import { checkImage, skia } from "./setup";
 
 describe("ImageFilters", () => {
   it("should blur the hello world example 1", async () => {
-    const image = await skia.eval(({ CanvasKit, width, height, canvas }) => {
+    const image = await skia.draw(({ CanvasKit, width, height, canvas }) => {
       const paint = new CanvasKit.Paint();
       paint.setBlendMode(CanvasKit.BlendMode.Multiply);
       paint.setImageFilter(
@@ -25,7 +25,7 @@ describe("ImageFilters", () => {
     checkImage(image, "snapshots/image-filters/blur.png");
   });
   it("should blur the hello world example 2", async () => {
-    const image = await skia.eval(({ CanvasKit, width, height, canvas }) => {
+    const image = await skia.draw(({ CanvasKit, width, height, canvas }) => {
       const paint = new CanvasKit.Paint();
       paint.setBlendMode(CanvasKit.BlendMode.Multiply);
       paint.setImageFilter(
@@ -49,7 +49,7 @@ describe("ImageFilters", () => {
   });
 
   it("should compose the color filter with the image filter (1)", async () => {
-    const image = await skia.eval(
+    const image = await skia.draw(
       ({
         CanvasKit,
         width,
@@ -83,7 +83,7 @@ describe("ImageFilters", () => {
   });
 
   it("should compose the color filter with the image filter (2)", async () => {
-    const image = await skia.eval(
+    const image = await skia.draw(
       ({
         CanvasKit,
         width,
@@ -117,7 +117,7 @@ describe("ImageFilters", () => {
     checkImage(image, "snapshots/image-filters/compose.png");
   });
   it("Blur effect", async () => {
-    const image = await skia.eval(({ CanvasKit, canvas, width }) => {
+    const image = await skia.draw(({ CanvasKit, canvas, width }) => {
       const blur = CanvasKit.ImageFilter.MakeBlur(
         20,
         20,
@@ -134,7 +134,7 @@ describe("ImageFilters", () => {
     checkImage(image, "snapshots/image-filters/blur3.png");
   });
   it("Gooey effect", async () => {
-    const image = await skia.eval(({ CanvasKit, canvas, width }) => {
+    const image = await skia.draw(({ CanvasKit, canvas, width }) => {
       const paint = new CanvasKit.Paint();
       paint.setColor(CanvasKit.CYAN);
       const blur = CanvasKit.ImageFilter.MakeBlur(

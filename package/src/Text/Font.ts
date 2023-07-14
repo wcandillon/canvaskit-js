@@ -8,15 +8,17 @@ import type {
 } from "canvaskit-wasm";
 
 import { HostObject } from "../HostObject";
+import { xywhRect } from "../Core";
 
 import { TypefaceJS } from "./Typeface";
+import { TextContext, glyphArray, glyphToText } from "./NativeText";
 
 export class FontJS extends HostObject<"Font"> implements Font {
   private typeface: TypefaceJS;
 
   constructor(
     typeface?: TypefaceJS | null,
-    readonly size = 14,
+    private fontSize = 14,
     _scaleX?: number,
     _skewX?: number
   ) {
@@ -25,32 +27,70 @@ export class FontJS extends HostObject<"Font"> implements Font {
   }
 
   fontStyle() {
-    return `${this.size}px ${this.typeface.familyName}`;
+    return `${this.fontSize}px ${this.typeface.familyName}`;
   }
 
   getMetrics(): FontMetrics {
-    throw new Error("Method not implemented.");
+    TextContext.font = this.fontStyle();
+    // Using a capital 'H' to approximate ascent, as it generally extends to the highest point in most fonts.
+    const ascent = TextContext.measureText("H").actualBoundingBoxAscent;
+    // Using a lowercase 'p' to approximate descent, as it generally extends to the lowest point in most fonts.
+    const descent = TextContext.measureText("p").actualBoundingBoxDescent;
+    // Approximating leading by using 1.2 times font size - font size
+    const lineHeight = this.fontSize * 1.2;
+    const leading = lineHeight - this.fontSize;
+    return {
+      ascent: -ascent,
+      descent: descent,
+      leading: leading,
+    };
   }
   getGlyphBounds(
-    _glyphs: InputGlyphIDArray,
+    inputGlyphs: InputGlyphIDArray,
     _paint?: Paint | null | undefined,
     _output?: Float32Array | undefined
-  ): Float32Array {
-    throw new Error("Method not implemented.");
+  ) {
+    const glyphs = glyphArray(inputGlyphs);
+    const text = glyphToText(glyphs);
+    TextContext.font = this.fontStyle();
+    const metrics = TextContext.measureText(text);
+    return xywhRect(
+      metrics.actualBoundingBoxLeft,
+      metrics.actualBoundingBoxAscent,
+      metrics.actualBoundingBoxRight - metrics.actualBoundingBoxLeft,
+      metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent
+    );
   }
   getGlyphIDs(
-    _str: string,
-    _numCodePoints?: number | undefined,
-    _output?: Uint16Array | undefined
+    str: string,
+    numCodePoints?: number,
+    output?: Uint16Array
   ): Uint16Array {
-    throw new Error("Method not implemented.");
+    const glyphIDs = output ?? new Uint16Array(numCodePoints ?? str.length);
+    Array.from(str).forEach((char, index) => {
+      if (index < glyphIDs.length) {
+        // Convert each character to its Unicode code point
+        glyphIDs[index] = char.codePointAt(0) || 0;
+      }
+    });
+    return glyphIDs;
   }
   getGlyphWidths(
-    _glyphs: InputGlyphIDArray,
+    inputGlyphs: InputGlyphIDArray,
     _paint?: Paint | null | undefined,
     _output?: Float32Array | undefined
-  ): Float32Array {
-    throw new Error("Method not implemented.");
+  ) {
+    //const result = output ?? new Float32Array(inputGlyphs.length);
+    const glyphs = glyphArray(inputGlyphs);
+    const text = glyphToText(glyphs);
+    TextContext.font = this.fontStyle();
+    const metrics = TextContext.measureText(text);
+    return xywhRect(
+      metrics.actualBoundingBoxLeft,
+      metrics.actualBoundingBoxAscent,
+      metrics.actualBoundingBoxRight - metrics.actualBoundingBoxLeft,
+      metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent
+    );
   }
   getGlyphIntercepts(
     _glyphs: InputGlyphIDArray,
@@ -64,7 +104,7 @@ export class FontJS extends HostObject<"Font"> implements Font {
     throw new Error("Method not implemented.");
   }
   getSize(): number {
-    throw new Error("Method not implemented.");
+    return this.fontSize;
   }
   getSkewX(): number {
     throw new Error("Method not implemented.");
@@ -90,8 +130,8 @@ export class FontJS extends HostObject<"Font"> implements Font {
   setScaleX(_sx: number): void {
     throw new Error("Method not implemented.");
   }
-  setSize(_points: number): void {
-    throw new Error("Method not implemented.");
+  setSize(points: number): void {
+    this.fontSize = points;
   }
   setSkewX(_sx: number): void {
     throw new Error("Method not implemented.");

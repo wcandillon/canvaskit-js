@@ -2,7 +2,7 @@ import { checkImage, processResult, setupRealSkia, skia } from "./setup";
 
 describe("Opacity", () => {
   it("Build reference result", async () => {
-    const image = await skia.eval(({ CanvasKit, canvas }) => {
+    const image = await skia.draw(({ CanvasKit, canvas }) => {
       canvas.drawColor(CanvasKit.WHITE);
       canvas.drawColor(Float32Array.of(0, 0, 1, 0.25));
     });
@@ -18,7 +18,7 @@ describe("Opacity", () => {
     processResult(surface, "snapshots/opacity/violet.png");
   });
   it("Should multiply multiply the color opacity", async () => {
-    const image = await skia.eval(({ CanvasKit, canvas }) => {
+    const image = await skia.draw(({ CanvasKit, canvas }) => {
       canvas.drawColor(CanvasKit.WHITE);
       const paint = new CanvasKit.Paint();
       paint.setColor(CanvasKit.Color(0, 0, 255, 0.5));
@@ -28,7 +28,7 @@ describe("Opacity", () => {
     checkImage(image, "snapshots/opacity/violet.png");
   });
   it("Should set the opacity", async () => {
-    const image = await skia.eval(({ CanvasKit, canvas }) => {
+    const image = await skia.draw(({ CanvasKit, canvas }) => {
       canvas.drawColor(CanvasKit.WHITE);
       const paint = new CanvasKit.Paint();
       paint.setColor(CanvasKit.Color(0, 0, 255, 1));
@@ -38,7 +38,7 @@ describe("Opacity", () => {
     checkImage(image, "snapshots/opacity/violet.png");
   });
   it("Opacity applies to shaders", async () => {
-    const image = await skia.eval(({ CanvasKit, canvas }) => {
+    const image = await skia.draw(({ CanvasKit, canvas }) => {
       canvas.drawColor(CanvasKit.WHITE);
       const paint = new CanvasKit.Paint();
       paint.setShader(
@@ -68,7 +68,7 @@ describe("Opacity", () => {
   });
 
   it("Opacity applies to shaders 2", async () => {
-    const image = await skia.eval(({ CanvasKit, canvas }) => {
+    const image = await skia.draw(({ CanvasKit, canvas }) => {
       canvas.drawColor(CanvasKit.WHITE);
       const paint = new CanvasKit.Paint();
       paint.setShader(

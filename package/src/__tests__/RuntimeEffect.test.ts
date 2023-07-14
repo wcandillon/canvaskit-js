@@ -4,7 +4,7 @@ import { checkImage, skia } from "./setup";
 
 describe("Runtime Effects", () => {
   it("should draw a simple color", async () => {
-    const image = await skia.eval(({ CanvasKit, canvas }) => {
+    const image = await skia.draw(({ CanvasKit, canvas }) => {
       const color = `
 void main() {
   gl_FragColor = vec4(0.3, 0.6, 0.9, 1.0);
@@ -17,7 +17,7 @@ void main() {
     checkImage(image, "snapshots/shaders/solid.png");
   });
   it("should draw a simple shader with a uniform", async () => {
-    const image = await skia.eval(({ CanvasKit, canvas }) => {
+    const image = await skia.draw(({ CanvasKit, canvas }) => {
       const color = `
 precision mediump float;
 
@@ -34,7 +34,7 @@ void main() {
     checkImage(image, "snapshots/shaders/solid2.png");
   });
   it("should draw a spiral", async () => {
-    const image = await skia.eval(({ CanvasKit, canvas, center }) => {
+    const image = await skia.draw(({ CanvasKit, canvas, center }) => {
       const spiral = `
 precision mediump float;
 
@@ -68,7 +68,7 @@ void main() {
     checkImage(image, "snapshots/shaders/spiral.png");
   });
   it("should support arrays as uniform", async () => {
-    const image = await skia.eval(({ CanvasKit, canvas, center }) => {
+    const image = await skia.draw(({ CanvasKit, canvas, center }) => {
       const spiral = `
 precision mediump float;
 
@@ -101,7 +101,7 @@ void main() {
     checkImage(image, "snapshots/shaders/spiral.png");
   });
   it("should support any sizes", async () => {
-    const image = await skia.eval(
+    const image = await skia.draw(
       ({ CanvasKit, canvas, center }) => {
         const spiral = `
 precision mediump float;
@@ -137,7 +137,7 @@ void main() {
     checkImage(image, "snapshots/shaders/spiral-large.png");
   });
   it("should support shaders as uniform", async () => {
-    const image = await skia.eval(({ CanvasKit, canvas, width }) => {
+    const image = await skia.draw(({ CanvasKit, canvas, width }) => {
       const child1 = CanvasKit.Shader.MakeColor(
         [1, 0, 0, 1],
         CanvasKit.ColorSpace.SRGB
@@ -165,7 +165,7 @@ void main() {
   });
 
   it("should display an image shader with cover", async () => {
-    const image = await skia.eval(
+    const image = await skia.draw(
       ({
         canvas,
         CanvasKit,
