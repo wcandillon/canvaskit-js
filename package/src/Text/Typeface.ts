@@ -3,7 +3,7 @@ import type { Typeface } from "canvaskit-wasm";
 import { HostObject } from "../HostObject";
 
 import { parseFontTable } from "./Parser";
-import type { ICMap } from "./Parser/cmap/cmap";
+import type { ICMap } from "./Parser/opentype/cmap";
 
 export class TypefaceJS extends HostObject<"Typeface"> implements Typeface {
   cmap: ICMap | null = null;

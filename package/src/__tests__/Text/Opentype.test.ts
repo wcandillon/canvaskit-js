@@ -1,11 +1,11 @@
 import { parseFontTable } from "../../Text/Parser";
-import type { ICMap } from "../../Text/Parser/cmap/cmap";
+import type { ICMap } from "../../Text/Parser/opentype/cmap";
+import type { INames } from "../../Text/Parser/opentype/name";
 import {
-  //Pacifico,
+  Pacifico,
+  RoboBlackItalic,
   RobotoLightData,
   RobotoMediumData,
-  // RobotoMediumData,
-  // RoboBlackItalic,
 } from "../setup";
 
 const getGlyphIDs = (str: string, cmap: ICMap) => {
@@ -18,12 +18,20 @@ const getGlyphIDs = (str: string, cmap: ICMap) => {
   return result;
 };
 
-describe("FontMgr", () => {
+const getName = (names: INames) => {
+  return names.postScriptName.en;
+};
+
+describe("Opentype", () => {
   it("should read the font metadata properly", () => {
-    // expect(postScriptName(RobotoLight.buffer)).toBe("Roboto-Light");
-    // expect(postScriptName(RoboBlackItalic.buffer)).toBe("Roboto-BlackItalic");
-    // expect(postScriptName(RobotoMedium.buffer)).toBe("Roboto-Medium");
-    // expect(postScriptName(Pacifico.buffer)).toBe("Pacifico-Regular");
+    let name = getName(parseFontTable(RobotoLightData.buffer).namesTable);
+    expect(name).toBe("Roboto-Light");
+    name = getName(parseFontTable(RoboBlackItalic.buffer).namesTable);
+    expect(name).toBe("Roboto-BlackItalic");
+    name = getName(parseFontTable(RobotoMediumData.buffer).namesTable);
+    expect(name).toBe("Roboto-Medium");
+    name = getName(parseFontTable(Pacifico.buffer).namesTable);
+    expect(name).toBe("Pacifico-Regular");
   });
   it("should read the font glyph properly", () => {
     const typefaceRef = RealCanvasKit.Typeface.MakeFreeTypeFaceFromData(

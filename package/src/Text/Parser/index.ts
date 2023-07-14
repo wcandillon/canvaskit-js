@@ -1,1 +1,1 @@
-export * from "./cmap";
+export * from "./opentype";

@@ -485,7 +485,7 @@ export function parseNameTable(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const name: any = {};
   const p = new Parser(data, start);
-  // const format = p.parseUShort();
+  const format = p.parseUShort();
   const count = p.parseUShort();
   const stringOffset = p.offset + p.parseUShort();
   for (let i = 0; i < count; i++) {
@@ -512,7 +512,8 @@ export function parseNameTable(
       }
 
       if (text) {
-        let translations = name[property];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let translations: any = name[property];
         if (translations === undefined) {
           translations = name[property] = {};
         }
@@ -522,11 +523,12 @@ export function parseNameTable(
     }
   }
 
-  // let langTagCount = 0;
-  // if (format === 1) {
-  //   // FIXME: Also handle Microsoft's 'name' table 1.
-  //   langTagCount = p.parseUShort();
-  // }
+  //let langTagCount = 0;
+  if (format === 1) {
+    // FIXME: Also handle Microsoft's 'name' table 1.
+    //langTagCount = p.parseUShort();
+    p.parseUShort();
+  }
 
   return name;
 }
