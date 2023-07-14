@@ -18,9 +18,8 @@ export class TypefaceJS extends HostObject<"Typeface"> implements Typeface {
     const result = output ?? new Uint16Array(numCodePoints ?? str.length);
     for (let i = 0; i < result.length; i++) {
       const codepoint = str.codePointAt(i)!;
-      const index = this.cmap?.glyphIndexArray![codepoint];
-      console.log({ index });
-      result[i] = 0;
+      const index = this.cmap?.glyphIndexMap![codepoint] ?? 0;
+      result[i] = index;
     }
     return result;
   }

@@ -1,3 +1,4 @@
+/* eslint-disable no-bitwise */
 import { getULong, getUShort, Parser } from "./parse";
 export interface ICMap {
   version?: number;
@@ -6,7 +7,7 @@ export interface ICMap {
   length?: number;
   language?: number;
   groupCount?: number;
-  glyphIndexArray?: number[][];
+  glyphIndexMap?: { [charCode: number]: number };
   segCount?: number;
 }
 export function parseCmapTable(buf: DataView, start: number) {
@@ -56,18 +57,15 @@ function parseCmapTableFormat12(cmap: ICMap, p: Parser) {
   cmap.language = p.parseULong();
   let groupCount;
   cmap.groupCount = groupCount = p.parseULong();
-  // cmap.glyphIndexMap = {};
-  cmap.glyphIndexArray = [];
+  cmap.glyphIndexMap = {};
   for (let i = 0; i < groupCount; i += 1) {
     const startCharCode = p.parseULong();
     const endCharCode = p.parseULong();
-    //const startGlyphId = p.parseULong();
-    cmap.glyphIndexArray.push([startCharCode, endCharCode]);
-    // for (let c = startCharCode; c <= endCharCode; c += 1) {
-    //   // cmap.glyphIndexMap[c] = startGlyphId;
-    //   cmap.glyphIndexArray.push(c);
-    //   // startGlyphId++;
-    // }
+    let startGlyphId = p.parseULong();
+    for (let c = startCharCode; c <= endCharCode; c += 1) {
+      cmap.glyphIndexMap[c] = startGlyphId;
+      startGlyphId++;
+    }
   }
 }
 function parseCmapTableFormat4(
@@ -83,54 +81,51 @@ function parseCmapTableFormat4(
 
   // segCount is stored x 2.
   let segCount;
-  // eslint-disable-next-line no-bitwise
+
   cmap.segCount = segCount = p.parseUShort() >> 1;
 
   // Skip searchRange, entrySelector, rangeShift.
   p.skip("uShort", 3);
 
   // The "unrolled" mapping from character codes to glyph indices.
-  // cmap.glyphIndexMap = {};
-  cmap.glyphIndexArray = [];
+  cmap.glyphIndexMap = {};
   const endCountParser = new Parser(data, start + offset + 14);
   const startCountParser = new Parser(data, start + offset + 16 + segCount * 2);
-  // const idDeltaParser = new Parser(data, start + offset + 16 + segCount * 4);
-  // const idRangeOffsetParser = new Parser(
-  //   data,
-  //   start + offset + 16 + segCount * 6
-  // );
-  // let glyphIndexOffset = start + offset + 16 + segCount * 8;
+  const idDeltaParser = new Parser(data, start + offset + 16 + segCount * 4);
+  const idRangeOffsetParser = new Parser(
+    data,
+    start + offset + 16 + segCount * 6
+  );
+  let glyphIndexOffset = start + offset + 16 + segCount * 8;
   for (let i = 0; i < segCount - 1; i += 1) {
-    // let glyphIndex;
+    let glyphIndex;
     const endCount = endCountParser.parseUShort();
     const startCount = startCountParser.parseUShort();
-    // const idDelta = idDeltaParser.parseShort();
-    // const idRangeOffset = idRangeOffsetParser.parseUShort();
-    cmap.glyphIndexArray.push([startCount, endCount]);
-    // for (let c = startCount; c <= endCount; c += 1) {
-    // if (idRangeOffset !== 0) {
-    //   // The idRangeOffset is relative to the current position in the idRangeOffset array.
-    //   // Take the current offset in the idRangeOffset array.
-    //   glyphIndexOffset =
-    //     idRangeOffsetParser.offset + idRangeOffsetParser.relativeOffset - 2;
+    const idDelta = idDeltaParser.parseShort();
+    const idRangeOffset = idRangeOffsetParser.parseUShort();
+    for (let c = startCount; c <= endCount; c += 1) {
+      if (idRangeOffset !== 0) {
+        // The idRangeOffset is relative to the current position in the idRangeOffset array.
+        // Take the current offset in the idRangeOffset array.
+        glyphIndexOffset =
+          idRangeOffsetParser.offset + idRangeOffsetParser.relativeOffset - 2;
 
-    //   // Add the value of the idRangeOffset, which will move us into the glyphIndex array.
-    //   glyphIndexOffset += idRangeOffset;
+        // Add the value of the idRangeOffset, which will move us into the glyphIndex array.
+        glyphIndexOffset += idRangeOffset;
 
-    //   // Then add the character index of the current segment, multiplied by 2 for USHORTs.
-    //   glyphIndexOffset += (c - startCount) * 2;
-    //   glyphIndex = getUShort(data, glyphIndexOffset);
-    //   if (glyphIndex !== 0) {
-    //     // tslint:disable-next-line:no-bitwise
-    //     glyphIndex = (glyphIndex + idDelta) & 0xffff;
-    //   }
-    // } else {
-    //   // tslint:disable-next-line:no-bitwise
-    //   glyphIndex = (c + idDelta) & 0xffff;
-    // }
+        // Then add the character index of the current segment, multiplied by 2 for USHORTs.
+        glyphIndexOffset += (c - startCount) * 2;
+        glyphIndex = getUShort(data, glyphIndexOffset);
+        if (glyphIndex !== 0) {
+          // tslint:disable-next-line:no-bitwise
+          glyphIndex = (glyphIndex + idDelta) & 0xffff;
+        }
+      } else {
+        // tslint:disable-next-line:no-bitwise
+        glyphIndex = (c + idDelta) & 0xffff;
+      }
 
-    // cmap.glyphIndexMap[c] = glyphIndex;
-    // cmap.glyphIndexArray.push(c);
-    // }
+      cmap.glyphIndexMap[c] = glyphIndex;
+    }
   }
 }

@@ -10,29 +10,29 @@ import {
 
 const getGlyphIDs = (str: string, cmap: ICMap) => {
   const result = new Uint16Array(str.length);
-  console.log(cmap.glyphIndexArray);
   for (let i = 0; i < result.length; i++) {
     const codepoint = str.codePointAt(i)!;
-    const index = cmap.glyphIndexArray![codepoint];
-    console.log(index[i]);
-    result[i] = 0;
+    const index = cmap.glyphIndexMap![codepoint] ?? 0;
+    result[i] = index;
   }
   return result;
 };
 
 describe("FontMgr", () => {
   it("should read the font metadata properly", () => {
+    // expect(postScriptName(RobotoLight.buffer)).toBe("Roboto-Light");
+    // expect(postScriptName(RoboBlackItalic.buffer)).toBe("Roboto-BlackItalic");
+    // expect(postScriptName(RobotoMedium.buffer)).toBe("Roboto-Medium");
+    // expect(postScriptName(Pacifico.buffer)).toBe("Pacifico-Regular");
+  });
+  it("should read the font glyph properly", () => {
     const typefaceRef = RealCanvasKit.Typeface.MakeFreeTypeFaceFromData(
       new Uint8Array(RobotoMediumData)
     )!;
     const idsRef = typefaceRef.getGlyphIDs("AEGIS ægis");
-    console.log(idsRef);
 
     const cmap = parseFontTable(RobotoLightData.buffer).cmap!;
-    console.log(getGlyphIDs("AEGIS ægis", cmap));
-    // expect(parseFontTable(RobotoLightData.buffer)).toBe("Roboto-Light");
-    // expect(parseFontTable(RoboBlackItalic.buffer)).toBe("Roboto-BlackItalic");
-    // expect(parseFontTable(RobotoMediumData.buffer)).toBe("Roboto-Medium");
-    // expect(parseFontTable(Pacifico.buffer)).toBe("Pacifico-Regular");
+    const ids = getGlyphIDs("AEGIS ægis", cmap);
+    expect(ids).toEqual(idsRef);
   });
 });
