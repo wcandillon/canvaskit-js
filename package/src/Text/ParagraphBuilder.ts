@@ -19,6 +19,10 @@ interface TextNode {
   text: string;
 }
 
+// https://github.com/google/skia/blob/main/site/docs/dev/design/text_shaper.md
+// https://github.com/google/skia/blob/main/site/docs/dev/design/text_overview.md
+// https://github.com/google/skia/blob/main/site/docs/dev/design/text_c2d.md
+
 export class ParagraphBuilderJS
   extends HostObject<"ParagraphBuilder">
   implements ParagraphBuilder
