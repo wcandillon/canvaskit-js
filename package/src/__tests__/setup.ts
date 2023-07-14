@@ -28,10 +28,10 @@ import "./matchers";
 
 const DEBUG = process.env.DEBUG === "true";
 
-export const RobotoLight = fs.readFileSync(
+export const RobotoLightData = fs.readFileSync(
   "./src/__tests__/assets/Roboto-Light.ttf"
 );
-export const RobotoMedium = fs.readFileSync(
+export const RobotoMediumData = fs.readFileSync(
   "./src/__tests__/assets/Roboto-Medium.ttf"
 );
 export const Pacifico = fs.readFileSync(
@@ -87,8 +87,8 @@ class RemoteSurface {
     await page.evaluate(
       `const zurichRaw = new Uint8Array([${zurich.join(",")}]);
        const osloRaw = new Uint8Array([${oslo.join(",")}]);
-       const RobotoLight = new Uint8Array([${RobotoLight.join(",")}]);
-       const RobotoMedium = new Uint8Array([${RobotoMedium.join(",")}]);
+       const RobotoLight = new Uint8Array([${RobotoLightData.join(",")}]);
+       const RobotoMedium = new Uint8Array([${RobotoMediumData.join(",")}]);
        const assets = {};
        assets.RobotoLight = CanvasKit.Typeface.MakeFreeTypeFaceFromData(RobotoLight.buffer);
        assets.RobotoMedium = CanvasKit.Typeface.MakeFreeTypeFaceFromData(RobotoMedium.buffer);
@@ -114,6 +114,37 @@ class RemoteSurface {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   addFunction(name: string, fn: any) {
     this.functions[name] = fn.toString();
+  }
+
+  async eval(fn: (opts: DrawingContext) => unknown, opts?: EvalOptions) {
+    const { width, height } = { ...defaultEvalOptions, ...opts };
+    if (!this.page) {
+      throw new Error("RemoteSurface not initialized");
+    }
+    const source = `(async function Main(){ 
+      const canvas = document.createElement("canvas");
+      canvas.width = ${width};
+      canvas.height = ${height};
+      document.body.appendChild(canvas);
+      const surface = ${DEBUG} ? CanvasKit.MakeCanvasRecordingSurface(canvas) : CanvasKit.MakeCanvasSurface(canvas);
+      const width = ${width};
+      const height = ${height};
+      const center = { x: width/2, y: height/2 };
+      const ctx = { 
+        CanvasKit, surface, width, height,
+        canvas: surface.getCanvas(), center, assets,
+        lib: { fitRects: ${fitRects.toString()} }
+      };
+      ${Object.keys(this.functions)
+        .map((name) => {
+          return `const ${name} = ${this.functions[name]}`;
+        })
+        .join("\n")}
+      const result = (${fn.toString()})(ctx);
+      return JSON.stringify(result);
+    })();`;
+    const data = await this.page.evaluate(source);
+    return JSON.parse(data as string);
   }
 
   async draw(fn: (opts: DrawingContext) => unknown, opts?: EvalOptions) {
