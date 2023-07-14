@@ -2,10 +2,8 @@ import type { TypefaceFontProvider } from "canvaskit-wasm";
 
 import { HostObject } from "../HostObject";
 
-import { postScriptName } from "./fontMetadata";
-
 export const loadFont = (data: ArrayBuffer, familynameAlias?: string) => {
-  const familyName = familynameAlias ?? postScriptName(data);
+  const familyName = familynameAlias ?? "Hello";
   const font = new FontFace(familyName, data);
   font.load();
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment

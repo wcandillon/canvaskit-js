@@ -23,7 +23,7 @@ export class FontJS extends HostObject<"Font"> implements Font {
     _skewX?: number
   ) {
     super("Font");
-    this.typeface = typeface ?? new TypefaceJS("sans-serif");
+    this.typeface = typeface ?? new TypefaceJS("sans-serif", null);
   }
 
   fontStyle() {
@@ -61,19 +61,8 @@ export class FontJS extends HostObject<"Font"> implements Font {
       metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent
     );
   }
-  getGlyphIDs(
-    str: string,
-    numCodePoints?: number,
-    output?: Uint16Array
-  ): Uint16Array {
-    const glyphIDs = output ?? new Uint16Array(numCodePoints ?? str.length);
-    Array.from(str).forEach((char, index) => {
-      if (index < glyphIDs.length) {
-        // Convert each character to its Unicode code point
-        glyphIDs[index] = char.codePointAt(0) || 0;
-      }
-    });
-    return glyphIDs;
+  getGlyphIDs(str: string, numCodePoints?: number, output?: Uint16Array) {
+    return this.typeface.getGlyphIDs(str, numCodePoints, output);
   }
   getGlyphWidths(
     inputGlyphs: InputGlyphIDArray,

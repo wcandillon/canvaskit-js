@@ -21,6 +21,7 @@ import puppeteer from "puppeteer";
 import { CoreCanvasKit } from "../Core";
 import { PathJS } from "../Path";
 import { ContourMeasureIterJS } from "../Path/ContourMeasure";
+import { TypefaceFactory } from "../Text/TypefaceFactory";
 
 import { fitRects } from "./lib/FitRect";
 
@@ -116,31 +117,39 @@ class RemoteSurface {
     this.functions[name] = fn.toString();
   }
 
+  private baseCode(
+    width: number,
+    height: number,
+    fn: (opts: DrawingContext) => unknown
+  ) {
+    return `const canvas = document.createElement("canvas");
+    canvas.width = ${width};
+    canvas.height = ${height};
+    document.body.appendChild(canvas);
+    const surface = ${DEBUG} ? CanvasKit.MakeCanvasRecordingSurface(canvas) : CanvasKit.MakeCanvasSurface(canvas);
+    const width = ${width};
+    const height = ${height};
+    const center = { x: width/2, y: height/2 };
+    const ctx = { 
+      CanvasKit, surface, width, height,
+      canvas: surface.getCanvas(), center, assets,
+      lib: { fitRects: ${fitRects.toString()} }
+    };
+    ${Object.keys(this.functions)
+      .map((name) => {
+        return `const ${name} = ${this.functions[name]}`;
+      })
+      .join("\n")}
+    const result = (${fn.toString()})(ctx);`;
+  }
+
   async eval(fn: (opts: DrawingContext) => unknown, opts?: EvalOptions) {
     const { width, height } = { ...defaultEvalOptions, ...opts };
     if (!this.page) {
       throw new Error("RemoteSurface not initialized");
     }
     const source = `(async function Main(){ 
-      const canvas = document.createElement("canvas");
-      canvas.width = ${width};
-      canvas.height = ${height};
-      document.body.appendChild(canvas);
-      const surface = ${DEBUG} ? CanvasKit.MakeCanvasRecordingSurface(canvas) : CanvasKit.MakeCanvasSurface(canvas);
-      const width = ${width};
-      const height = ${height};
-      const center = { x: width/2, y: height/2 };
-      const ctx = { 
-        CanvasKit, surface, width, height,
-        canvas: surface.getCanvas(), center, assets,
-        lib: { fitRects: ${fitRects.toString()} }
-      };
-      ${Object.keys(this.functions)
-        .map((name) => {
-          return `const ${name} = ${this.functions[name]}`;
-        })
-        .join("\n")}
-      const result = (${fn.toString()})(ctx);
+      ${this.baseCode(width, height, fn)}
       return JSON.stringify(result);
     })();`;
     const data = await this.page.evaluate(source);
@@ -153,25 +162,7 @@ class RemoteSurface {
       throw new Error("RemoteSurface not initialized");
     }
     const source = `(async function Main(){ 
-      const canvas = document.createElement("canvas");
-      canvas.width = ${width};
-      canvas.height = ${height};
-      document.body.appendChild(canvas);
-      const surface = ${DEBUG} ? CanvasKit.MakeCanvasRecordingSurface(canvas) : CanvasKit.MakeCanvasSurface(canvas);
-      const width = ${width};
-      const height = ${height};
-      const center = { x: width/2, y: height/2 };
-      const ctx = { 
-        CanvasKit, surface, width, height,
-        canvas: surface.getCanvas(), center, assets,
-        lib: { fitRects: ${fitRects.toString()} }
-      };
-      ${Object.keys(this.functions)
-        .map((name) => {
-          return `const ${name} = ${this.functions[name]}`;
-        })
-        .join("\n")}
-      (${fn.toString()})(ctx);
+      ${this.baseCode(width, height, fn)}
       surface.flush();
       return surface.makeImageSnapshot().encodeToBytes();
     })();`;
@@ -203,6 +194,7 @@ declare global {
 }
 
 class HeadlessCanvasKit extends CoreCanvasKit {
+  Typeface = TypefaceFactory;
   Path = PathJS as unknown as PathConstructorAndFactory;
   ContourMeasureIter =
     ContourMeasureIterJS as unknown as ContourMeasureIterConstructor;
