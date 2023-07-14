@@ -2,14 +2,16 @@ import type { FontMgr } from "canvaskit-wasm";
 
 import { HostObject } from "../HostObject";
 
+import type { TypefaceJS } from "./Typeface";
+
 export class FontMgrJS extends HostObject<"FontMgr"> implements FontMgr {
-  constructor(readonly familyNames: string[]) {
+  constructor(readonly typefaces: TypefaceJS[]) {
     super("FontMgr");
   }
   countFamilies(): number {
-    return this.familyNames.length;
+    return this.typefaces.length;
   }
   getFamilyName(index: number): string {
-    return this.familyNames[index];
+    return this.typefaces[index].familyName;
   }
 }

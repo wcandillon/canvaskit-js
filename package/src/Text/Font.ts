@@ -23,7 +23,7 @@ export class FontJS extends HostObject<"Font"> implements Font {
     _skewX?: number
   ) {
     super("Font");
-    this.typeface = typeface ?? new TypefaceJS("sans-serif", null);
+    this.typeface = typeface ?? new TypefaceJS("sans-serif", null, null);
   }
 
   fontStyle() {

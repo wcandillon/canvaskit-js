@@ -13,7 +13,7 @@ export const loadFont = (data: ArrayBuffer, familynameAlias?: string) => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-expect-error
   document.fonts.add(font);
-  return familyName;
+  return { familyName, font };
 };
 
 export class TypefaceFontProviderJS
