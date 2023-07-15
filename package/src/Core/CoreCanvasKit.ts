@@ -137,4 +137,10 @@ export abstract class CoreCanvasKit {
   TextBaseline = TextBaseline;
   TextDirection = TextDirection;
   TextHeightBehavior = TextHeightBehavior;
+
+  LineThroughDecoration = 4;
+
+  NoDecoration = 0;
+  UnderlineDecoration = 1;
+  OverlineDecoration = 2;
 }

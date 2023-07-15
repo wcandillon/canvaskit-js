@@ -5,3 +5,7 @@ export * from "./FontCollectionFactory";
 export * from "./FontCollection";
 export * from "./FontMgrFactory";
 export * from "./Font";
+export * from "./ParagraphStyle";
+export * from "./TextStyle";
+export * from "./ParagraphBuilder";
+export * from "./ParagraphBuilderFactory";

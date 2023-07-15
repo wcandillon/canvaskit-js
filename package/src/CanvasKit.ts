@@ -58,10 +58,6 @@ import {
   CoreCanvasKit,
   ImageFormatEnum,
   MallocObjJS,
-  TextAlign,
-  TextBaseline,
-  TextDirection,
-  TextHeightBehavior,
 } from "./Core";
 import { SurfaceJS } from "./Surface";
 import { PaintJS } from "./Paint";
@@ -85,9 +81,10 @@ import {
   FontMgrFactory,
   TypefaceFactory,
   TypefaceFontProviderFactory,
+  ParagraphStyle,
+  ParagraphBuilderFactory,
+  TextStyle,
 } from "./Text";
-import { ParagraphBuilderFactory } from "./Text/ParagraphBuilderFactory";
-import { ParagraphStyle } from "./Text/ParagraphStyle";
 
 export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
   private static instance: ICanvasKit | null = null;
@@ -330,7 +327,7 @@ export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
   Paint: DefaultConstructor<Paint> = PaintJS;
   Path = PathJS as unknown as PathConstructorAndFactory;
   PictureRecorder!: DefaultConstructor<PictureRecorder>;
-  TextStyle!: TextStyleConstructor;
+  TextStyle = TextStyle as unknown as TextStyleConstructor;
   ParagraphBuilder = ParagraphBuilderFactory;
   ColorFilter = ColorFilterFactory;
   FontCollection = FontCollectionFactory;
@@ -363,10 +360,6 @@ export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
   PlaceholderAlignment!: PlaceholderAlignmentEnumValues;
   RectHeightStyle!: RectHeightStyleEnumValues;
   RectWidthStyle!: RectWidthStyleEnumValues;
-  NoDecoration!: number;
-  UnderlineDecoration!: number;
-  OverlineDecoration!: number;
-  LineThroughDecoration!: number;
 
   // The methods below are specific to canvaskit-js
   MakeCanvasRecordingSurface(canvas: string | HTMLCanvasElement) {

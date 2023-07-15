@@ -99,5 +99,13 @@ describe("Enums", () => {
     checkEnum(TextBaselineEnum, CanvasKit.TextBaseline);
     checkEnum(TextDirectionEnum, CanvasKit.TextDirection);
     checkEnum(TextHeightBehaviorEnum, CanvasKit.TextHeightBehavior);
+    expect(RealCanvasKit.LineThroughDecoration).toBe(
+      CanvasKit.LineThroughDecoration
+    );
+    expect(RealCanvasKit.NoDecoration).toBe(CanvasKit.NoDecoration);
+    expect(RealCanvasKit.UnderlineDecoration).toBe(
+      CanvasKit.UnderlineDecoration
+    );
+    expect(RealCanvasKit.OverlineDecoration).toBe(CanvasKit.OverlineDecoration);
   });
 });
