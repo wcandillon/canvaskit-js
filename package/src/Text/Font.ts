@@ -8,7 +8,6 @@ import type {
 } from "canvaskit-wasm";
 
 import { HostObject } from "../HostObject";
-import { xywhRect } from "../Core";
 
 import { TypefaceJS } from "./Typeface";
 import { TextContext, glyphArray } from "./NativeText";
@@ -60,12 +59,6 @@ export class FontJS extends HostObject<"Font"> implements Font {
       result[i * 4 + 1] = -metrics.actualBoundingBoxAscent;
       result[i * 4 + 2] = metrics.actualBoundingBoxRight;
       result[i * 4 + 3] = metrics.actualBoundingBoxDescent;
-      /*
-          x: rect[0],
-    y: rect[1],
-    width: rect[2] - rect[0],
-    height: rect[3] - rect[1],
-    */
     }
     return result;
   }

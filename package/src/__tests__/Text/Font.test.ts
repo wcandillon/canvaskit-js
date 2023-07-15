@@ -1,4 +1,4 @@
-import { RobotoMediumData, skia } from "../setup";
+import { RobotoMediumData, skia, MaterialIconsData } from "../setup";
 
 describe("Font", () => {
   it("should get the font size", async () => {
@@ -63,6 +63,29 @@ describe("Font", () => {
       1
     );
   });
+  it("should get the glyph bounds of MaterialIcons-Regular", async () => {
+    const typeface = RealCanvasKit.Typeface.MakeFreeTypeFaceFromData(
+      new Uint8Array(MaterialIconsData)
+    );
+    const fontRef = new RealCanvasKit.Font(typeface, 32);
+    const idsRef = [0];
+    const boundsRef = fontRef.getGlyphBounds(idsRef);
+    const bounds = await skia.eval(
+      ({ CanvasKit, assets: { MaterialIcons } }) => {
+        const font = new CanvasKit.Font(MaterialIcons, 32);
+        const glyphs = font.getGlyphIDs("AEGIS ægis");
+        return font.getGlyphBounds(glyphs);
+      }
+    );
+    expect(boundsRef.length).toEqual(idsRef.length * 4); // one glyph id per glyph
+    expect(Object.keys(bounds).length).toEqual(idsRef.length * 4); // one glyph id per glyph
+    expect(Object.values(bounds)).toBeApproximatelyEqual(
+      Object.values(boundsRef),
+      1
+    );
+  });
+  // Material UI: MaterialIcons-Regular
+  // Glyph: 0
   // it("should get the font metrics", async () => {
   //   const typeface = RealCanvasKit.Typeface.MakeFreeTypeFaceFromData(
   //     new Uint8Array(RobotoMediumData)

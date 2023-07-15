@@ -41,6 +41,9 @@ export const Pacifico = fs.readFileSync(
 export const RoboBlackItalic = fs.readFileSync(
   "./src/__tests__/assets/Roboto-BlackItalic.ttf"
 );
+export const MaterialIconsData = fs.readFileSync(
+  "./src/__tests__/assets/MaterialIcons-Regular.otf"
+);
 
 export interface DrawingContext {
   CanvasKit: CanvasKit;
@@ -54,6 +57,7 @@ export interface DrawingContext {
     oslo: Image;
     RobotoLight: Typeface;
     RobotoMedium: Typeface;
+    MaterialIcons: Typeface;
   };
   lib: {
     fitRects: (fit: string, src: Rect, dst: Rect) => { src: Rect; dst: Rect };
@@ -90,13 +94,15 @@ class RemoteSurface {
        const osloRaw = new Uint8Array([${oslo.join(",")}]);
        const RobotoLight = new Uint8Array([${RobotoLightData.join(",")}]);
        const RobotoMedium = new Uint8Array([${RobotoMediumData.join(",")}]);
+       const MaterialIcons = new Uint8Array([${MaterialIconsData.join(",")}]);
        const assets = {};
        assets.RobotoLight = CanvasKit.Typeface.MakeFreeTypeFaceFromData(RobotoLight.buffer);
        assets.RobotoMedium = CanvasKit.Typeface.MakeFreeTypeFaceFromData(RobotoMedium.buffer);
+       assets.MaterialIcons = CanvasKit.Typeface.MakeFreeTypeFaceFromData(MaterialIcons.buffer);
        Promise.all([
         CanvasKit.MakeImageFromEncodedAsync(zurichRaw),
         CanvasKit.MakeImageFromEncodedAsync(osloRaw)
-       ]).then(([zurich, oslo, RobotoLight, RobotoMedium]) => {
+       ]).then(([zurich, oslo]) => {
           assets.zurich = zurich;
           assets.oslo = oslo;
        });
