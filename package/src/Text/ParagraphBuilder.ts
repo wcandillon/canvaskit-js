@@ -1,5 +1,7 @@
 import type {
   EmbindEnumEntity,
+  FontCollection,
+  FontMgr,
   InputGraphemes,
   InputLineBreaks,
   InputWords,
@@ -34,7 +36,7 @@ export class ParagraphBuilderJS
 
   constructor(
     private readonly pStyle: ParagraphStyle,
-    _fontSrc: TypefaceFontProvider
+    _fontSrc: TypefaceFontProvider | FontMgr | FontCollection
   ) {
     super("ParagraphBuilder");
     const textStyle = this.pStyle.textStyle ?? {};

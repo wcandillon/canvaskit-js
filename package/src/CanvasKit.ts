@@ -14,7 +14,6 @@ import type {
   DecorationStyleEnumValues,
   DefaultConstructor,
   EmbindEnumEntity,
-  FontCollectionFactory,
   GlyphRunFlagValues,
   GrDirectContext,
   ImageDataConstructor,
@@ -39,11 +38,7 @@ import type {
   SkottieAnimation,
   SoundMap,
   Surface,
-  TextAlignEnumValues,
-  TextBaselineEnumValues,
   TextBlobFactory,
-  TextDirectionEnumValues,
-  TextHeightBehaviorEnumValues,
   TextStyleConstructor,
   TextureSource,
   TonalColorsInput,
@@ -63,6 +58,10 @@ import {
   CoreCanvasKit,
   ImageFormatEnum,
   MallocObjJS,
+  TextAlign,
+  TextBaseline,
+  TextDirection,
+  TextHeightBehavior,
 } from "./Core";
 import { SurfaceJS } from "./Surface";
 import { PaintJS } from "./Paint";
@@ -81,6 +80,7 @@ import {
 import { ColorFilterFactory } from "./ColorFilter/ColorFilterFactory";
 import { ContourMeasureIterJS } from "./Path/ContourMeasure";
 import {
+  FontCollectionFactory,
   FontJS,
   FontMgrFactory,
   TypefaceFactory,
@@ -333,7 +333,7 @@ export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
   TextStyle!: TextStyleConstructor;
   ParagraphBuilder = ParagraphBuilderFactory;
   ColorFilter = ColorFilterFactory;
-  FontCollection!: FontCollectionFactory;
+  FontCollection = FontCollectionFactory;
   FontMgr = FontMgrFactory;
   ImageFilter = ImageFilterFactory;
   MaskFilter = MaskFilterFactory;
@@ -363,10 +363,6 @@ export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
   PlaceholderAlignment!: PlaceholderAlignmentEnumValues;
   RectHeightStyle!: RectHeightStyleEnumValues;
   RectWidthStyle!: RectWidthStyleEnumValues;
-  TextAlign!: TextAlignEnumValues;
-  TextBaseline!: TextBaselineEnumValues;
-  TextDirection!: TextDirectionEnumValues;
-  TextHeightBehavior!: TextHeightBehaviorEnumValues;
   NoDecoration!: number;
   UnderlineDecoration!: number;
   OverlineDecoration!: number;

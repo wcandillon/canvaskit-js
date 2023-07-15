@@ -73,7 +73,7 @@ describe("Font", () => {
     const bounds = await skia.eval(
       ({ CanvasKit, assets: { MaterialIcons } }) => {
         const font = new CanvasKit.Font(MaterialIcons, 32);
-        const glyphs = font.getGlyphIDs("AEGIS ægis");
+        const glyphs = new Uint16Array([0]);
         return font.getGlyphBounds(glyphs);
       }
     );

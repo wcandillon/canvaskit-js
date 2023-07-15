@@ -22,6 +22,10 @@ import {
   PointMode,
   StrokeCapEnum,
   StrokeJoinEnum,
+  TextAlignEnum,
+  TextBaselineEnum,
+  TextDirectionEnum,
+  TextHeightBehaviorEnum,
   TileModeEnum,
   VertexModeEnum,
   mapKeys,
@@ -89,5 +93,11 @@ describe("Enums", () => {
   });
   it("Should match Canvas enums values with CanvasKit", () => {
     checkEnum(ClipOpEnum, CanvasKit.ClipOp);
+  });
+  it("Should match Paragraph enums values with CanvasKit", () => {
+    checkEnum(TextAlignEnum, CanvasKit.TextAlign);
+    checkEnum(TextBaselineEnum, CanvasKit.TextBaseline);
+    checkEnum(TextDirectionEnum, CanvasKit.TextDirection);
+    checkEnum(TextHeightBehaviorEnum, CanvasKit.TextHeightBehavior);
   });
 });

@@ -33,6 +33,10 @@ import {
   PointMode,
   StrokeCap,
   StrokeJoin,
+  TextAlign,
+  TextBaseline,
+  TextDirection,
+  TextHeightBehavior,
   TileMode,
   VertexMode,
 } from "./Contants";
@@ -128,4 +132,9 @@ export abstract class CoreCanvasKit {
   CONIC_VERB = PathVerb.Conic;
   CUBIC_VERB = PathVerb.Cubic;
   CLOSE_VERB = PathVerb.Close;
+
+  TextAlign = TextAlign;
+  TextBaseline = TextBaseline;
+  TextDirection = TextDirection;
+  TextHeightBehavior = TextHeightBehavior;
 }

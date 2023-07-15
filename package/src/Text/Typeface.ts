@@ -21,7 +21,9 @@ export class TypefaceJS extends HostObject<"Typeface"> implements Typeface {
     const values = Object.values(this.cmap!.glyphIndexMap!);
     for (let i = 0; i < glyphs.length; i++) {
       const index = values.indexOf(glyphs[i]);
-      text += String.fromCodePoint(Number(keys[index]));
+      if (index !== -1) {
+        text += String.fromCodePoint(Number(keys[index]));
+      }
     }
     return text;
   }

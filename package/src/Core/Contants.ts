@@ -25,6 +25,10 @@ import type {
   VertexModeEnumValues,
   ClipOpEnumValues,
   ColorSpaceEnumValues,
+  TextAlignEnumValues,
+  TextBaselineEnumValues,
+  TextDirectionEnumValues,
+  TextHeightBehaviorEnumValues,
 } from "canvaskit-wasm";
 
 import { HostObject } from "../HostObject";
@@ -309,3 +313,40 @@ export enum ClipOpEnum {
   Intersect,
 }
 export const ClipOp = makeEnum<ClipOpEnumValues>(ClipOpEnum);
+
+export enum TextAlignEnum {
+  Left,
+  Right,
+  Center,
+  Justify,
+  Start,
+  End,
+}
+
+export const TextAlign = makeEnum<TextAlignEnumValues>(TextAlignEnum);
+
+export enum TextBaselineEnum {
+  Alphabetic,
+  Ideographic,
+}
+
+export const TextBaseline = makeEnum<TextBaselineEnumValues>(TextBaselineEnum);
+
+export enum TextDirectionEnum {
+  LTR,
+  RTL,
+}
+
+export const TextDirection =
+  makeEnum<TextDirectionEnumValues>(TextDirectionEnum);
+
+export enum TextHeightBehaviorEnum {
+  All,
+  DisableFirstAscent,
+  DisableLastDescent,
+  DisableAll,
+}
+
+export const TextHeightBehavior = makeEnum<TextHeightBehaviorEnumValues>(
+  TextHeightBehaviorEnum
+);

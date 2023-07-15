@@ -13,10 +13,10 @@ import { ParagraphBuilderJS } from "./ParagraphBuilder";
 
 export const ParagraphBuilderFactory: CKParagraphBuilderFactory = {
   Make: function (
-    _style: ParagraphStyle,
-    _fontManager: FontMgr
+    style: ParagraphStyle,
+    fontManager: FontMgr
   ): ParagraphBuilder {
-    throw new Error("Function not implemented.");
+    return new ParagraphBuilderJS(style, fontManager);
   },
   MakeFromFontProvider: function (
     style: ParagraphStyle,
@@ -25,10 +25,10 @@ export const ParagraphBuilderFactory: CKParagraphBuilderFactory = {
     return new ParagraphBuilderJS(style, fontSrc);
   },
   MakeFromFontCollection: function (
-    _style: ParagraphStyle,
-    _fontCollection: FontCollection
+    style: ParagraphStyle,
+    fontCollection: FontCollection
   ): ParagraphBuilder {
-    throw new Error("Function not implemented.");
+    return new ParagraphBuilderJS(style, fontCollection);
   },
   ShapeText: function (
     _text: string,
