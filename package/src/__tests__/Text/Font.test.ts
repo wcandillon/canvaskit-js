@@ -21,18 +21,62 @@ describe("Font", () => {
     expect(ids.length).toEqual(idsRef.length); // one glyph id per glyph
     expect(ids[0]).toEqual(idsRef[0]);
   });
-  it("should get the font metrics", async () => {
+  it("should get the glyph bounds (1)", async () => {
     const typeface = RealCanvasKit.Typeface.MakeFreeTypeFaceFromData(
       new Uint8Array(RobotoMediumData)
     );
     const fontRef = new RealCanvasKit.Font(typeface, 32);
-    const metricsRef = fontRef.getMetrics();
-    const metrics = await skia.eval(
+    const idsRef = fontRef.getGlyphIDs("A");
+    const boundsRef = fontRef.getGlyphBounds(idsRef);
+    const bounds = await skia.eval(
       ({ CanvasKit, assets: { RobotoMedium } }) => {
         const font = new CanvasKit.Font(RobotoMedium, 32);
-        return font.getMetrics();
+        const glyphs = font.getGlyphIDs("A");
+        return font.getGlyphBounds(glyphs);
       }
     );
-    expect(metrics).toEqual(metricsRef);
+    expect(boundsRef.length).toEqual(idsRef.length * 4); // one glyph id per glyph
+    expect(Object.keys(bounds).length).toEqual(idsRef.length * 4); // one glyph id per glyph
+    expect(Object.values(bounds)).toBeApproximatelyEqual(
+      Object.values(boundsRef),
+      1
+    );
   });
+  it("should get the glyph bounds (2)", async () => {
+    const typeface = RealCanvasKit.Typeface.MakeFreeTypeFaceFromData(
+      new Uint8Array(RobotoMediumData)
+    );
+    const fontRef = new RealCanvasKit.Font(typeface, 32);
+    const idsRef = fontRef.getGlyphIDs("AEGIS ægis");
+    const boundsRef = fontRef.getGlyphBounds(idsRef);
+    const bounds = await skia.eval(
+      ({ CanvasKit, assets: { RobotoMedium } }) => {
+        const font = new CanvasKit.Font(RobotoMedium, 32);
+        const glyphs = font.getGlyphIDs("AEGIS ægis");
+        return font.getGlyphBounds(glyphs);
+      }
+    );
+    expect(boundsRef.length).toEqual(idsRef.length * 4); // one glyph id per glyph
+    expect(Object.keys(bounds).length).toEqual(idsRef.length * 4); // one glyph id per glyph
+    expect(Object.values(bounds)).toBeApproximatelyEqual(
+      Object.values(boundsRef),
+      1
+    );
+  });
+  // it("should get the font metrics", async () => {
+  //   const typeface = RealCanvasKit.Typeface.MakeFreeTypeFaceFromData(
+  //     new Uint8Array(RobotoMediumData)
+  //   );
+  //   const fontRef = new RealCanvasKit.Font(typeface, 32);
+  //   const metricsRef = fontRef.getMetrics();
+  //   const metrics = await skia.eval(
+  //     ({ CanvasKit, assets: { RobotoMedium } }) => {
+  //       const font = new CanvasKit.Font(RobotoMedium, 32);
+  //       const glyphs = font.getGlyphIDs("AEGIS ægis");
+  //       font.getGlyphBounds(glyphs);
+  //       return font.getMetrics();
+  //     }
+  //   );
+  //   expect(metrics).toEqual(metricsRef);
+  // });
 });

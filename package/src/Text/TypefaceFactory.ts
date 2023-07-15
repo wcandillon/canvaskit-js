@@ -8,7 +8,7 @@ import { loadFont } from "./TypefaceFont";
 
 export const TypefaceFactory: CKTypeFaceFactory = {
   MakeFreeTypeFaceFromData(fontData: ArrayBuffer): Typeface {
-    const { familyName, font } = loadFont(fontData);
-    return new TypefaceJS(familyName, font, fontData);
+    const { familyName } = loadFont(fontData);
+    return new TypefaceJS(familyName, fontData);
   },
 };

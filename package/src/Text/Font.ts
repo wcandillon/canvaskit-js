@@ -11,7 +11,7 @@ import { HostObject } from "../HostObject";
 import { xywhRect } from "../Core";
 
 import { TypefaceJS } from "./Typeface";
-import { TextContext, glyphArray, glyphToText } from "./NativeText";
+import { TextContext, glyphArray } from "./NativeText";
 
 export class FontJS extends HostObject<"Font"> implements Font {
   private typeface: TypefaceJS;
@@ -23,7 +23,7 @@ export class FontJS extends HostObject<"Font"> implements Font {
     _skewX?: number
   ) {
     super("Font");
-    this.typeface = typeface ?? new TypefaceJS("sans-serif", null, null);
+    this.typeface = typeface ?? new TypefaceJS("sans-serif", null);
   }
 
   fontStyle() {
@@ -48,38 +48,36 @@ export class FontJS extends HostObject<"Font"> implements Font {
   getGlyphBounds(
     inputGlyphs: InputGlyphIDArray,
     _paint?: Paint | null | undefined,
-    _output?: Float32Array | undefined
+    output?: Float32Array | undefined
   ) {
     const glyphs = glyphArray(inputGlyphs);
-    const text = glyphToText(glyphs);
-    TextContext.font = this.fontStyle();
-    const metrics = TextContext.measureText(text);
-    return xywhRect(
-      metrics.actualBoundingBoxLeft,
-      metrics.actualBoundingBoxAscent,
-      metrics.actualBoundingBoxRight - metrics.actualBoundingBoxLeft,
-      metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent
-    );
+    const result = output ?? new Float32Array(glyphs.length * 4);
+    const text = this.typeface.glyphToText(glyphs);
+    for (let i = 0; i < text.length; i++) {
+      TextContext.font = this.fontStyle();
+      const metrics = TextContext.measureText(text[i]);
+      result[i * 4 + 0] = -metrics.actualBoundingBoxLeft;
+      result[i * 4 + 1] = -metrics.actualBoundingBoxAscent;
+      result[i * 4 + 2] = metrics.actualBoundingBoxRight;
+      result[i * 4 + 3] = metrics.actualBoundingBoxDescent;
+      /*
+          x: rect[0],
+    y: rect[1],
+    width: rect[2] - rect[0],
+    height: rect[3] - rect[1],
+    */
+    }
+    return result;
   }
   getGlyphIDs(str: string, numCodePoints?: number, output?: Uint16Array) {
     return this.typeface.getGlyphIDs(str, numCodePoints, output);
   }
   getGlyphWidths(
-    inputGlyphs: InputGlyphIDArray,
+    _inputGlyphs: InputGlyphIDArray,
     _paint?: Paint | null | undefined,
     _output?: Float32Array | undefined
-  ) {
-    //const result = output ?? new Float32Array(inputGlyphs.length);
-    const glyphs = glyphArray(inputGlyphs);
-    const text = glyphToText(glyphs);
-    TextContext.font = this.fontStyle();
-    const metrics = TextContext.measureText(text);
-    return xywhRect(
-      metrics.actualBoundingBoxLeft,
-      metrics.actualBoundingBoxAscent,
-      metrics.actualBoundingBoxRight - metrics.actualBoundingBoxLeft,
-      metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent
-    );
+  ): Float32Array {
+    throw new Error("Method not implemented.");
   }
   getGlyphIntercepts(
     _glyphs: InputGlyphIDArray,

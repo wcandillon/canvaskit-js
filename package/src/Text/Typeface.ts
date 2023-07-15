@@ -8,15 +8,22 @@ import type { ICMap } from "./Parser/opentype/cmap";
 export class TypefaceJS extends HostObject<"Typeface"> implements Typeface {
   cmap: ICMap | null = null;
 
-  constructor(
-    readonly familyName: string,
-    readonly fontFace: FontFace | null,
-    data: ArrayBuffer | null
-  ) {
+  constructor(readonly familyName: string, data: ArrayBuffer | null) {
     super("Typeface");
     if (data) {
       this.cmap = parseFontTable(data).cmap;
     }
+  }
+
+  glyphToText(glyphs: Uint16Array) {
+    let text = "";
+    const keys = Object.keys(this.cmap!.glyphIndexMap!);
+    const values = Object.values(this.cmap!.glyphIndexMap!);
+    for (let i = 0; i < glyphs.length; i++) {
+      const index = values.indexOf(glyphs[i]);
+      text += String.fromCodePoint(Number(keys[index]));
+    }
+    return text;
   }
 
   getGlyphIDs(str: string, numCodePoints?: number, output?: Uint16Array) {
