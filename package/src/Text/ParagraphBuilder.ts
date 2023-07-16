@@ -13,9 +13,16 @@ import type {
 } from "canvaskit-wasm";
 
 import { HostObject } from "../HostObject";
+import {
+  TextAlignEnum,
+  TextBaselineEnum,
+  TextDirectionEnum,
+} from "../Core/Contants";
 
 import { ParagraphJS, type StyleNode, type Token } from "./Paragraph";
 import { TextContext } from "./NativeText";
+import type { ParagraphStyleJS, TextStyleJS } from "./ParagraphStyle";
+import { defaultParagraphStyle, defaultTextStyle } from "./ParagraphStyle";
 
 interface TextNode {
   style: StyleNode;
@@ -30,16 +37,18 @@ export class ParagraphBuilderJS
   extends HostObject<"ParagraphBuilder">
   implements ParagraphBuilder
 {
+  private readonly pStyle: ParagraphStyleJS;
   private stack: StyleNode[];
   private nodes: TextNode[];
   private text: string;
 
   constructor(
-    private readonly pStyle: ParagraphStyle,
+    paraStyle: ParagraphStyle,
     _fontSrc: TypefaceFontProvider | FontMgr | FontCollection
   ) {
     super("ParagraphBuilder");
-    const textStyle = this.pStyle.textStyle ?? {};
+    this.pStyle = defaultParagraphStyle(paraStyle);
+    const textStyle = defaultTextStyle(this.pStyle.textStyle ?? {});
     const style = { textStyle };
     this.stack = [style];
     this.nodes = [{ style, text: "" }];
@@ -100,13 +109,13 @@ export class ParagraphBuilderJS
   }
 
   pushStyle(textStyle: TextStyle) {
-    const style = { textStyle };
+    const style = { textStyle: defaultTextStyle(textStyle) };
     this.stack.push(style);
     this.nodes.push({ style, text: "" });
   }
 
   pushPaintStyle(textStyle: TextStyle, fg: Paint, bg: Paint) {
-    const style = { textStyle, fg, bg };
+    const style = { textStyle: defaultTextStyle(textStyle), fg, bg };
     this.stack.push(style);
     this.nodes.push({ style, text: "" });
   }
@@ -130,28 +139,65 @@ export class ParagraphBuilderJS
   }
 }
 
-const computeNativeStyle = (pStyle: ParagraphStyle, style: TextStyle) => {
+const computeNativeStyle = (
+  pStyle: ParagraphStyleJS,
+  style: TextStyleJS
+): CanvasTextDrawingStyles => {
   const fontFamilies = style.fontFamilies
-    ? pStyle.textStyle?.fontFamilies?.join()
+    ? style.fontFamilies?.join()
     : "sans-serif";
-  const size = style.fontSize ? pStyle.textStyle?.fontSize : 14;
-  const font = `${size}px ${fontFamilies}`;
-  // TODO: add enum for text align
-  //const align = pStyle.textAlign ?? "left";
-  // TODO: add enum for text direction
-  //const direction = pStyle.textDirection ?? "ltr";
+  const font = `${style.fontSize}px ${fontFamilies}`;
+  const textAlign = _textAlign(pStyle.textAlign);
+  const direction = _direction(pStyle.textDirection);
+  const textBaseline = _textBaseLine(style.textBaseline);
   return {
     font,
+    textAlign,
+    direction,
+    textBaseline,
+    fontKerning: "auto",
   };
 };
 
+const _textBaseLine = (baseline: EmbindEnumEntity) => {
+  if (baseline.value === TextBaselineEnum.Alphabetic) {
+    return "alphabetic";
+  } else {
+    return "ideographic";
+  }
+};
+
+const _textAlign = (align: EmbindEnumEntity) => {
+  if (align.value === TextAlignEnum.Right) {
+    return "right";
+  } else if (align.value === TextAlignEnum.Center) {
+    return "center";
+  } else if (align.value === TextAlignEnum.Start) {
+    return "start";
+  } else if (align.value === TextAlignEnum.End) {
+    return "end";
+  } else {
+    return "left";
+  }
+};
+
+const _direction = (dir: EmbindEnumEntity) => {
+  if (dir.value === TextDirectionEnum.RTL) {
+    return "rtl";
+  }
+  return "ltr";
+};
+
 const getTextData = (
-  pStyle: ParagraphStyle,
-  style: TextStyle,
+  pStyle: ParagraphStyleJS,
+  style: TextStyleJS,
   text: string
-): { nativeStyle: Partial<CanvasTextDrawingStyles>; metrics: TextMetrics } => {
+): { nativeStyle: CanvasTextDrawingStyles; metrics: TextMetrics } => {
   const nativeStyle = computeNativeStyle(pStyle, style);
   TextContext.font = nativeStyle.font;
+  TextContext.textAlign = nativeStyle.textAlign;
+  TextContext.direction = nativeStyle.direction;
+  TextContext.textBaseline = nativeStyle.textBaseline;
   const metrics = TextContext.measureText(text);
   return { metrics, nativeStyle };
 };

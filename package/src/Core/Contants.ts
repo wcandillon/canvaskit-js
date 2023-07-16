@@ -29,6 +29,7 @@ import type {
   TextBaselineEnumValues,
   TextDirectionEnumValues,
   TextHeightBehaviorEnumValues,
+  DecorationStyleEnumValues,
 } from "canvaskit-wasm";
 
 import { HostObject } from "../HostObject";
@@ -350,3 +351,14 @@ export enum TextHeightBehaviorEnum {
 export const TextHeightBehavior = makeEnum<TextHeightBehaviorEnumValues>(
   TextHeightBehaviorEnum
 );
+
+export enum DecorationStyleEnum {
+  Solid,
+  Double,
+  Dotted,
+  Dashed,
+  Wavy,
+}
+
+export const DecorationStyle =
+  makeEnum<DecorationStyleEnumValues>(DecorationStyleEnum);

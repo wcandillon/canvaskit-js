@@ -3,18 +3,19 @@ import type {
   LineMetrics,
   Paint,
   Paragraph,
+  ParagraphStyle,
   PositionWithAffinity,
   RectWithDirection,
   ShapedLine,
-  TextStyle,
   URange,
-  ParagraphStyle,
 } from "canvaskit-wasm";
 
 import { HostObject } from "../HostObject";
 
+import type { TextStyleJS } from "./ParagraphStyle";
+
 export interface StyleNode {
-  textStyle: TextStyle;
+  textStyle: TextStyleJS;
   fg?: Paint;
   bg?: Paint;
 }
@@ -38,10 +39,10 @@ export class ParagraphJS extends HostObject<"Paragraph"> implements Paragraph {
     super("Paragraph");
   }
   didExceedMaxLines(): boolean {
-    throw new Error("Method not implemented.");
+    return false;
   }
   getAlphabeticBaseline(): number {
-    throw new Error("Method not implemented.");
+    return this.tokens.map((t) => t.y).reduce((a, b) => Math.max(a, b));
   }
   getGlyphPositionAtCoordinate(_dx: number, _dy: number): PositionWithAffinity {
     throw new Error("Method not implemented.");
