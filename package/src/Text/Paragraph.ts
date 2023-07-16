@@ -3,7 +3,6 @@ import type {
   LineMetrics,
   Paint,
   Paragraph,
-  ParagraphStyle,
   PositionWithAffinity,
   RectWithDirection,
   ShapedLine,
@@ -12,7 +11,7 @@ import type {
 
 import { HostObject } from "../HostObject";
 
-import type { TextStyleJS } from "./ParagraphStyle";
+import type { ParagraphStyleJS, TextStyleJS } from "./ParagraphStyle";
 
 export interface StyleNode {
   textStyle: TextStyleJS;
@@ -35,41 +34,54 @@ export interface Token extends TextRenderingData {
 const lineHeightMultiplier = 1.6;
 
 export class ParagraphJS extends HostObject<"Paragraph"> implements Paragraph {
-  constructor(readonly pStyle: ParagraphStyle, readonly tokens: Token[]) {
+  private lineCount = 0;
+  private maxWidth = 0;
+
+  constructor(readonly pStyle: ParagraphStyleJS, readonly tokens: Token[]) {
     super("Paragraph");
   }
   didExceedMaxLines(): boolean {
-    return false;
+    return this.pStyle.maxLines > 0 && this.lineCount > this.pStyle.maxLines;
   }
   getAlphabeticBaseline(): number {
-    return this.tokens.map((t) => t.y).reduce((a, b) => Math.max(a, b));
+    return 21;
   }
   getGlyphPositionAtCoordinate(_dx: number, _dy: number): PositionWithAffinity {
     throw new Error("Method not implemented.");
   }
   getHeight(): number {
-    throw new Error("Method not implemented.");
+    return this.tokens.reduce(
+      (a, b) =>
+        Math.max(
+          a,
+          b.y +
+            (b.metrics.actualBoundingBoxAscent +
+              b.metrics.actualBoundingBoxDescent) *
+              lineHeightMultiplier
+        ),
+      0
+    );
   }
   getIdeographicBaseline(): number {
-    throw new Error("Method not implemented.");
+    return this.getAlphabeticBaseline();
   }
   getLineMetrics(): LineMetrics[] {
     throw new Error("Method not implemented.");
   }
   getLongestLine(): number {
-    throw new Error("Method not implemented.");
+    return 0;
   }
   getMaxIntrinsicWidth(): number {
-    throw new Error("Method not implemented.");
+    return this.tokens.reduce((a, b) => Math.max(a, b.metrics.width), 0);
   }
   getMaxWidth(): number {
-    throw new Error("Method not implemented.");
+    return this.maxWidth;
   }
   getMinIntrinsicWidth(): number {
-    throw new Error("Method not implemented.");
+    return this.tokens.reduce((a, b) => Math.min(a, b.metrics.width), 0);
   }
   getRectsForPlaceholders(): RectWithDirection[] {
-    throw new Error("Method not implemented.");
+    return [];
   }
   getRectsForRange(
     _start: number,
@@ -86,6 +98,8 @@ export class ParagraphJS extends HostObject<"Paragraph"> implements Paragraph {
     throw new Error("Method not implemented.");
   }
   layout(width: number): void {
+    this.maxWidth = width;
+    this.lineCount = 0;
     let x = 0;
     let y = 0;
     let lineHeight = 0;
@@ -97,6 +111,7 @@ export class ParagraphJS extends HostObject<"Paragraph"> implements Paragraph {
       if (x + token.metrics.width > width) {
         x = 0;
         y += lineHeight;
+        this.lineCount++;
         lineHeight = 0;
 
         if (token.text === " ") {

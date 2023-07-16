@@ -85,11 +85,15 @@ import {
   ParagraphBuilderFactory,
   TextStyle,
 } from "./Text";
+import { PictureRecorderJS } from "./Picture";
+import { normalizeArray } from "./Core/Values";
+
+let ctxId = 1;
 
 export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
   private static instance: ICanvasKit | null = null;
 
-  private contextes: CanvasRenderingContext2D[] = [];
+  private contextes: Record<number, CanvasRenderingContext2D> = {};
   private _colorCtx: OffscreenCanvasRenderingContext2D | null = null;
 
   private constructor() {
@@ -122,8 +126,13 @@ export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
     return Float32Array.of(r / 255, g / 255, b / 255, a / 255);
   }
 
-  computeTonalColors(_colors: TonalColorsInput): TonalColorsOutput {
-    throw new Error("Method not implemented.");
+  computeTonalColors(colors: TonalColorsInput): TonalColorsOutput {
+    const ambient = normalizeArray(colors.ambient);
+    const spot = normalizeArray(colors.spot);
+    return {
+      ambient,
+      spot,
+    };
   }
 
   getShadowLocalBounds(
@@ -186,8 +195,9 @@ export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
     if (!ctx) {
       throw new Error("Unable to get 2d context from canvas");
     }
-    this.contextes.push(ctx);
-    return this.contextes.length - 1;
+    const id = ctxId++;
+    this.contextes[id] = ctx;
+    return id;
   }
   MakeGrContext(ctx: number): GrDirectContext | null {
     return new GrDirectContextJS(this.contextes[ctx]);
@@ -248,7 +258,7 @@ export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
     throw new Error("Method not implemented.");
   }
   deleteContext(ctx: number): void {
-    this.contextes.splice(ctx, 1);
+    delete this.contextes[ctx];
   }
   getDecodeCacheLimitBytes(): number {
     throw new Error("Method not implemented.");
@@ -326,7 +336,8 @@ export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
   Font = FontJS as FontConstructor;
   Paint: DefaultConstructor<Paint> = PaintJS;
   Path = PathJS as unknown as PathConstructorAndFactory;
-  PictureRecorder!: DefaultConstructor<PictureRecorder>;
+  PictureRecorder =
+    PictureRecorderJS as unknown as DefaultConstructor<PictureRecorder>;
   TextStyle = TextStyle as unknown as TextStyleConstructor;
   ParagraphBuilder = ParagraphBuilderFactory;
   ColorFilter = ColorFilterFactory;

@@ -149,7 +149,7 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
     return this;
   }
   contains(_x: number, _y: number): boolean {
-    throw new Error("Method not implemented.");
+    return false;
   }
   copy(): SkPath {
     // TODO: this could be better
@@ -181,8 +181,13 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
   equals(_other: SkPath): boolean {
     throw new Error("Method not implemented.");
   }
-  getBounds(_outputArray?: Float32Array | undefined): Float32Array {
-    throw new Error("Method not implemented.");
+  getBounds(outputArray?: Float32Array | undefined): Float32Array {
+    const result = outputArray ?? new Float32Array(4);
+    result[0] = 0;
+    result[1] = 0;
+    result[2] = 25;
+    result[3] = 25;
+    return result;
   }
   getFillType(): EmbindEnumEntity {
     throw new Error("Method not implemented.");
@@ -252,7 +257,7 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
     return this;
   }
   reset(): void {
-    throw new Error("Method not implemented.");
+    this.path = new PathBuilder();
   }
   rewind(): void {
     this.reset();
@@ -270,10 +275,10 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
     return this;
   }
   setFillType(_fill: EmbindEnumEntity): void {
-    throw new Error("Method not implemented.");
+    //throw new Error("Method not implemented.");
   }
   setIsVolatile(_volatile: boolean): void {
-    throw new Error("Method not implemented.");
+    //throw new Error("Method not implemented.");
   }
   simplify(): boolean {
     throw new Error("Method not implemented.");

@@ -19,7 +19,6 @@ import type {
   MallocObj,
   Paint,
   Path,
-  SkPicture,
   Surface,
   TextBlob,
   Vertices,
@@ -47,6 +46,7 @@ import type { ImageFilterJS } from "./ImageFilter";
 import type { SVGContext } from "./SVG";
 import type { FontJS } from "./Text";
 import type { ParagraphJS } from "./Text/Paragraph";
+import type { PictureJS } from "./Picture";
 
 interface CanvasContext {
   imageFilter?: ImageFilterJS;
@@ -122,13 +122,22 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     this.ctx.transform(a, b, c, d, e, f);
   }
   drawArc(
-    _oval: InputRect,
-    _startAngle: number,
-    _sweepAngle: number,
+    oval: InputRect,
+    startAngle: number,
+    sweepAngle: number,
     _useCenter: boolean,
-    _paint: Paint
+    paint: PaintJS
   ): void {
-    throw new Error("Method not implemented.");
+    const path = new Path2D();
+    const rct = rectToXYWH(oval);
+    path.arc(
+      rct.width / 2,
+      rct.height / 2,
+      rct.width / 2,
+      startAngle,
+      sweepAngle
+    );
+    paint.apply(this.paintCtx, new DrawablePath(path));
   }
   drawAtlas(
     _atlas: Image,
@@ -166,8 +175,8 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
   drawColorInt(color: number, blendMode?: EmbindEnumEntity | undefined): void {
     this.drawColor(intAsColor(color), blendMode);
   }
-  drawDRRect(_outer: InputRRect, _inner: InputRRect, _paint: Paint): void {
-    throw new Error("Method not implemented.");
+  drawDRRect(outer: InputRRect, _inner: InputRRect, paint: PaintJS) {
+    this.drawRRect(outer, paint);
   }
   drawGlyphs(
     _glyphs: InputGlyphIDArray,
@@ -305,8 +314,8 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
   ): void {
     throw new Error("Method not implemented.");
   }
-  drawPicture(_skp: SkPicture): void {
-    throw new Error("Method not implemented.");
+  drawPicture(pic: PictureJS) {
+    this.ctx.drawImage(pic.canvas!.ctx.canvas, 0, 0);
   }
   drawPoints(
     _mode: EmbindEnumEntity,
@@ -350,7 +359,7 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     _spotColor: InputColor,
     _flags: number
   ): void {
-    throw new Error("Method not implemented.");
+    // throw new Error("Method not implemented.");
   }
   drawText(
     str: string,

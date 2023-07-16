@@ -1,5 +1,8 @@
 import type { EmbindObject } from "canvaskit-wasm";
 
+const generateId = () =>
+  Date.now().toString(36) + Math.random().toString(36).substring(2, 9);
+
 export abstract class HostObject<T extends string>
   // TODO: we have a patch in cavanskit that will sanitize this type once landed
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -29,8 +32,6 @@ export abstract class IndexedHostObject<
 
   constructor(type: T, prefix: string) {
     super(type);
-    this.id = `${prefix}-${
-      Date.now().toString(36) + Math.random().toString(36).substring(2, 9)
-    }`;
+    this.id = `${prefix}-${generateId()}`;
   }
 }
