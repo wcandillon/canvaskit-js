@@ -210,7 +210,7 @@ export class PaintJS extends HostObject<"Paint"> implements Paint {
     red /= 255;
     green /= 255;
     blue /= 255;
-    this.setColor(Float32Array.of(alpha, red, green, blue));
+    this.setColor(Float32Array.of(red, green, blue, alpha));
   }
   setDither(_shouldDither: boolean): void {
     throw new Error("Method not implemented.");

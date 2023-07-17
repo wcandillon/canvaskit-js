@@ -95,15 +95,26 @@ describe("Paint", () => {
     checkImage(image, "snapshots/paint/blue.png");
   });
 
-  it("should draw a paint via setColorInt", async () => {
+  it("should draw a blue paint via setColorInt", async () => {
     const image = await skia.draw(({ CanvasKit, canvas }) => {
       const paint = new CanvasKit.Paint();
-      paint.setColorInt(0x0000ffff);
+      paint.setColorInt(0xff0000ff);
       canvas.save();
       canvas.drawPaint(paint);
       canvas.restore();
     });
     checkImage(image, "snapshots/paint/blue.png");
+  });
+
+  it("should draw a red paint via setColorInt", async () => {
+    const image = await skia.draw(({ CanvasKit, canvas }) => {
+      const paint = new CanvasKit.Paint();
+      paint.setColorInt(0xffff0000);
+      canvas.save();
+      canvas.drawPaint(paint);
+      canvas.restore();
+    });
+    checkImage(image, "snapshots/paint/red.png");
   });
   it("should only fill the clip (reference)", async () => {
     const { surface, canvas } = setupRealSkia();
