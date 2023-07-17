@@ -120,7 +120,6 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     const e = matrix[2]; // translate x
     const f = matrix[5]; // translate y
     this.ctx.transform(a, b, c, d, e, f);
-    this.ctx.resetTransform();
   }
   drawArc(
     oval: InputRect,
