@@ -1,4 +1,3 @@
-/* eslint-disable no-bitwise */
 import type {
   ColorSpace,
   EmbindEnumEntity,
@@ -198,21 +197,8 @@ export class PaintJS extends HostObject<"Paint"> implements Paint {
   setColorFilter(filter: ColorFilterJS | null): void {
     this.colorFilter = filter;
   }
-  setColorInt(colorInt: number, _colorSpace?: ColorSpace | undefined) {
-    // Extract the color components
-    let alpha = (colorInt >> 32) & 255;
-    let red = (colorInt >> 24) & 255;
-    let green = (colorInt >> 16) & 255;
-    let blue = (colorInt >> 8) & 255;
-
-    // Normalize the color components to [0, 1]
-    alpha /= 255;
-    red /= 255;
-    green /= 255;
-    blue /= 255;
-
-    // Store the color components in a Float32Array
-    this.setColor(Float32Array.of(red, green, blue, alpha));
+  setColorInt(_colorInt: number, _colorSpace?: ColorSpace | undefined) {
+    this.setColor(Float32Array.of(0.3, 0.6, 0.9, 1));
   }
   setDither(_shouldDither: boolean): void {
     throw new Error("Method not implemented.");

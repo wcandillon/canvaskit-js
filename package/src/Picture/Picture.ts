@@ -8,10 +8,10 @@ import type {
 
 import { HostObject } from "../HostObject";
 import { ColorShader } from "../Shader/ColorShader";
-import type { CanvasJS } from "../Canvas";
+import type { CanvasRecorder } from "../Canvas/CanvasRecorder";
 
 export class PictureJS extends HostObject<"Picture"> implements SkPicture {
-  constructor(readonly canvas: CanvasJS | null) {
+  constructor(readonly canvas: CanvasRecorder) {
     super("Picture");
   }
   makeShader(

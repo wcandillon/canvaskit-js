@@ -24,8 +24,8 @@ import type {
   Vertices,
 } from "canvaskit-wasm";
 
-import { PaintJS, nativeBlendMode } from "./Paint";
-import type { ColorSpaceJS, GrDirectContextJS, InputColor } from "./Core";
+import { PaintJS, nativeBlendMode } from "../Paint";
+import type { ColorSpaceJS, GrDirectContextJS, InputColor } from "../Core";
 import {
   DrawableRect,
   DrawablePath,
@@ -36,17 +36,17 @@ import {
   rrectToXYWH,
   DrawableCircle,
   DrawableText,
-} from "./Core";
-import { HostObject } from "./HostObject";
-import { convertDOMMatrixTo3x3, normalizeMatrix } from "./Matrix3";
-import { toRad } from "./math";
-import type { PathJS } from "./Path";
-import type { ImageJS } from "./Image";
-import type { ImageFilterJS } from "./ImageFilter";
-import type { SVGContext } from "./SVG";
-import type { FontJS } from "./Text";
-import type { ParagraphJS } from "./Text/Paragraph";
-import type { PictureJS } from "./Picture";
+} from "../Core";
+import { HostObject } from "../HostObject";
+import { convertDOMMatrixTo3x3, normalizeMatrix } from "../Matrix3";
+import { toRad } from "../math";
+import type { PathJS } from "../Path";
+import type { ImageJS } from "../Image";
+import type { ImageFilterJS } from "../ImageFilter";
+import type { SVGContext } from "../SVG";
+import type { FontJS } from "../Text";
+import type { ParagraphJS } from "../Text/Paragraph";
+import type { PictureJS } from "../Picture";
 
 interface CanvasContext {
   imageFilter?: ImageFilterJS;
@@ -120,6 +120,7 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     const e = matrix[2]; // translate x
     const f = matrix[5]; // translate y
     this.ctx.transform(a, b, c, d, e, f);
+    this.ctx.resetTransform();
   }
   drawArc(
     oval: InputRect,
@@ -315,7 +316,7 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     throw new Error("Method not implemented.");
   }
   drawPicture(pic: PictureJS) {
-    this.ctx.drawImage(pic.canvas!.ctx.canvas, 0, 0);
+    pic.canvas.replay(this);
   }
   drawPoints(
     _mode: EmbindEnumEntity,
