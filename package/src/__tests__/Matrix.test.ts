@@ -169,7 +169,7 @@ describe("CanvasKit's Matrix Helpers", () => {
         const localMatrix = Array.from(canvas.getLocalToDevice());
         return { totalMatrix, localMatrix };
       });
-      const { localMatrix, totalMatrix } = result;
+      const { totalMatrix } = result;
       const expected = RealCanvasKit.Matrix.multiply(
         RealCanvasKit.Matrix.rotated(Math.PI / 4),
         RealCanvasKit.Matrix.translated(20, 10)
