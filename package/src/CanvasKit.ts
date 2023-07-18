@@ -23,7 +23,6 @@ import type {
   InputVector3,
   MallocObj,
   ManagedSkottieAnimation,
-  Matrix4x4Helpers,
   Paint,
   ParagraphStyleConstructor,
   PartialImageInfo,
@@ -352,7 +351,6 @@ export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
   Typeface = TypefaceFactory;
   TypefaceFontProvider = TypefaceFontProviderFactory;
   ColorMatrix!: ColorMatrixHelpers;
-  M44!: Matrix4x4Helpers;
   Vector!: VectorHelpers;
   ColorChannel!: ColorChannelEnumValues;
   GlyphRunFlags!: GlyphRunFlagValues;

@@ -38,7 +38,7 @@ import {
   DrawableText,
 } from "../Core";
 import { HostObject } from "../HostObject";
-import { convertDOMMatrixTo3x3, normalizeMatrix } from "../Matrix3";
+import { nativeMatrix } from "../Matrix";
 import { toRad } from "../math";
 import type { PathJS } from "../Path";
 import type { ImageJS } from "../Image";
@@ -112,14 +112,8 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     this.ctx.clip(path);
   }
   concat(m: InputMatrix): void {
-    const matrix = normalizeMatrix(m);
-    const a = matrix[0]; // scale x
-    const b = matrix[3]; // skew y
-    const c = matrix[1]; // skew x
-    const d = matrix[4]; // scale y
-    const e = matrix[2]; // translate x
-    const f = matrix[5]; // translate y
-    this.ctx.transform(a, b, c, d, e, f);
+    const m3 = nativeMatrix(m);
+    this.ctx.transform(m3.a, m3.b, m3.c, m3.d, m3.e, m3.f);
   }
   drawArc(
     oval: InputRect,
@@ -379,14 +373,25 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
   getDeviceClipBounds(_output?: Int32Array | undefined): Int32Array {
     throw new Error("Method not implemented.");
   }
-  getLocalToDevice(): Float32Array {
-    throw new Error("Method not implemented.");
+  getLocalToDevice() {
+    return this.ctx.getTransform().toFloat32Array();
   }
   getSaveCount(): number {
     return this.stack.length - 1;
   }
   getTotalMatrix(): number[] {
-    return convertDOMMatrixTo3x3(this.ctx.getTransform());
+    const m3 = this.ctx.getTransform();
+    return [
+      m3.m11,
+      m3.m12,
+      m3.m14,
+      m3.m21,
+      m3.m22,
+      m3.m24,
+      m3.m41,
+      m3.m42,
+      m3.m44,
+    ];
   }
   makeSurface(_info: ImageInfo): Surface | null {
     throw new Error("Method not implemented.");

@@ -17,6 +17,11 @@ export class PictureRecorderJS
     return this.canvas;
   }
   finishRecordingAsPicture(): SkPicture {
+    if (!this.canvas) {
+      throw new Error(
+        "CanvasRecorder not initialized. Call beginRecording first."
+      );
+    }
     return new PictureJS(this.canvas);
   }
 }

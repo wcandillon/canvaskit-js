@@ -1,13 +1,29 @@
-import "./setup";
+import { setupRealSkia, skia } from "./setup";
+
+const expectArrayCloseTo = (a: number[], b: number[], precision = 14) => {
+  expect(a.length).toEqual(b.length);
+  for (let i = 0; i < a.length; i++) {
+    expect(a[i]).toBeCloseTo(b[i], precision);
+  }
+};
+
+const expect3x3MatricesToMatch = (expected: number[], actual: number[]) => {
+  expect(expected.length).toEqual(9);
+  expect(actual.length).toEqual(9);
+  for (let i = 0; i < expected.length; i++) {
+    expect(expected[i]).toBeCloseTo(actual[i], 4);
+  }
+};
+
+const expect4x4MatricesToMatch = (expected: number[], actual: number[]) => {
+  expect(expected.length).toEqual(16);
+  expect(actual.length).toEqual(16);
+  for (let i = 0; i < expected.length; i++) {
+    expect(expected[i]).toBeCloseTo(actual[i], 3);
+  }
+};
 
 describe("CanvasKit's Matrix Helpers", () => {
-  const expectArrayCloseTo = (a: number[], b: number[], precision = 14) => {
-    expect(a.length).toEqual(b.length);
-    for (let i = 0; i < a.length; i++) {
-      expect(a[i]).toBeCloseTo(b[i], precision);
-    }
-  };
-
   describe("3x3 matrices", () => {
     it("can make a translated 3x3 matrix", () => {
       expectArrayCloseTo(
@@ -28,12 +44,40 @@ describe("CanvasKit's Matrix Helpers", () => {
         CanvasKit.Matrix.rotated(Math.PI, 9, 9),
         [-1, 0, 18, 0, -1, 18, 0, 0, 1]
       );
+      expectArrayCloseTo(
+        CanvasKit.Matrix.rotated(Math.PI, 9, 9),
+        RealCanvasKit.Matrix.rotated(Math.PI, 9, 9)
+      );
     });
 
     it("can make a skewed 3x3 matrix", () => {
       expectArrayCloseTo(
         CanvasKit.Matrix.skewed(4, 3, 2, 1),
         [1, 4, -8, 3, 1, -3, 0, 0, 1]
+      );
+      expectArrayCloseTo(
+        CanvasKit.Matrix.skewed(4, 3, 2, 1),
+        RealCanvasKit.Matrix.skewed(4, 3, 2, 1)
+      );
+    });
+
+    it("can rotate a 3x3 matrix", () => {
+      expectArrayCloseTo(
+        CanvasKit.Matrix.rotated(Math.PI / 4),
+        RealCanvasKit.Matrix.rotated(Math.PI / 4)
+      );
+    });
+
+    it("can rotate and translate a 3x3 matrix", () => {
+      expectArrayCloseTo(
+        CanvasKit.Matrix.multiply(
+          CanvasKit.Matrix.rotated(Math.PI / 4),
+          CanvasKit.Matrix.translated(20, 10)
+        ),
+        RealCanvasKit.Matrix.multiply(
+          RealCanvasKit.Matrix.rotated(Math.PI / 4),
+          RealCanvasKit.Matrix.translated(20, 10)
+        )
       );
     });
 
@@ -60,7 +104,181 @@ describe("CanvasKit's Matrix Helpers", () => {
       const expected = [-4, 4, -1, 6];
       expectArrayCloseTo(CanvasKit.Matrix.mapPoints(a, points), expected);
     });
-  }); // describe 3x3
+
+    it("Check matrices from CanvasKit", () => {
+      const { canvas } = setupRealSkia();
+      const totalMatrix = canvas.getTotalMatrix();
+      const localMatrix = canvas.getLocalToDevice();
+      expect(totalMatrix).toBeApproximatelyEqual(
+        RealCanvasKit.Matrix.identity()
+      );
+      expect(localMatrix).toBeApproximatelyEqual(RealCanvasKit.M44.identity());
+      expect(totalMatrix).toBeApproximatelyEqual(CanvasKit.Matrix.identity());
+      expect(localMatrix).toBeApproximatelyEqual(CanvasKit.M44.identity());
+    });
+
+    it("local matrix is the identity matrix", async () => {
+      const localMatrix = await skia.eval(({ canvas }) => {
+        return Array.from(canvas.getLocalToDevice());
+      });
+      expect(localMatrix).toBeApproximatelyEqual(RealCanvasKit.M44.identity());
+      expect(localMatrix).toBeApproximatelyEqual(CanvasKit.M44.identity());
+    });
+
+    it("total matrix is the identity matrix", async () => {
+      const { totalMatrix, localMatrix } = await skia.eval(({ canvas }) => {
+        return {
+          totalMatrix: canvas.getTotalMatrix(),
+          localMatrix: Array.from(canvas.getLocalToDevice()),
+        };
+      });
+      expect(totalMatrix).toBeApproximatelyEqual(
+        RealCanvasKit.Matrix.identity()
+      );
+      expect(localMatrix).toBeApproximatelyEqual(RealCanvasKit.M44.identity());
+    });
+
+    it("total matrix matches", async () => {
+      const { totalMatrix, localMatrix } = await skia.eval(({ canvas }) => {
+        canvas.concat(CanvasKit.Matrix.rotated(Math.PI / 4));
+        return {
+          totalMatrix: canvas.getTotalMatrix(),
+          localMatrix: canvas.getLocalToDevice(),
+        };
+      });
+      expect(totalMatrix).toBeApproximatelyEqual(
+        RealCanvasKit.Matrix.rotated(Math.PI / 4),
+        0.001
+      );
+      expect(localMatrix).toBeApproximatelyEqual(CanvasKit.M44.identity());
+    });
+
+    it("can change the 3x3 matrix on the canvas and read it back", async () => {
+      const result = await skia.eval(({ CanvasKit, canvas }) => {
+        canvas.save();
+        const garbageMatrix = new Float32Array(16);
+        garbageMatrix.fill(-3);
+        canvas.concat(garbageMatrix);
+        canvas.restore();
+
+        canvas.concat(CanvasKit.Matrix.rotated(Math.PI / 4));
+        const d = new DOMMatrix().translate(20, 10);
+        canvas.concat(d);
+        const totalMatrix = canvas.getTotalMatrix();
+        const localMatrix = Array.from(canvas.getLocalToDevice());
+        return { totalMatrix, localMatrix };
+      });
+      const { localMatrix, totalMatrix } = result;
+      const expected = RealCanvasKit.Matrix.multiply(
+        RealCanvasKit.Matrix.rotated(Math.PI / 4),
+        RealCanvasKit.Matrix.translated(20, 10)
+      );
+      expect3x3MatricesToMatch(expected, totalMatrix);
+
+      expect4x4MatricesToMatch(
+        [
+          0.707106, -0.707106, 0, 7.071067, 0.707106, 0.707106, 0, 21.213203, 0,
+          0, 1, 0, 0, 0, 0, 1,
+        ],
+        localMatrix
+      );
+    });
+
+    // it('can accept a 3x2 matrix', () => {
+    //     const canvas = new CanvasKit.Canvas();
+
+    //     let matr = canvas.getTotalMatrix();
+    //     expect(matr).toEqual(CanvasKit.Matrix.identity());
+
+    //     // This fills the internal _scratch4x4MatrixPtr with garbage (aka sentinel) values to
+    //     // make sure the 3x2 matrix properly sets these to 0 when it uses the same buffer.
+    //     canvas.save();
+    //     const garbageMatrix = new Float32Array(16);
+    //     garbageMatrix.fill(-3);
+    //     canvas.concat(garbageMatrix);
+    //     canvas.restore();
+
+    //     canvas.concat([1.4, -0.2, 12,
+    //                    0.2,  1.4, 24]);
+
+    //     matr = canvas.getTotalMatrix();
+    //     const expected = [1.4, -0.2, 12,
+    //                       0.2,  1.4, 24,
+    //                         0,    0,  1];
+    //     expect3x3MatricesToMatch(expected, matr);
+
+    //     // The 3x2 should be expanded into a 4x4, with identity in the 3rd row and column
+    //     // and the perspective filled in.
+    //     matr = canvas.getLocalToDevice();
+    //     expect4x4MatricesToMatch([
+    //         1.4, -0.2, 0, 12,
+    //         0.2,  1.4, 0, 24,
+    //         0  ,  0  , 1,  0,
+    //         0  ,  0  , 0,  1], matr);
+    // });
+
+    // it('can change the 4x4 matrix on the canvas and read it back', () => {
+    //     const canvas = new CanvasKit.Canvas();
+
+    //     let matr = canvas.getLocalToDevice();
+    //     expect(matr).toEqual(CanvasKit.M44.identity());
+
+    //     canvas.concat(CanvasKit.M44.rotated([0, 1, 0], Math.PI/4));
+    //     canvas.concat(CanvasKit.M44.rotated([1, 0, 1], Math.PI/8));
+
+    //     const expected = CanvasKit.M44.multiply(
+    //       CanvasKit.M44.rotated([0, 1, 0], Math.PI/4),
+    //       CanvasKit.M44.rotated([1, 0, 1], Math.PI/8),
+    //     );
+
+    //     expect4x4MatricesToMatch(expected, canvas.getLocalToDevice());
+    //     // TODO(kjlubick) add test for DOMMatrix
+    //     // TODO(nifong) add more involved test for camera-related math.
+    // });
+
+    // it('can change the device clip bounds to the canvas and read it back', () => {
+    //     // We need to use the Canvas constructor with a width/height or there is no maximum
+    //     // clip area, and all clipping will result in a clip of [0, 0, 0, 0]
+    //     const canvas = new CanvasKit.Canvas(300, 400);
+    //     let clip = canvas.getDeviceClipBounds();
+    //     expect(clip).toEqual(Int32Array.of(0, 0, 300, 400));
+
+    //     canvas.clipRect(CanvasKit.LTRBRect(10, 20, 30, 45), CanvasKit.ClipOp.Intersect, false);
+    //     canvas.getDeviceClipBounds(clip);
+    //     expect(clip).toEqual(Int32Array.of(10, 20, 30, 45));
+    // });
+
+    // gm('concat_with4x4_canvas', (canvas) => {
+    //     const path = starPath(CanvasKit, CANVAS_WIDTH/2, CANVAS_HEIGHT/2);
+    //     const paint = new CanvasKit.Paint();
+    //     paint.setAntiAlias(true);
+
+    //     // Rotate it a bit on all 3 major axis, centered on the screen.
+    //     // To play with rotations, see https://jsfiddle.skia.org/canvaskit/0525300405796aa87c3b84cc0d5748516fca0045d7d6d9c7840710ab771edcd4
+    //     const turn = CanvasKit.M44.multiply(
+    //       CanvasKit.M44.translated([CANVAS_WIDTH/2, 0, 0]),
+    //       CanvasKit.M44.rotated([1, 0, 0], Math.PI/3),
+    //       CanvasKit.M44.rotated([0, 1, 0], Math.PI/4),
+    //       CanvasKit.M44.rotated([0, 0, 1], Math.PI/16),
+    //       CanvasKit.M44.translated([-CANVAS_WIDTH/2, 0, 0]),
+    //     );
+    //     canvas.concat(turn);
+
+    //     // Draw some stripes to help the eye detect the turn
+    //     const stripeWidth = 10;
+    //     paint.setColor(CanvasKit.BLACK);
+    //     for (let i = 0; i < CANVAS_WIDTH; i += 2*stripeWidth) {
+    //         canvas.drawRect(CanvasKit.LTRBRect(i, 0, i + stripeWidth, CANVAS_HEIGHT), paint);
+    //     }
+
+    //     paint.setColor(CanvasKit.YELLOW);
+    //     canvas.drawPath(path, paint);
+    //     paint.delete();
+    //     path.delete();
+    // });
+  });
+
+  // describe 3x3
   // describe("4x4 matrices", () => {
   //   it("can make a translated 4x4 matrix", () => {
   //     expectArrayCloseTo(

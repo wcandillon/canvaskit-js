@@ -4,84 +4,20 @@ import type {
   Matrix3x3Helpers,
 } from "canvaskit-wasm";
 
+import { normalizeArray } from "../Core";
+
 export type Matrix3x3 = number[];
 
 export const nativeMatrix = (matrix: InputMatrix) => {
-  if (Array.isArray(matrix)) {
-    return new DOMMatrix(matrix.slice(0, 6));
-  } else if (matrix instanceof Float32Array) {
-    return DOMMatrix.fromFloat32Array(matrix.slice(0, 6));
-  } else if (matrix instanceof DOMMatrix) {
+  if (matrix instanceof DOMMatrix) {
     return matrix;
   } else {
-    return DOMMatrix.fromFloat32Array(
-      (matrix.toTypedArray() as Float32Array).slice(0, 6)
-    );
+    const m3 = normalizeArray(matrix);
+    if (m3.length === 9) {
+      return DOMMatrix.fromFloat32Array(m3.slice(0, 6));
+    }
+    return DOMMatrix.fromFloat32Array(m3);
   }
-};
-
-export const normalizeMatrix = (matrix: InputMatrix): Matrix3x3 => {
-  if (Array.isArray(matrix)) {
-    return matrix;
-  } else if (matrix instanceof Float32Array) {
-    return Array.from(matrix);
-  } else if (matrix instanceof DOMMatrix) {
-    return [
-      matrix.m11,
-      matrix.m12,
-      matrix.m13,
-      matrix.m21,
-      matrix.m22,
-      matrix.m23,
-      matrix.m41,
-      matrix.m42,
-      matrix.m44,
-    ];
-  } else {
-    return Array.from(matrix.toTypedArray());
-  }
-};
-
-export const convert3x3ToDOMMatrix = (arr: number[]) => {
-  const matrix = new DOMMatrix();
-
-  matrix.m11 = arr[0];
-  matrix.m12 = arr[1];
-  matrix.m13 = arr[2];
-  matrix.m21 = arr[3];
-  matrix.m22 = arr[4];
-  matrix.m23 = arr[5];
-  matrix.m41 = arr[6];
-  matrix.m42 = arr[7];
-  matrix.m44 = arr[8];
-
-  // Since this is a conversion back to a 4x4 matrix, we'll need to set the remaining elements
-  // Assuming it's an affine transformation matrix, we can set m14, m24, m34 to 0, m33 to 1
-  matrix.m14 = 0;
-  matrix.m24 = 0;
-  matrix.m34 = 0;
-  matrix.m33 = 1;
-
-  // m31, m32 and m43 should also be set as per requirement, defaulting them to 0
-  matrix.m31 = 0;
-  matrix.m32 = 0;
-  matrix.m43 = 0;
-
-  return matrix;
-};
-
-export const convertDOMMatrixTo3x3 = (matrix: DOMMatrix) => {
-  return [
-    matrix.m11,
-    matrix.m12,
-    matrix.m13,
-    matrix.m21,
-    matrix.m22,
-    matrix.m23,
-    matrix.m41,
-    matrix.m42,
-    matrix.m44,
-  ];
 };
 
 export const transformPoint = (matrix: Matrix3x3, ...point: number[]) => {

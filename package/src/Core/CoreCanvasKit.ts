@@ -1,6 +1,6 @@
 import type { Color, InputRect } from "canvaskit-wasm";
 
-import { Matrix3 } from "../Matrix3";
+import { Matrix3, Matrix4 } from "../Matrix";
 
 import {
   color,
@@ -117,6 +117,7 @@ export abstract class CoreCanvasKit {
   BlurStyle = BlurStyle;
   ClipOp = ClipOp;
   Matrix = Matrix3;
+  M44 = Matrix4;
   TRANSPARENT = Float32Array.of(0, 0, 0, 0);
   BLACK = Float32Array.of(0, 0, 0, 1);
   WHITE = Float32Array.of(1, 1, 1, 1);
