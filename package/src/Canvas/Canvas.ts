@@ -113,7 +113,7 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
   }
   concat(m: InputMatrix) {
     const m3 = nativeMatrix(m);
-    this.ctx.setTransform(this.ctx.getTransform().multiply(m3));
+    this.ctx.transform(m3.a, m3.b, m3.c, m3.d, m3.e, m3.f);
   }
   drawArc(
     oval: InputRect,

@@ -230,6 +230,45 @@ describe("CanvasKit's Matrix Helpers", () => {
       );
     });
 
+    /*
+
+        const radiansToDegrees = (rad) => {
+           return (rad / Math.PI) * 180;
+        };
+
+        // this should draw the same as concat_with4x4_canvas
+        gm('concat_dommatrix', (canvas) => {
+            const path = starPath(CanvasKit, CANVAS_WIDTH/2, CANVAS_HEIGHT/2);
+            const paint = new CanvasKit.Paint();
+            paint.setAntiAlias(true);
+            canvas.concat(new DOMMatrix().translate(CANVAS_WIDTH/2, 0, 0));
+            canvas.concat(new DOMMatrix().rotateAxisAngle(1, 0, 0, radiansToDegrees(Math.PI/3)));
+            canvas.concat(new DOMMatrix().rotateAxisAngle(0, 1, 0, radiansToDegrees(Math.PI/4)));
+            canvas.concat(new DOMMatrix().rotateAxisAngle(0, 0, 1, radiansToDegrees(Math.PI/16)));
+            canvas.concat(new DOMMatrix().translate(-CANVAS_WIDTH/2, 0, 0));
+
+            const localMatrix = canvas.getLocalToDevice();
+            expect4x4MatricesToMatch([
+             0.693519, -0.137949,  0.707106,   91.944030,
+             0.698150,  0.370924, -0.612372, -209.445297,
+            -0.177806,  0.918359,  0.353553,   53.342029,
+             0       ,  0       ,  0       ,    1       ], localMatrix);
+
+            // Draw some stripes to help the eye detect the turn
+            const stripeWidth = 10;
+            paint.setColor(CanvasKit.BLACK);
+            for (let i = 0; i < CANVAS_WIDTH; i += 2*stripeWidth) {
+                canvas.drawRect(CanvasKit.LTRBRect(i, 0, i + stripeWidth, CANVAS_HEIGHT), paint);
+            }
+
+            paint.setColor(CanvasKit.YELLOW);
+            canvas.drawPath(path, paint);
+            paint.delete();
+            path.delete();
+        });
+
+        */
+
     // it("can change the 4x4 matrix on the canvas and read it back'", async () => {
     //   const localMatrix = await skia.eval(({ canvas }) => {
     //     canvas.concat(CanvasKit.M44.rotated([0, 1, 0], Math.PI / 4));
