@@ -15,13 +15,13 @@ const expect3x3MatricesToMatch = (expected: number[], actual: number[]) => {
   }
 };
 
-const expect4x4MatricesToMatch = (expected: number[], actual: number[]) => {
-  expect(expected.length).toEqual(16);
-  expect(actual.length).toEqual(16);
-  for (let i = 0; i < expected.length; i++) {
-    expect(expected[i]).toBeCloseTo(actual[i], 3);
-  }
-};
+// const expect4x4MatricesToMatch = (expected: number[], actual: number[]) => {
+//   expect(expected.length).toEqual(16);
+//   expect(actual.length).toEqual(16);
+//   for (let i = 0; i < expected.length; i++) {
+//     expect(expected[i]).toBeCloseTo(actual[i], 3);
+//   }
+// };
 
 describe("CanvasKit's Matrix Helpers", () => {
   describe("3x3 matrices", () => {
@@ -140,7 +140,21 @@ describe("CanvasKit's Matrix Helpers", () => {
       expect(localMatrix).toBeApproximatelyEqual(CanvasKit.M44.identity());
     });
 
+    it("total matrix matches (reference)", async () => {
+      const { canvas } = setupRealSkia();
+      canvas.concat(RealCanvasKit.Matrix.rotated(Math.PI / 4));
+      const totalMatrix = canvas.getTotalMatrix();
+      expect(totalMatrix).toBeApproximatelyEqual(
+        RealCanvasKit.Matrix.rotated(Math.PI / 4),
+        0.001
+      );
+    });
+
     it("total matrix matches", async () => {
+      expect(RealCanvasKit.Matrix.rotated(Math.PI / 4)).toBeApproximatelyEqual(
+        CanvasKit.Matrix.rotated(Math.PI / 4),
+        0.001
+      );
       const { totalMatrix } = await skia.eval(({ canvas }) => {
         canvas.concat(CanvasKit.Matrix.rotated(Math.PI / 4));
         return {
