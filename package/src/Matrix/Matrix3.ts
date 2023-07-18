@@ -8,18 +8,6 @@ import { normalizeArray } from "../Core";
 
 export type Matrix3x3 = number[];
 
-// const fromDOMMatrix = (m: DOMMatrix): Matrix3x3 => [
-//   m.a,
-//   m.c,
-//   m.e,
-//   m.b,
-//   m.d,
-//   m.f,
-//   0,
-//   0,
-//   1,
-// ];
-
 const toDOMMatrix = (m3: Float32Array) => {
   const m = new DOMMatrix();
   m.a = m3[0];

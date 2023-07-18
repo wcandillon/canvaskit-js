@@ -374,7 +374,25 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     throw new Error("Method not implemented.");
   }
   getLocalToDevice() {
-    return this.ctx.getTransform().toFloat32Array();
+    const m = this.ctx.getTransform();
+    return new Float32Array([
+      m.m11,
+      m.m21,
+      m.m31,
+      m.m41,
+      m.m12,
+      m.m22,
+      m.m32,
+      m.m42,
+      m.m13,
+      m.m23,
+      m.m33,
+      m.m43,
+      m.m14,
+      m.m24,
+      m.m34,
+      m.m44,
+    ]);
   }
   getSaveCount(): number {
     return this.stack.length - 1;
