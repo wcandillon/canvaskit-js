@@ -380,8 +380,8 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     return this.stack.length - 1;
   }
   getTotalMatrix(): number[] {
-    const m3 = this.ctx.getTransform();
-    return [m3.a, m3.b, m3.c, 0, m3.d, m3.e, 0, m3.f, 1];
+    const m = this.ctx.getTransform();
+    return [m.a, m.c, m.e, m.b, m.d, m.f, 0, 0, 1];
   }
   makeSurface(_info: ImageInfo): Surface | null {
     throw new Error("Method not implemented.");

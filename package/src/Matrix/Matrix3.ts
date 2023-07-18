@@ -8,13 +8,36 @@ import { normalizeArray } from "../Core";
 
 export type Matrix3x3 = number[];
 
+// const fromDOMMatrix = (m: DOMMatrix): Matrix3x3 => [
+//   m.a,
+//   m.c,
+//   m.e,
+//   m.b,
+//   m.d,
+//   m.f,
+//   0,
+//   0,
+//   1,
+// ];
+
+const toDOMMatrix = (m3: Float32Array) => {
+  const m = new DOMMatrix();
+  m.a = m3[0];
+  m.b = m3[3];
+  m.c = m3[1];
+  m.d = m3[4];
+  m.e = m3[2];
+  m.f = m3[5];
+  return m;
+};
+
 export const nativeMatrix = (matrix: InputMatrix) => {
   if (matrix instanceof DOMMatrix) {
     return matrix;
   } else {
     const m3 = normalizeArray(matrix);
     if (m3.length === 9) {
-      return DOMMatrix.fromFloat32Array(m3.slice(0, 6));
+      return toDOMMatrix(m3);
     }
     return DOMMatrix.fromFloat32Array(m3);
   }

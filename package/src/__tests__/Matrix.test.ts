@@ -162,6 +162,7 @@ describe("CanvasKit's Matrix Helpers", () => {
           localMatrix: Array.from(canvas.getLocalToDevice()),
         };
       });
+
       expect(totalMatrix).toBeApproximatelyEqual(
         RealCanvasKit.Matrix.rotated(Math.PI / 4),
         0.001
