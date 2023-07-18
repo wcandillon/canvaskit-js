@@ -344,6 +344,23 @@ describe("Transforms", () => {
     });
     checkImage(image, "snapshots/m4.png");
   });
+  /*
+  https://github.com/fserb/canvas2D/blob/master/spec/perspective-transforms.md
+    // Javascript example, draws a trapezoid
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+
+  const w = canvas.width;
+  const h = canvas.height;
+  ctx.fillStyle = "magenta";
+  ctx.fillRect(w/2 - 50, h/2 - 50, 100, 100);
+  ctx.fillStyle = "rgba(0, 2550, 255, 0.8)";
+  ctx.translate(w/2, h/2);
+  ctx.perspective(100);
+  ctx.rotate3d(1.0, 0, 0);
+  ctx.translate(-w/2, -h/2);
+  ctx.fillRect(w/2 - 50, h/2 - 50, 100, 100);
+  */
 });
 
 /*

@@ -33,13 +33,15 @@ import type {
 
 import { HostObject } from "../HostObject";
 
+import { DrawingContext } from "./DrawingContext";
+
 type Command = {
   name: string;
   args: any[];
 };
 
 export class CanvasRecorder extends HostObject<"Canvas"> implements Canvas {
-  private stack: 0[] = [];
+  private ctx = new DrawingContext();
   private commands: Command[] = [];
 
   constructor(readonly bounds: Rect) {
@@ -372,17 +374,17 @@ export class CanvasRecorder extends HostObject<"Canvas"> implements Canvas {
     imageInfo: ImageInfo,
     dest?: MallocObj | undefined,
     bytesPerRow?: number | undefined
-  ): Float32Array | Uint8Array | null {
+  ) {
     this.commands.push({
       name: "readPixels",
       args: [srcX, srcY, imageInfo, dest, bytesPerRow],
     });
-    throw new Error("This method returns a value, hence can't be recorded.");
+    return null;
   }
 
   restore(): void {
     this.commands.push({ name: "restore", args: [] });
-    this.stack.pop();
+    this.ctx.restore();
   }
 
   restoreToCount(saveCount: number): void {
@@ -398,8 +400,7 @@ export class CanvasRecorder extends HostObject<"Canvas"> implements Canvas {
 
   save(): number {
     this.commands.push({ name: "save", args: [] });
-    this.stack.push(0);
-    return this.stack.length;
+    return this.ctx.save();
   }
 
   saveLayer(
@@ -412,8 +413,7 @@ export class CanvasRecorder extends HostObject<"Canvas"> implements Canvas {
       name: "saveLayer",
       args: [paint, bounds, backdrop, flags],
     });
-    this.stack.push(0);
-    return this.stack.length;
+    return this.ctx.save();
   }
 
   scale(sx: number, sy: number): void {
@@ -451,6 +451,6 @@ export class CanvasRecorder extends HostObject<"Canvas"> implements Canvas {
         colorSpace,
       ],
     });
-    return true;
+    return false;
   }
 }

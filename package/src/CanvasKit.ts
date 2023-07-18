@@ -43,7 +43,6 @@ import type {
   TonalColorsInput,
   TonalColorsOutput,
   TypedArrayConstructor,
-  VectorHelpers,
   Vertices,
   WebGLOptions,
   WebGPUCanvasContext,
