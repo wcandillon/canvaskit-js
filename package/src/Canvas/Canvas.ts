@@ -30,7 +30,6 @@ import {
   DrawableRect,
   DrawablePath,
   nativeColor,
-  createTexture,
   intAsColor,
   rectToXYWH,
   rrectToXYWH,
@@ -39,7 +38,6 @@ import {
 } from "../Core";
 import { HostObject } from "../HostObject";
 import { nativeMatrix } from "../Matrix";
-import { toRad } from "../math";
 import type { PathJS } from "../Path";
 import type { ImageJS } from "../Image";
 import type { ImageFilterJS } from "../ImageFilter";
@@ -48,31 +46,22 @@ import type { FontJS } from "../Text";
 import type { ParagraphJS } from "../Text/Paragraph";
 import type { PictureJS } from "../Picture";
 
-interface CanvasContext {
-  imageFilter?: ImageFilterJS;
-  isLayer?: boolean;
-  ctx: CanvasRenderingContext2D;
-  clip?: Path2D;
-}
+import { DrawingContext } from "./DrawingContext";
 
 export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
-  private stack: CanvasContext[] = [];
+  private context: DrawingContext;
 
   constructor(
-    readonly drawingCtx: CanvasRenderingContext2D,
+    ctx: CanvasRenderingContext2D,
     public readonly svgCtx: SVGContext,
     public readonly grCtx: GrDirectContextJS
   ) {
     super("Canvas");
-    this.stack.push({ ctx: drawingCtx });
-  }
-
-  get layer() {
-    return this.stack[this.stack.length - 1];
+    this.context = new DrawingContext(ctx);
   }
 
   get ctx() {
-    return this.stack[this.stack.length - 1].ctx;
+    return this.context.ctx!;
   }
 
   get paintCtx() {
@@ -113,7 +102,7 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
   }
   concat(m: InputMatrix) {
     const m3 = nativeMatrix(m);
-    this.ctx.transform(m3.a, m3.b, m3.c, m3.d, m3.e, m3.f);
+    this.context.transform(m3);
   }
   drawArc(
     oval: InputRect,
@@ -394,8 +383,8 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
       m.m44,
     ]);
   }
-  getSaveCount(): number {
-    return this.stack.length - 1;
+  getSaveCount() {
+    return this.context.saveCount();
   }
   getTotalMatrix(): number[] {
     const m = this.ctx.getTransform();
@@ -414,100 +403,65 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     throw new Error("Method not implemented.");
   }
   restore() {
-    if (this.stack.length === 1) {
-      // do nothing
-      return;
-    }
-    const { isLayer, imageFilter, ctx } = this.stack.pop()!;
-    if (isLayer) {
-      if (imageFilter) {
+    const { filter, layer, ctx } = this.context.restore()!;
+    if (layer) {
+      if (filter) {
         const paint = new PaintJS();
-        paint.setImageFilter(imageFilter);
-        paint.apply(this.paintCtx, () => {
+        paint.setImageFilter(filter);
+        paint.apply({ ctx: this.ctx, svgCtx: this.svgCtx }, () => {
+          this.ctx.save();
           this.ctx.resetTransform();
           this.ctx.drawImage(
-            ctx.canvas,
+            this.ctx.canvas,
             0,
             0,
-            ctx.canvas.width,
-            ctx.canvas.height
+            this.ctx.canvas.width,
+            this.ctx.canvas.height
           );
+          this.ctx.restore();
         });
+        this.ctx.drawImage(ctx!.canvas, 0, 0);
       } else {
-        this.ctx.save();
-        this.ctx.resetTransform();
-        this.ctx.drawImage(
-          ctx.canvas,
-          0,
-          0,
-          ctx.canvas.width,
-          ctx.canvas.height
-        );
-        this.ctx.restore();
+        this.ctx.drawImage(ctx!.canvas, 0, 0);
       }
     }
-    // TODO: should it be on the else branch?
-    this.ctx.restore();
   }
   restoreToCount(saveCount: number): void {
     for (let i = 1; i <= saveCount; i++) {
       this.restore();
     }
   }
-  rotate(rot: number, rx: number, ry: number): void {
-    this.ctx.translate(rx, ry);
-    this.ctx.rotate(toRad(rot));
-    this.ctx.translate(-rx, -ry);
+  rotate(rot: number, rx: number, ry: number) {
+    const m = new DOMMatrix().translate(rx, ry).rotate(rot).translate(-rx, -ry);
+    this.concat(m);
   }
-  save(): number {
-    const { ctx, clip } = this.layer;
-    ctx.save();
-    this.stack.push({ ctx, clip });
-    return this.getSaveCount();
+  save() {
+    return this.context.save();
   }
   saveLayer(
-    paint?: PaintJS,
+    _paint?: PaintJS,
     _bounds?: InputRect | null,
     imageFilter?: ImageFilterJS | null,
     _flags?: number
   ): number {
-    const saveCount = this.save();
-    const { ctx, clip } = this.layer;
-    const { canvas } = ctx;
-    const { width, height } = canvas;
-    const layer = createTexture(width, height);
-    if (paint) {
-      paint.apply({ ctx: layer, svgCtx: this.svgCtx }, () => {
-        layer.drawImage(canvas, 0, 0, width, height);
-      });
-    } else {
-      layer.drawImage(canvas, 0, 0);
+    if (_bounds || _paint || _flags) {
+      console.warn("unimplemented saveLayer parameter");
     }
-    layer.setTransform(this.ctx.getTransform());
-    const newClip = clip ? new Path2D() : undefined;
-    if (newClip) {
-      newClip.addPath(clip!);
-      layer.clip(clip!);
-    }
-
-    this.stack.push({
-      ctx: layer,
-      imageFilter: imageFilter ?? undefined,
-      //      clip: newClip,
-      isLayer: true,
-    });
-    return saveCount;
+    return this.context.saveLayer(imageFilter);
   }
   scale(sx: number, sy: number): void {
-    this.ctx.scale(sx, sy);
+    const m = new DOMMatrix().scale(sx, sy);
+    this.concat(m);
   }
   skew(sx: number, sy: number): void {
     const rSx = Math.tan(sx);
     const rSy = Math.tan(sy);
-    this.ctx.transform(1, rSy, rSx, 1, 0, 0);
+    const m = new DOMMatrix([1, rSy, rSx, 1, 0, 0]);
+    this.concat(m);
   }
   translate(x: number, y: number): void {
-    this.ctx.translate(x, y);
+    const m = new DOMMatrix().translate(x, y);
+    this.concat(m);
   }
   writePixels(
     pixels: number[] | Uint8Array,

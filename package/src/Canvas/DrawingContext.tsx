@@ -1,19 +1,12 @@
 import { createTexture } from "../Core";
 import type { ImageFilterJS } from "../ImageFilter";
-import { PaintJS } from "../Paint";
-import type { SVGContext } from "../SVG";
-
-interface PaintCtx {
-  ctx: CanvasRenderingContext2D;
-  svgCtx: SVGContext;
-}
 
 interface Context {
   ctx: CanvasRenderingContext2D | null;
   ctm: DOMMatrix;
   clip: Path2D | null;
-  imageFilter?: ImageFilterJS;
-  layer?: PaintCtx;
+  filter?: ImageFilterJS;
+  layer?: boolean;
 }
 
 export class DrawingContext {
@@ -52,66 +45,30 @@ export class DrawingContext {
     return this.stack.length;
   }
 
-  saveLayer(
-    paintCtx: PaintCtx,
-    paint?: PaintJS,
-    imageFilter?: ImageFilterJS | null
-  ) {
-    const saveCount = this.save();
-    const { ctx, clip, ctm } = this.current;
-    if (ctx !== null) {
-      const { canvas } = ctx;
-      const { width, height } = canvas;
-      const layer = createTexture(width, height);
-      if (paint) {
-        paint.apply(paintCtx, () => {
-          layer.drawImage(canvas, 0, 0, width, height);
-        });
-      } else {
-        layer.drawImage(canvas, 0, 0);
-      }
-      layer.setTransform(ctx.getTransform());
-      if (clip) {
-        layer.clip(clip);
-      }
-      this.stack.push({
-        ctx: layer,
-        ctm,
-        imageFilter: imageFilter ?? undefined,
-        clip,
-        layer: paintCtx,
-      });
+  saveLayer(imageFilter?: ImageFilterJS | null) {
+    const { ctx, ctm, clip } = this.current;
+    if (ctx === null) {
+      return this.save();
     }
-    return saveCount;
+    const { canvas } = ctx;
+    const { width, height } = canvas;
+    const layer = createTexture(width, height);
+    this.stack.push({
+      ctx: layer,
+      ctm,
+      clip,
+      filter: imageFilter ?? undefined,
+      layer: true,
+    });
+    return this.stack.length;
   }
 
   restore() {
-    const { ctx, layer, imageFilter } = this.current;
+    const { ctx } = this.current;
     if (ctx) {
-      if (layer) {
-        if (imageFilter) {
-          const paint = new PaintJS();
-          paint.setImageFilter(imageFilter);
-          paint.apply(layer, () => {
-            ctx.resetTransform();
-            ctx.drawImage(
-              ctx.canvas,
-              0,
-              0,
-              ctx.canvas.width,
-              ctx.canvas.height
-            );
-          });
-        } else {
-          ctx.save();
-          ctx.resetTransform();
-          ctx.drawImage(ctx.canvas, 0, 0, ctx.canvas.width, ctx.canvas.height);
-          ctx.restore();
-        }
-      }
       ctx.restore();
     }
-    this.stack.pop();
+    return this.stack.pop();
   }
 
   transform(transform: DOMMatrix2DInit) {
