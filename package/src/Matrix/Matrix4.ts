@@ -1,6 +1,7 @@
 import type {
   Camera,
   InputRect,
+  Matrix4x4,
   Matrix4x4Helpers,
   Vector3,
 } from "canvaskit-wasm";
@@ -19,8 +20,21 @@ export const Matrix4: Matrix4x4Helpers = {
   ): number[] {
     throw new Error("Function not implemented.");
   },
-  multiply: function (..._matrices: (number[] | Float32Array)[]): number[] {
-    throw new Error("Function not implemented.");
+  multiply: function (...matrices: Matrix4x4[]): number[] {
+    let result = this.identity();
+    for (const m of matrices) {
+      const temp = this.identity();
+      for (let i = 0; i < 4; ++i) {
+        for (let j = 0; j < 4; ++j) {
+          temp[i * 4 + j] = 0;
+          for (let k = 0; k < 4; ++k) {
+            temp[i * 4 + j] += result[i * 4 + k] * m[k * 4 + j];
+          }
+        }
+      }
+      result = temp;
+    }
+    return result;
   },
   mustInvert: function (_matrix: number[] | Float32Array): number[] {
     throw new Error("Function not implemented.");
@@ -39,15 +53,42 @@ export const Matrix4: Matrix4x4Helpers = {
   ): number {
     throw new Error("Function not implemented.");
   },
-  rotated: function (_axis: Vector3, _radians: number): number[] {
-    throw new Error("Function not implemented.");
+  rotated: function (axisVec: Vector3, radians: number): number[] {
+    return CanvasKit.M44.rotatedUnitSinCos(
+      CanvasKit.Vector.normalize(axisVec),
+      Math.sin(radians),
+      Math.cos(radians)
+    );
   },
   rotatedUnitSinCos: function (
-    _axis: Vector3,
-    _sinAngle: number,
-    _cosAngle: number
+    axisVec: Vector3,
+    sinAngle: number,
+    cosAngle: number
   ): number[] {
-    throw new Error("Function not implemented.");
+    const x = axisVec[0];
+    const y = axisVec[1];
+    const z = axisVec[2];
+    const c = cosAngle;
+    const s = sinAngle;
+    const t = 1 - c;
+    return [
+      t * x * x + c,
+      t * x * y - s * z,
+      t * x * z + s * y,
+      0,
+      t * x * y + s * z,
+      t * y * y + c,
+      t * y * z - s * x,
+      0,
+      t * x * z - s * y,
+      t * y * z + s * x,
+      t * z * z + c,
+      0,
+      0,
+      0,
+      0,
+      1,
+    ];
   },
   scaled: function (_vec: Vector3): number[] {
     throw new Error("Function not implemented.");

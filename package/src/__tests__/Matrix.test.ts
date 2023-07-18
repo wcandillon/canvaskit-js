@@ -204,6 +204,52 @@ describe("CanvasKit's Matrix Helpers", () => {
       ]);
     });
 
+    it("supports 4x4 matrix operation", () => {
+      expect(
+        CanvasKit.M44.rotated([0, 1, 0], Math.PI / 4)
+      ).toBeApproximatelyEqual(
+        RealCanvasKit.M44.rotated([0, 1, 0], Math.PI / 4)
+      );
+      expect(
+        CanvasKit.M44.rotated([1, 0, 1], Math.PI / 8)
+      ).toBeApproximatelyEqual(
+        RealCanvasKit.M44.rotated([1, 0, 1], Math.PI / 8)
+      );
+
+      expect(
+        CanvasKit.M44.multiply(
+          CanvasKit.M44.rotated([0, 1, 0], Math.PI / 4),
+          CanvasKit.M44.rotated([1, 0, 1], Math.PI / 8)
+        )
+      ).toBeApproximatelyEqual(
+        RealCanvasKit.M44.multiply(
+          RealCanvasKit.M44.rotated([0, 1, 0], Math.PI / 4),
+          RealCanvasKit.M44.rotated([1, 0, 1], Math.PI / 8)
+        )
+      );
+    });
+
+    it("can change the 4x4 matrix on the canvas and read it back'", async () => {
+      const localMatrix = await skia.eval(({ canvas }) => {
+        canvas.concat(CanvasKit.M44.rotated([0, 1, 0], Math.PI / 4));
+        canvas.concat(CanvasKit.M44.rotated([1, 0, 1], Math.PI / 8));
+
+        return Array.from(canvas.getLocalToDevice());
+      });
+
+      const expected = RealCanvasKit.M44.multiply(
+        RealCanvasKit.M44.rotated([0, 1, 0], Math.PI / 4),
+        RealCanvasKit.M44.rotated([1, 0, 1], Math.PI / 8)
+      );
+      expect(localMatrix).toBeApproximatelyEqual(expected);
+
+      const expected2 = CanvasKit.M44.multiply(
+        CanvasKit.M44.rotated([0, 1, 0], Math.PI / 4),
+        CanvasKit.M44.rotated([1, 0, 1], Math.PI / 8)
+      );
+      expect(localMatrix).toBeApproximatelyEqual(expected2);
+    });
+
     // it('can change the 4x4 matrix on the canvas and read it back', () => {
     //     const canvas = new CanvasKit.Canvas();
 

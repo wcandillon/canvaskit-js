@@ -351,7 +351,6 @@ export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
   Typeface = TypefaceFactory;
   TypefaceFontProvider = TypefaceFontProviderFactory;
   ColorMatrix!: ColorMatrixHelpers;
-  Vector!: VectorHelpers;
   ColorChannel!: ColorChannelEnumValues;
   GlyphRunFlags!: GlyphRunFlagValues;
   SaveLayerInitWithPrevious = 1 << 2;
