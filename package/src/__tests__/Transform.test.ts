@@ -202,6 +202,148 @@ describe("Transforms", () => {
     );
     checkImage(image, "snapshots/circle-gradient3.png");
   });
+  it("Build the reference result (3)", () => {
+    const { surface, canvas, width, height } = setupRealSkia();
+    canvas.concat(RealCanvasKit.M44.rotated([0, 1, 0], Math.PI / 4));
+    canvas.concat(RealCanvasKit.M44.rotated([1, 0, 1], Math.PI / 8));
+    const paint = new RealCanvasKit.Paint();
+    paint.setAntiAlias(true);
+    const colors = ["#FFF723", "#E70696"].map((cl) =>
+      RealCanvasKit.parseColorString(cl)
+    );
+    paint.setShader(
+      RealCanvasKit.Shader.MakeLinearGradient(
+        [0, 0],
+        [0, height],
+        colors,
+        null,
+        RealCanvasKit.TileMode.Clamp
+      )
+    );
+    canvas.drawRect(RealCanvasKit.XYWHRect(0, 0, width, height), paint);
+
+    processResult(surface, "snapshots/m4.png");
+  });
+  it("Build the reference result (4)", () => {
+    const { surface, canvas, width, height } = setupRealSkia();
+    canvas.concat(
+      RealCanvasKit.M44.multiply(
+        RealCanvasKit.M44.rotated([0, 1, 0], Math.PI / 4),
+        RealCanvasKit.M44.rotated([1, 0, 1], Math.PI / 8)
+      )
+    );
+    const paint = new RealCanvasKit.Paint();
+    paint.setAntiAlias(true);
+    const colors = ["#FFF723", "#E70696"].map((cl) =>
+      RealCanvasKit.parseColorString(cl)
+    );
+    paint.setShader(
+      RealCanvasKit.Shader.MakeLinearGradient(
+        [0, 0],
+        [0, height],
+        colors,
+        null,
+        RealCanvasKit.TileMode.Clamp
+      )
+    );
+    canvas.drawRect(RealCanvasKit.XYWHRect(0, 0, width, height), paint);
+
+    processResult(surface, "snapshots/m4.png");
+  });
+  it("should accept matrix4", async () => {
+    const image = await skia.draw(({ CanvasKit, canvas, height, width }) => {
+      canvas.concat(
+        CanvasKit.M44.multiply(
+          CanvasKit.M44.rotated([0, 1, 0], Math.PI / 4),
+          CanvasKit.M44.rotated([1, 0, 1], Math.PI / 8)
+        )
+      );
+      const paint = new CanvasKit.Paint();
+      const colors = ["#FFF723", "#E70696"].map((cl) =>
+        CanvasKit.parseColorString(cl)
+      );
+      paint.setShader(
+        CanvasKit.Shader.MakeLinearGradient(
+          [0, 0],
+          [0, height],
+          colors,
+          null,
+          CanvasKit.TileMode.Clamp
+        )
+      );
+      canvas.drawRect(CanvasKit.XYWHRect(0, 0, width, height), paint);
+    });
+    checkImage(image, "snapshots/m4.png");
+  });
+  it("should accept matrix4 (1)", async () => {
+    const image = await skia.draw(({ CanvasKit, canvas, height, width }) => {
+      const m4 = new DOMMatrix();
+      canvas.concat(
+        m4
+          .multiply(m4.rotateAxisAngle(0, 1, 0, 180 / 4))
+          .multiply(m4.rotateAxisAngle(1, 0, 1, 180 / 8))
+      );
+      const paint = new CanvasKit.Paint();
+      const colors = ["#FFF723", "#E70696"].map((cl) =>
+        CanvasKit.parseColorString(cl)
+      );
+      paint.setShader(
+        CanvasKit.Shader.MakeLinearGradient(
+          [0, 0],
+          [0, height],
+          colors,
+          null,
+          CanvasKit.TileMode.Clamp
+        )
+      );
+      canvas.drawRect(CanvasKit.XYWHRect(0, 0, width, height), paint);
+    });
+    checkImage(image, "snapshots/m4.png");
+  });
+  it("should accept matrix4 (2)", async () => {
+    const image = await skia.draw(({ CanvasKit, canvas, height, width }) => {
+      const m4 = new DOMMatrix();
+      canvas.concat(m4.rotateAxisAngle(0, 1, 0, 180 / 4));
+      canvas.concat(m4.rotateAxisAngle(1, 0, 1, 180 / 8));
+      const paint = new CanvasKit.Paint();
+      const colors = ["#FFF723", "#E70696"].map((cl) =>
+        CanvasKit.parseColorString(cl)
+      );
+      paint.setShader(
+        CanvasKit.Shader.MakeLinearGradient(
+          [0, 0],
+          [0, height],
+          colors,
+          null,
+          CanvasKit.TileMode.Clamp
+        )
+      );
+      canvas.drawRect(CanvasKit.XYWHRect(0, 0, width, height), paint);
+    });
+    checkImage(image, "snapshots/m4.png");
+  });
+  it("should accept matrix4 (3)", async () => {
+    const image = await skia.draw(({ CanvasKit, canvas, height, width }) => {
+      canvas.concat(CanvasKit.M44.rotated([0, 1, 0], Math.PI / 4));
+      canvas.concat(CanvasKit.M44.rotated([1, 0, 1], Math.PI / 8));
+      const paint = new CanvasKit.Paint();
+      paint.setAntiAlias(true);
+      const colors = ["#FFF723", "#E70696"].map((cl) =>
+        CanvasKit.parseColorString(cl)
+      );
+      paint.setShader(
+        CanvasKit.Shader.MakeLinearGradient(
+          [0, 0],
+          [0, height],
+          colors,
+          null,
+          CanvasKit.TileMode.Clamp
+        )
+      );
+      canvas.drawRect(CanvasKit.XYWHRect(0, 0, width, height), paint);
+    });
+    checkImage(image, "snapshots/m4.png");
+  });
 });
 
 /*

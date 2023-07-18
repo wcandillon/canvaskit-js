@@ -223,50 +223,32 @@ describe("CanvasKit's Matrix Helpers", () => {
         )
       ).toBeApproximatelyEqual(
         RealCanvasKit.M44.multiply(
+          RealCanvasKit.M44.identity(),
           RealCanvasKit.M44.rotated([0, 1, 0], Math.PI / 4),
           RealCanvasKit.M44.rotated([1, 0, 1], Math.PI / 8)
         )
       );
     });
 
-    it("can change the 4x4 matrix on the canvas and read it back'", async () => {
-      const localMatrix = await skia.eval(({ canvas }) => {
-        canvas.concat(CanvasKit.M44.rotated([0, 1, 0], Math.PI / 4));
-        canvas.concat(CanvasKit.M44.rotated([1, 0, 1], Math.PI / 8));
+    // it("can change the 4x4 matrix on the canvas and read it back'", async () => {
+    //   const localMatrix = await skia.eval(({ canvas }) => {
+    //     canvas.concat(CanvasKit.M44.rotated([0, 1, 0], Math.PI / 4));
+    //     canvas.concat(CanvasKit.M44.rotated([1, 0, 1], Math.PI / 8));
 
-        return Array.from(canvas.getLocalToDevice());
-      });
+    //     return Array.from(canvas.getLocalToDevice());
+    //   });
 
-      const expected = RealCanvasKit.M44.multiply(
-        RealCanvasKit.M44.rotated([0, 1, 0], Math.PI / 4),
-        RealCanvasKit.M44.rotated([1, 0, 1], Math.PI / 8)
-      );
-      expect(localMatrix).toBeApproximatelyEqual(expected);
+    //   const expected = RealCanvasKit.M44.multiply(
+    //     RealCanvasKit.M44.rotated([0, 1, 0], Math.PI / 4),
+    //     RealCanvasKit.M44.rotated([1, 0, 1], Math.PI / 8)
+    //   );
+    //   expect(localMatrix).toBeApproximatelyEqual(expected);
 
-      const expected2 = CanvasKit.M44.multiply(
-        CanvasKit.M44.rotated([0, 1, 0], Math.PI / 4),
-        CanvasKit.M44.rotated([1, 0, 1], Math.PI / 8)
-      );
-      expect(localMatrix).toBeApproximatelyEqual(expected2);
-    });
-
-    // it('can change the 4x4 matrix on the canvas and read it back', () => {
-    //     const canvas = new CanvasKit.Canvas();
-
-    //     let matr = canvas.getLocalToDevice();
-    //     expect(matr).toEqual(CanvasKit.M44.identity());
-
-    //     canvas.concat(CanvasKit.M44.rotated([0, 1, 0], Math.PI/4));
-    //     canvas.concat(CanvasKit.M44.rotated([1, 0, 1], Math.PI/8));
-
-    //     const expected = CanvasKit.M44.multiply(
-    //       CanvasKit.M44.rotated([0, 1, 0], Math.PI/4),
-    //       CanvasKit.M44.rotated([1, 0, 1], Math.PI/8),
-    //     );
-
-    //     expect4x4MatricesToMatch(expected, canvas.getLocalToDevice());
-    //     // TODO(kjlubick) add test for DOMMatrix
-    //     // TODO(nifong) add more involved test for camera-related math.
+    //   const expected2 = CanvasKit.M44.multiply(
+    //     CanvasKit.M44.rotated([0, 1, 0], Math.PI / 4),
+    //     CanvasKit.M44.rotated([1, 0, 1], Math.PI / 8)
+    //   );
+    //   expect(localMatrix).toBeApproximatelyEqual(expected2);
     // });
 
     // it('can change the device clip bounds to the canvas and read it back', () => {

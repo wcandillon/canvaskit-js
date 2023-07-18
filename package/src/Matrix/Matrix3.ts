@@ -21,7 +21,6 @@ const toDOMMatrix3 = (m3: Float32Array) => {
 
 const toDOMMatrix4 = (m3: Float32Array) => {
   const m = new DOMMatrix();
-
   m.m11 = m3[0];
   m.m21 = m3[1];
   m.m31 = m3[2];
@@ -47,15 +46,14 @@ const toDOMMatrix4 = (m3: Float32Array) => {
 export const nativeMatrix = (matrix: InputMatrix) => {
   if (matrix instanceof DOMMatrix) {
     return matrix;
-  } else {
-    const m3 = normalizeArray(matrix);
-    if (m3.length === 9 || m3.length === 6) {
-      return toDOMMatrix3(m3);
-    } else if (m3.length === 16) {
-      return toDOMMatrix4(m3);
-    }
-    return DOMMatrix.fromFloat32Array(m3);
   }
+  const m3 = normalizeArray(matrix);
+  if (m3.length === 9 || m3.length === 6) {
+    return toDOMMatrix3(m3);
+  } else if (m3.length === 16) {
+    return toDOMMatrix4(m3);
+  }
+  throw new Error("Invalid matrix");
 };
 
 export const transformPoint = (matrix: Matrix3x3, ...point: number[]) => {

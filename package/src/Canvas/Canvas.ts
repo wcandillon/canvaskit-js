@@ -111,9 +111,9 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
   private _clip(path: Path2D) {
     this.ctx.clip(path);
   }
-  concat(m: InputMatrix): void {
+  concat(m: InputMatrix) {
     const m3 = nativeMatrix(m);
-    this.ctx.transform(m3.a, m3.b, m3.c, m3.d, m3.e, m3.f);
+    this.ctx.setTransform(this.ctx.getTransform().multiply(m3));
   }
   drawArc(
     oval: InputRect,
