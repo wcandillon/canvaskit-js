@@ -177,34 +177,32 @@ describe("CanvasKit's Matrix Helpers", () => {
       ]);
     });
 
-    // it("can accept a 3x2 matrix", () => {
-    //   const canvas = new CanvasKit.Canvas();
+    it("can accept a 3x2 matrix", async () => {
+      const result = await skia.eval(({ canvas }) => {
+        canvas.save();
+        const garbageMatrix = new Float32Array(16);
+        garbageMatrix.fill(-3);
+        canvas.concat(garbageMatrix);
+        canvas.restore();
 
-    //   let matr = canvas.getTotalMatrix();
-    //   expect(matr).toEqual(CanvasKit.Matrix.identity());
+        canvas.concat([1.4, -0.2, 12, 0.2, 1.4, 24]);
 
-    //   // This fills the internal _scratch4x4MatrixPtr with garbage (aka sentinel) values to
-    //   // make sure the 3x2 matrix properly sets these to 0 when it uses the same buffer.
-    //   canvas.save();
-    //   const garbageMatrix = new Float32Array(16);
-    //   garbageMatrix.fill(-3);
-    //   canvas.concat(garbageMatrix);
-    //   canvas.restore();
+        const totalMatrix = canvas.getTotalMatrix();
+        const localMatrix = Array.from(canvas.getLocalToDevice());
+        return { totalMatrix, localMatrix };
+      });
+      const { totalMatrix, localMatrix } = result;
 
-    //   canvas.concat([1.4, -0.2, 12, 0.2, 1.4, 24]);
+      expect(totalMatrix).toBeApproximatelyEqual([
+        1.4, -0.2, 12, 0.2, 1.4, 24, 0, 0, 1,
+      ]);
 
-    //   matr = canvas.getTotalMatrix();
-    //   const expected = [1.4, -0.2, 12, 0.2, 1.4, 24, 0, 0, 1];
-    //   expect3x3MatricesToMatch(expected, matr);
-
-    //   // The 3x2 should be expanded into a 4x4, with identity in the 3rd row and column
-    //   // and the perspective filled in.
-    //   matr = canvas.getLocalToDevice();
-    //   expect4x4MatricesToMatch(
-    //     [1.4, -0.2, 0, 12, 0.2, 1.4, 0, 24, 0, 0, 1, 0, 0, 0, 0, 1],
-    //     matr
-    //   );
-    // });
+      // The 3x2 should be expanded into a 4x4, with identity in the 3rd row and column
+      // and the perspective filled in.
+      expect(localMatrix).toBeApproximatelyEqual([
+        1.4, -0.2, 0, 12, 0.2, 1.4, 0, 24, 0, 0, 1, 0, 0, 0, 0, 1,
+      ]);
+    });
 
     // it('can change the 4x4 matrix on the canvas and read it back', () => {
     //     const canvas = new CanvasKit.Canvas();
