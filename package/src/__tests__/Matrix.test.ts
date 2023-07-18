@@ -143,7 +143,7 @@ describe("CanvasKit's Matrix Helpers", () => {
         canvas.concat(CanvasKit.Matrix.rotated(Math.PI / 4));
         return {
           totalMatrix: canvas.getTotalMatrix(),
-          localMatrix: canvas.getLocalToDevice(),
+          localMatrix: Array.from(canvas.getLocalToDevice()),
         };
       });
       expect(totalMatrix).toBeApproximatelyEqual(
