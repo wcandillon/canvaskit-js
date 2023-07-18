@@ -136,10 +136,12 @@ describe("CanvasKit's Matrix Helpers", () => {
         RealCanvasKit.Matrix.identity()
       );
       expect(localMatrix).toBeApproximatelyEqual(RealCanvasKit.M44.identity());
+      expect(totalMatrix).toBeApproximatelyEqual(CanvasKit.Matrix.identity());
+      expect(localMatrix).toBeApproximatelyEqual(CanvasKit.M44.identity());
     });
 
     it("total matrix matches", async () => {
-      const { totalMatrix, localMatrix } = await skia.eval(({ canvas }) => {
+      const { totalMatrix } = await skia.eval(({ canvas }) => {
         canvas.concat(CanvasKit.Matrix.rotated(Math.PI / 4));
         return {
           totalMatrix: canvas.getTotalMatrix(),
@@ -150,7 +152,6 @@ describe("CanvasKit's Matrix Helpers", () => {
         RealCanvasKit.Matrix.rotated(Math.PI / 4),
         0.001
       );
-      expect(localMatrix).toBeApproximatelyEqual(CanvasKit.M44.identity());
     });
 
     it("can change the 3x3 matrix on the canvas and read it back", async () => {
