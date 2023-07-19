@@ -30,6 +30,7 @@ import type {
   TextDirectionEnumValues,
   TextHeightBehaviorEnumValues,
   DecorationStyleEnumValues,
+  AffinityEnumValues,
 } from "canvaskit-wasm";
 
 import { HostObject } from "../HostObject";
@@ -362,3 +363,10 @@ export enum DecorationStyleEnum {
 
 export const DecorationStyle =
   makeEnum<DecorationStyleEnumValues>(DecorationStyleEnum);
+
+export enum AffinityEnum {
+  Upstream,
+  Downstream,
+}
+
+export const Affinity = makeEnum<AffinityEnumValues>(AffinityEnum);

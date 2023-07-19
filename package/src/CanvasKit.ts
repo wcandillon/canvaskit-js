@@ -1,11 +1,8 @@
-/* eslint-disable no-bitwise */
-/* eslint-disable camelcase */
 import type {
   ColorSpace as CKColorSpace,
   Image,
   EmulatedCanvas2D,
   CanvasKit as ICanvasKit,
-  AffinityEnumValues,
   AnimatedImage,
   ColorChannelEnumValues,
   ColorIntArray,
@@ -317,7 +314,7 @@ export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
     throw new Error("Method not implemented.");
   }
   MakeAnimation(_json: string): SkottieAnimation {
-    throw new Error("Method not implemented.");
+    throw new Error("Skottie is not available");
   }
   MakeManagedAnimation(
     _json: string,
@@ -325,9 +322,8 @@ export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
     _filterPrefix?: string | undefined,
     _soundMap?: SoundMap | undefined
   ): ManagedSkottieAnimation {
-    throw new Error("Method not implemented.");
+    throw new Error("Skottie is not available");
   }
-  ImageData!: ImageDataConstructor;
   ParagraphStyle = ParagraphStyle as unknown as ParagraphStyleConstructor;
   ContourMeasureIter =
     ContourMeasureIterJS as unknown as ContourMeasureIterConstructor;
@@ -343,30 +339,24 @@ export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
   FontMgr = FontMgrFactory;
   ImageFilter = ImageFilterFactory;
   MaskFilter = MaskFilterFactory;
-  PathEffect!: PathEffectFactory;
   RuntimeEffect = RuntimeEffectFactory;
   Shader = ShaderFactory;
-  TextBlob!: TextBlobFactory;
   Typeface = TypefaceFactory;
   TypefaceFontProvider = TypefaceFontProviderFactory;
-  ColorMatrix!: ColorMatrixHelpers;
-  ColorChannel!: ColorChannelEnumValues;
-  GlyphRunFlags!: GlyphRunFlagValues;
-  SaveLayerInitWithPrevious = 1 << 2;
-  SaveLayerF16ColorType = 1 << 4;
+
+  PathEffect!: PathEffectFactory;
+  ImageData!: ImageDataConstructor;
   ShadowTransparentOccluder!: number;
   ShadowGeometricOnly!: number;
   ShadowDirectionalLight!: number;
-  gpu = true;
-  polyfill = true;
-  managed_skottie?: boolean | undefined = undefined;
-  rt_effect?: boolean | undefined = undefined;
-  skottie?: boolean | undefined;
-  Affinity!: AffinityEnumValues;
   DecorationStyle!: DecorationStyleEnumValues;
   PlaceholderAlignment!: PlaceholderAlignmentEnumValues;
   RectHeightStyle!: RectHeightStyleEnumValues;
   RectWidthStyle!: RectWidthStyleEnumValues;
+  ColorMatrix!: ColorMatrixHelpers;
+  ColorChannel!: ColorChannelEnumValues;
+  GlyphRunFlags!: GlyphRunFlagValues;
+  TextBlob!: TextBlobFactory;
 
   // The methods below are specific to canvaskit-js
   MakeCanvasRecordingSurface(canvas: string | HTMLCanvasElement) {

@@ -10,6 +10,7 @@ import type {
 } from "canvaskit-wasm";
 
 import { HostObject } from "../HostObject";
+import { Affinity } from "../Core";
 
 import type { ParagraphStyleJS, TextStyleJS } from "./ParagraphStyle";
 
@@ -47,7 +48,10 @@ export class ParagraphJS extends HostObject<"Paragraph"> implements Paragraph {
     return 21;
   }
   getGlyphPositionAtCoordinate(_dx: number, _dy: number): PositionWithAffinity {
-    throw new Error("Method not implemented.");
+    return {
+      pos: 0,
+      affinity: Affinity.Downstream,
+    };
   }
   getHeight(): number {
     return this.tokens.reduce(

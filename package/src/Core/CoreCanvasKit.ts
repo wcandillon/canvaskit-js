@@ -1,3 +1,5 @@
+/* eslint-disable no-bitwise */
+/* eslint-disable camelcase */
 import type { Color, InputRect } from "canvaskit-wasm";
 
 import { Matrix3, Matrix4 } from "../Matrix";
@@ -12,6 +14,7 @@ import {
 } from "./Color";
 import { ltrbRect, ltrbiRect, rrectXY, xywhRect, xywhiRect } from "./Rect";
 import {
+  Affinity,
   AlphaType,
   BlendMode,
   BlurStyle,
@@ -120,6 +123,7 @@ export abstract class CoreCanvasKit {
   ClipOp = ClipOp;
   Matrix = Matrix3;
   M44 = Matrix4;
+  Affinity = Affinity;
   TRANSPARENT = Float32Array.of(0, 0, 0, 0);
   BLACK = Float32Array.of(0, 0, 0, 1);
   WHITE = Float32Array.of(1, 1, 1, 1);
@@ -146,4 +150,13 @@ export abstract class CoreCanvasKit {
   NoDecoration = 0;
   UnderlineDecoration = 1;
   OverlineDecoration = 2;
+
+  gpu = true;
+  polyfill = true;
+  managed_skottie = false;
+  rt_effect = true;
+  skottie = false;
+
+  SaveLayerInitWithPrevious = 1 << 2;
+  SaveLayerF16ColorType = 1 << 4;
 }
