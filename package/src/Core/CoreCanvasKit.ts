@@ -19,6 +19,7 @@ import {
   BlendMode,
   BlurStyle,
   ClipOp,
+  ColorChannel,
   ColorSpace,
   ColorType,
   DecorationStyle,
@@ -35,7 +36,10 @@ import {
   Path1DEffectStyle,
   PathOp,
   PathVerb,
+  PlaceholderAlignment,
   PointMode,
+  RectHeightStyle,
+  RectWidthStyle,
   StrokeCap,
   StrokeJoin,
   TextAlign,
@@ -46,6 +50,7 @@ import {
   VertexMode,
 } from "./Constants";
 
+// This should contains all functions and variables that don't depend on the Web APIs
 export abstract class CoreCanvasKit {
   Color(r: number, g: number, b: number, a = 1): Float32Array {
     return color(r, g, b, a);
@@ -149,6 +154,11 @@ export abstract class CoreCanvasKit {
   TextBaseline = TextBaseline;
   TextDirection = TextDirection;
   TextHeightBehavior = TextHeightBehavior;
+
+  PlaceholderAlignment = PlaceholderAlignment;
+  RectHeightStyle = RectHeightStyle;
+  RectWidthStyle = RectWidthStyle;
+  ColorChannel = ColorChannel;
 
   LineThroughDecoration = 4;
 

@@ -4,14 +4,11 @@ import type {
   EmulatedCanvas2D,
   CanvasKit as ICanvasKit,
   AnimatedImage,
-  ColorChannelEnumValues,
   ColorIntArray,
-  ColorMatrixHelpers,
   ContourMeasureIterConstructor,
   DefaultConstructor,
   EmbindEnumEntity,
   GrDirectContext,
-  ImageDataConstructor,
   ImageInfo,
   InputFlattenedPointArray,
   InputMatrix,
@@ -23,16 +20,11 @@ import type {
   PartialImageInfo,
   Path,
   PathConstructorAndFactory,
-  PathEffectFactory,
   PictureRecorder,
-  PlaceholderAlignmentEnumValues,
-  RectHeightStyleEnumValues,
-  RectWidthStyleEnumValues,
   SkPicture,
   SkottieAnimation,
   SoundMap,
   Surface,
-  TextBlobFactory,
   TextStyleConstructor,
   TextureSource,
   TonalColorsInput,
@@ -80,6 +72,9 @@ import {
 } from "./Text";
 import { PictureRecorderJS } from "./Picture";
 import { normalizeArray } from "./Core/Values";
+import { TextBlobFactory } from "./TextBlob";
+import { PathEffectFactory } from "./PathEffect";
+import { ColorMatrixHelpers } from "./ColorFilter";
 
 let ctxId = 1;
 
@@ -342,15 +337,10 @@ export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
   Typeface = TypefaceFactory;
   TypefaceFontProvider = TypefaceFontProviderFactory;
 
-  PathEffect!: PathEffectFactory;
-  ImageData!: ImageDataConstructor;
-  ColorMatrix!: ColorMatrixHelpers;
-  TextBlob!: TextBlobFactory;
-
-  PlaceholderAlignment!: PlaceholderAlignmentEnumValues;
-  RectHeightStyle!: RectHeightStyleEnumValues;
-  RectWidthStyle!: RectWidthStyleEnumValues;
-  ColorChannel!: ColorChannelEnumValues;
+  PathEffect = PathEffectFactory;
+  ImageData = ImageData;
+  ColorMatrix = ColorMatrixHelpers;
+  TextBlob = TextBlobFactory;
 
   // The methods below are specific to canvaskit-js
   MakeCanvasRecordingSurface(canvas: string | HTMLCanvasElement) {

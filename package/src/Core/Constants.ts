@@ -31,6 +31,10 @@ import type {
   TextHeightBehaviorEnumValues,
   DecorationStyleEnumValues,
   AffinityEnumValues,
+  ColorChannelEnumValues,
+  PlaceholderAlignmentEnumValues,
+  RectHeightStyleEnumValues,
+  RectWidthStyleEnumValues,
 } from "canvaskit-wasm";
 
 import { HostObject } from "../HostObject";
@@ -371,3 +375,45 @@ export enum AffinityEnum {
 }
 
 export const Affinity = makeEnum<AffinityEnumValues>(AffinityEnum);
+
+export enum ColorChannelEnum {
+  Red,
+  Green,
+  Blue,
+  Alpha,
+}
+
+export const ColorChannel = makeEnum<ColorChannelEnumValues>(ColorChannelEnum);
+
+export enum PlaceholderAlignmentEnum {
+  Baseline,
+  AboveBaseline,
+  BelowBaseline,
+  Top,
+  Bottom,
+  Middle,
+}
+
+export const PlaceholderAlignment = makeEnum<PlaceholderAlignmentEnumValues>(
+  PlaceholderAlignmentEnum
+);
+
+export enum RectHeightStyleEnum {
+  Tight,
+  Max,
+  IncludeLineSpacingMiddle,
+  IncludeLineSpacingTop,
+  IncludeLineSpacingBottom,
+  Strut,
+}
+
+export const RectHeightStyle =
+  makeEnum<RectHeightStyleEnumValues>(RectHeightStyleEnum);
+
+export enum RectWidthStyleEnum {
+  Tight,
+  Max,
+}
+
+export const RectWidthStyle =
+  makeEnum<RectWidthStyleEnumValues>(RectWidthStyleEnum);

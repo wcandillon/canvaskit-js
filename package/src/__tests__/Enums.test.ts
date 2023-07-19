@@ -44,6 +44,10 @@ const enums: EnumName[] = [
   "TextDirection",
   "TextHeightBehavior",
   "DecorationStyle",
+  "PlaceholderAlignment",
+  "RectHeightStyle",
+  "RectWidthStyle",
+  "ColorChannel",
 ];
 
 describe("Enums", () => {
