@@ -21,6 +21,7 @@ import {
   ClipOp,
   ColorSpace,
   ColorType,
+  DecorationStyle,
   FillType,
   FilterMode,
   FontEdging,
@@ -158,6 +159,8 @@ export abstract class CoreCanvasKit {
   ShadowTransparentOccluder = 1;
   ShadowGeometricOnly = 2;
   ShadowDirectionalLight = 4;
+
+  DecorationStyle = DecorationStyle;
 
   gpu = true;
   polyfill = true;

@@ -41,17 +41,22 @@ export const mapKeys = <T extends object>(obj: T) =>
   Object.keys(obj) as (keyof T)[];
 
 const makeEnum = <T>(values: Record<Exclude<keyof T, "values">, number>): T => {
-  const vals = Object.values(values).filter(
-    (v) => typeof v !== "number"
-  ) as (keyof T)[];
-  return Object.assign(
+  const valueKeys = mapKeys(values)
+    .filter((name) => typeof values[name] === "number")
+    .map((name) => ({
+      name,
+      value: values[name],
+    }));
+  const result = Object.assign(
     {
-      values: vals,
+      values: Object.assign(
+        {},
+        ...valueKeys.map(({ value }) => ({ [value]: { value } }))
+      ),
     },
-    ...mapKeys(values)
-      .slice(vals.length)
-      .map((k) => ({ [k]: { value: values[k] } }))
+    ...valueKeys.map(({ name, value }) => ({ [name]: { value } }))
   );
+  return result;
 };
 
 export enum StrokeCapEnum {
@@ -206,36 +211,34 @@ export class ColorSpaceEnumJS implements ColorSpaceEnumValues {
 export const ColorSpace = new ColorSpaceEnumJS();
 
 export enum AlphaTypeEnum {
-  Unknown,
-  Opaque,
-  Premul,
-  Unpremul,
+  Opaque = 1,
+  Premul = 2,
+  Unpremul = 3,
 }
 export const AlphaType = makeEnum<AlphaTypeEnumValues>(AlphaTypeEnum);
 
 export enum ColorTypeEnum {
-  Unknown,
-  Alpha_8,
-  RGB_565,
-  ARGB_4444,
-  RGBA_8888,
-  RGB_888x,
-  BGRA_8888,
-  RGBA_1010102,
-  BGRA_1010102,
-  RGB_101010x,
-  BGR_101010x,
-  Gray_8,
-  RGBA_F16Norm,
-  RGBA_F16,
-  RGBA_F32,
-  R8G8_unorm,
-  A16_float,
-  R16G16_float,
-  A16_unorm,
-  R16G16_unorm,
-  R16G16B16A16_unorm,
-  SRGBA_8888,
+  //Unknown = 0,
+  Alpha_8 = 1,
+  RGB_565 = 2,
+  //ARGB_4444 = 3,
+  RGBA_8888 = 4,
+  //RGB_888x = 5,
+  BGRA_8888 = 6,
+  RGBA_1010102 = 7,
+  //BGRA_1010102 = 8,
+  RGB_101010x = 9,
+  //BGR_101010x = 10,
+  Gray_8 = 12,
+  RGBA_F16 = 14,
+  RGBA_F32 = 15,
+  //R8G8_unorm = 16,
+  //A16_float = 16,
+  //R16G16_float = 17,
+  //A16_unorm = 18,
+  //R16G16_unorm = 19,
+  //R16G16B16A16_unorm = 20,
+  //SRGBA_8888 = 21,
 }
 export const ColorType = makeEnum<ColorTypeEnumValues>(ColorTypeEnum);
 
@@ -333,8 +336,8 @@ export enum TextBaselineEnum {
 export const TextBaseline = makeEnum<TextBaselineEnumValues>(TextBaselineEnum);
 
 export enum TextDirectionEnum {
-  LTR,
   RTL,
+  LTR,
 }
 
 export const TextDirection =

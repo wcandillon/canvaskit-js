@@ -1,83 +1,89 @@
-import type { EmbindEnum } from "canvaskit-wasm";
+import type { EmbindEnumEntity } from "canvaskit-wasm";
 
-import {
-  AlphaTypeEnum,
-  BlendModeEnum,
-  BlurStyleEnum,
-  ClipOpEnum,
-  ColorTypeEnum,
-  FillTypeEnum,
-  FilterModeEnum,
-  FontEdgingEnum,
-  FontHintingEnum,
-  FontSlantEnum,
-  FontWeightEnum,
-  FontWidthEnum,
-  ImageFormatEnum,
-  MipmapModeEnum,
-  PaintStyleEnum,
-  Path1DEffectStyleEnum,
-  PathOpEnum,
-  PathVerb,
-  PointMode,
-  StrokeCapEnum,
-  StrokeJoinEnum,
-  TextAlignEnum,
-  TextBaselineEnum,
-  TextDirectionEnum,
-  TextHeightBehaviorEnum,
-  TileModeEnum,
-  VertexModeEnum,
-  mapKeys,
-} from "../Core";
+import { PathVerb, mapKeys } from "../Core";
 
 import "./setup";
 
-const checkEnum = <T>(skiaEnum: T, canvasKitEnum: EmbindEnum) => {
-  mapKeys(canvasKitEnum.values).forEach((key) => {
-    const namedKey = skiaEnum[key as keyof T] as keyof T;
-    const expected = skiaEnum[namedKey];
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    const selectedEnum = canvasKitEnum[namedKey];
-    if (selectedEnum) {
-      expect(selectedEnum).toBeDefined();
-      expect(expected).toBe(selectedEnum.value);
-    }
-  });
-};
+interface CanvasKitEnum {
+  [key: string]: EmbindEnumEntity;
+}
+
+type EnumName = keyof typeof RealCanvasKit;
+const enums: EnumName[] = [
+  "VertexMode",
+  "BlurStyle",
+  "PointMode",
+  "TileMode",
+  "ClipOp",
+  // Images
+  "AlphaType",
+  "ColorType",
+  "ImageFormat",
+  "MipmapMode",
+  "FilterMode",
+  // Paint
+  "PaintStyle",
+  "StrokeCap",
+  "StrokeJoin",
+  "BlendMode",
+  // Font
+  "FontHinting",
+  "FontEdging",
+  "FontSlant",
+  "FontWidth",
+  "FontWeight",
+
+  // Path
+  "PathOp",
+  "FillType",
+  "Path1DEffect",
+
+  // Paragraph
+  "TextAlign",
+  "TextBaseline",
+  "TextDirection",
+  "TextHeightBehavior",
+  "DecorationStyle",
+];
 
 describe("Enums", () => {
-  it("Should match Paint enums values with CanvasKit", () => {
-    checkEnum(PaintStyleEnum, CanvasKit.PaintStyle);
-    checkEnum(StrokeCapEnum, CanvasKit.StrokeCap);
-    checkEnum(StrokeJoinEnum, CanvasKit.StrokeJoin);
-    checkEnum(BlendModeEnum, CanvasKit.BlendMode);
+  test.each(enums)("%s", (name) => {
+    const realCanvasKitEnum = RealCanvasKit[name] as unknown as CanvasKitEnum;
+    const canvasKitEnum = CanvasKit[name] as unknown as CanvasKitEnum;
+    mapKeys(realCanvasKitEnum).forEach((key) => {
+      if (key === "values") {
+        const keys = mapKeys(canvasKitEnum.values);
+        const expectedKeys = Object.keys(realCanvasKitEnum.values);
+        expect(keys).toEqual(expectedKeys);
+        keys.forEach((index) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          expect((canvasKitEnum.values[index] as any).value).toBe(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (realCanvasKitEnum.values[index] as any).value
+          );
+        });
+      } else {
+        expect(canvasKitEnum[key].value).toBe(realCanvasKitEnum[key].value);
+      }
+    });
   });
-  it("Should match TileMode enums values with CanvasKit", () => {
-    checkEnum(TileModeEnum, CanvasKit.TileMode);
+
+  it("Checks color type enum", () => {
+    expect(CanvasKit.ColorType.Alpha_8.value).toBe(
+      RealCanvasKit.ColorType.Alpha_8.value
+    );
+    expect(CanvasKit.ColorType.Gray_8.value).toBe(
+      RealCanvasKit.ColorType.Gray_8.value
+    );
+    expect(CanvasKit.ColorType.RGBA_F16.value).toBe(
+      RealCanvasKit.ColorType.RGBA_F16.value
+    );
+    expect(CanvasKit.ColorType.RGBA_F32.value).toBe(
+      RealCanvasKit.ColorType.RGBA_F32.value
+    );
   });
-  it("Should match Font enums values with CanvasKit", () => {
-    checkEnum(FontHintingEnum, CanvasKit.FontHinting);
-    checkEnum(FontEdgingEnum, CanvasKit.FontEdging);
-    checkEnum(FontSlantEnum, CanvasKit.FontSlant);
-    checkEnum(FontWidthEnum, CanvasKit.FontWidth);
-    checkEnum(FontWeightEnum, CanvasKit.FontWeight);
-  });
-  it("Should match PointMode enums values with CanvasKit", () => {
-    checkEnum(PointMode, CanvasKit.PointMode);
-  });
-  it("Should match Image enums values with CanvasKit", () => {
-    checkEnum(ColorTypeEnum, CanvasKit.ColorType);
-    checkEnum(AlphaTypeEnum, CanvasKit.AlphaType);
-    checkEnum(ImageFormatEnum, CanvasKit.ImageFormat);
-    checkEnum(MipmapModeEnum, CanvasKit.MipmapMode);
-    checkEnum(FilterModeEnum, CanvasKit.FilterMode);
-  });
+
   it("Should match Path enums values with CanvasKit", () => {
-    checkEnum(PathOpEnum, CanvasKit.PathOp);
-    checkEnum(FillTypeEnum, CanvasKit.FillType);
-    checkEnum(Path1DEffectStyleEnum, CanvasKit.Path1DEffect);
     expect(PathVerb.Close).toBe(CanvasKit.CLOSE_VERB);
     expect(PathVerb.Conic).toBe(CanvasKit.CONIC_VERB);
     expect(PathVerb.Cubic).toBe(CanvasKit.CUBIC_VERB);
@@ -85,20 +91,13 @@ describe("Enums", () => {
     expect(PathVerb.Move).toBe(CanvasKit.MOVE_VERB);
     expect(PathVerb.Quad).toBe(CanvasKit.QUAD_VERB);
   });
-  it("Should match BlurStyle enums values with CanvasKit", () => {
-    checkEnum(BlurStyleEnum, CanvasKit.BlurStyle);
-  });
-  it("Should match VertexMode enums values with CanvasKit", () => {
-    checkEnum(VertexModeEnum, CanvasKit.VertexMode);
-  });
-  it("Should match Canvas enums values with CanvasKit", () => {
-    checkEnum(ClipOpEnum, CanvasKit.ClipOp);
-  });
   it("Should match Paragraph enums values with CanvasKit", () => {
-    checkEnum(TextAlignEnum, CanvasKit.TextAlign);
-    checkEnum(TextBaselineEnum, CanvasKit.TextBaseline);
-    checkEnum(TextDirectionEnum, CanvasKit.TextDirection);
-    checkEnum(TextHeightBehaviorEnum, CanvasKit.TextHeightBehavior);
+    expect(CanvasKit.TextDirection.RTL.value).toBe(
+      RealCanvasKit.TextDirection.RTL.value
+    );
+    expect(CanvasKit.TextDirection.LTR.value).toBe(
+      RealCanvasKit.TextDirection.LTR.value
+    );
     expect(RealCanvasKit.LineThroughDecoration).toBe(
       CanvasKit.LineThroughDecoration
     );

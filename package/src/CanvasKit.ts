@@ -8,7 +8,6 @@ import type {
   ColorIntArray,
   ColorMatrixHelpers,
   ContourMeasureIterConstructor,
-  DecorationStyleEnumValues,
   DefaultConstructor,
   EmbindEnumEntity,
   GrDirectContext,
@@ -348,7 +347,6 @@ export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
   ColorMatrix!: ColorMatrixHelpers;
   TextBlob!: TextBlobFactory;
 
-  DecorationStyle!: DecorationStyleEnumValues;
   PlaceholderAlignment!: PlaceholderAlignmentEnumValues;
   RectHeightStyle!: RectHeightStyleEnumValues;
   RectWidthStyle!: RectWidthStyleEnumValues;
