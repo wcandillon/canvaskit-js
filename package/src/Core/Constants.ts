@@ -272,8 +272,6 @@ export const PathOp = makeEnum<PathOpEnumValues>(PathOpEnum);
 export enum FillTypeEnum {
   Winding,
   EvenOdd,
-  InverseWinding,
-  InverseEvenOdd,
 }
 export const FillType = makeEnum<FillTypeEnumValues>(FillTypeEnum);
 

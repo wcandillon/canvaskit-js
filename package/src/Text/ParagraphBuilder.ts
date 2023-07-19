@@ -17,7 +17,7 @@ import {
   TextAlignEnum,
   TextBaselineEnum,
   TextDirectionEnum,
-} from "../Core/Contants";
+} from "../Core/Constants";
 
 import { ParagraphJS, type StyleNode, type Token } from "./Paragraph";
 import { TextContext } from "./NativeText";

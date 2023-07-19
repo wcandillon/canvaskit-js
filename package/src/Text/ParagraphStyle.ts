@@ -16,7 +16,7 @@ import {
   TextHeightBehavior,
   DecorationStyle,
   TextBaseline,
-} from "../Core/Contants";
+} from "../Core/Constants";
 
 export function TextStyle(style: CKTextStyle) {
   return style;

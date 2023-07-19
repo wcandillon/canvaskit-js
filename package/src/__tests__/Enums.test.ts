@@ -107,5 +107,29 @@ describe("Enums", () => {
       CanvasKit.UnderlineDecoration
     );
     expect(RealCanvasKit.OverlineDecoration).toBe(CanvasKit.OverlineDecoration);
+
+    expect(RealCanvasKit.ShadowTransparentOccluder).toBe(
+      CanvasKit.ShadowTransparentOccluder
+    );
+    expect(RealCanvasKit.ShadowGeometricOnly).toBe(
+      CanvasKit.ShadowGeometricOnly
+    );
+    expect(RealCanvasKit.ShadowDirectionalLight).toBe(
+      CanvasKit.ShadowDirectionalLight
+    );
+    expect(RealCanvasKit.GlyphRunFlags.IsWhiteSpace).toBe(
+      CanvasKit.GlyphRunFlags.IsWhiteSpace
+    );
+  });
+  it("Should match shadow enums values with CanvasKit", () => {
+    expect(RealCanvasKit.ShadowTransparentOccluder).toBe(
+      CanvasKit.ShadowTransparentOccluder
+    );
+    expect(RealCanvasKit.ShadowGeometricOnly).toBe(
+      CanvasKit.ShadowGeometricOnly
+    );
+    expect(RealCanvasKit.ShadowDirectionalLight).toBe(
+      CanvasKit.ShadowDirectionalLight
+    );
   });
 });

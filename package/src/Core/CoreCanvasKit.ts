@@ -43,7 +43,7 @@ import {
   TextHeightBehavior,
   TileMode,
   VertexMode,
-} from "./Contants";
+} from "./Constants";
 
 export abstract class CoreCanvasKit {
   Color(r: number, g: number, b: number, a = 1): Float32Array {
@@ -140,6 +140,10 @@ export abstract class CoreCanvasKit {
   CUBIC_VERB = PathVerb.Cubic;
   CLOSE_VERB = PathVerb.Close;
 
+  GlyphRunFlags = {
+    IsWhiteSpace: 1,
+  };
+
   TextAlign = TextAlign;
   TextBaseline = TextBaseline;
   TextDirection = TextDirection;
@@ -150,6 +154,10 @@ export abstract class CoreCanvasKit {
   NoDecoration = 0;
   UnderlineDecoration = 1;
   OverlineDecoration = 2;
+
+  ShadowTransparentOccluder = 1;
+  ShadowGeometricOnly = 2;
+  ShadowDirectionalLight = 4;
 
   gpu = true;
   polyfill = true;

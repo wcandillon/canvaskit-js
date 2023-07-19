@@ -11,7 +11,6 @@ import type {
   DecorationStyleEnumValues,
   DefaultConstructor,
   EmbindEnumEntity,
-  GlyphRunFlagValues,
   GrDirectContext,
   ImageDataConstructor,
   ImageInfo,
@@ -346,17 +345,14 @@ export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
 
   PathEffect!: PathEffectFactory;
   ImageData!: ImageDataConstructor;
-  ShadowTransparentOccluder!: number;
-  ShadowGeometricOnly!: number;
-  ShadowDirectionalLight!: number;
+  ColorMatrix!: ColorMatrixHelpers;
+  TextBlob!: TextBlobFactory;
+
   DecorationStyle!: DecorationStyleEnumValues;
   PlaceholderAlignment!: PlaceholderAlignmentEnumValues;
   RectHeightStyle!: RectHeightStyleEnumValues;
   RectWidthStyle!: RectWidthStyleEnumValues;
-  ColorMatrix!: ColorMatrixHelpers;
   ColorChannel!: ColorChannelEnumValues;
-  GlyphRunFlags!: GlyphRunFlagValues;
-  TextBlob!: TextBlobFactory;
 
   // The methods below are specific to canvaskit-js
   MakeCanvasRecordingSurface(canvas: string | HTMLCanvasElement) {
