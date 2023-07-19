@@ -39,6 +39,30 @@ export class Path {
     });
   }
 
+  getPoints() {
+    const points: Float32Array[] = [];
+    this.contours.forEach((contour) => {
+      contour.enumerateComponents(
+        (linear) => {
+          points.push(linear.p1);
+          points.push(linear.p2);
+        },
+        (quad) => {
+          points.push(quad.p1);
+          points.push(quad.p2);
+          points.push(quad.cp);
+        },
+        (cubic) => {
+          points.push(cubic.p1);
+          points.push(cubic.p2);
+          points.push(cubic.cp1);
+          points.push(cubic.cp2);
+        }
+      );
+    });
+    return points;
+  }
+
   closeContour() {
     this.contour.closed = true;
     return this;

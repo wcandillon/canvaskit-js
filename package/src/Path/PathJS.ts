@@ -28,27 +28,6 @@ import { parseSVG } from "./SVG";
 import { TrimPathEffect } from "./PathEffects";
 import type { Path } from "./Path";
 
-export const getBounds = (...rects: Float32Array[]): Float32Array => {
-  return rects.reduce((acc, r) => {
-    acc[0] = Math.min(acc[0], r[0]);
-    acc[1] = Math.min(acc[1], r[1]);
-    acc[2] = Math.max(acc[2], r[2]);
-    acc[3] = Math.max(acc[3], r[3]);
-    return acc;
-  }, Float32Array.of(Infinity, Infinity, -Infinity, -Infinity));
-};
-
-export const getBoundsFromPoints = (...points: Float32Array[]) => {
-  const xs = points.map((p) => p[0]);
-  const ys = points.map((p) => p[1]);
-  return Float32Array.of(
-    Math.min(...xs),
-    Math.min(...ys),
-    Math.max(...xs),
-    Math.max(...ys)
-  );
-};
-
 export class PathJS extends HostObject<"Path"> implements SkPath {
   private path: PathBuilder;
   private fillType: CanvasFillRule = "nonzero";
@@ -214,19 +193,9 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
     throw new Error("Method not implemented.");
   }
   getBounds(outputArray?: Float32Array | undefined): Float32Array {
-    let bounds = outputArray ?? new Float32Array(4);
-    bounds[0] = -Infinity;
-    bounds[1] = -Infinity;
-    bounds[2] = Infinity;
-    bounds[3] = Infinity;
-    this.path.getPath().enumerateComponents(
-      ({ p1, p2 }) => (bounds = getBounds(bounds, getBoundsFromPoints(p1, p2))),
-      ({ p1, p2, cp }) =>
-        (bounds = getBounds(bounds, getBoundsFromPoints(p1, p2, cp))),
-      ({ p1, p2, cp1, cp2 }) =>
-        (bounds = getBounds(bounds, getBoundsFromPoints(p1, p2, cp1, cp2)))
-    );
-    return bounds;
+    const result = outputArray ?? new Float32Array(4);
+    calculateBounds(this.path.getPath().getPoints(), result);
+    return result;
   }
 
   getNativeFillType() {
@@ -472,3 +441,36 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
     throw new Error("Function not implemented.");
   }
 }
+
+const calculateBounds = (points: Float32Array[], outputArray: Float32Array) => {
+  if (!points.length) {
+    throw new Error("No points provided");
+  }
+
+  let left = Infinity;
+  let top = Infinity;
+  let right = -Infinity;
+  let bottom = -Infinity;
+
+  for (const point of points) {
+    const x = point[0];
+    const y = point[1];
+
+    if (x < left) {
+      left = x;
+    }
+    if (x > right) {
+      right = x;
+    }
+    if (y < top) {
+      top = y;
+    }
+    if (y > bottom) {
+      bottom = y;
+    }
+  }
+  outputArray[0] = left;
+  outputArray[1] = top;
+  outputArray[2] = right;
+  outputArray[3] = bottom;
+};
