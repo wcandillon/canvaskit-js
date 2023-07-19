@@ -1,12 +1,20 @@
+import type { XYWH } from "../Core";
 import { createTexture } from "../Core";
 import type { ImageFilterJS } from "../ImageFilter";
+import type { PaintJS } from "../Paint";
+
+interface Layer {
+  paint?: PaintJS;
+  bounds?: XYWH;
+  imageFilter?: ImageFilterJS;
+  flags?: number;
+}
 
 interface Context {
   ctx: CanvasRenderingContext2D | null;
   ctm: DOMMatrix;
   clip: Path2D | null;
-  filter?: ImageFilterJS;
-  layer?: boolean;
+  layer?: Layer;
 }
 
 export class DrawingContext {
@@ -45,20 +53,19 @@ export class DrawingContext {
     return this.stack.length;
   }
 
-  saveLayer(imageFilter?: ImageFilterJS | null) {
-    const { ctx, ctm, clip } = this.current;
-    if (ctx === null) {
+  saveLayer(layer: Layer) {
+    const { ctm, clip } = this.current;
+    if (this.current.ctx === null) {
       return this.save();
     }
-    const { canvas } = ctx;
+    const { canvas } = this.current.ctx;
     const { width, height } = canvas;
-    const layer = createTexture(width, height);
+    const ctx = createTexture(width, height);
     this.stack.push({
-      ctx: layer,
+      ctx,
       ctm,
       clip,
-      filter: imageFilter ?? undefined,
-      layer: true,
+      layer,
     });
     return this.stack.length;
   }

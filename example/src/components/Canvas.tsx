@@ -20,7 +20,7 @@ export interface CanvasProps {
   deps: AnimationValue[];
 }
 
-const pd = window.devicePixelRatio;
+const pd = 1; //window.devicePixelRatio;
 
 export const Canvas = ({ onDraw, deps }: CanvasProps) => {
   const surfaceRef = useRef<Surface>();

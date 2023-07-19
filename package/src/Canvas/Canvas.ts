@@ -412,27 +412,21 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     throw new Error("Method not implemented.");
   }
   restore() {
-    const { filter, layer, ctx } = this.context.restore()!;
+    const { layer, ctx } = this.context.restore()!;
     if (layer) {
-      if (filter) {
+      const { imageFilter } = layer;
+      this.ctx.save();
+      this.ctx.resetTransform();
+      if (imageFilter) {
         const paint = new PaintJS();
-        paint.setImageFilter(filter);
-        paint.apply({ ctx: this.ctx, svgCtx: this.svgCtx }, () => {
-          this.ctx.save();
-          this.ctx.resetTransform();
-          this.ctx.drawImage(
-            this.ctx.canvas,
-            0,
-            0,
-            this.ctx.canvas.width,
-            this.ctx.canvas.height
-          );
-          this.ctx.restore();
+        paint.setImageFilter(imageFilter);
+        paint.apply(this.paintCtx, () => {
+          this.ctx.drawImage(this.ctx.canvas, 0, 0);
         });
-        this.ctx.drawImage(ctx!.canvas, 0, 0);
       } else {
         this.ctx.drawImage(ctx!.canvas, 0, 0);
       }
+      this.ctx.restore();
     }
   }
   restoreToCount(saveCount: number): void {
@@ -448,15 +442,17 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     return this.context.save();
   }
   saveLayer(
-    _paint?: PaintJS,
-    _bounds?: InputRect | null,
+    paint?: PaintJS,
+    bounds?: InputRect | null,
     imageFilter?: ImageFilterJS | null,
-    _flags?: number
-  ): number {
-    if (_bounds || _paint || _flags) {
-      console.warn("unimplemented saveLayer parameter");
-    }
-    return this.context.saveLayer(imageFilter);
+    flags?: number
+  ) {
+    return this.context.saveLayer({
+      imageFilter: imageFilter ?? undefined,
+      flags,
+      bounds: bounds ? rectToXYWH(bounds) : undefined,
+      paint,
+    });
   }
   scale(sx: number, sy: number): void {
     const m = new DOMMatrix().scale(sx, sy);

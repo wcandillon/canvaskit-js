@@ -37,6 +37,8 @@ export class SurfaceJS extends IndexedHostObject<"Surface"> implements Surface {
     } else {
       this.ctx = ctx;
     }
+    // this.ctx.imageSmoothingEnabled = true;
+    // this.ctx.imageSmoothingQuality = "high";
     this.canvas = new CanvasJS(this.ctx, this.svgCtx, this.grCtx);
   }
   drawOnce(drawFrame: (_: Canvas) => void): void {
