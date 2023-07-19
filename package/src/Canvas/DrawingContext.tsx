@@ -81,6 +81,10 @@ export class DrawingContext {
   transform(transform: DOMMatrix2DInit) {
     const { ctx } = this.current;
     this.current.ctm = this.current.ctm.multiply(transform);
+    if (!this.current.ctm.is2D) {
+      console.warn("unsupported matrix detected");
+      console.log(JSON.stringify(this.current.ctm, null, 2));
+    }
     if (ctx) {
       ctx.setTransform(this.current.ctm);
     }

@@ -136,6 +136,5 @@ export const parseSVG = (d: string) => {
       stackCmd(d, path, command, params, cmdSize);
     }
   }
-
   return path;
 };

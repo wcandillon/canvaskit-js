@@ -113,7 +113,6 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     _useCenter: boolean,
     paint: PaintJS
   ): void {
-    console.warn("Unused parameter: _useCenter");
     const path = new Path2D();
     const rct = rectToXYWH(oval);
     path.arc(
