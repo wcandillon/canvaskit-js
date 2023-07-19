@@ -13,7 +13,7 @@ export class Path {
   contours: Contour[] = [];
 
   get contour() {
-    // SVG doesn't allow for contourless path but Skia add moveTo(0, 0) automatically
+    // SVG doesn't allow for contourless path but Skia adds moveTo(0, 0) automatically
     // see SVGParser.test.ts
     if (this.contours.length === 0) {
       this.addContour();

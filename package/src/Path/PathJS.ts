@@ -8,6 +8,7 @@ import type {
   InputRRect,
   InputRect,
   StrokeOpts,
+  Rect,
 } from "canvaskit-wasm";
 
 import { HostObject } from "../HostObject";
@@ -20,6 +21,27 @@ import { PathBuilder } from "./PathBuilder";
 import { parseSVG } from "./SVG";
 import { TrimPathEffect } from "./PathEffects";
 import type { Path } from "./Path";
+
+export const getBounds = (...rects: Float32Array[]): Float32Array => {
+  return rects.reduce((acc, r) => {
+    acc[0] = Math.min(acc[0], r[0]);
+    acc[1] = Math.min(acc[1], r[1]);
+    acc[2] = Math.max(acc[2], r[2]);
+    acc[3] = Math.max(acc[3], r[3]);
+    return acc;
+  }, Float32Array.of(Infinity, Infinity, -Infinity, -Infinity));
+};
+
+export const getBoundsFromPoints = (...points: Float32Array[]) => {
+  const xs = points.map((p) => p[0]);
+  const ys = points.map((p) => p[1]);
+  return Float32Array.of(
+    Math.min(...xs),
+    Math.min(...ys),
+    Math.max(...xs),
+    Math.max(...ys)
+  );
+};
 
 export class PathJS extends HostObject<"Path"> implements SkPath {
   private path: PathBuilder;
@@ -148,12 +170,11 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
     this.path.conicTo(vec(x1, y1), vec(x2, y2), w);
     return this;
   }
-  contains(_x: number, _y: number): boolean {
-    return false;
+  contains(x: number, y: number): boolean {
+    return true;
   }
   copy(): SkPath {
-    // TODO: this could be better
-    return PathJS.MakeFromSVGString(this.toSVGString())!;
+    return PathJS.MakeFromCmds(this.toCmds())!;
   }
   countPoints(): number {
     throw new Error("Method not implemented.");
@@ -182,12 +203,19 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
     throw new Error("Method not implemented.");
   }
   getBounds(outputArray?: Float32Array | undefined): Float32Array {
-    const result = outputArray ?? new Float32Array(4);
-    result[0] = 0;
-    result[1] = 0;
-    result[2] = 25;
-    result[3] = 25;
-    return result;
+    let bounds = outputArray ?? new Float32Array(4);
+    bounds[0] = -Infinity;
+    bounds[1] = -Infinity;
+    bounds[2] = Infinity;
+    bounds[3] = Infinity;
+    this.path.getPath().enumerateComponents(
+      ({ p1, p2 }) => (bounds = getBounds(bounds, getBoundsFromPoints(p1, p2))),
+      ({ p1, p2, cp }) =>
+        (bounds = getBounds(bounds, getBoundsFromPoints(p1, p2, cp))),
+      ({ p1, p2, cp1, cp2 }) =>
+        (bounds = getBounds(bounds, getBoundsFromPoints(p1, p2, cp1, cp2)))
+    );
+    return bounds;
   }
   getFillType(): EmbindEnumEntity {
     throw new Error("Method not implemented.");
@@ -256,10 +284,10 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
     this.cubicTo(cpx1, cpy1, cpx2, cpy2, x, y, true);
     return this;
   }
-  reset(): void {
+  reset() {
     this.path = new PathBuilder();
   }
-  rewind(): void {
+  rewind() {
     this.reset();
   }
   rLineTo(x: number, y: number): SkPath {
