@@ -90,24 +90,16 @@ export class DrawableText implements Drawable {
 export class DrawableDRRect implements Drawable {
   constructor(private readonly outer: Path2D, private readonly inner: Path2D) {}
   draw(ctx: CanvasRenderingContext2D, stroke?: boolean | undefined): void {
-    // Save the current state of the context
-    ctx.save();
+    // Combine the outer and inner paths
+    const combinedPath = new Path2D();
+    combinedPath.addPath(this.outer);
+    combinedPath.addPath(this.inner);
 
-    // Clip to the outer rounded rect
-    ctx.clip(this.outer);
-
-    // Use composite operation to cut out the inner rectangle from the outer one
-    ctx.globalCompositeOperation = "destination-out";
-    ctx.fill(this.inner);
-
-    // Restore the context to its original state
-    ctx.restore();
-
-    // Apply paint properties and draw the shape
+    // Draw the combined path using the "evenodd" fill rule
     if (stroke) {
-      ctx.stroke(this.outer);
+      ctx.stroke(combinedPath); // This will stroke both paths, adjust if needed
     } else {
-      ctx.fill(this.outer);
+      ctx.fill(combinedPath, "evenodd"); // This will fill only the outer minus inner
     }
   }
 }
