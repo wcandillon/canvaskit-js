@@ -85,3 +85,15 @@ export const rrectToXYWH = (r: InputRRect) => {
     },
   };
 };
+
+export const rrectToPath2D = (r: InputRRect) => {
+  const rect = normalizeArray(r);
+  const path = new Path2D();
+  path.roundRect(rect[0], rect[1], rect[2] - rect[0], rect[3] - rect[1], [
+    { x: rect[4], y: rect[5] },
+    { x: rect[6], y: rect[7] },
+    { x: rect[8], y: rect[9] },
+    { x: rect[10], y: rect[11] },
+  ]);
+  return path;
+};

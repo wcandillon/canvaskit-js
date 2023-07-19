@@ -8,13 +8,19 @@ import type {
   InputRRect,
   InputRect,
   StrokeOpts,
-  Rect,
 } from "canvaskit-wasm";
 
 import { HostObject } from "../HostObject";
 import { type Matrix3x3, transformPoint } from "../Matrix";
 import { toRad } from "../math/index";
-import { PathVerb, normalizeArray, rectToXYWH, rrectToXYWH } from "../Core";
+import {
+  FillType,
+  FillTypeEnum,
+  PathVerb,
+  normalizeArray,
+  rectToXYWH,
+  rrectToXYWH,
+} from "../Core";
 import { vec } from "../Vector";
 
 import { PathBuilder } from "./PathBuilder";
@@ -45,6 +51,7 @@ export const getBoundsFromPoints = (...points: Float32Array[]) => {
 
 export class PathJS extends HostObject<"Path"> implements SkPath {
   private path: PathBuilder;
+  private fillType: CanvasFillRule = "nonzero";
 
   constructor(path?: PathBuilder) {
     super("Path");
@@ -170,8 +177,12 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
     this.path.conicTo(vec(x1, y1), vec(x2, y2), w);
     return this;
   }
-  contains(x: number, y: number): boolean {
-    return true;
+  contains(x: number, y: number) {
+    const offscreen = new OffscreenCanvas(1, 1);
+    const ctx = offscreen.getContext("2d")!;
+    const path = this.getPath2D();
+    const result = ctx.isPointInPath(path, x, y);
+    return result;
   }
   copy(): SkPath {
     return PathJS.MakeFromCmds(this.toCmds())!;
@@ -217,8 +228,16 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
     );
     return bounds;
   }
-  getFillType(): EmbindEnumEntity {
-    throw new Error("Method not implemented.");
+
+  getNativeFillType() {
+    return this.fillType;
+  }
+
+  getFillType() {
+    if (this.fillType === "evenodd") {
+      return FillType.EvenOdd;
+    }
+    return FillType.Winding;
   }
   getPoint(
     _index: number,
@@ -286,6 +305,7 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
   }
   reset() {
     this.path = new PathBuilder();
+    this.fillType = "nonzero";
   }
   rewind() {
     this.reset();
@@ -302,11 +322,15 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
     this.path.quadraticCurveTo(vec(x1, y1), vec(x2, y2), true);
     return this;
   }
-  setFillType(_fill: EmbindEnumEntity): void {
-    //throw new Error("Method not implemented.");
+  setFillType(fill: EmbindEnumEntity): void {
+    if (fill.value === FillTypeEnum.EvenOdd) {
+      this.fillType = "evenodd";
+    } else {
+      this.fillType = "nonzero";
+    }
   }
-  setIsVolatile(_volatile: boolean): void {
-    //throw new Error("Method not implemented.");
+  setIsVolatile(volatile: boolean) {
+    console.log({ volatile });
   }
   simplify(): boolean {
     throw new Error("Method not implemented.");

@@ -35,6 +35,8 @@ import {
   rrectToXYWH,
   DrawableCircle,
   DrawableText,
+  DrawableDRRect,
+  rrectToPath2D,
 } from "../Core";
 import { HostObject } from "../HostObject";
 import { nativeMatrix } from "../Matrix";
@@ -111,6 +113,7 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     _useCenter: boolean,
     paint: PaintJS
   ): void {
+    console.warn("Unused parameter: _useCenter");
     const path = new Path2D();
     const rct = rectToXYWH(oval);
     path.arc(
@@ -158,8 +161,11 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
   drawColorInt(color: number, blendMode?: EmbindEnumEntity | undefined): void {
     this.drawColor(intAsColor(color), blendMode);
   }
-  drawDRRect(outer: InputRRect, _inner: InputRRect, paint: PaintJS) {
-    this.drawRRect(outer, paint);
+  drawDRRect(outerInput: InputRRect, innerInput: InputRRect, paint: PaintJS) {
+    paint.apply(
+      this.paintCtx,
+      new DrawableDRRect(rrectToPath2D(outerInput), rrectToPath2D(innerInput))
+    );
   }
   drawGlyphs(
     _glyphs: InputGlyphIDArray,
@@ -286,7 +292,10 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     p.drawParagraph(this.paintCtx.ctx, x, y);
   }
   drawPath(path: PathJS, paint: PaintJS): void {
-    paint.apply(this.paintCtx, new DrawablePath(path.getPath2D()));
+    paint.apply(
+      this.paintCtx,
+      new DrawablePath(path.getPath2D(), path.getNativeFillType())
+    );
   }
   drawPatch(
     _cubics: InputFlattenedPointArray,

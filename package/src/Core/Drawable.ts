@@ -3,13 +3,16 @@ export interface Drawable {
 }
 
 export class DrawablePath implements Drawable {
-  constructor(private readonly path: Path2D) {}
+  constructor(
+    private readonly path: Path2D,
+    private readonly fillType: CanvasFillRule = "nonzero"
+  ) {}
 
   draw(ctx: CanvasRenderingContext2D, stroke?: boolean) {
     if (stroke) {
       ctx.stroke(this.path);
     } else {
-      ctx.fill(this.path);
+      ctx.fill(this.path, this.fillType);
     }
   }
 }
@@ -80,6 +83,31 @@ export class DrawableText implements Drawable {
       ctx.strokeText(this.text, this.x, this.y);
     } else {
       ctx.fillText(this.text, this.x, this.y);
+    }
+  }
+}
+
+export class DrawableDRRect implements Drawable {
+  constructor(private readonly outer: Path2D, private readonly inner: Path2D) {}
+  draw(ctx: CanvasRenderingContext2D, stroke?: boolean | undefined): void {
+    // Save the current state of the context
+    ctx.save();
+
+    // Clip to the outer rounded rect
+    ctx.clip(this.outer);
+
+    // Use composite operation to cut out the inner rectangle from the outer one
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.fill(this.inner);
+
+    // Restore the context to its original state
+    ctx.restore();
+
+    // Apply paint properties and draw the shape
+    if (stroke) {
+      ctx.stroke(this.outer);
+    } else {
+      ctx.fill(this.outer);
     }
   }
 }
