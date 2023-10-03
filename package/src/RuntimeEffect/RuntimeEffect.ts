@@ -141,7 +141,8 @@ export class RuntimeEffectJS
     }
 
     if (localMatrix) {
-      console.warn("localMatrix not implemented yet");
+      // TODO: to implement
+      //console.warn("localMatrix not implemented yet");
     }
 
     return new RuntimeEffectShader(this.ctx, childrenCtx, children);

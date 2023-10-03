@@ -12,12 +12,14 @@ import {
 } from "../../Vector";
 import { saturate } from "../../math";
 
-import type { PathComponent } from "./PathComponent";
+import { PathComponentType, type PathComponent } from "./PathComponent";
 import { Polyline, linearSolve } from "./Polyline";
 import { QuadraticPathComponent } from "./QuadraticPathComponent";
 import { Flatennable } from "./Flattenable";
 
 export class CubicPathComponent extends Flatennable implements PathComponent {
+  type = PathComponentType.Cubic;
+
   constructor(
     readonly p1: Point,
     readonly cp1: Point,

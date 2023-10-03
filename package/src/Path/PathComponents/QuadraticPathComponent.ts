@@ -3,7 +3,7 @@ import type { Point } from "canvaskit-wasm";
 import { cross, dot, minus, normalize, vec } from "../../Vector";
 import { PathVerb } from "../../Core";
 
-import type { PathComponent } from "./PathComponent";
+import { PathComponentType, type PathComponent } from "./PathComponent";
 import type { PolylineItem } from "./Polyline";
 import { Polyline, linearSolve } from "./Polyline";
 import { Flatennable } from "./Flattenable";
@@ -14,6 +14,8 @@ export class QuadraticPathComponent
   extends Flatennable
   implements PathComponent
 {
+  type = PathComponentType.Quadratic;
+
   constructor(readonly p1: Point, readonly cp: Point, readonly p2: Point) {
     super();
   }

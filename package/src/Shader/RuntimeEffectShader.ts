@@ -22,7 +22,10 @@ export class RuntimeEffectShader extends ShaderJS {
     gl.canvas.width = width;
     gl.canvas.height = height;
     this.childrenCtx.forEach(({ texture, location }, index) => {
-      const child = this.children![index].paint(ctx);
+      if (!this.children) {
+        return;
+      }
+      const child = this.children[index].paint(ctx);
       gl.activeTexture(gl.TEXTURE0 + index);
       gl.bindTexture(gl.TEXTURE_2D, texture);
       gl.uniform1i(location, index);

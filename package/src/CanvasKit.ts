@@ -76,6 +76,9 @@ import { TextBlobFactory } from "./TextBlob";
 import { PathEffectFactory } from "./PathEffect";
 import { ColorMatrixHelpers } from "./ColorFilter";
 
+// TODO: instead of exporting this class use MakeImageFromEncodedAsync with uri
+export { ImageJS } from "./Image";
+
 let ctxId = 1;
 
 export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {

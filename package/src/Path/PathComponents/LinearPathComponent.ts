@@ -3,10 +3,12 @@ import type { Point } from "canvaskit-wasm";
 import { PathVerb } from "../../Core";
 import { dist } from "../../Vector";
 
-import type { PathComponent } from "./PathComponent";
+import { PathComponentType, type PathComponent } from "./PathComponent";
 import { linearSolve, linearSolveDerivative } from "./Polyline";
 
 export class LinearPathComponent implements PathComponent {
+  type = PathComponentType.Linear;
+
   constructor(readonly p1: Point, readonly p2: Point) {}
 
   segment(start: number, stop: number): PathComponent {

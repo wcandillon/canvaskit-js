@@ -2,9 +2,16 @@ import type { Point } from "canvaskit-wasm";
 
 import type { TightBounds } from "./Bounds";
 
+export enum PathComponentType {
+  Linear,
+  Quadratic,
+  Cubic,
+}
+
 export interface PathComponent extends TightBounds {
   p1: Point;
   p2: Point;
+  type: PathComponentType;
 
   toCmd(): number[];
   toSVGString(): string;

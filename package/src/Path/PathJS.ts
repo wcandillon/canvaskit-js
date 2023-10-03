@@ -300,12 +300,12 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
       this.fillType = "nonzero";
     }
   }
-  setIsVolatile(volatile: boolean) {
-    console.log({ volatile });
-  }
+  setIsVolatile(_volatile: boolean) {}
+
   simplify(): boolean {
     throw new Error("Method not implemented.");
   }
+
   stroke(_opts?: StrokeOpts | undefined): SkPath | null {
     throw new Error("Method not implemented.");
   }
@@ -382,8 +382,25 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
     return path;
   }
 
-  static CanInterpolate(_path1: SkPath, _path2: SkPath): boolean {
-    throw new Error("Function not implemented.");
+  static CanInterpolate(path1: PathJS, path2: PathJS): boolean {
+    const p1 = path1.getPath();
+    const p2 = path2.getPath();
+    let result = true;
+    p1.contours.forEach((contour, index) => {
+      const otherContour = p2.contours[index];
+      if (contour.components.length !== otherContour.components.length) {
+        result = false;
+        return;
+      }
+      contour.components.forEach((component, j) => {
+        const otherComponent = otherContour.components[j];
+        if (component.type !== otherComponent.type) {
+          result = false;
+          return;
+        }
+      });
+    });
+    return result;
   }
 
   static MakeFromCmds(input: InputCommands): SkPath | null {

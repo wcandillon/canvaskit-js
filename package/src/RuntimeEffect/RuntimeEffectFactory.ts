@@ -8,16 +8,12 @@ import type {
 import type { Textures } from "./RuntimeEffect";
 import { RuntimeEffectJS } from "./RuntimeEffect";
 
-const dummy = `void main() {
-  gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
-}`;
-
 export const RuntimeEffectFactory: IRuntimeEffectFactory = {
   Make(
-    _sksl: string,
+    sksl: string,
     callback?: ((err: string) => void) | undefined
   ): RuntimeEffect | null {
-    const ctx = createContext(dummy, callback);
+    const ctx = createContext(sksl, callback);
     if (ctx === null) {
       return null;
     }
