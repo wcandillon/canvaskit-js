@@ -53,12 +53,8 @@ export const Matrix4: Matrix4x4Helpers = {
   ): number {
     throw new Error("Function not implemented.");
   },
-  rotated: function (axisVec: Vector3, radians: number): number[] {
-    return CanvasKit.M44.rotatedUnitSinCos(
-      CanvasKit.Vector.normalize(axisVec),
-      Math.sin(radians),
-      Math.cos(radians)
-    );
+  rotated: function (_axisVec: Vector3, _radians: number): number[] {
+    throw new Error("Function not implemented.");
   },
   rotatedUnitSinCos: function (
     axisVec: Vector3,
