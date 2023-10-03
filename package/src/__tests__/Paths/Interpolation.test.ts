@@ -23,4 +23,114 @@ describe("Path Interpolation", () => {
     expect(path2).toBeTruthy();
     expect(CanvasKit.Path.CanInterpolate(path1, path2)).toBe(false);
   });
+  it("MakeFromCmd", () => {
+    const path1 = CanvasKit.Path.MakeFromSVGString(hello1)!;
+    const cmd = path1.toCmds();
+    const path2 = CanvasKit.Path.MakeFromCmds(cmd)!;
+    expect(path1).toBeTruthy();
+    expect(path2).toBeTruthy();
+    expect(path1.toSVGString()).toEqual(path2.toSVGString());
+  });
+
+  it("basic interpolation", () => {
+    const path2 = new CanvasKit.Path();
+    path2.moveTo(0, 0);
+    path2.lineTo(20, 20);
+    path2.lineTo(20, 40);
+    const path = new CanvasKit.Path();
+    path.moveTo(20, 20);
+    path.lineTo(20, 40);
+    path.lineTo(40, 20);
+    expect(CanvasKit.Path.CanInterpolate(path, path2)).toBe(true);
+    expect(
+      CanvasKit.Path.MakeFromPathInterpolation(path, path2, 0.5)!.toSVGString()
+    ).toBe("M10 10 L20 30 L30 30");
+
+    const path2Ref = new RealCanvasKit.Path();
+    path2Ref.moveTo(0, 0);
+    path2Ref.lineTo(20, 20);
+    path2Ref.lineTo(20, 40);
+    const pathRef = new RealCanvasKit.Path();
+    pathRef.moveTo(20, 20);
+    pathRef.lineTo(20, 40);
+    pathRef.lineTo(40, 20);
+    const ref = RealCanvasKit.Path.MakeFromPathInterpolation(
+      pathRef,
+      path2Ref,
+      0
+    )!;
+    expect(ref).toBeTruthy();
+    expect(
+      CanvasKit.Path.MakeFromPathInterpolation(path, path2, 0)!.toCmds()
+    ).toEqual(ref.toCmds());
+  });
+  it("interpolation values can overshoot", async () => {
+    const path2 = new CanvasKit.Path();
+    path2.moveTo(0, 0);
+    path2.lineTo(20, 20);
+    path2.lineTo(20, 40);
+    const path = new CanvasKit.Path();
+    path.moveTo(20, 20);
+    path.lineTo(20, 40);
+    path.lineTo(40, 20);
+    //path.trim(0, 1, false);
+    const path2Ref = new RealCanvasKit.Path();
+    path2Ref.moveTo(0, 0);
+    path2Ref.lineTo(20, 20);
+    path2Ref.lineTo(20, 40);
+    const pathRef = new RealCanvasKit.Path();
+    pathRef.moveTo(20, 20);
+    pathRef.lineTo(20, 40);
+    pathRef.lineTo(40, 20);
+    // pathRef.trim(0, 1, false);
+    const refs = [
+      RealCanvasKit.Path.MakeFromPathInterpolation(
+        pathRef,
+        path2Ref,
+        -1
+      )!.toCmds(),
+      RealCanvasKit.Path.MakeFromPathInterpolation(
+        pathRef,
+        path2Ref,
+        0
+      )!.toCmds(),
+      RealCanvasKit.Path.MakeFromPathInterpolation(
+        pathRef,
+        path2Ref,
+        0.0001
+      )!.toCmds(),
+      RealCanvasKit.Path.MakeFromPathInterpolation(
+        pathRef,
+        path2Ref,
+        1
+      )!.toCmds(),
+      RealCanvasKit.Path.MakeFromPathInterpolation(
+        pathRef,
+        path2Ref,
+        1.0001
+      )!.toCmds(),
+      RealCanvasKit.Path.MakeFromPathInterpolation(
+        pathRef,
+        path2Ref,
+        1.2
+      )!.toCmds(),
+      RealCanvasKit.Path.MakeFromPathInterpolation(
+        pathRef,
+        path2Ref,
+        2
+      )!.toCmds(),
+    ];
+    const results = [
+      CanvasKit.Path.MakeFromPathInterpolation(path, path2, -1)!.toCmds(),
+      CanvasKit.Path.MakeFromPathInterpolation(path, path2, 0)!.toCmds(),
+      CanvasKit.Path.MakeFromPathInterpolation(path, path2, 0.0001)!.toCmds(),
+      CanvasKit.Path.MakeFromPathInterpolation(path, path2, 1)!.toCmds(),
+      CanvasKit.Path.MakeFromPathInterpolation(path, path2, 1.0001)!.toCmds(),
+      CanvasKit.Path.MakeFromPathInterpolation(path, path2, 1.2)!.toCmds(),
+      CanvasKit.Path.MakeFromPathInterpolation(path, path2, 2)!.toCmds(),
+    ];
+    expect(results.map((f) => Array.from(f)).flat()).toBeApproximatelyEqual(
+      refs.map((f) => Array.from(f)).flat()
+    );
+  });
 });

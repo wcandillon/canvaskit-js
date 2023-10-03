@@ -439,11 +439,20 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
     throw new Error("Function not implemented.");
   }
   static MakeFromPathInterpolation(
-    _start: SkPath,
-    _end: SkPath,
-    _weight: number
+    start: SkPath,
+    end: SkPath,
+    t: number
   ): SkPath | null {
-    throw new Error("Function not implemented.");
+    const cmd1 = start.toCmds();
+    const cmd2 = end.toCmds();
+    const cmd3 = cmd1.map((cmd, index) => {
+      const c = cmd2[index];
+      if (c === cmd) {
+        return cmd;
+      }
+      return (1 - t) * c + t * cmd;
+    });
+    return PathJS.MakeFromCmds(cmd3);
   }
   static MakeFromSVGString(d: string) {
     try {
