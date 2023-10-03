@@ -106,6 +106,10 @@ export class QuadraticPathComponent
       )
     );
   }
+
+  computeTightBounds() {
+    return this.polyline.computeTightBounds();
+  }
 }
 
 /// https://raphlinus.github.io/graphics/curves/2019/12/23/flatten-quadbez.html

@@ -8,9 +8,18 @@ import {
 } from "./PathComponents";
 import type { Applier } from "./Contour";
 import { Contour } from "./Contour";
+import { computeTightBounds } from "./PathComponents/Bounds";
 
 export class Path {
   contours: Contour[] = [];
+
+  computeTightBounds(result: Float32Array) {
+    const bounds = computeTightBounds(this.contours);
+    result[0] = bounds[0];
+    result[1] = bounds[1];
+    result[2] = bounds[2];
+    result[3] = bounds[3];
+  }
 
   get contour() {
     // SVG doesn't allow for contourless path but Skia adds moveTo(0, 0) automatically

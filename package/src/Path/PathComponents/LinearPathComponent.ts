@@ -16,6 +16,14 @@ export class LinearPathComponent implements PathComponent {
     );
   }
 
+  computeTightBounds() {
+    const minX = Math.min(this.p1[0], this.p2[0]);
+    const minY = Math.min(this.p1[1], this.p2[1]);
+    const maxX = Math.max(this.p1[0], this.p2[0]);
+    const maxY = Math.max(this.p1[1], this.p2[1]);
+    return Float32Array.of(minX, minY, maxX, maxY);
+  }
+
   solve(t: number) {
     return linearSolve(t, this.p1, this.p2);
   }

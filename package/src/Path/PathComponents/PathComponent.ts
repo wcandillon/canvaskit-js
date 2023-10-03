@@ -1,6 +1,8 @@
 import type { Point } from "canvaskit-wasm";
 
-export interface PathComponent {
+import type { TightBounds } from "./Bounds";
+
+export interface PathComponent extends TightBounds {
   p1: Point;
   p2: Point;
 

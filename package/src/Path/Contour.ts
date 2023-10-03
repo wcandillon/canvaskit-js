@@ -6,13 +6,18 @@ import {
   LinearPathComponent,
   QuadraticPathComponent,
 } from "./PathComponents";
+import { computeTightBounds, type TightBounds } from "./PathComponents/Bounds";
 
 export type Applier<T> = (comp: T, index: number) => void;
 
-export class Contour {
+export class Contour implements TightBounds {
   components: PathComponent[] = [];
 
   constructor(public closed: boolean) {}
+
+  computeTightBounds() {
+    return computeTightBounds(this.components);
+  }
 
   getPosTanAtLength(length: number) {
     let offset = 0;

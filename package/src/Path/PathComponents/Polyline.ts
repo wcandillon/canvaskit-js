@@ -53,6 +53,27 @@ export class Polyline {
     }
     return cumulativeLengths;
   }
+
+  computeTightBounds() {
+    if (this.items.length === 0) {
+      throw new Error("The polyline has no points to determine bounds.");
+    }
+
+    let minX = this.items[0].point[0];
+    let minY = this.items[0].point[1];
+    let maxX = this.items[0].point[0];
+    let maxY = this.items[0].point[1];
+
+    for (const item of this.items) {
+      const [x, y] = item.point;
+      minX = Math.min(minX, x);
+      minY = Math.min(minY, y);
+      maxX = Math.max(maxX, x);
+      maxY = Math.max(maxY, y);
+    }
+
+    return Float32Array.of(minX, minY, maxX, maxY);
+  }
 }
 
 const lerp = (t: number, a: number, b: number) => (1 - t) * a + t * b;

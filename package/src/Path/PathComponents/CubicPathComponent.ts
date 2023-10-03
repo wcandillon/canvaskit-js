@@ -170,6 +170,10 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
       )
     );
   }
+
+  computeTightBounds() {
+    return this.polyline.computeTightBounds();
+  }
 }
 
 const cubicSolve = (

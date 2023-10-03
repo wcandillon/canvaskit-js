@@ -149,8 +149,10 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
     return this;
   }
 
-  computeTightBounds(_outputArray?: Float32Array | undefined): Float32Array {
-    throw new Error("Method not implemented.");
+  computeTightBounds(outputArray?: Float32Array | undefined) {
+    const result = outputArray ?? new Float32Array(4);
+    this.path.getPath().computeTightBounds(result);
+    return result;
   }
   conicTo(x1: number, y1: number, x2: number, y2: number, w: number) {
     this.path.conicTo(vec(x1, y1), vec(x2, y2), w);
