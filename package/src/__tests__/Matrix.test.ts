@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import { setupRealSkia, skia } from "./setup";
 
 const expectArrayCloseTo = (a: number[], b: number[], precision = 0.0001) => {

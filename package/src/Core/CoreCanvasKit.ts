@@ -2,9 +2,9 @@
 /* eslint-disable camelcase */
 import type { Color, InputRect } from "canvaskit-wasm";
 
-import { Matrix3, Matrix4 } from "../Matrix";
 import { VectorHelpers } from "../Vector";
 
+import { Matrix3, Matrix4 } from "./Matrix";
 import {
   color,
   color4f,

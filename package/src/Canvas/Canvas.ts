@@ -39,7 +39,7 @@ import {
   rrectToPath2D,
 } from "../Core";
 import { HostObject } from "../HostObject";
-import { nativeMatrix } from "../Matrix";
+import { nativeMatrix } from "../Core/Matrix";
 import type { PathJS } from "../Path";
 import type { ImageJS } from "../Image";
 import type { ImageFilterJS } from "../ImageFilter";

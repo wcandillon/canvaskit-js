@@ -11,7 +11,7 @@ import type {
 } from "canvaskit-wasm";
 
 import { HostObject } from "../HostObject";
-import { type Matrix3x3, transformPoint } from "../Matrix";
+import { type Matrix3x3, transformPoint } from "../Core/Matrix";
 import { toRad } from "../math/index";
 import {
   FillType,

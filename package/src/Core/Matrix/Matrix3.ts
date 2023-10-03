@@ -4,7 +4,7 @@ import type {
   Matrix3x3Helpers,
 } from "canvaskit-wasm";
 
-import { normalizeArray } from "../Core";
+import { normalizeArray } from "../Values";
 
 export type Matrix3x3 = number[];
 

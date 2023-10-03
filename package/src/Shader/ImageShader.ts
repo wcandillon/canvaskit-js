@@ -1,6 +1,6 @@
 import type { InputMatrix } from "canvaskit-wasm";
 
-import { nativeMatrix } from "../Matrix";
+import { nativeMatrix } from "../Core/Matrix";
 
 import { ShaderJS } from "./Shader";
 
