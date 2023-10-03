@@ -233,8 +233,8 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
     this.path.moveTo(vec(x, y), relative);
     return this;
   }
-  offset(_dx: number, _dy: number): SkPath {
-    throw new Error("Method not implemented.");
+  offset(dx: number, dy: number): SkPath {
+    return this.transform([1, 0, dx, 0, 1, dy, 0, 0, 1]);
   }
   op(_other: SkPath, _op: EmbindEnumEntity): boolean {
     throw new Error("Method not implemented.");

@@ -1,8 +1,7 @@
 import type { TypefaceFontProvider } from "canvaskit-wasm";
 
-import { HostObject } from "../HostObject";
-
 import { parseFontTable } from "./Parser";
+import { FontMgrJS } from "./FontMgr";
 
 export const loadFont = (data: ArrayBuffer, familynameAlias?: string) => {
   const familyName =
@@ -17,11 +16,11 @@ export const loadFont = (data: ArrayBuffer, familynameAlias?: string) => {
 };
 
 export class TypefaceFontProviderJS
-  extends HostObject<"TypefaceFontProvider">
+  extends FontMgrJS
   implements TypefaceFontProvider
 {
   constructor() {
-    super("TypefaceFontProvider");
+    super([]);
   }
 
   registerFont(bytes: Uint8Array | ArrayBuffer, family: string): void {
