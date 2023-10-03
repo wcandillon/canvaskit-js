@@ -3,10 +3,6 @@ export interface TightBounds {
 }
 
 export const computeTightBounds = (col: TightBounds[]) => {
-  if (col.length === 0) {
-    throw new Error("The array is empty and has no bounds to determine.");
-  }
-
   // Initialize with the bounds of the first object
   let [top, left, bottom, right] = col[0].computeTightBounds();
 

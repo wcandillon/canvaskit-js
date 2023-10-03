@@ -14,7 +14,9 @@ export class Path {
   contours: Contour[] = [];
 
   computeTightBounds(result: Float32Array) {
-    const bounds = computeTightBounds(this.contours);
+    const bounds = computeTightBounds(
+      this.contours.filter((c) => c.components.length > 0)
+    );
     result[0] = bounds[0];
     result[1] = bounds[1];
     result[2] = bounds[2];
