@@ -27,9 +27,13 @@ export type Fit =
 
 export const size = (width = 0, height = 0) => ({ width, height });
 
+const matrixToArray = (matrix: DOMMatrix) => {
+  return [matrix.a, matrix.c, matrix.e, matrix.b, matrix.d, matrix.f, 0, 0, 1];
+};
+
 export const fitbox = (fit: Fit, src: Rect, dst: Rect) => {
   const rects = fitRects(fit, src, dst);
-  return rect2rect(rects.src, rects.dst);
+  return matrixToArray(rect2rect(rects.src, rects.dst));
 };
 
 export const rect2rect = (_src: Rect, _dst: Rect) => {
