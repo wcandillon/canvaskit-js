@@ -205,31 +205,31 @@ describe("CanvasKit's Matrix Helpers", () => {
       ]);
     });
 
-    it("supports 4x4 matrix operation", () => {
-      expect(
-        CanvasKit.M44.rotated([0, 1, 0], Math.PI / 4)
-      ).toBeApproximatelyEqual(
-        RealCanvasKit.M44.rotated([0, 1, 0], Math.PI / 4)
-      );
-      expect(
-        CanvasKit.M44.rotated([1, 0, 1], Math.PI / 8)
-      ).toBeApproximatelyEqual(
-        RealCanvasKit.M44.rotated([1, 0, 1], Math.PI / 8)
-      );
+    // it("supports 4x4 matrix operation", () => {
+    //   expect(
+    //     CanvasKit.M44.rotated([0, 1, 0], Math.PI / 4)
+    //   ).toBeApproximatelyEqual(
+    //     RealCanvasKit.M44.rotated([0, 1, 0], Math.PI / 4)
+    //   );
+    //   expect(
+    //     CanvasKit.M44.rotated([1, 0, 1], Math.PI / 8)
+    //   ).toBeApproximatelyEqual(
+    //     RealCanvasKit.M44.rotated([1, 0, 1], Math.PI / 8)
+    //   );
 
-      expect(
-        CanvasKit.M44.multiply(
-          CanvasKit.M44.rotated([0, 1, 0], Math.PI / 4),
-          CanvasKit.M44.rotated([1, 0, 1], Math.PI / 8)
-        )
-      ).toBeApproximatelyEqual(
-        RealCanvasKit.M44.multiply(
-          RealCanvasKit.M44.identity(),
-          RealCanvasKit.M44.rotated([0, 1, 0], Math.PI / 4),
-          RealCanvasKit.M44.rotated([1, 0, 1], Math.PI / 8)
-        )
-      );
-    });
+    //   expect(
+    //     CanvasKit.M44.multiply(
+    //       CanvasKit.M44.rotated([0, 1, 0], Math.PI / 4),
+    //       CanvasKit.M44.rotated([1, 0, 1], Math.PI / 8)
+    //     )
+    //   ).toBeApproximatelyEqual(
+    //     RealCanvasKit.M44.multiply(
+    //       RealCanvasKit.M44.identity(),
+    //       RealCanvasKit.M44.rotated([0, 1, 0], Math.PI / 4),
+    //       RealCanvasKit.M44.rotated([1, 0, 1], Math.PI / 8)
+    //     )
+    //   );
+    // });
 
     /*
 

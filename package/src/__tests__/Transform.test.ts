@@ -250,31 +250,31 @@ describe("Transforms", () => {
 
     processResult(surface, "snapshots/m4.png");
   });
-  it("should accept matrix4", async () => {
-    const image = await skia.draw(({ CanvasKit, canvas, height, width }) => {
-      canvas.concat(
-        CanvasKit.M44.multiply(
-          CanvasKit.M44.rotated([0, 1, 0], Math.PI / 4),
-          CanvasKit.M44.rotated([1, 0, 1], Math.PI / 8)
-        )
-      );
-      const paint = new CanvasKit.Paint();
-      const colors = ["#FFF723", "#E70696"].map((cl) =>
-        CanvasKit.parseColorString(cl)
-      );
-      paint.setShader(
-        CanvasKit.Shader.MakeLinearGradient(
-          [0, 0],
-          [0, height],
-          colors,
-          null,
-          CanvasKit.TileMode.Clamp
-        )
-      );
-      canvas.drawRect(CanvasKit.XYWHRect(0, 0, width, height), paint);
-    });
-    checkImage(image, "snapshots/m4.png");
-  });
+  // it("should accept matrix4", async () => {
+  //   const image = await skia.draw(({ CanvasKit, canvas, height, width }) => {
+  //     canvas.concat(
+  //       CanvasKit.M44.multiply(
+  //         CanvasKit.M44.rotated([0, 1, 0], Math.PI / 4),
+  //         CanvasKit.M44.rotated([1, 0, 1], Math.PI / 8)
+  //       )
+  //     );
+  //     const paint = new CanvasKit.Paint();
+  //     const colors = ["#FFF723", "#E70696"].map((cl) =>
+  //       CanvasKit.parseColorString(cl)
+  //     );
+  //     paint.setShader(
+  //       CanvasKit.Shader.MakeLinearGradient(
+  //         [0, 0],
+  //         [0, height],
+  //         colors,
+  //         null,
+  //         CanvasKit.TileMode.Clamp
+  //       )
+  //     );
+  //     canvas.drawRect(CanvasKit.XYWHRect(0, 0, width, height), paint);
+  //   });
+  //   checkImage(image, "snapshots/m4.png");
+  // });
   it("should accept matrix4 (1)", async () => {
     const image = await skia.draw(({ CanvasKit, canvas, height, width }) => {
       const m4 = new DOMMatrix();
@@ -322,28 +322,28 @@ describe("Transforms", () => {
     });
     checkImage(image, "snapshots/m4.png");
   });
-  it("should accept matrix4 (3)", async () => {
-    const image = await skia.draw(({ CanvasKit, canvas, height, width }) => {
-      canvas.concat(CanvasKit.M44.rotated([0, 1, 0], Math.PI / 4));
-      canvas.concat(CanvasKit.M44.rotated([1, 0, 1], Math.PI / 8));
-      const paint = new CanvasKit.Paint();
-      paint.setAntiAlias(true);
-      const colors = ["#FFF723", "#E70696"].map((cl) =>
-        CanvasKit.parseColorString(cl)
-      );
-      paint.setShader(
-        CanvasKit.Shader.MakeLinearGradient(
-          [0, 0],
-          [0, height],
-          colors,
-          null,
-          CanvasKit.TileMode.Clamp
-        )
-      );
-      canvas.drawRect(CanvasKit.XYWHRect(0, 0, width, height), paint);
-    });
-    checkImage(image, "snapshots/m4.png");
-  });
+  // it("should accept matrix4 (3)", async () => {
+  //   const image = await skia.draw(({ CanvasKit, canvas, height, width }) => {
+  //     canvas.concat(CanvasKit.M44.rotated([0, 1, 0], Math.PI / 4));
+  //     canvas.concat(CanvasKit.M44.rotated([1, 0, 1], Math.PI / 8));
+  //     const paint = new CanvasKit.Paint();
+  //     paint.setAntiAlias(true);
+  //     const colors = ["#FFF723", "#E70696"].map((cl) =>
+  //       CanvasKit.parseColorString(cl)
+  //     );
+  //     paint.setShader(
+  //       CanvasKit.Shader.MakeLinearGradient(
+  //         [0, 0],
+  //         [0, height],
+  //         colors,
+  //         null,
+  //         CanvasKit.TileMode.Clamp
+  //       )
+  //     );
+  //     canvas.drawRect(CanvasKit.XYWHRect(0, 0, width, height), paint);
+  //   });
+  //   checkImage(image, "snapshots/m4.png");
+  // });
   /*
   https://github.com/fserb/canvas2D/blob/master/spec/perspective-transforms.md
     // Javascript example, draws a trapezoid

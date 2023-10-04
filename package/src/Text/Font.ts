@@ -8,7 +8,6 @@ import type {
 } from "canvaskit-wasm";
 
 import { HostObject } from "../HostObject";
-import { normalizeArray } from "../Core";
 
 import { TypefaceJS } from "./Typeface";
 import { TextContext, glyphArray } from "./NativeText";

@@ -53,7 +53,7 @@ export class PaintJS extends HostObject<"Paint"> implements Paint {
     ctx.save();
     this.processFilter(paintCtx);
     this.processStyle(ctx);
-    shape.draw(ctx, this.style === PaintStyle.Stroke);
+    shape.draw(ctx, this.style.value === PaintStyle.Stroke.value);
     ctx.restore();
   }
 
@@ -298,3 +298,26 @@ const nativeLineJoin = (join: EmbindEnumEntity) => {
 
 type Miter = "miter" | "round" | "bevel";
 type Cap = "butt" | "round" | "square";
+
+// const resetCanvasContext = (ctx: CanvasRenderingContext2D) => {
+//   ctx.globalAlpha = 1;
+//   ctx.globalCompositeOperation = "source-over";
+//   ctx.imageSmoothingEnabled = true;
+//   ctx.imageSmoothingQuality = "low";
+//   ctx.fillStyle = "#000000";
+//   ctx.strokeStyle = "#000000";
+//   ctx.lineWidth = 1;
+//   ctx.lineCap = "butt";
+//   ctx.lineJoin = "miter";
+//   ctx.miterLimit = 10;
+//   ctx.shadowBlur = 0;
+//   ctx.shadowColor = "rgba(0, 0, 0, 0)";
+//   ctx.shadowOffsetX = 0;
+//   ctx.shadowOffsetY = 0;
+//   ctx.setTransform(1, 0, 0, 1, 0, 0);
+//   ctx.filter = "none";
+//   ctx.font = "10px sans-serif";
+//   ctx.textAlign = "start";
+//   ctx.textBaseline = "alphabetic";
+//   ctx.direction = "inherit";
+// };
