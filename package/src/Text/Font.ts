@@ -62,6 +62,9 @@ export class FontJS extends HostObject<"Font"> implements Font {
     }
     return result;
   }
+  getStringForGlyph(glyphID: number) {
+    return this.typeface.getStringForGlyph(glyphID);
+  }
   getGlyphIDs(str: string, numCodePoints?: number, output?: Uint16Array) {
     return this.typeface.getGlyphIDs(str, numCodePoints, output);
   }

@@ -1,3 +1,5 @@
+import type { FontJS } from "../Text";
+
 export interface Drawable {
   draw(ctx: CanvasRenderingContext2D, stroke?: boolean): void;
 }
@@ -84,6 +86,39 @@ export class DrawableText implements Drawable {
     } else {
       ctx.fillText(this.text, this.x, this.y);
     }
+  }
+}
+
+export class DrawableGlyphs implements Drawable {
+  constructor(
+    private readonly glyphs: number[],
+    private readonly positions: Float32Array,
+    private readonly x: number,
+    private readonly y: number,
+    private readonly font: FontJS
+  ) {}
+
+  private getDrawableGlyphs() {
+    return this.glyphs.map((glyph, index) => {
+      return {
+        text: this.font.getStringForGlyph(glyph),
+        x: this.x + this.positions[index * 2],
+        y: this.y + this.positions[index * 2 + 1],
+      };
+    });
+  }
+
+  draw(ctx: CanvasRenderingContext2D, stroke?: boolean) {
+    if (this.font) {
+      ctx.font = this.font.fontStyle();
+    }
+    this.getDrawableGlyphs().forEach(({ text, x, y }) => {
+      if (stroke) {
+        ctx.strokeText(text, x, y);
+      } else {
+        ctx.fillText(text, x, y);
+      }
+    });
   }
 }
 

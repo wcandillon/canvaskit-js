@@ -15,6 +15,11 @@ export class TypefaceJS extends HostObject<"Typeface"> implements Typeface {
     }
   }
 
+  // TODO: refactor so we don't need to create a typed array here
+  getStringForGlyph(glyphID: number) {
+    return this.glyphToText(Uint16Array.of(glyphID));
+  }
+
   glyphToText(glyphs: Uint16Array) {
     let text = "";
     const keys = Object.keys(this.cmap!.glyphIndexMap!);

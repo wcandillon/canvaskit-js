@@ -4,7 +4,6 @@ import type {
   CubicResampler,
   EmbindEnumEntity,
   FilterOptions,
-  Font,
   Image,
   ImageInfo,
   InputFlattenedPointArray,
@@ -37,6 +36,8 @@ import {
   DrawableText,
   DrawableDRRect,
   rrectToPath2D,
+  normalizeArray,
+  DrawableGlyphs,
 } from "../Core";
 import { HostObject } from "../HostObject";
 import { nativeMatrix } from "../Core/Matrix";
@@ -167,14 +168,23 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     );
   }
   drawGlyphs(
-    _glyphs: InputGlyphIDArray,
-    _positions: InputFlattenedPointArray,
-    _x: number,
-    _y: number,
-    _font: Font,
-    _paint: Paint
+    glyphs: InputGlyphIDArray,
+    positions: InputFlattenedPointArray,
+    x: number,
+    y: number,
+    font: FontJS,
+    paint: PaintJS
   ): void {
-    throw new Error("Method not implemented.");
+    paint.apply(
+      this.paintCtx,
+      new DrawableGlyphs(
+        Array.from(normalizeArray(glyphs)),
+        normalizeArray(positions),
+        x,
+        y,
+        font
+      )
+    );
   }
   drawImage(img: ImageJS, left: number, top: number, paint?: PaintJS): void {
     if (paint) {
