@@ -8,6 +8,7 @@ import type {
 } from "canvaskit-wasm";
 
 import { HostObject } from "../HostObject";
+import { normalizeArray } from "../Core";
 
 import { TypefaceJS } from "./Typeface";
 import { TextContext, glyphArray } from "./NativeText";
@@ -69,11 +70,11 @@ export class FontJS extends HostObject<"Font"> implements Font {
     return this.typeface.getGlyphIDs(str, numCodePoints, output);
   }
   getGlyphWidths(
-    _inputGlyphs: InputGlyphIDArray,
-    _paint?: Paint | null | undefined,
-    _output?: Float32Array | undefined
-  ): Float32Array {
-    throw new Error("Method not implemented.");
+    inputGlyphs: InputGlyphIDArray,
+    paint?: Paint | null | undefined,
+    output?: Float32Array | undefined
+  ) {
+    return this.getGlyphBounds(inputGlyphs, paint, output);
   }
   getGlyphIntercepts(
     _glyphs: InputGlyphIDArray,

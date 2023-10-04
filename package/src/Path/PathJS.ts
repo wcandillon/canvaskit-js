@@ -169,7 +169,7 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
     return PathJS.MakeFromCmds(this.toCmds())!;
   }
   countPoints(): number {
-    throw new Error("Method not implemented.");
+    return this.path.getPath().getPoints().length;
   }
   cubicTo(
     cpx1: number,
@@ -210,11 +210,12 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
     }
     return FillType.Winding;
   }
-  getPoint(
-    _index: number,
-    _outputArray?: Float32Array | undefined
-  ): Float32Array {
-    throw new Error("Method not implemented.");
+  getPoint(index: number, outputArray?: Float32Array) {
+    const result = outputArray ?? new Float32Array(2);
+    const point = this.path.getPath().getPoints()[index];
+    result[0] = point[0];
+    result[1] = point[1];
+    return result;
   }
   isEmpty(): boolean {
     throw new Error("Method not implemented.");
