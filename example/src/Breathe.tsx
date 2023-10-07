@@ -9,7 +9,7 @@ import { useLoop } from "./components/animations";
 const root = new CanvasKit.Paint();
 root.setBlendMode(CanvasKit.BlendMode.Screen);
 root.setMaskFilter(
-  CanvasKit.MaskFilter.MakeBlur(CanvasKit.BlurStyle.Solid, 10, false)
+  CanvasKit.MaskFilter.MakeBlur(CanvasKit.BlurStyle.Solid, 50, false)
 );
 
 const c1 = root.copy();
@@ -18,7 +18,7 @@ c1.setColor(CanvasKit.parseColorString("#61bea2"));
 const c2 = root.copy();
 c2.setColor(CanvasKit.parseColorString("#529ca0"));
 
-const bgColor = CanvasKit.parseColorString("#242b38");
+const bgColor = CanvasKit.parseColorString("black"); //CanvasKit.parseColorString("#242b38");
 
 const drawRing = (
   progress: AnimationValue,
