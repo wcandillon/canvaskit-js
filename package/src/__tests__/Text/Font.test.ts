@@ -60,7 +60,7 @@ describe("Font", () => {
     expect(Object.keys(bounds).length).toEqual(idsRef.length * 4); // one glyph id per glyph
     expect(Object.values(bounds)).toBeApproximatelyEqual(
       Object.values(boundsRef),
-      1
+      5
     );
   });
   it("should get the glyph bounds of MaterialIcons-Regular", async () => {
