@@ -1,0 +1,61 @@
+name: Release
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: Install jq
+        run: sudo apt-get install jq
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "lts/*"
+          working-directory: package
+
+      - name: Install dependencies
+        run: npm clean-install
+        working-directory: package
+
+      - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
+        run: npm audit signatures
+        working-directory: package
+
+      - name: Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release
+        working-directory: package
+
+      # Assuming semantic-release has been set up to attach the tarball to the GitHub release
+      # We can use that tarball and upload to Firebase Storage
+      - name: Upload tarball to Firebase Storage
+        run: |
+          TAR_URL=$(curl -sH "Authorization: token $GITHUB_TOKEN" "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/latest" | jq -r '.tarball_url')
+
+          # Download the tarball
+          wget $TAR_URL -O package.tgz
+
+          # Upload to Firebase Storage
+          firebase storage:upload package.tgz --project start-react-native
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

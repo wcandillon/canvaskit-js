@@ -17,8 +17,8 @@ const CanvasKitInit = () =>
 // eslint-disable-next-line import/no-default-export
 export default CanvasKitInit;
 
-if (window) {
-  window.CanvasKitInit = () =>
-    new Promise((resolve) => resolve(CanvasKitJS.getInstance()));
-  window.CanvasKit = CanvasKitJS.getInstance();
-}
+// if (window) {
+//   window.CanvasKitInit = () =>
+//     new Promise((resolve) => resolve(CanvasKitJS.getInstance()));
+//   window.CanvasKit = CanvasKitJS.getInstance();
+// }
