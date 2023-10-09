@@ -36,20 +36,20 @@ void main() {
 	gl_FragColor = vec4(r,g,b,1.0);
 }`)!;
 
-const colors = [
-  "#3FCEBC",
-  "#3СВСЕВ",
-  "#5F96E7",
-  "#816FE3",
-  "#9F5EE2",
-  "#BD4CEO",
-  "#DE589F",
-  "#FF645E",
-  "#FDA859",
-  "#FAEC54",
-  "#9EE671",
-  "#41E08D",
-].map((cl) => CanvasKit.parseColorString(cl));
+// const colors = [
+//   "#3FCEBC",
+//   "#3СВСЕВ",
+//   "#5F96E7",
+//   "#816FE3",
+//   "#9F5EE2",
+//   "#BD4CEO",
+//   "#DE589F",
+//   "#FF645E",
+//   "#FDA859",
+//   "#FAEC54",
+//   "#9EE671",
+//   "#41E08D",
+// ].map((cl) => CanvasKit.parseColorString(cl));
 
 const pad = 50;
 
