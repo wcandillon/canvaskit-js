@@ -1,21 +1,7 @@
-import { Fragment, StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 import { CanvasKitJS } from "canvaskit-js";
 import type { CanvasKit } from "canvaskit-wasm";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-
-import { Breathe } from "./Breathe";
-import { Menu } from "./Menu";
-import { Glassmorphism } from "./Glassmorphism";
-import { Playground } from "./Playground";
-import { Shaders } from "./Shaders";
-import { Shader } from "./Shader";
-import { CanvasKitProvider } from "./components/CanvasKitContext";
-import { Shader1 } from "./Shader1";
-import { Shader2 } from "./Shader2";
-import { Hello } from "./Hello";
-import { Paragraph } from "./Paragraph";
-import { Paragraph2 } from "./Paragraph2";
+import { lazy } from "react";
 
 declare global {
   // eslint-disable-next-line no-var
@@ -27,58 +13,5 @@ global.CanvasKit = CanvasKitJS.getInstance();
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
-const strictMode = false;
-const Wapper = strictMode ? StrictMode : Fragment;
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Menu />,
-  },
-  {
-    path: "/breathe",
-    element: <Breathe />,
-  },
-  {
-    path: "/glassmorphism",
-    element: <Glassmorphism />,
-  },
-  {
-    path: "/shader",
-    element: <Shader />,
-  },
-  {
-    path: "/shaders",
-    element: <Shaders />,
-  },
-  {
-    path: "/paragraph",
-    element: <Paragraph />,
-  },
-  {
-    path: "/paragraph2",
-    element: <Paragraph2 />,
-  },
-  {
-    path: "/shader1",
-    element: <Shader1 />,
-  },
-  {
-    path: "/shader2",
-    element: <Shader2 />,
-  },
-  {
-    path: "/playground",
-    element: <Playground />,
-  },
-  {
-    path: "/hello",
-    element: <Hello />,
-  },
-]);
-root.render(
-  <Wapper>
-    <CanvasKitProvider>
-      <RouterProvider router={router} />
-    </CanvasKitProvider>
-  </Wapper>
-);
+const App = lazy(() => import("./App"));
+root.render(<App />);

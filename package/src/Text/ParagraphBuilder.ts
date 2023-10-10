@@ -65,8 +65,10 @@ export class ParagraphBuilderJS
 
   build() {
     const tokens: Token[] = [];
+    const segmenter = Intl.Segmenter
+      ? new Intl.Segmenter("en", { granularity: "word" })
+      : { segment: () => [] };
     for (const node of this.nodes) {
-      const segmenter = new Intl.Segmenter("en", { granularity: "word" });
       const segments = segmenter.segment(node.text);
       for (const segment of segments) {
         tokens.push({
