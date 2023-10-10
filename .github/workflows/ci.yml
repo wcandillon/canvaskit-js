@@ -36,6 +36,7 @@ jobs:
 
       - name: Tests
         working-directory: package
+        timeout-minutes: 10
         run: |
           sudo apt-get install -y xvfb
           xvfb-run --auto-servernum --server-args='-screen 0 1024x768x24' yarn test
