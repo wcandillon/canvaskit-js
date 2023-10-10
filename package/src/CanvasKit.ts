@@ -76,9 +76,6 @@ import { TextBlobFactory } from "./TextBlob";
 import { PathEffectFactory } from "./PathEffect";
 import { ColorMatrixHelpers } from "./ColorFilter";
 
-// TODO: instead of exporting this class use MakeImageFromEncodedAsync with uri
-export { ImageJS } from "./Image";
-
 let ctxId = 1;
 
 export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
@@ -140,8 +137,8 @@ export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
   Malloc(TypedArray: TypedArrayConstructor, len: number): MallocObj {
     return new MallocObjJS(new TypedArray(len));
   }
-  MallocGlyphIDs(_len: number): MallocObj {
-    throw new Error("Method not implemented.");
+  MallocGlyphIDs(len: number): MallocObj {
+    return new MallocObjJS(new Uint16Array(len));
   }
   Free(_m: MallocObj): void {}
   MakeCanvasSurface(canvas: string | HTMLCanvasElement): Surface | null {
@@ -237,8 +234,15 @@ export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
   }
   MakeRenderTarget(
     grCtx: GrDirectContextJS,
-    ..._args: [number, number] | [ImageInfo]
+    ...args: [number, number] | [ImageInfo]
   ): Surface | null {
+    if (typeof args[0] === "number" && typeof args[1] === "number") {
+      grCtx.ctx.canvas.width = args[0];
+      grCtx.ctx.canvas.height = args[1];
+    } else if (typeof args[0] === "object") {
+      grCtx.ctx.canvas.width = args[0].width;
+      grCtx.ctx.canvas.height = args[0].height;
+    }
     return new SurfaceJS(grCtx.ctx);
   }
   MakeLazyImageFromTextureSource(
@@ -346,25 +350,7 @@ export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
   TextBlob = TextBlobFactory;
 
   // The methods below are specific to canvaskit-js
-  MakeCanvasRecordingSurface(canvas: string | HTMLCanvasElement) {
-    const ctx = resolveContext(canvas);
-    if (!ctx) {
-      return null;
-    }
-    return new SurfaceJS(ctx, undefined, true);
-  }
-  MakeImageFromEncodedAsync(
-    bytes: Uint8Array | ArrayBuffer,
-    imageFormat: ImageFormatEnum
-  ) {
-    let type = "image/png";
-    if (imageFormat === ImageFormatEnum.JPEG) {
-      type = "image/jpeg";
-    } else if (imageFormat === ImageFormatEnum.WEBP) {
-      type = "image/webp";
-    }
-    const blob = new Blob([bytes], { type });
-    const url = URL.createObjectURL(blob);
+  MakeImageFromURIAsync(url: string) {
     const img = new window.Image();
     img.src = url;
     return new Promise((resolve, reject) => {
@@ -378,5 +364,19 @@ export class CanvasKitJS extends CoreCanvasKit implements ICanvasKit {
         resolve(result);
       };
     });
+  }
+  MakeImageFromEncodedAsync(
+    bytes: Uint8Array | ArrayBuffer,
+    imageFormat: ImageFormatEnum
+  ) {
+    let type = "image/png";
+    if (imageFormat === ImageFormatEnum.JPEG) {
+      type = "image/jpeg";
+    } else if (imageFormat === ImageFormatEnum.WEBP) {
+      type = "image/webp";
+    }
+    const blob = new Blob([bytes], { type });
+    const url = URL.createObjectURL(blob);
+    return this.MakeImageFromURIAsync(url);
   }
 }

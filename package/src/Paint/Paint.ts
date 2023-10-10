@@ -67,9 +67,12 @@ export class PaintJS extends HostObject<"Paint"> implements Paint {
       const currenTransform = ctx.getTransform();
       bufferCtx.setTransform(currenTransform);
       const texture = this.shader.paint(bufferCtx);
-      const pattern = ctx.createPattern(texture, "no-repeat")!;
-      pattern.setTransform(currenTransform.inverse());
-      style = pattern;
+      // This will fail on Safari 17 (https://bugs.webkit.org/show_bug.cgi?id=149986)
+      try {
+        const pattern = ctx.createPattern(texture, "no-repeat")!;
+        pattern.setTransform(currenTransform.inverse());
+        style = pattern;
+      } catch (e) {}
       ctx.globalAlpha = this.color[3];
     } else {
       style = nativeColor(this.color);

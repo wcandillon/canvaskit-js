@@ -92,7 +92,7 @@ export class SurfaceJS extends IndexedHostObject<"Surface"> implements Surface {
     throw new Error("Method not implemented.");
   }
   reportBackendTypeIsGPU(): boolean {
-    return true; //-ish
+    return true;
   }
   requestAnimationFrame(drawFrame: (_: Canvas) => void): number {
     return requestAnimationFrame(() => {

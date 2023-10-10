@@ -7,7 +7,6 @@ import type {
 } from "canvaskit-wasm";
 
 import { HostObject } from "../HostObject";
-import { ColorShader } from "../Shader/ColorShader";
 import type { CanvasRecorder } from "../Canvas/CanvasRecorder";
 
 export class PictureJS extends HostObject<"Picture"> implements SkPicture {
@@ -21,9 +20,9 @@ export class PictureJS extends HostObject<"Picture"> implements SkPicture {
     _localMatrix?: InputMatrix | undefined,
     _tileRect?: InputRect | undefined
   ): Shader {
-    return new ColorShader("red");
+    throw new Error("Method not implemented.");
   }
   serialize(): Uint8Array | null {
-    return null;
+    throw new Error("Method not implemented.");
   }
 }

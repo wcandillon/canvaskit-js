@@ -86,7 +86,11 @@ class RemoteSurface {
     page.on("pageerror", (error) => {
       console.error(error.message);
     });
-    await page.evaluate(fs.readFileSync("./dist/index.global.js", "utf8"));
+    const bundle = `${fs.readFileSync("./dist/index.global.js", "utf8")}
+if (window) {
+  window.CanvasKit = window.CanvasKitJS;
+}`;
+    await page.evaluate(bundle);
     const zurich = fs.readFileSync("./src/__tests__/assets/zurich.jpg");
     const oslo = fs.readFileSync("./src/__tests__/assets/oslo.jpg");
     await page.evaluate(
@@ -262,7 +266,7 @@ interface CheckImageOptions {
 }
 
 // On Github Action, the image decoding is slightly different
-// all tests that show the oslo.jpg have small differences but look ok
+// all tests that show the oslo.jpg have small differences but it looks ok
 const defaultCheckImageOptions = {
   maxPixelDiff: 200,
   threshold: 0.05,
