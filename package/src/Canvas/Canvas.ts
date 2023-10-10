@@ -17,6 +17,7 @@ import type {
   InputVector3,
   MallocObj,
   Paint,
+  Paragraph,
   Path,
   Surface,
   TextBlob,
@@ -46,7 +47,6 @@ import type { ImageJS } from "../Image";
 import type { ImageFilterJS } from "../ImageFilter";
 import type { SVGContext } from "../SVG";
 import type { FontJS } from "../Text";
-import type { ParagraphJS } from "../Text/Paragraph";
 import type { PictureJS } from "../Picture";
 
 import { DrawingContext } from "./DrawingContext";
@@ -297,8 +297,8 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     path.closePath();
     paint.apply(this.paintCtx, new DrawablePath(path));
   }
-  drawParagraph(p: ParagraphJS, x: number, y: number): void {
-    p.drawParagraph(this.paintCtx.ctx, x, y);
+  drawParagraph(_p: Paragraph, _x: number, _y: number): void {
+    throw new Error("Method not implemented.");
   }
   drawPath(path: PathJS, paint: PaintJS): void {
     paint.apply(

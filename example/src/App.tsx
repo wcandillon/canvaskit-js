@@ -11,8 +11,6 @@ import { CanvasKitProvider } from "./components/CanvasKitContext";
 import { Shader1 } from "./Shader1";
 import { Shader2 } from "./Shader2";
 import { Hello } from "./Hello";
-import { Paragraph } from "./Paragraph";
-import { Paragraph2 } from "./Paragraph2";
 
 const strictMode = false;
 const Wapper = strictMode ? StrictMode : Fragment;
@@ -36,14 +34,6 @@ const router = createBrowserRouter([
   {
     path: "/shaders",
     element: <Shaders />,
-  },
-  {
-    path: "/paragraph",
-    element: <Paragraph />,
-  },
-  {
-    path: "/paragraph2",
-    element: <Paragraph2 />,
   },
   {
     path: "/shader1",

@@ -9,26 +9,24 @@ import type {
   TypefaceFontProvider,
 } from "canvaskit-wasm";
 
-import { ParagraphBuilderJS } from "./ParagraphBuilder";
-
 export const ParagraphBuilderFactory: CKParagraphBuilderFactory = {
   Make: function (
-    style: ParagraphStyle,
-    fontManager: FontMgr
+    _style: ParagraphStyle,
+    _fontManager: FontMgr
   ): ParagraphBuilder {
-    return new ParagraphBuilderJS(style, fontManager);
+    throw new Error("Function not implemented.");
   },
   MakeFromFontProvider: function (
-    style: ParagraphStyle,
-    fontSrc: TypefaceFontProvider
+    _style: ParagraphStyle,
+    _fontSrc: TypefaceFontProvider
   ) {
-    return new ParagraphBuilderJS(style, fontSrc);
+    throw new Error("Function not implemented.");
   },
   MakeFromFontCollection: function (
-    style: ParagraphStyle,
-    fontCollection: FontCollection
+    _style: ParagraphStyle,
+    _fontCollection: FontCollection
   ): ParagraphBuilder {
-    return new ParagraphBuilderJS(style, fontCollection);
+    throw new Error("Function not implemented.");
   },
   ShapeText: function (
     _text: string,
@@ -38,6 +36,6 @@ export const ParagraphBuilderFactory: CKParagraphBuilderFactory = {
     throw new Error("Function not implemented.");
   },
   RequiresClientICU: function () {
-    return false;
+    return true;
   },
 };
