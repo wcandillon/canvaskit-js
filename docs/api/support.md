@@ -1,7 +1,9 @@
 # CanvasKit
 
 Here are the list of supported CanvasKit APIs.
-Please file on issue if you would like to see support for some of these unsupported APIs.
+
+Some APIs represent a substancial challenge for them to be implemented while other were simply not needed thus far.
+If you need a specific API to be implemented, please let us in the GitHub issues.
 
 Also checkout the [Canvas methods](canvas.md).
 
@@ -25,7 +27,7 @@ Also checkout the [Canvas methods](canvas.md).
 | deleteContext                        |   ✅   |          |
 | MakeCanvas                           |   ✅   |          |
 | MakeImage                            |   ✅   |          |
-| MakeImageFromEncoded                 |   ❌   | Synchronous image decoding is not supported. Use MakeImageFromURIAsync and MakeImageFromEncodedAsync instead.     |
+| [MakeImageFromEncoded](image.md)     |   🟠   | Image decoding is asynchronous         |
 | MakeImageFromCanvasImageSource       |   ✅   |          |
 | MakePicture                          |   ❌   |          |
 | MakeVertices                         |   ❌   |          |
@@ -44,8 +46,8 @@ Also checkout the [Canvas methods](canvas.md).
 | FontMgr                              |   ✅   |          |
 | [ImageFilter](image-filter.md)       |   🟠   |          |
 | MaskFilter                           |   ✅   |          |
-| RuntimeEffect                        |   ✅   | Runtime effects have currently substancial limitations. |
-| [Shader](shader.md)                               |   🟠   |          |
+| [RuntimeEffect](runtime-effect.md)   |   🟠   |          |
+| [Shader](shader.md)                  |   🟠   |          |
 | Typeface                             |   ✅   |          |
 | TypefaceFontProvider                 |   ✅   |          |
 | PathEffect                           |   ❌   |          |
