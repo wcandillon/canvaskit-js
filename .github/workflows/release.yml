@@ -32,12 +32,8 @@ jobs:
           cache-dependency-path: 'package/yarn.lock'
 
       - name: Install dependencies
-        run: npm clean-install
         working-directory: package
-
-      - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
-        run: npm audit signatures
-        working-directory: package
+        run: yarn
 
       - name: Release
         env:
