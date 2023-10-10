@@ -360,7 +360,7 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     _spotColor: InputColor,
     _flags: number
   ): void {
-    // throw new Error("Method not implemented.");
+    throw new Error("Method not implemented.");
   }
   drawText(
     str: string,

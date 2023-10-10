@@ -3,7 +3,9 @@
 Here are the list of supported CanvasKit APIs.
 Please file on issue if you would like to see support for some of these unsupported APIs.
 
-| Method Name                          |       | Comments |
+Also checkout the [Canvas methods](canvas.md).
+
+| API                                  |       | Comments |
 |--------------------------------------|:-----:|----------|
 | parseColorString                     |   ✅   |          |
 | computeTonalColors                   |   ❌  |          |
@@ -31,19 +33,19 @@ Please file on issue if you would like to see support for some of these unsuppor
 | MakeManagedAnimation                 |   ❌   |          |
 | ParagraphStyle                       |   ✅   |          |
 | ContourMeasureIter                   |   ✅   |          |
-| Font                                 |   🟠   |          |
-| Paint                                |   ✅   |          |
-| Path                                 |   🟠   |          |
-| PictureRecorder                      |   🟠   |          |
+| [Font](font.md)                      |   🟠   |          |
+| Paint                                |   ✅   | Dithering is currently not supported. |
+| [Path](path.md)                      |   🟠   |          |
+| PictureRecorder                      |   🟠   | Only supports `drawPicture()` and debugging purposes. |
 | TextStyle                            |   ✅   |          |
 | ParagraphBuilder                     |   ❌   |          |
 | ColorFilter                          |   ❌   |          |
 | FontCollection                       |   ✅   |          |
 | FontMgr                              |   ✅   |          |
-| ImageFilter                          |   🟠   |          |
+| [ImageFilter](image-filter.md)       |   🟠   |          |
 | MaskFilter                           |   ✅   |          |
-| RuntimeEffect                        |   ✅   |          |
-| Shader                               |   🟠   |          |
+| RuntimeEffect                        |   ✅   | Runtime effects have currently substancial limitations. |
+| [Shader](shader.md)                               |   🟠   |          |
 | Typeface                             |   ✅   |          |
 | TypefaceFontProvider                 |   ✅   |          |
 | PathEffect                           |   ❌   |          |

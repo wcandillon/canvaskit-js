@@ -18,6 +18,8 @@ This is a technical preview and is highly experimental.
 ## Feature support
 
 The list of the supported APIs is available [here](docs/api/support.md).
+Some APIs represent a substancial challenge for them to be implemented while other were simply not needed thus far.
+If you need a specific API to be implemented, please let us in the GitHub issues.
 
 ## Installation
 
