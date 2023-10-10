@@ -41,18 +41,16 @@ jobs:
         run: npx semantic-release
         working-directory: package
 
-      # Assuming semantic-release has been set up to attach the tarball to the GitHub release
-      # We can use that tarball and upload to Firebase Storage
-      - name: Upload tarball to Firebase Storage
-        run: |
-          cd package
-          TAR_URL=$(curl -sH "Authorization: token $GITHUB_TOKEN" "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/latest" | jq -r '.tarball_url')
+      # - name: Upload tarball to Firebase Storage
+      #   run: |
+      #     cd package
+      #     TAR_URL=$(curl -sH "Authorization: token $GITHUB_TOKEN" "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/latest" | jq -r '.tarball_url')
 
-          # Download the tarball
-          wget --header="Authorization: token $GITHUB_TOKEN" $TAR_URL -O package.tgz
+      #     # Download the tarball
+      #     wget --header="Authorization: token $GITHUB_TOKEN" $TAR_URL -O package.tgz
 
-          # Upload to Firebase Storage
-          $(yarn bin)/firebase storage:upload package.tgz --project start-react-native
-        env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     # Upload to Firebase Storage
+      #     $(yarn bin)/firebase storage:upload package.tgz --project start-react-native
+      #   env:
+      #     FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
