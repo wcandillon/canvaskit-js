@@ -24,12 +24,12 @@ jobs:
       
       - name: Install jq
         run: sudo apt-get install jq
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+
+      - uses: actions/setup-node@v3
         with:
           node-version: "lts/*"
-          working-directory: package
+          cache: 'yarn'
+          cache-dependency-path: 'package/yarn.lock'
 
       - name: Install dependencies
         run: npm clean-install
