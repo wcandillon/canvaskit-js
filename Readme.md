@@ -1,5 +1,5 @@
 # canvaskit-js
-A polyfill of CanvasKit that uses browser APIs directly.
+A polyfill of CanvasKit that uses browser APIs.
 
 This is a technical preview and is highly experimental.
 The goal of `canvaskit-js` is to be indistinguishable `canvaskit-wasm`.
