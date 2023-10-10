@@ -48,7 +48,7 @@ jobs:
           TAR_URL=$(curl -sH "Authorization: token $GITHUB_TOKEN" "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/latest" | jq -r '.tarball_url')
 
           # Download the tarball
-          wget $TAR_URL -O package.tgz
+          wget --header="Authorization: token $GITHUB_TOKEN" $TAR_URL -O package.tgz
 
           # Upload to Firebase Storage
           firebase storage:upload package.tgz --project start-react-native
