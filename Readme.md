@@ -1,9 +1,10 @@
 # canvaskit-js
+
 A polyfill for CanvasKit that uses browser APIs.
+This project a technical preview and is highly experimental.
 
 ## Feature Support
 
-This is a technical preview and is highly experimental.
 The goal of `canvaskit-js` is to be indistinguishable from `canvaskit-wasm`.
 However, there are three main differences between the two projects:
 * [Image decoding is asynchronous](docs/api/image.md)
