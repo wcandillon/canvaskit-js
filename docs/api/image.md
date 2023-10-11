@@ -1,28 +1,26 @@
 # Image
 
-Image decoding in CanvasKitJS is asynchronous.
-Instead of using `MakeImageFromEncoded`, you can use `MakeImageFromEncodedAsync`
-This means that the following method:
+In CanvasKitJS, image decoding is asynchronous. Instead of using `MakeImageFromEncoded`, you can opt for `MakeImageFromEncodedAsync`. This transforms the following method:
+
 ```tsx
 const image = Canvas.MakeImageFromEncoded(bytes, imageFormat);
 ```
 
-becomes:
+into:
+
 ```tsx
 const image = await CanvasKit.MakeImageFromEncodedAsync(bytes, imageFormat);
 ```
 
-For convenience, we also provide the following method:
+For added convenience, we also offer:
+
 ```tsx
 const image = await CanvasKit.MakeImageFromURIAsync(uri);
 ```
 
 ## With React Native Skia
 
-React Native Skia only provides synchrous image decoding.
-This means that you will need to create your own CanvasKit `Image` object and then create an `SkImage` object from it via the `JsiSkImage` class.
-The `JsiSkImage` class has two constructor parameters: the CanvasKit instance running and the `Image` object.
-This class is exported from `v0.1.213` onwards.
+React Native Skia provides only synchronous image decoding. This means you'll have to create your own CanvasKit `Image` object and subsequently generate an `SkImage` object from it using the `JsiSkImage` class. The `JsiSkImage` class requires two constructor parameters: the active CanvasKit instance and the `Image` object. This class is available from version `v0.1.213` onwards.
 
 ```tsx
 import {JsiSkImage, Canvas, Image} from "@shopify/react-native-skia";
@@ -36,9 +34,7 @@ return (
 )
 ```
 
-React Native Skia app often use the `useImage` hook to load images.
-This hook won't work with CanvasKitJS.
-In the example below, we check if the app is running CanvasKitWASM or CanvasKitJS and load the image accordingly.
+Apps using React Native Skia frequently employ the `useImage` hook for image loading. This hook is incompatible with CanvasKitJS. In the example below, we determine whether the app is running on CanvasKitWASM or CanvasKitJS and load the image accordingly.
 
 ```tsx
 import {useImage, SkImage, JsiSkImage} from "@shopify/react-native-skia";
@@ -53,4 +49,3 @@ const useWebImage = !CanvasKit.polyfill ? useImage : (uri: string) => {
   return image;
 };
 ```
-
