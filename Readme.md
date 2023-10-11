@@ -22,29 +22,34 @@ However, there are three main differences between the two projects:
 
 ## Installation
 
+The URL of each package version is available on the [Github Releases](https://github.com/wcandillon/canvaskit-js/releases).
+
 ```sh
-npm install [canvaskit-js URL]
+npm install https://bit.ly/canvaskit-js_v102
 # or
-yarn add [canvaskit-js URL]
+yarn add https://bit.ly/canvaskit-js_v102
 ```
 
 ## Getting Started
 
-Once installed, the CanvasKit instance is available via the asynchronous `CanvasKitInit` method. However, it is also accessible synchronously via `CanvasKit.getInstance()`.
+Once installed, the CanvasKit instance is available via the asynchronous `CanvasKitInit` method. However, it is also accessible synchronously via `CanvasKitJS.getInstance()`.
 
 ```tsx
+import {CanvasKitInit, CanvasKitJS} from "canvaskit-js";
+
 // The asynchronous method still works
 CanvasKitInit({}).then((CanvasKit) => {
     global.CanvasKit = CanvasKit;
 });
 
 // But you can also access this synchronously now
-global.CanvasKit = CanvasKit.getInstance();
+global.CanvasKit = CanvasKitJS.getInstance();
 ```
 
-To create a surface, you can pass an HTML canvas element directly via `MakeCanvasSurface`. However, we also polyfill other surface creation methods such as `MakeWebGLCanvasSurface` or `MakeSWCanvasSurface`. Please note that when using `MakeWebGLCanvasSurface`, we still create a Canvas2d context behind the scenes, not a WebGL one.
+To create a surface, you can pass an HTML canvas element directly via `MakeCanvasSurface`. However, we also polyfill other surface creation methods such as `MakeWebGLCanvasSurface` or `MakeSWCanvasSurface`. Please note that when using `MakeWebGLCanvasSurface`, we still create a Canvas2D context behind the scenes, not a WebGL one.
 
 ```tsx
+// MakeWebGLCanvasSurface acutally creates a Canvas2D behind the scenes
 const surface = CanvasKit.MakeWebGLCanvasSurface(document.getElementById("myCanvas"));
 const canvas = surface.getCanvas();
 ```
@@ -92,10 +97,10 @@ LoadSkiaWeb().then(async () => {
 It becomes:
 
 ```tsx
-import {CanvasKit} from "canvaskit-js";
+import {CanvasKitJS} from "canvaskit-js";
 
 (async () => {
-  global.CanvasKit = CanvasKit.getInstance();
+  global.CanvasKit = CanvasKitJS.getInstance();
   const App = (await import("./src/App")).default;
   AppRegistry.registerComponent("Example", () => App);
 })();
