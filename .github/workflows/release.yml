@@ -35,6 +35,10 @@ jobs:
         working-directory: package
         run: yarn
 
+      - name: Build package
+        working-directory: package
+        run: yarn build
+
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
