@@ -50,7 +50,7 @@ global.CanvasKit = CanvasKitJS.getInstance();
 To create a surface, you can pass an HTML canvas element directly via `MakeCanvasSurface`. However, we also polyfill other surface creation methods such as `MakeWebGLCanvasSurface` or `MakeSWCanvasSurface`. Please note that when using `MakeWebGLCanvasSurface`, we still create a Canvas2D context behind the scenes, not a WebGL one.
 
 ```tsx
-// MakeWebGLCanvasSurface acutally creates a Canvas2D behind the scenes
+// MakeWebGLCanvasSurface actually creates a Canvas2D behind the scenes
 const surface = CanvasKit.MakeWebGLCanvasSurface(document.getElementById("myCanvas"));
 const canvas = surface.getCanvas();
 ```
