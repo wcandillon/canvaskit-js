@@ -13,7 +13,7 @@ import { Shader2 } from "./Shader2";
 import { Hello } from "./Hello";
 
 const strictMode = false;
-const Wapper = strictMode ? StrictMode : Fragment;
+const Wrapper = strictMode ? StrictMode : Fragment;
 const router = createBrowserRouter([
   {
     path: "/",
@@ -55,11 +55,11 @@ const router = createBrowserRouter([
 
 const App = () => {
   return (
-    <Wapper>
+    <Wrapper>
       <CanvasKitProvider>
         <RouterProvider router={router} />
       </CanvasKitProvider>
-    </Wapper>
+    </Wrapper>
   );
 };
 
