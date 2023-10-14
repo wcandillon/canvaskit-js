@@ -53,7 +53,7 @@ export class Canvas {
     paint.applyToContext(
       this.ctx.renderingCtx,
       this.ctx.matrix,
-      new DrawablePath(path.getPath2D())
+      new DrawablePath(path)
     );
   }
 
@@ -69,18 +69,3 @@ export class Canvas {
     return ctx;
   }
 }
-
-/*class Paint {}
-
-class Path {}
-
-class ImageFilter {}
-
-class Canvas {
-  save() {}
-  saveLayer(filter: ImageFilter) {}
-  concat(matrix: DOMMatrix) {}
-  clip(path: Path) {}
-  restore() {}
-}
-*/

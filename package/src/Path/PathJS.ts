@@ -341,7 +341,8 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
         const to = transformPoint(m3, cmds[i++], cmds[i++]);
         path.quadraticCurveTo(cp, to);
       } else if (cmd === PathVerb.Close) {
-        i++;
+        // TODO: is this correct?
+        //i++;
         path.close();
       }
     }
