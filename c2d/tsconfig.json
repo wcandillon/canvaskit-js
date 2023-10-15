@@ -2,5 +2,6 @@
   "extends": "eslint-config-react-native-wcandillon/tsconfig.base",
   "compilerOptions": {
     "lib": ["dom", "es2022"]
-  }
+  },
+  "exclude": ["dist"]
 }

@@ -9,6 +9,7 @@ import puppeteer from "puppeteer";
 import type { Canvas } from "../Canvas";
 import type { Paint } from "../Paint";
 import type { Path } from "../Path";
+import type { BlurImageFilter } from "../ImageFilter";
 
 const DEBUG = process.env.DEBUG === "true";
 
@@ -30,6 +31,7 @@ interface DrawingContext {
   c2d: {
     Path: typeof Path;
     Paint: typeof Paint;
+    BlurImageFilter: typeof BlurImageFilter;
   };
 }
 
@@ -84,7 +86,8 @@ class RemoteSurface {
     const canvas = new C2D.Canvas(canvasElement.getContext("2d"));
     const c2d = {
       Path: C2D.Path,
-      Paint: C2D.Paint
+      Paint: C2D.Paint,
+      BlurImageFilter: C2D.BlurImageFilter
     };
     const ctx = {
       width,

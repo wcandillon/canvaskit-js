@@ -1,6 +1,7 @@
 import { Paint } from "./Paint";
 import { Path } from "./Path";
 import { Canvas } from "./Canvas";
+import { BlurImageFilter } from "./ImageFilter";
 
 export * from "./Canvas";
 export * from "./ImageFilter";
@@ -18,6 +19,7 @@ declare global {
       Canvas: typeof Canvas;
       Path: typeof Path;
       Paint: typeof Paint;
+      BlurImageFilter: typeof BlurImageFilter;
     };
   }
 }
@@ -26,4 +28,5 @@ window.C2D = {
   Path,
   Paint,
   Canvas,
+  BlurImageFilter,
 };
