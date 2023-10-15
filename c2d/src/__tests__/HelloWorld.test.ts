@@ -3,14 +3,14 @@ import { checkImage, remoteSurface } from "./setup";
 describe("HelloWorld", () => {
   it("should draw a path", async () => {
     const image = await remoteSurface.draw(
-      ({ canvas, c2d: { Path, Paint } }) => {
+      ({ canvas, width, height, c2d: { Path, Paint } }) => {
         const path = new Path();
         path.moveTo(new DOMPoint(0, 0));
-        path.addLinear(new DOMPoint(100, 100));
-        path.addLinear(new DOMPoint(100, 0));
+        path.addLinear(new DOMPoint(width, 0));
+        path.addLinear(new DOMPoint(width, height));
         path.close();
         const paint = new Paint();
-        paint.setColor("red");
+        paint.setColor("cyan");
         canvas.drawPath(path, paint);
       }
     );

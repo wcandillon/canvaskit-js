@@ -24,6 +24,8 @@ const defaultEvalOptions: Required<EvalOptions> = {
 
 interface DrawingContext {
   canvas: Canvas;
+  width: number;
+  height: number;
   c2d: {
     Path: typeof Path;
     Paint: typeof Paint;

@@ -6,7 +6,6 @@ import type { SVGContext } from "../SVG";
 
 export class Paint {
   private stroke?: boolean;
-  private fill?: boolean;
   private color?: string;
   private alpha?: number;
   private blendMode?: GlobalCompositeOperation;
@@ -37,7 +36,7 @@ export class Paint {
     ctm: DOMMatrix,
     drawable: Drawable
   ) {
-    if (this.color && this.fill) {
+    if (this.color && !this.stroke) {
       ctx.fillStyle = this.color;
     }
     if (this.color && this.stroke) {
