@@ -20,3 +20,12 @@ export class DrawablePath implements Drawable {
     }
   }
 }
+
+export class DrawableImage implements Drawable {
+  constructor(private readonly image: CanvasImageSource) {}
+
+  // TOOD: implement ctm
+  draw(ctx: RenderingContext, _ctm: DOMMatrix) {
+    ctx.drawImage(this.image, 0, 0);
+  }
+}

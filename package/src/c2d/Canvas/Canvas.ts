@@ -1,8 +1,9 @@
-import type { RenderingContext } from "../Constants";
-import { DrawablePath } from "../Drawable";
+import { IndexedHostObject, type RenderingContext } from "../Constants";
+import { DrawableImage, DrawablePath } from "../Drawable";
 import type { ImageFilter } from "../ImageFilter";
-import type { Paint } from "../Paint";
+import { Paint } from "../Paint";
 import type { Path } from "../Path";
+import { SVGContext } from "../SVG";
 
 interface CanvasContext {
   matrix: DOMMatrix;
@@ -11,16 +12,19 @@ interface CanvasContext {
   renderingCtx: RenderingContext;
 }
 
-export class Canvas {
+export class Canvas extends IndexedHostObject {
   private stack: CanvasContext[] = [];
+  private svgCtx: SVGContext;
 
   constructor(renderingCtx: RenderingContext) {
+    super("canvas");
     this.stack.push({
       matrix: new DOMMatrix(),
       clip: null,
       imageFilter: null,
       renderingCtx,
     });
+    this.svgCtx = new SVGContext(this.id);
   }
 
   get ctx() {
@@ -46,12 +50,28 @@ export class Canvas {
   }
 
   restore() {
+    const { imageFilter, renderingCtx } = this.ctx;
     this.stack.pop();
+    if (imageFilter) {
+      const paint = new Paint();
+      paint.setImageFilter(imageFilter);
+      paint.applyToContext(
+        this.ctx.renderingCtx,
+        this.svgCtx,
+        new DOMMatrix(),
+        new DrawableImage(
+          renderingCtx instanceof OffscreenCanvasRenderingContext2D
+            ? renderingCtx.canvas.transferToImageBitmap()
+            : renderingCtx.canvas
+        )
+      );
+    }
   }
 
   draw(path: Path, paint: Paint) {
     paint.applyToContext(
       this.ctx.renderingCtx,
+      this.svgCtx,
       this.ctx.matrix,
       new DrawablePath(path)
     );

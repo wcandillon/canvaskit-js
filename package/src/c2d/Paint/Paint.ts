@@ -2,6 +2,7 @@ import type { RenderingContext } from "../Constants";
 import type { ImageFilter } from "../ImageFilter";
 import type { Shader } from "../Shader";
 import type { Drawable } from "../Drawable";
+import type { SVGContext } from "../SVG";
 
 export class Paint {
   private stroke?: boolean;
@@ -20,7 +21,17 @@ export class Paint {
 
   constructor() {}
 
-  applyToContext(ctx: RenderingContext, ctm: DOMMatrix, drawable: Drawable) {
+  setImageFilter(imageFilter: ImageFilter) {
+    this.imageFilter = imageFilter;
+    return this;
+  }
+
+  applyToContext(
+    ctx: RenderingContext,
+    svgCtx: SVGContext,
+    ctm: DOMMatrix,
+    drawable: Drawable
+  ) {
     if (this.color && this.fill) {
       ctx.fillStyle = this.color;
     }
@@ -49,7 +60,9 @@ export class Paint {
       this.shader.applyToContext(ctx, ctm);
     }
     if (this.imageFilter) {
-      this.imageFilter.applyToContext(ctx, ctm);
+      const { id, filters } = this.imageFilter;
+      const url = svgCtx.create(id, filters);
+      ctx.filter = url;
     }
     drawable.draw(ctx, ctm, this.stroke);
   }
