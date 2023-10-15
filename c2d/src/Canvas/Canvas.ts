@@ -37,7 +37,7 @@ export class Canvas extends IndexedHostObject {
       matrix: DOMMatrix.fromMatrix(this.ctx.matrix),
       clip: this.ctx.clip,
       imageFilter: imageFilter ?? null,
-      renderingCtx: isLayer ? this.makeCanvas() : this.ctx.renderingCtx,
+      renderingCtx: isLayer ? this.makeLayer() : this.ctx.renderingCtx,
     });
   }
 
@@ -47,12 +47,14 @@ export class Canvas extends IndexedHostObject {
 
   clip(path: Path) {
     this.ctx.clip = path;
+    this.ctx.renderingCtx.clip(path.getPath2D(this.ctx.matrix));
   }
 
   restore() {
     const { imageFilter, renderingCtx } = this.ctx;
     this.stack.pop();
     if (imageFilter) {
+      this.save();
       const paint = new Paint();
       paint.setImageFilter(imageFilter);
       paint.applyToContext(
@@ -65,6 +67,7 @@ export class Canvas extends IndexedHostObject {
             : renderingCtx.canvas
         )
       );
+      this.restore();
     }
   }
 
@@ -77,7 +80,7 @@ export class Canvas extends IndexedHostObject {
     );
   }
 
-  private makeCanvas() {
+  private makeLayer() {
     const canvas = new OffscreenCanvas(
       this.ctx.renderingCtx.canvas.width,
       this.ctx.renderingCtx.canvas.height
@@ -86,6 +89,10 @@ export class Canvas extends IndexedHostObject {
     if (!ctx) {
       throw new Error("Failed to create canvas context");
     }
+    if (this.ctx.clip) {
+      ctx.clip(this.ctx.clip.getPath2D(this.ctx.matrix));
+    }
+    ctx.drawImage(this.ctx.renderingCtx.canvas, 0, 0);
     return ctx;
   }
 }
