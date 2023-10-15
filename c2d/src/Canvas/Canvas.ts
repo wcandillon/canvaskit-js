@@ -54,7 +54,6 @@ export class Canvas extends IndexedHostObject {
     const { imageFilter, renderingCtx } = this.ctx;
     this.stack.pop();
     if (imageFilter) {
-      this.save();
       const paint = new Paint();
       paint.setImageFilter(imageFilter);
       paint.applyToContext(
@@ -67,7 +66,6 @@ export class Canvas extends IndexedHostObject {
             : renderingCtx.canvas
         )
       );
-      this.restore();
     }
   }
 

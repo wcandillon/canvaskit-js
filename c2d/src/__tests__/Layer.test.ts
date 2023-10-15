@@ -24,7 +24,7 @@ describe("Layer", () => {
         path.close();
 
         const paint = new Paint();
-        paint.setColor("cyan");
+        paint.setColor("rgba(0, 255, 255, 0.5)");
         canvas.save();
         canvas.concat(new DOMMatrix().scaleSelf(2, 2));
         canvas.drawPath(path, paint);
@@ -32,6 +32,15 @@ describe("Layer", () => {
         canvas.clip(clipPath);
 
         canvas.save(new BlurImageFilter(20, 20));
+        const rect = new Path();
+        rect.moveTo(new DOMPoint(0, center.y));
+        rect.addLinear(new DOMPoint(center.x, center.y));
+        rect.addLinear(new DOMPoint(center.x, height));
+        rect.addLinear(new DOMPoint(0, height));
+        rect.close();
+        const p = new Paint();
+        p.setColor("rgba(255, 0, 0, 1)");
+        canvas.drawPath(rect, p);
         canvas.restore();
       }
     );

@@ -1,5 +1,78 @@
-import type { RenderingContext } from "../Constants";
+import type { GLSLContext } from "./GLSL";
 
 export interface Shader {
-  applyToContext(ctx: RenderingContext, ctm: DOMMatrix): void;
+  render(width: number, height: number, ctm: DOMMatrix): OffscreenCanvas;
+}
+
+const assertUniformSize = (uniforms: Uniforms, name: string, count: number) => {
+  if (uniforms[name].length !== count) {
+    throw new Error(
+      `Uniform ${name} should have ${count} elements, but has ${uniforms[name].length}`
+    );
+  }
+};
+
+interface Uniforms {
+  [name: string]: number[];
+}
+
+export class GLSLShader implements Shader {
+  constructor(
+    private readonly glsl: GLSLContext,
+    uniforms: { [name: string]: number[] },
+    private readonly children: Shader[]
+  ) {
+    const { gl, program } = glsl;
+    const uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
+    for (let i = 0; i < uniformCount; i++) {
+      const uniformInfo = gl.getActiveUniform(program, i);
+      if (!uniformInfo) {
+        throw new Error("Could not get uniform info");
+      }
+      const { name } = uniformInfo;
+      const location = gl.getUniformLocation(program, name);
+      if (!location) {
+        throw new Error("Could not get uniform location");
+      }
+      if (uniformInfo.type === gl.FLOAT) {
+        assertUniformSize(uniforms, name, 1);
+        gl.uniform1fv(location, uniforms[name]);
+      }
+    }
+  }
+  render(width: number, height: number, ctm: DOMMatrix): OffscreenCanvas {
+    const { gl, program, textures } = this.glsl;
+    gl.canvas.width = width;
+    gl.canvas.height = height;
+    let texIndex = 0;
+    const uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
+    for (let i = 0; i < uniformCount; i++) {
+      const uniformInfo = gl.getActiveUniform(program, i);
+      if (!uniformInfo) {
+        throw new Error("Could not get uniform info");
+      }
+      const { name } = uniformInfo;
+      const location = gl.getUniformLocation(program, name);
+      if (!location) {
+        throw new Error("Could not get uniform location");
+      }
+      if (uniformInfo.type === gl.SAMPLER_2D) {
+        gl.activeTexture(gl.TEXTURE0 + texIndex);
+        gl.bindTexture(gl.TEXTURE_2D, textures[texIndex]);
+        gl.uniform1i(location, texIndex);
+        gl.texImage2D(
+          gl.TEXTURE_2D,
+          0,
+          gl.RGBA,
+          gl.RGBA,
+          gl.UNSIGNED_BYTE,
+          this.children[texIndex].render(width, height, ctm)
+        );
+        texIndex++;
+      }
+    }
+    gl.viewport(0, 0, width, height);
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+    return gl.canvas as OffscreenCanvas;
+  }
 }
