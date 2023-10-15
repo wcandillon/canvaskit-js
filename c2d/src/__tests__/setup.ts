@@ -26,6 +26,7 @@ interface DrawingContext {
   canvas: Canvas;
   width: number;
   height: number;
+  center: { x: number; y: number };
   c2d: {
     Path: typeof Path;
     Paint: typeof Paint;
