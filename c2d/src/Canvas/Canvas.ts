@@ -68,7 +68,7 @@ export class Canvas extends IndexedHostObject {
     }
   }
 
-  draw(path: Path, paint: Paint) {
+  drawPath(path: Path, paint: Paint) {
     paint.applyToContext(
       this.ctx.renderingCtx,
       this.svgCtx,

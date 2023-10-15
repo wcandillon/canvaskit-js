@@ -21,6 +21,11 @@ export class Paint {
 
   constructor() {}
 
+  setColor(color: string) {
+    this.color = color;
+    return this;
+  }
+
   setImageFilter(imageFilter: ImageFilter) {
     this.imageFilter = imageFilter;
     return this;
