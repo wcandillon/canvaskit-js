@@ -61,7 +61,7 @@ export class Paint {
       ctx.globalCompositeOperation = this.blendMode;
     }
     if (this.shader) {
-      this.shader.applyToContext(ctx, ctm);
+      this.shader.render(ctx.canvas.width, ctx.canvas.height, ctm);
     }
     if (this.imageFilter) {
       const { id, filters } = this.imageFilter;
