@@ -43,8 +43,12 @@ void main() {
       }) => {
         const glsl = `precision mediump float;
 
+uniform vec2 u_resolution;
+
+varying vec2 v_texCoord;
+
 void main() {
-  gl_FragColor = gl_FragCoord.x > 64. ? vec4(1.0, 0.0, 0.0, 1.0) : vec4(0.0, 0.0, 1.0, 1.0);
+  gl_FragColor = v_texCoord.x > 128. ? vec4(1.0, 0.0, 0.0, 1.0) : vec4(0.0, 0.0, 1.0, 1.0);
 }`;
         const ctx = makeShader(glsl)!;
         const shader = new GLSLShader(ctx, {}, []);

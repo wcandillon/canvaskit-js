@@ -43,13 +43,20 @@ export class GLSLShader implements Shader {
   }
   render(width: number, height: number, ctm: DOMMatrix): OffscreenCanvas {
     const { gl, program, textures } = this.glsl;
-    const matrixLocation = gl.getUniformLocation(program, "u_matrix");
     gl.canvas.width = width;
     gl.canvas.height = height;
+    // Set the CTM
+    const matrixLocation = gl.getUniformLocation(program, "u_matrix");
     if (!matrixLocation) {
       throw new Error("Could not get matrix uniform location");
     }
     gl.uniformMatrix4fv(matrixLocation, false, ctm.toFloat32Array());
+    // Set the Matrix resolution
+    const resolutionLocation = gl.getUniformLocation(program, "u_resolution");
+    if (!matrixLocation) {
+      throw new Error("Could not get resolution uniform location");
+    }
+    gl.uniform2f(resolutionLocation, width, height);
     let texIndex = 0;
     const uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
     for (let i = 0; i < uniformCount; i++) {
