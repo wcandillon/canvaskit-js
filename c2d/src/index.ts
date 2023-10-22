@@ -2,6 +2,8 @@ import { Paint } from "./Paint";
 import { Path } from "./Path";
 import { Canvas } from "./Canvas";
 import { BlurImageFilter } from "./ImageFilter";
+import { makeShader } from "./Shader/GLSL";
+import { GLSLShader } from "./Shader";
 
 export * from "./Canvas";
 export * from "./ImageFilter";
@@ -20,6 +22,8 @@ declare global {
       Path: typeof Path;
       Paint: typeof Paint;
       BlurImageFilter: typeof BlurImageFilter;
+      GLSLShader: typeof GLSLShader;
+      makeShader: typeof makeShader;
     };
   }
 }
@@ -29,4 +33,6 @@ window.C2D = {
   Paint,
   Canvas,
   BlurImageFilter,
+  GLSLShader,
+  makeShader,
 };

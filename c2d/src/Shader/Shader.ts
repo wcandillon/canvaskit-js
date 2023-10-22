@@ -24,6 +24,7 @@ export class GLSLShader implements Shader {
   ) {
     const { gl, program } = glsl;
     const uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
+
     for (let i = 0; i < uniformCount; i++) {
       const uniformInfo = gl.getActiveUniform(program, i);
       if (!uniformInfo) {

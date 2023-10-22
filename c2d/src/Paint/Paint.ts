@@ -30,6 +30,11 @@ export class Paint {
     return this;
   }
 
+  setShader(shader: Shader) {
+    this.shader = shader;
+    return this;
+  }
+
   applyToContext(
     ctx: RenderingContext,
     svgCtx: SVGContext,
@@ -67,6 +72,11 @@ export class Paint {
       const { id, filters } = this.imageFilter;
       const url = svgCtx.create(id, filters);
       ctx.filter = url;
+    }
+    if (this.shader) {
+      const img = this.shader.render(ctx.canvas.width, ctx.canvas.height, ctm);
+      const pattern = ctx.createPattern(img, "no-repeat")!;
+      ctx.fillStyle = pattern;
     }
     drawable.draw(ctx, ctm, this.stroke);
   }
