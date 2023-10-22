@@ -18,8 +18,8 @@ uniform mat4 u_matrix;
 uniform vec2 u_resolution;
 varying vec2 v_texCoord;
 
-void main() {
-  gl_Position = u_matrix * vec4(a_position, 0.0, 1.0);
+void main() {// u_matrix * 
+  gl_Position = vec4(a_position, 0.0, 1.0);
   v_texCoord = (a_position * 0.5 + 0.5) * u_resolution; // Convert and scale
 }
 `;
