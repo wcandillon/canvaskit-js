@@ -111,6 +111,6 @@ void main() {
         canvas.restore();
       }
     );
-    checkImage(image, "snapshots/c2d/shader3.png");
+    checkImage(image, "snapshots/c2d/shader3.png", { overwrite: true });
   });
 });
