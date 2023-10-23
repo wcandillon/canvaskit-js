@@ -53,7 +53,20 @@ export const makeShader = (
   gl.shaderSource(vertexShader, vertexShaderCode);
   gl.compileShader(vertexShader);
 
-  gl.shaderSource(fragmentShader, shaderCode);
+  gl.shaderSource(
+    fragmentShader,
+    `precision mediump float;
+
+uniform mat4 u_matrix;
+
+${shaderCode}
+
+void main() {
+  vec4 transformedCoord = u_matrix * gl_FragCoord;
+  vec3 transformedCoord3D = transformedCoord.xyz / transformedCoord.w;
+  mainImage(gl_FragColor, transformedCoord3D.xy);
+}`
+  );
   gl.compileShader(fragmentShader);
 
   if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {

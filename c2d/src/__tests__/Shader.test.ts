@@ -10,12 +10,9 @@ describe("Shaders", () => {
         height,
         c2d: { Path, Paint, makeShader, GLSLShader },
       }) => {
-        const glsl = `precision mediump float;
-          uniform mat4 u_matrix;
-
-  void main() {
-    gl_FragColor = gl_FragCoord.x > 128. ? vec4(1.0, 0.0, 0.0, 1.0) : vec4(0.0, 0.0, 1.0, 1.0);
-  }`;
+        const glsl = `void mainImage(out vec4 fragColor, in vec2 fragCoord){
+          fragColor = fragCoord.x > 128. ? vec4(1.0, 0.0, 0.0, 1.0) : vec4(0.0, 0.0, 1.0, 1.0);
+        }`;
         const ctx = makeShader(glsl)!;
         const shader = new GLSLShader(ctx, {}, []);
         const path = new Path();
@@ -42,17 +39,9 @@ describe("Shaders", () => {
         height,
         c2d: { Path, Paint, makeShader, GLSLShader },
       }) => {
-        const glsl = `precision mediump float;
-
-  uniform mat4 u_matrix;
-
-
-  void main() {
-    vec4 fragCoord4D = vec4(gl_FragCoord.xyz, 1.0);
-    vec4 transformedCoord = u_matrix * fragCoord4D;
-    vec3 transformedCoord3D = transformedCoord.xyz / transformedCoord.w;
-    gl_FragColor = transformedCoord3D.x > 64. ? vec4(1.0, 0.0, 0.0, 1.0) : vec4(0.0, 0.0, 1.0, 1.0);
-  }`;
+        const glsl = `void mainImage(out vec4 fragColor, in vec2 fragCoord){
+  fragColor = fragCoord.x > 64. ? vec4(1.0, 0.0, 0.0, 1.0) : vec4(0.0, 0.0, 1.0, 1.0);
+}`;
         const ctx = makeShader(glsl)!;
         const shader = new GLSLShader(ctx, {}, []);
         const path = new Path();
@@ -80,16 +69,8 @@ describe("Shaders", () => {
         center,
         c2d: { Path, Paint, GLSLShader, makeShader },
       }) => {
-        const glsl = `precision mediump float;
-
-        uniform mat4 u_matrix;
-
-        
-        void main() {
-          vec4 fragCoord4D = vec4(gl_FragCoord.xyz, 1.0);
-          vec4 transformedCoord = u_matrix * fragCoord4D;
-          vec3 transformedCoord3D = transformedCoord.xyz / transformedCoord.w;
-          gl_FragColor = transformedCoord3D.x > 128. ? vec4(1.0, 0.0, 0.0, 1.0) : vec4(0.0, 0.0, 1.0, 1.0);
+        const glsl = `void mainImage(out vec4 fragColor, in vec2 fragCoord){
+          fragColor = fragCoord.x > 128. ? vec4(1.0, 0.0, 0.0, 1.0) : vec4(0.0, 0.0, 1.0, 1.0);
         }`;
         const ctx = makeShader(glsl)!;
         const path = new Path();
@@ -116,6 +97,6 @@ describe("Shaders", () => {
         canvas.restore();
       }
     );
-    checkImage(image, "snapshots/c2d/shader3.png", { overwrite: true });
+    checkImage(image, "snapshots/c2d/shader3.png");
   });
 });
