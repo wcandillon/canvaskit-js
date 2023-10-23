@@ -47,16 +47,13 @@ export class GLSLShader implements Shader {
     gl.canvas.height = height;
     // Set the CTM
     const matrixLocation = gl.getUniformLocation(program, "u_matrix");
-    if (!matrixLocation) {
-      throw new Error("Could not get matrix uniform location");
+    if (matrixLocation) {
+      gl.uniformMatrix4fv(
+        matrixLocation,
+        false,
+        ctm.inverse().toFloat32Array()
+      );
     }
-    gl.uniformMatrix4fv(matrixLocation, false, ctm.toFloat32Array());
-    // Set the resolution
-    const resolutionLocation = gl.getUniformLocation(program, "u_resolution");
-    if (!resolutionLocation) {
-      throw new Error("Could not get resolution uniform location");
-    }
-    gl.uniform2f(resolutionLocation, width, height);
     let texIndex = 0;
     const uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
     for (let i = 0; i < uniformCount; i++) {

@@ -15,11 +15,9 @@ const vertexShaderCode = `
 attribute vec2 a_position;
 
 uniform vec2 u_resolution;
-varying vec2 v_texCoord;
 
 void main() {
   gl_Position = vec4(a_position, 0.0, 1.0);
-  v_texCoord = (a_position * 0.5 + 0.5) * u_resolution;
 }
 `;
 
