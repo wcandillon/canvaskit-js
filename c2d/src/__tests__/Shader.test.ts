@@ -74,7 +74,7 @@ describe("Shaders", () => {
         }`;
         const ctx = new ShaderContext(glsl)!;
         const path = new Path();
-        const pad = 40;
+        const pad = 0;
         path.moveTo(new DOMPoint(pad, pad));
         path.lineTo(new DOMPoint(width - pad, pad));
         path.lineTo(new DOMPoint(width - pad, height - pad));
@@ -86,7 +86,7 @@ describe("Shaders", () => {
         paint.setColor("cyan");
         canvas.save();
         const matrix = new DOMMatrix();
-        matrix.m34 = 1 / 600;
+        matrix.m34 = -1 / 600;
         matrix
           .translateSelf(center.x, center.y)
           .rotateAxisAngleSelf(1, 0, 0, 60)
@@ -96,7 +96,7 @@ describe("Shaders", () => {
         canvas.restore();
       }
     );
-    checkImage(image, "snapshots/c2d/shader3.png", { overwrite: true });
+    checkImage(image, "snapshots/c2d/shader3.png");
   });
   it("should draw a simple shader (4)", async () => {
     // TODO: simplify shader API
@@ -137,7 +137,7 @@ describe("Shaders", () => {
         c2d: { Path, Paint, ShaderContext, Shader },
       }) => {
         const glsl = `void mainImage(out vec4 fragColor, in vec2 fragCoord){
-  fragColor = fragCoord.x > 0. && fragCoord.y > 0. ? vec4(1.0, 0.0, 0.0, 1.0) : vec4(0.0, 0.0, 1.0, 1.0);
+  fragColor = fragCoord.x > 0. ? vec4(1.0, 0.0, 0.0, 1.0) : vec4(0.0, 0.0, 1.0, 1.0);
 }`;
         const ctx = new ShaderContext(glsl)!;
         const shader = new Shader(ctx, {}, []);
