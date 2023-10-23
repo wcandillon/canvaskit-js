@@ -8,13 +8,13 @@ describe("Shaders", () => {
         canvas,
         width,
         height,
-        c2d: { Path, Paint, makeShader, GLSLShader },
+        c2d: { Path, Paint, ShaderContext, Shader },
       }) => {
         const glsl = `void mainImage(out vec4 fragColor, in vec2 fragCoord){
           fragColor = fragCoord.x > 128. ? vec4(1.0, 0.0, 0.0, 1.0) : vec4(0.0, 0.0, 1.0, 1.0);
         }`;
-        const ctx = makeShader(glsl)!;
-        const shader = new GLSLShader(ctx, {}, []);
+        const ctx = new ShaderContext(glsl)!;
+        const shader = new Shader(ctx, {}, []);
         const path = new Path();
         path.moveTo(new DOMPoint(0, 0));
         path.addLinear(new DOMPoint(width, 0));
@@ -37,13 +37,13 @@ describe("Shaders", () => {
         canvas,
         width,
         height,
-        c2d: { Path, Paint, makeShader, GLSLShader },
+        c2d: { Path, Paint, ShaderContext, Shader },
       }) => {
         const glsl = `void mainImage(out vec4 fragColor, in vec2 fragCoord){
-  fragColor = fragCoord.x > 64. ? vec4(1.0, 0.0, 0.0, 1.0) : vec4(0.0, 0.0, 1.0, 1.0);
+  fragColor = fragCoord.x > 64. && fragCoord.y > 64. ? vec4(1.0, 0.0, 0.0, 1.0) : vec4(0.0, 0.0, 1.0, 1.0);
 }`;
-        const ctx = makeShader(glsl)!;
-        const shader = new GLSLShader(ctx, {}, []);
+        const ctx = new ShaderContext(glsl)!;
+        const shader = new Shader(ctx, {}, []);
         const path = new Path();
         path.moveTo(new DOMPoint(0, 0));
         path.addLinear(new DOMPoint(width / 2, 0));
@@ -58,7 +58,7 @@ describe("Shaders", () => {
         canvas.restore();
       }
     );
-    checkImage(image, "snapshots/c2d/shader2.png");
+    checkImage(image, "snapshots/c2d/shader2.png", { overwrite: true });
   });
   it("should draw a simple shader (3)", async () => {
     const image = await remoteSurface.draw(
@@ -67,12 +67,12 @@ describe("Shaders", () => {
         width,
         height,
         center,
-        c2d: { Path, Paint, GLSLShader, makeShader },
+        c2d: { Path, Paint, ShaderContext, Shader },
       }) => {
         const glsl = `void mainImage(out vec4 fragColor, in vec2 fragCoord){
           fragColor = fragCoord.x > 128. ? vec4(1.0, 0.0, 0.0, 1.0) : vec4(0.0, 0.0, 1.0, 1.0);
         }`;
-        const ctx = makeShader(glsl)!;
+        const ctx = new ShaderContext(glsl)!;
         const path = new Path();
         const size = 100;
         const pad = (width - size) / 2;
@@ -82,7 +82,7 @@ describe("Shaders", () => {
         path.addLinear(new DOMPoint(pad, height - pad));
         path.close();
         const paint = new Paint();
-        const shader = new GLSLShader(ctx, {}, []);
+        const shader = new Shader(ctx, {}, []);
         paint.setShader(shader);
         paint.setColor("cyan");
         canvas.save();
@@ -97,6 +97,6 @@ describe("Shaders", () => {
         canvas.restore();
       }
     );
-    checkImage(image, "snapshots/c2d/shader3.png");
+    checkImage(image, "snapshots/c2d/shader3.png", { overwrite: true });
   });
 });

@@ -10,8 +10,7 @@ import type { Canvas } from "../Canvas";
 import type { Paint } from "../Paint";
 import type { Path } from "../Path";
 import type { BlurImageFilter } from "../ImageFilter";
-import type { makeShader } from "../Shader/GLSL";
-import type { GLSLShader } from "../Shader";
+import type { Shader, ShaderContext } from "../Shader";
 
 const DEBUG = process.env.DEBUG === "true";
 
@@ -34,8 +33,8 @@ interface DrawingContext {
     Path: typeof Path;
     Paint: typeof Paint;
     BlurImageFilter: typeof BlurImageFilter;
-    GLSLShader: typeof GLSLShader;
-    makeShader: typeof makeShader;
+    Shader: typeof Shader;
+    ShaderContext: typeof ShaderContext;
   };
 }
 
@@ -92,8 +91,8 @@ class RemoteSurface {
       Path: C2D.Path,
       Paint: C2D.Paint,
       BlurImageFilter: C2D.BlurImageFilter,
-      GLSLShader: C2D.GLSLShader,
-      makeShader: C2D.makeShader,
+      Shader: C2D.Shader,
+      ShaderContext: C2D.ShaderContext,
     };
     const ctx = {
       width,

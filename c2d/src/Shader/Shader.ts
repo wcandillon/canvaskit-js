@@ -1,4 +1,4 @@
-import type { GLSLContext } from "./GLSL";
+import type { ShaderContext } from "./ShaderContext";
 
 export interface Shader {
   render(width: number, height: number, ctm: DOMMatrix): OffscreenCanvas;
@@ -16,9 +16,9 @@ interface Uniforms {
   [name: string]: number[];
 }
 
-export class GLSLShader implements Shader {
+export class Shader implements Shader {
   constructor(
-    private readonly glsl: GLSLContext,
+    private readonly glsl: ShaderContext,
     uniforms: { [name: string]: number[] },
     private readonly children: Shader[]
   ) {
