@@ -14,13 +14,12 @@ export interface GLSLContext {
 const vertexShaderCode = `
 attribute vec2 a_position;
 
-uniform mat4 u_matrix;
 uniform vec2 u_resolution;
 varying vec2 v_texCoord;
 
-void main() {// u_matrix * 
+void main() {
   gl_Position = vec4(a_position, 0.0, 1.0);
-  v_texCoord = (a_position * 0.5 + 0.5) * u_resolution; // Convert and scale
+  v_texCoord = (a_position * 0.5 + 0.5) * u_resolution;
 }
 `;
 
@@ -42,7 +41,7 @@ export const makeShader = (
 ) => {
   const canvas = new OffscreenCanvas(0, 0);
   const gl = canvas.getContext("webgl2");
-  const error = _error || console.error.bind(console);
+  const error = _error ?? console.error.bind(console);
   if (!gl) {
     return handleError(
       "Failed to get WebGL2 context. Your browser or machine may not support it.",
@@ -61,7 +60,7 @@ export const makeShader = (
 
   if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
     const info = gl.getShaderInfoLog(fragmentShader);
-    const msg = "Could not compile fragment shader. \n\n" + info;
+    const msg = "Could not compile fragment shader. \n" + info;
     return handleError(msg, error);
   }
 
@@ -71,8 +70,8 @@ export const makeShader = (
   gl.linkProgram(program);
 
   if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-    const info = gl.getShaderInfoLog(fragmentShader);
-    const msg = "Could not link WebGL program. \n\n" + info;
+    const info = gl.getProgramInfoLog(program);
+    const msg = "Could not link WebGL program. \n" + info;
     return handleError(msg, error);
   }
 
