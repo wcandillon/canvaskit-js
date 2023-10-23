@@ -67,8 +67,8 @@ export class ShaderContext {
     vec4 canvasSpace = gl_FragCoord;
     ${!shaderToy ? "canvasSpace.y = u_resolution.y - canvasSpace.y" : ""};
     vec4 transformedCoord = u_matrix * canvasSpace;
-    vec3 transformedCoord3D = transformedCoord.xyz / 1.0;
-    mainImage(gl_FragColor, transformedCoord3D.xy);
+    vec3 transformedCoord3d = transformedCoord.xyz / transformedCoord.w;
+    mainImage(gl_FragColor, transformedCoord3d.xy);
   }`
     );
     gl.compileShader(fragmentShader);
@@ -131,24 +131,24 @@ export class ShaderContext {
     this._textures = textures;
   }
 
-  get gl() {
-    if (!this._gl) {
+  private ensureContextIsInitialized() {
+    if (!this._gl || !this._program || !this._textures) {
       throw new Error("GLSLContext not initialized.");
     }
-    return this._gl;
+  }
+
+  get gl() {
+    this.ensureContextIsInitialized();
+    return this._gl!;
   }
 
   get program() {
-    if (!this._program) {
-      throw new Error("GLSLContext not initialized.");
-    }
-    return this._program;
+    this.ensureContextIsInitialized();
+    return this._program!;
   }
 
   get textures() {
-    if (!this._textures) {
-      throw new Error("GLSLContext not initialized.");
-    }
-    return this._textures;
+    this.ensureContextIsInitialized();
+    return this._textures!;
   }
 }

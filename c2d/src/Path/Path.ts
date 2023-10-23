@@ -110,32 +110,10 @@ export class Path {
 }
 
 const projectPoint = (matrix: DOMMatrix, point: DOMPoint) => {
-  // Multiplying the point by the matrix
-  const xPrime =
-    matrix.m11 * point.x +
-    matrix.m21 * point.y +
-    matrix.m31 * point.z +
-    matrix.m41;
-  const yPrime =
-    matrix.m12 * point.x +
-    matrix.m22 * point.y +
-    matrix.m32 * point.z +
-    matrix.m42;
-  const zPrime =
-    matrix.m13 * point.x +
-    matrix.m23 * point.y +
-    matrix.m33 * point.z +
-    matrix.m43;
-  const wPrime =
-    matrix.m14 * point.x +
-    matrix.m24 * point.y +
-    matrix.m34 * point.z +
-    matrix.m44;
-
-  // Converting back to Cartesian coordinates
-  const xFinal = xPrime / wPrime;
-  const yFinal = yPrime / wPrime;
-  const zFinal = zPrime / wPrime;
-
-  return new DOMPoint(xFinal, yFinal, zFinal);
+  const result = new DOMPoint(point.x, point.y, 0, 1).matrixTransform(matrix);
+  return new DOMPoint(
+    result.x / result.w,
+    result.y / result.w,
+    result.z / result.w
+  );
 };

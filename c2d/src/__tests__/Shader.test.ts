@@ -86,7 +86,7 @@ describe("Shaders", () => {
         paint.setColor("cyan");
         canvas.save();
         const matrix = new DOMMatrix();
-        matrix.m34 = -1 / 600;
+        matrix.m34 = 1 / 600;
         matrix
           .translateSelf(center.x, center.y)
           .rotateAxisAngleSelf(1, 0, 0, 60)
