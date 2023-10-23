@@ -67,7 +67,7 @@ export class ShaderContext {
     vec4 canvasSpace = gl_FragCoord;
     ${!shaderToy ? "canvasSpace.y = u_resolution.y - canvasSpace.y" : ""};
     vec4 transformedCoord = u_matrix * canvasSpace;
-    vec3 transformedCoord3D = transformedCoord.xyz / transformedCoord.w;
+    vec3 transformedCoord3D = transformedCoord.xyz / 1.0;
     mainImage(gl_FragColor, transformedCoord3D.xy);
   }`
     );
