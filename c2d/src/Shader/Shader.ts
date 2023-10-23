@@ -54,6 +54,11 @@ export class Shader implements Shader {
         ctm.inverse().toFloat32Array()
       );
     }
+    // Set the resolution
+    const resolutionLocation = gl.getUniformLocation(program, "u_resolution");
+    if (resolutionLocation) {
+      gl.uniform2f(resolutionLocation, width, height);
+    }
     let texIndex = 0;
     const uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
     for (let i = 0; i < uniformCount; i++) {

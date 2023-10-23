@@ -58,15 +58,14 @@ export class ShaderContext {
       `precision mediump float;
   
   uniform mat4 u_matrix;
+  uniform vec2 u_resolution;
   
   ${shaderCode}
   
   void main() {
-    mat4 scaleMatrix = mat4(1.0,  0.0, 0.0, 0.0,
-      0.0, -1.0, 0.0, 0.0,
-      0.0,  0.0, 1.0, 0.0,
-      0.0,  0.0, 0.0, 1.0);
-    vec4 transformedCoord = u_matrix * gl_FragCoord;
+    vec4 canvasSpace = gl_FragCoord;
+    canvasSpace.y = u_resolution.y - canvasSpace.y;
+    vec4 transformedCoord = u_matrix * canvasSpace;
     vec3 transformedCoord3D = transformedCoord.xyz / transformedCoord.w;
     mainImage(gl_FragColor, transformedCoord3D.xy);
   }`
