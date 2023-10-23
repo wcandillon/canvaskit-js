@@ -58,7 +58,7 @@ describe("Shaders", () => {
         canvas.restore();
       }
     );
-    checkImage(image, "snapshots/c2d/shader2.png", { overwrite: true });
+    checkImage(image, "snapshots/c2d/shader2.png");
   });
   it("should draw a simple shader (3)", async () => {
     const image = await remoteSurface.draw(
@@ -74,8 +74,7 @@ describe("Shaders", () => {
         }`;
         const ctx = new ShaderContext(glsl)!;
         const path = new Path();
-        const size = 100;
-        const pad = (width - size) / 2;
+        const pad = 40;
         path.moveTo(new DOMPoint(pad, pad));
         path.addLinear(new DOMPoint(width - pad, pad));
         path.addLinear(new DOMPoint(width - pad, height - pad));
@@ -87,7 +86,7 @@ describe("Shaders", () => {
         paint.setColor("cyan");
         canvas.save();
         const matrix = new DOMMatrix();
-        matrix.m34 = -1 / (4 * width);
+        matrix.m34 = -1 / 600;
         matrix
           .translateSelf(center.x, center.y)
           .rotateAxisAngleSelf(1, 0, 0, 60)
@@ -98,5 +97,34 @@ describe("Shaders", () => {
       }
     );
     checkImage(image, "snapshots/c2d/shader3.png", { overwrite: true });
+  });
+  it("should draw a simple shader (4)", async () => {
+    // TODO: simplify shader API
+    const image = await remoteSurface.draw(
+      ({
+        canvas,
+        width,
+        height,
+        c2d: { Path, Paint, ShaderContext, Shader },
+      }) => {
+        const glsl = `void mainImage(out vec4 fragColor, in vec2 fragCoord){
+  fragColor = fragCoord.x > 128. && fragCoord.y > 128. ? vec4(1.0, 0.0, 0.0, 1.0) : vec4(0.0, 0.0, 1.0, 1.0);
+}`;
+        const ctx = new ShaderContext(glsl)!;
+        const shader = new Shader(ctx, {}, []);
+        const path = new Path();
+        path.moveTo(new DOMPoint(width / 2, height / 2));
+        path.addLinear(new DOMPoint(width, height / 2));
+        path.addLinear(new DOMPoint(width, height));
+        path.addLinear(new DOMPoint(width / 2, height));
+        path.close();
+        const paint = new Paint();
+        paint.setShader(shader);
+        canvas.save();
+        canvas.drawPath(path, paint);
+        canvas.restore();
+      }
+    );
+    checkImage(image, "snapshots/c2d/shader4.png");
   });
 });

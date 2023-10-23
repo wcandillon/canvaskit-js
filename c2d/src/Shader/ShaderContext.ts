@@ -34,6 +34,7 @@ export class ShaderContext {
 
   constructor(
     shaderCode: string,
+    shaderToy?: boolean,
     _error?: ((err: string) => void) | undefined
   ) {
     const canvas = new OffscreenCanvas(0, 0);
@@ -64,7 +65,7 @@ export class ShaderContext {
   
   void main() {
     vec4 canvasSpace = gl_FragCoord;
-    canvasSpace.y = u_resolution.y - canvasSpace.y;
+    ${!shaderToy ? "canvasSpace.y = u_resolution.y - canvasSpace.y" : ""};
     vec4 transformedCoord = u_matrix * canvasSpace;
     vec3 transformedCoord3D = transformedCoord.xyz / transformedCoord.w;
     mainImage(gl_FragColor, transformedCoord3D.xy);
