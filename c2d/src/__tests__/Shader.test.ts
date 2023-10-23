@@ -30,7 +30,7 @@ void main() {
         canvas.restore();
       }
     );
-    checkImage(image, "snapshots/c2d/shader.png", { overwrite: true });
+    checkImage(image, "snapshots/c2d/shader.png");
   });
   it("should draw a simple shader (2)", async () => {
     // TODO: simplify shader API
@@ -66,6 +66,51 @@ void main() {
         canvas.restore();
       }
     );
-    checkImage(image, "snapshots/c2d/shader2.png", { overwrite: true });
+    checkImage(image, "snapshots/c2d/shader2.png");
+  });
+  it("should draw a simple shader (3)", async () => {
+    const image = await remoteSurface.draw(
+      ({
+        canvas,
+        width,
+        height,
+        center,
+        c2d: { Path, Paint, GLSLShader, makeShader },
+      }) => {
+        const glsl = `precision mediump float;
+
+        uniform vec2 u_resolution;
+        
+        varying vec2 v_texCoord;
+        
+        void main() {
+          gl_FragColor = v_texCoord.x > 128. ? vec4(1.0, 0.0, 0.0, 1.0) : vec4(0.0, 0.0, 1.0, 1.0);
+        }`;
+        const ctx = makeShader(glsl)!;
+        const path = new Path();
+        const size = 100;
+        const pad = (width - size) / 2;
+        path.moveTo(new DOMPoint(pad, pad));
+        path.addLinear(new DOMPoint(width - pad, pad));
+        path.addLinear(new DOMPoint(width - pad, height - pad));
+        path.addLinear(new DOMPoint(pad, height - pad));
+        path.close();
+        const paint = new Paint();
+        const shader = new GLSLShader(ctx, {}, []);
+        paint.setShader(shader);
+        paint.setColor("cyan");
+        canvas.save();
+        const matrix = new DOMMatrix();
+        matrix.m34 = -1 / (4 * width);
+        matrix
+          .translateSelf(center.x, center.y)
+          .rotateAxisAngleSelf(1, 0, 0, 60)
+          .translateSelf(-center.x, -center.y);
+        canvas.concat(matrix);
+        canvas.drawPath(path, paint);
+        canvas.restore();
+      }
+    );
+    checkImage(image, "snapshots/c2d/shader3.png");
   });
 });
