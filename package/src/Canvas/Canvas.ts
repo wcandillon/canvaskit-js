@@ -1,5 +1,4 @@
 import type {
-  Canvas,
   ColorIntArray,
   CubicResampler,
   EmbindEnumEntity,
@@ -16,15 +15,16 @@ import type {
   InputRect,
   InputVector3,
   MallocObj,
-  Paint,
   Paragraph,
-  Path,
+  Path as CKPath,
   Surface,
   TextBlob,
   Vertices,
+  Canvas as CKCanvas,
 } from "canvaskit-wasm";
+import { Path, Canvas, Paint } from "c2d";
 
-import { PaintJS, nativeBlendMode } from "../Paint";
+import { nativeBlendMode } from "../Paint";
 import type { ColorSpaceJS, GrDirectContextJS, InputColor } from "../Core";
 import {
   DrawableRect,
@@ -49,10 +49,11 @@ import type { SVGContext } from "../SVG";
 import type { FontJS } from "../Text";
 import type { PictureJS } from "../Picture";
 
-import { DrawingContext } from "./DrawingContext";
-
-export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
-  private context: DrawingContext;
+export class CanvasJS extends HostObject<"Canvas"> implements CKCanvas {
+  private ctx: Canvas;
+  private width: number;
+  private height: number;
+  private saveCount = 0;
 
   constructor(
     ctx: CanvasRenderingContext2D,
@@ -60,24 +61,24 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     public readonly grCtx: GrDirectContextJS
   ) {
     super("Canvas");
-    this.context = new DrawingContext(ctx);
-  }
-
-  get ctx() {
-    return this.context.ctx!;
-  }
-
-  get paintCtx() {
-    return { ctx: this.ctx, svgCtx: this.svgCtx };
+    this.width = ctx.canvas.width;
+    this.height = ctx.canvas.height;
+    this.ctx = new Canvas(ctx);
   }
 
   clear(color: InputColor): void {
-    this.svgCtx.discardCacheIfNeeded();
     this.ctx.save();
-    this.ctx.setTransform();
-    this.ctx.globalCompositeOperation = "copy";
-    this.ctx.fillStyle = nativeColor(color);
-    this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+    this.ctx.resetMatrix();
+    const paint = new Paint();
+    paint.setColor(nativeColor(color));
+    paint.setBlendMode("copy");
+    const path = new Path();
+    path.moveTo(new DOMPoint(0, 0));
+    path.lineTo(new DOMPoint(this.width, 0));
+    path.lineTo(new DOMPoint(this.width, this.height));
+    path.lineTo(new DOMPoint(0, this.height));
+    path.close();
+    this.ctx.drawPath(path, paint);
     this.ctx.restore();
   }
   clipPath(path: PathJS, _op: EmbindEnumEntity, _doAntiAlias: boolean): void {
@@ -100,7 +101,7 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     ]);
     this._clip(path);
   }
-  private _clip(path: Path2D) {
+  private _clip(path: Path) {
     this.ctx.clip(path);
   }
   concat(m: InputMatrix) {
@@ -381,32 +382,24 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     throw new Error("Method not implemented.");
   }
   getLocalToDevice() {
-    const m = this.ctx.getTransform();
-    return new Float32Array([
-      m.m11,
-      m.m21,
-      m.m31,
-      m.m41,
-      m.m12,
-      m.m22,
-      m.m32,
-      m.m42,
-      m.m13,
-      m.m23,
-      m.m33,
-      m.m43,
-      m.m14,
-      m.m24,
-      m.m34,
-      m.m44,
-    ]);
+    return this.ctx.getMatrix().toFloat32Array();
   }
   getSaveCount() {
-    return this.context.saveCount();
+    return this.saveCount;
   }
   getTotalMatrix(): number[] {
-    const m = this.ctx.getTransform();
-    return [m.a, m.c, m.e, m.b, m.d, m.f, 0, 0, 1];
+    const matrix = this.ctx.getMatrix();
+    return [
+      matrix.m11,
+      matrix.m21,
+      matrix.m41,
+      matrix.m12,
+      matrix.m22,
+      matrix.m42,
+      matrix.m14,
+      matrix.m24,
+      matrix.m44,
+    ];
   }
   makeSurface(_info: ImageInfo): Surface | null {
     throw new Error("Method not implemented.");
@@ -421,22 +414,7 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     throw new Error("Method not implemented.");
   }
   restore() {
-    const { layer, ctx } = this.context.restore()!;
-    if (layer) {
-      const { imageFilter } = layer;
-      this.ctx.save();
-      this.ctx.resetTransform();
-      if (imageFilter) {
-        const paint = new PaintJS();
-        paint.setImageFilter(imageFilter);
-        paint.apply(this.paintCtx, () => {
-          this.ctx.drawImage(this.ctx.canvas, 0, 0);
-        });
-      } else {
-        this.ctx.drawImage(ctx!.canvas, 0, 0);
-      }
-      this.ctx.restore();
-    }
+    this.ctx.restore();
   }
   restoreToCount(saveCount: number): void {
     for (let i = 1; i <= saveCount; i++) {
@@ -448,20 +426,17 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     this.concat(m);
   }
   save() {
-    return this.context.save();
+    this.ctx.save();
+    return ++this.saveCount;
   }
   saveLayer(
-    paint?: PaintJS,
-    bounds?: InputRect | null,
+    _paint?: PaintJS,
+    _bounds?: InputRect | null,
     imageFilter?: ImageFilterJS | null,
-    flags?: number
+    _flags?: number
   ) {
-    return this.context.saveLayer({
-      imageFilter: imageFilter ?? undefined,
-      flags,
-      bounds: bounds ? rectToXYWH(bounds) : undefined,
-      paint,
-    });
+    this.ctx.save(imageFilterJS.getImageFilter());
+    return ++this.saveCount;
   }
   scale(sx: number, sy: number): void {
     const m = new DOMMatrix().scale(sx, sy);
@@ -474,29 +449,18 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     this.concat(m);
   }
   translate(x: number, y: number): void {
-    const m = new DOMMatrix().translate(x, y);
-    this.concat(m);
+    this.concat(new DOMMatrix().translate(x, y));
   }
   writePixels(
-    pixels: number[] | Uint8Array,
-    width: number,
-    height: number,
-    destX: number,
-    destY: number,
+    _pixels: number[] | Uint8Array,
+    _width: number,
+    _height: number,
+    _destX: number,
+    _destY: number,
     _alphaType?: EmbindEnumEntity | undefined,
     _colorType?: EmbindEnumEntity | undefined,
-    colorSpace?: ColorSpaceJS | undefined
+    _colorSpace?: ColorSpaceJS | undefined
   ): boolean {
-    this.ctx.putImageData(
-      {
-        data: new Uint8ClampedArray(pixels),
-        width,
-        height,
-        colorSpace: colorSpace ? colorSpace.getNativeValue() : "srgb",
-      },
-      destX,
-      destY
-    );
-    return true;
+    throw new Error("Method not implemented.");
   }
 }

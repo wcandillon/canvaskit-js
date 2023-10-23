@@ -45,6 +45,14 @@ export class Canvas extends IndexedHostObject {
     this.ctx.matrix.multiplySelf(matrix);
   }
 
+  resetMatrix() {
+    this.ctx.matrix = new DOMMatrix();
+  }
+
+  getMatrix() {
+    return DOMMatrix.fromMatrix(this.ctx.matrix);
+  }
+
   clip(path: Path) {
     this.ctx.clip = path;
     this.ctx.renderingCtx.clip(path.getPath2D(this.ctx.matrix));

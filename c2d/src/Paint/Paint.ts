@@ -25,6 +25,11 @@ export class Paint {
     return this;
   }
 
+  setBlendMode(blendMode: GlobalCompositeOperation) {
+    this.blendMode = blendMode;
+    return this;
+  }
+
   setImageFilter(imageFilter: ImageFilter) {
     this.imageFilter = imageFilter;
     return this;

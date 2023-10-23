@@ -2,7 +2,6 @@ import { checkImage, remoteSurface } from "./setup";
 
 describe("Shaders", () => {
   it("should draw a simple shader (1)", async () => {
-    // TODO: simplify shader API
     const image = await remoteSurface.draw(
       ({
         canvas,
@@ -31,7 +30,6 @@ describe("Shaders", () => {
     checkImage(image, "snapshots/c2d/shader.png");
   });
   it("should draw a simple shader (2)", async () => {
-    // TODO: simplify shader API
     const image = await remoteSurface.draw(
       ({
         canvas,
@@ -99,7 +97,6 @@ describe("Shaders", () => {
     checkImage(image, "snapshots/c2d/shader3.png");
   });
   it("should draw a simple shader (4)", async () => {
-    // TODO: simplify shader API
     const image = await remoteSurface.draw(
       ({
         canvas,
