@@ -1,20 +1,18 @@
-import type { Point } from "canvaskit-wasm";
-
-import { QuadraticPathComponent } from "./PathComponents";
+import { QuadraticPathComponent } from "c2d";
 
 type ConicCurve = {
-  p0: Point;
-  p1: Point;
-  p2: Point;
+  p0: DOMPoint;
+  p1: DOMPoint;
+  p2: DOMPoint;
   w: number;
 };
 
 // Utility function to interpolate between two points
-const lerp = (a: Point, b: Point, t: number): Point =>
-  new Float32Array([a[0] + t * (b[0] - a[0]), a[1] + t * (b[1] - a[1])]);
+const lerp = (a: DOMPoint, b: DOMPoint, t: number): DOMPoint =>
+  new DOMPoint(a.x + t * (b.x - a.x), a.y + t * (b.y - a.y));
 
 // Utility function to get the midpoint of two points
-const midPoint = (a: Point, b: Point): Point => lerp(a, b, 0.5);
+const midPoint = (a: DOMPoint, b: DOMPoint): DOMPoint => lerp(a, b, 0.5);
 
 // Function to split a conic curve into two at the midpoint
 const splitCurve = (curve: ConicCurve): [ConicCurve, ConicCurve] => {
@@ -40,10 +38,10 @@ const splitCurve = (curve: ConicCurve): [ConicCurve, ConicCurve] => {
 
 // Function to check if a conic curve can be approximated by a quadratic Bezier
 const isCloseEnough = (curve: ConicCurve, tolerance = 0.01): boolean => {
-  const dx = curve.p2[0] - curve.p0[0];
-  const dy = curve.p2[1] - curve.p0[1];
+  const dx = curve.p2.x - curve.p0.x;
+  const dy = curve.p2.y - curve.p0.y;
   const d = Math.abs(
-    dx * (curve.p0[1] - curve.p1[1]) - dy * (curve.p0[0] - curve.p1[0])
+    dx * (curve.p0.y - curve.p1.y) - dy * (curve.p0.x - curve.p1.x)
   );
 
   return d < tolerance;
@@ -70,9 +68,9 @@ const chopCurve = (
 };
 
 export const ConvertConicToQuads = (
-  p0: Point,
-  p1: Point,
-  p2: Point,
+  p0: DOMPoint,
+  p1: DOMPoint,
+  p2: DOMPoint,
   w: number
 ) => {
   return chopCurve({ p0, p1, p2, w });

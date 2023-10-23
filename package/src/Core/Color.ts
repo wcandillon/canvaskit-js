@@ -1,6 +1,5 @@
 import type { InputColor } from "canvaskit-wasm";
-
-import { saturate } from "../math";
+import { saturate } from "c2d";
 
 import { normalizeArray } from "./Values";
 

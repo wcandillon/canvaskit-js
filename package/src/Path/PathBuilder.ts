@@ -1,23 +1,29 @@
-import type { Point } from "canvaskit-wasm";
+import {
+  ARC_APPROXIMATION_MAGIC,
+  PI_OVER_2,
+  TAU,
+  multiply,
+  multiplyScalar,
+  plus,
+  Path as NativePath,
+  vec,
+} from "c2d";
 
 import type { Radii, XYWH } from "../Core";
-import { multiply, multiplyScalar, plus, vec } from "../Vector";
-import { ARC_APPROXIMATION_MAGIC, PI_OVER_2, TAU } from "../math";
 
-import { Path } from "./Path";
 import { ConvertConicToQuads } from "./Conic";
 
 export class PathBuilder {
-  private current: Point = vec(0, 0);
-  private subpathStart: Point | null = null;
+  private current = new DOMPoint(0, 0);
+  private subpathStart: DOMPoint | null = null;
 
-  constructor(private readonly path = new Path()) {}
+  constructor(private readonly path = new NativePath()) {}
 
   getPath() {
     return this.path;
   }
 
-  addPath(path: Path) {
+  addPath(path: NativePath) {
     path.enumerateComponents(
       (linear) => this.path.addLinearComponent(linear.p1, linear.p2),
       (quad) => this.path.addQuadraticComponent(quad.p1, quad.cp, quad.p2),
@@ -28,7 +34,7 @@ export class PathBuilder {
     return this;
   }
 
-  conicTo(p1: Point, p2: Point, w: number) {
+  conicTo(p1: DOMPoint, p2: DOMPoint, w: number) {
     const p0 = this.current;
     const quads = ConvertConicToQuads(p0, p1, p2, w);
     quads.forEach((quad) =>
@@ -39,22 +45,22 @@ export class PathBuilder {
 
   addRoundedRect(rect: XYWH, radii: Radii) {
     if (
-      radii.topLeft[0] === 0 &&
-      radii.topRight[0] === 0 &&
-      radii.bottomRight[0] === 0 &&
-      radii.bottomLeft[0] === 0
+      radii.topLeft.x === 0 &&
+      radii.topRight.x === 0 &&
+      radii.bottomRight.x === 0 &&
+      radii.bottomLeft.x === 0
     ) {
       return this.addRect(rect);
     }
 
-    this.current = vec(rect.x + radii.topLeft[0], rect.y);
+    this.current = new DOMPoint(rect.x + radii.topLeft.x, rect.y);
 
-    this.moveTo(vec(rect.x + radii.topLeft[0], rect.y));
+    this.moveTo(new DOMPoint(rect.x + radii.topLeft.x, rect.y));
 
     // Top line.
     this.path.addLinearComponent(
-      vec(rect.x + radii.topLeft[0], rect.y),
-      vec(rect.x + rect.width - radii.topRight[0], rect.y)
+      new DOMPoint(rect.x + radii.topLeft.x, rect.y),
+      new DOMPoint(rect.x + rect.width - radii.topRight.x, rect.y)
     );
 
     // Top right arc.
@@ -62,8 +68,11 @@ export class PathBuilder {
 
     // Right line.
     this.path.addLinearComponent(
-      vec(rect.x + rect.width, rect.y + radii.topRight[1]),
-      vec(rect.x + rect.width, rect.y + rect.height - radii.bottomRight[1])
+      new DOMPoint(rect.x + rect.width, rect.y + radii.topRight.y),
+      new DOMPoint(
+        rect.x + rect.width,
+        rect.y + rect.height - radii.bottomRight.y
+      )
     );
 
     // Bottom right arc.
@@ -71,8 +80,11 @@ export class PathBuilder {
 
     // Bottom line.
     this.path.addLinearComponent(
-      vec(rect.x + rect.width - radii.bottomRight[0], rect.y + rect.height),
-      vec(rect.x + radii.bottomLeft[0], rect.y + rect.height)
+      new DOMPoint(
+        rect.x + rect.width - radii.bottomRight.x,
+        rect.y + rect.height
+      ),
+      new DOMPoint(rect.x + radii.bottomLeft.x, rect.y + rect.height)
     );
 
     // Bottom left arc.
@@ -80,8 +92,8 @@ export class PathBuilder {
 
     // Left line.
     this.path.addLinearComponent(
-      vec(rect.x, rect.y + rect.height - radii.bottomLeft[1]),
-      vec(rect.x, rect.y + radii.topLeft[1])
+      new DOMPoint(rect.x, rect.y + rect.height - radii.bottomLeft.y),
+      new DOMPoint(rect.x, rect.y + radii.topLeft.y)
     );
 
     // Top left arc.
@@ -93,66 +105,75 @@ export class PathBuilder {
   }
 
   private addRoundedRectTopLeft(rect: XYWH, radii: Radii) {
-    const magicTopLeft = multiplyScalar(radii.topLeft, ARC_APPROXIMATION_MAGIC);
+    const magicTopLeft = multiplyScalar(
+      new DOMPoint(radii.topLeft.x, radii.topLeft.y),
+      ARC_APPROXIMATION_MAGIC
+    );
     this.path.addCubicComponent(
-      vec(rect.x, rect.y + radii.topLeft[1]),
-      vec(rect.x, rect.y + radii.topLeft[1] - magicTopLeft[1]),
-      vec(rect.x + radii.topLeft[0] - magicTopLeft[0], rect.y),
-      vec(rect.x + radii.topLeft[0], rect.y)
+      vec(rect.x, rect.y + radii.topLeft.y),
+      vec(rect.x, rect.y + radii.topLeft.y - magicTopLeft.y),
+      vec(rect.x + radii.topLeft.x - magicTopLeft.x, rect.y),
+      vec(rect.x + radii.topLeft.x, rect.y)
     );
     return this;
   }
 
   private addRoundedRectTopRight(rect: XYWH, radii: Radii) {
     const magicTopRight = multiplyScalar(
-      radii.topRight,
+      new DOMPoint(radii.topRight.x, radii.topRight.y),
       ARC_APPROXIMATION_MAGIC
     );
     this.path.addCubicComponent(
-      vec(rect.x + rect.width - radii.topRight[0], rect.y),
-      vec(rect.x + rect.width - radii.topRight[0] + magicTopRight[0], rect.y),
-      vec(rect.x + rect.width, rect.y + radii.topRight[1] - magicTopRight[1]),
-      vec(rect.x + rect.width, rect.y + radii.topRight[1])
+      new DOMPoint(rect.x + rect.width - radii.topRight.x, rect.y),
+      new DOMPoint(
+        rect.x + rect.width - radii.topRight.x + magicTopRight.x,
+        rect.y
+      ),
+      new DOMPoint(
+        rect.x + rect.width,
+        rect.y + radii.topRight.y - magicTopRight.y
+      ),
+      new DOMPoint(rect.x + rect.width, rect.y + radii.topRight.y)
     );
     return this;
   }
 
   private addRoundedRectBottomRight(rect: XYWH, radii: Radii) {
     const magicBottomRight = multiplyScalar(
-      radii.bottomRight,
+      new DOMPoint(radii.bottomRight.x, radii.bottomRight.y),
       ARC_APPROXIMATION_MAGIC
     );
     this.path.addCubicComponent(
-      vec(rect.x + rect.width, rect.y + rect.height - radii.bottomRight[1]),
+      vec(rect.x + rect.width, rect.y + rect.height - radii.bottomRight.y),
       vec(
         rect.x + rect.width,
-        rect.y + rect.height - radii.bottomRight[1] + magicBottomRight[1]
+        rect.y + rect.height - radii.bottomRight.y + magicBottomRight.y
       ),
       vec(
-        rect.x + rect.width - radii.bottomRight[0] + magicBottomRight[0],
+        rect.x + rect.width - radii.bottomRight.x + magicBottomRight.x,
         rect.y + rect.height
       ),
-      vec(rect.x + rect.width - radii.bottomRight[0], rect.y + rect.height)
+      vec(rect.x + rect.width - radii.bottomRight.x, rect.y + rect.height)
     );
     return this;
   }
 
   private addRoundedRectBottomLeft(rect: XYWH, radii: Radii) {
     const magicBottomLeft = multiplyScalar(
-      radii.bottomLeft,
+      new DOMPoint(radii.bottomLeft.x, radii.bottomLeft.y),
       ARC_APPROXIMATION_MAGIC
     );
     this.path.addCubicComponent(
-      vec(rect.x + radii.bottomLeft[0], rect.y + rect.height),
+      vec(rect.x + radii.bottomLeft.x, rect.y + rect.height),
       vec(
-        rect.x + radii.bottomLeft[0] - magicBottomLeft[0],
+        rect.x + radii.bottomLeft.x - magicBottomLeft.x,
         rect.y + rect.height
       ),
       vec(
         rect.x,
-        rect.y + rect.height - radii.bottomLeft[1] + magicBottomLeft[1]
+        rect.y + rect.height - radii.bottomLeft.y + magicBottomLeft.y
       ),
-      vec(rect.x, rect.y + rect.height - radii.bottomLeft[1])
+      vec(rect.x, rect.y + rect.height - radii.bottomLeft.y)
     );
     return this;
   }
@@ -183,7 +204,7 @@ export class PathBuilder {
     sweep = Math.min(TAU, sweep);
     start = start % TAU;
     const radius = vec(bounds.width / 2, bounds.height / 2);
-    const center = vec(bounds.x + radius[0], bounds.y + radius[1]);
+    const center = vec(bounds.x + radius.x, bounds.y + radius.y);
     let p1Unit = vec(Math.cos(start), Math.sin(start));
 
     const m = plus(center, multiply(p1Unit, radius));
@@ -205,7 +226,7 @@ export class PathBuilder {
         );
       } else {
         quadrantAngle = PI_OVER_2;
-        p2Unit = vec(-p1Unit[1], p1Unit[0]);
+        p2Unit = vec(-p1Unit.y, p1Unit.x);
       }
 
       const arcCpLengths = multiplyScalar(
@@ -215,8 +236,8 @@ export class PathBuilder {
 
       const p1 = plus(center, multiply(p1Unit, radius));
       const p2 = plus(center, multiply(p2Unit, radius));
-      const cp1 = plus(p1, multiply(vec(-p1Unit[1], p1Unit[0]), arcCpLengths));
-      const cp2 = plus(p2, multiply(vec(p2Unit[1], -p2Unit[0]), arcCpLengths));
+      const cp1 = plus(p1, multiply(vec(-p1Unit.y, p1Unit.x), arcCpLengths));
+      const cp2 = plus(p2, multiply(vec(p2Unit.y, -p2Unit.x), arcCpLengths));
 
       this.path.addCubicComponent(p1, cp1, cp2, p2);
       this.current = p2;
@@ -235,44 +256,41 @@ export class PathBuilder {
 
   addOval(container: XYWH) {
     const r = vec(container.width * 0.5, container.height * 0.5);
-    const c = vec(container.x + r[0], container.y + r[1]);
-    const m = vec(
-      ARC_APPROXIMATION_MAGIC * r[0],
-      ARC_APPROXIMATION_MAGIC * r[1]
-    );
+    const c = vec(container.x + r.x, container.y + r.y);
+    const m = vec(ARC_APPROXIMATION_MAGIC * r.x, ARC_APPROXIMATION_MAGIC * r.y);
 
-    this.moveTo(vec(c[0], c[1] - r[1]));
+    this.moveTo(vec(c.x, c.y - r.y));
 
     // Top right arc.
     this.path.addCubicComponent(
-      vec(c[0], c[1] - r[1]), // p1
-      vec(c[0] + m[0], c[1] - r[1]), // cp1
-      vec(c[0] + r[0], c[1] - m[1]), // cp2
-      vec(c[0] + r[0], c[1]) // p2
+      vec(c.x, c.y - r.y), // p1
+      vec(c.x + m.x, c.y - r.y), // cp1
+      vec(c.x + r.x, c.y - m.y), // cp2
+      vec(c.x + r.x, c.y) // p2
     );
 
     // Bottom right arc.
     this.path.addCubicComponent(
-      vec(c[0] + r[0], c[1]), // p1
-      vec(c[0] + r[0], c[1] + m[1]), // cp1
-      vec(c[0] + m[0], c[1] + r[1]), // cp2
-      vec(c[0], c[1] + r[1]) // p2
+      vec(c.x + r.x, c.y), // p1
+      vec(c.x + r.x, c.y + m.y), // cp1
+      vec(c.x + m.x, c.y + r.y), // cp2
+      vec(c.x, c.y + r.y) // p2
     );
 
     // Bottom left arc.
     this.path.addCubicComponent(
-      vec(c[0], c[1] + r[1]), // p1
-      vec(c[0] - m[0], c[1] + r[1]), // cp1
-      vec(c[0] - r[0], c[1] + m[1]), // cp2
-      vec(c[0] - r[0], c[1]) // p2
+      vec(c.x, c.y + r.y), // p1
+      vec(c.x - m.x, c.y + r.y), // cp1
+      vec(c.x - r.x, c.y + m.y), // cp2
+      vec(c.x - r.x, c.y) // p2
     );
 
     // Top left arc.
     this.path.addCubicComponent(
-      vec(c[0] - r[0], c[1]), // p1
-      vec(c[0] - r[0], c[1] - m[1]), // cp1
-      vec(c[0] - m[0], c[1] - r[1]), // cp2
-      vec(c[0], c[1] - r[1]) // p2
+      vec(c.x - r.x, c.y), // p1
+      vec(c.x - r.x, c.y - m.y), // cp1
+      vec(c.x - m.x, c.y - r.y), // cp2
+      vec(c.x, c.y - r.y) // p2
     );
 
     this.close();
@@ -281,9 +299,9 @@ export class PathBuilder {
   }
 
   cubicCurveTo(
-    controlPoint1: Point,
-    controlPoint2: Point,
-    point: Point,
+    controlPoint1: DOMPoint,
+    controlPoint2: DOMPoint,
+    point: DOMPoint,
     relative = false
   ) {
     controlPoint1 = relative
@@ -303,7 +321,7 @@ export class PathBuilder {
     return this;
   }
 
-  quadraticCurveTo(controlPoint: Point, point: Point, relative = false) {
+  quadraticCurveTo(controlPoint: DOMPoint, point: DOMPoint, relative = false) {
     point = relative ? plus(this.current, point) : point;
     controlPoint = relative ? plus(this.current, controlPoint) : controlPoint;
     this.path.addQuadraticComponent(this.current, controlPoint, point);
@@ -311,14 +329,14 @@ export class PathBuilder {
     return this;
   }
 
-  moveTo(p: Point, relative = false) {
+  moveTo(p: DOMPoint, relative = false) {
     this.current = relative ? plus(this.current, p) : p;
     this.subpathStart = this.current;
     this.path.addContour();
     return this;
   }
 
-  lineTo(p: Point, relative = false) {
+  lineTo(p: DOMPoint, relative = false) {
     const point = relative ? plus(this.current, p) : p;
     this.path.addLinearComponent(this.current, point);
     this.current = point;

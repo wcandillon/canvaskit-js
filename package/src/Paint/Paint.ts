@@ -5,29 +5,17 @@ import type {
   Paint,
   PathEffect,
 } from "canvaskit-wasm";
+import { Paint as NativePaint } from "c2d";
 
-import type { Drawable, InputColor } from "../Core";
-import {
-  CustomDrawable,
-  StrokeJoin,
-  nativeColor,
-  StrokeCap,
-  PaintStyle,
-} from "../Core";
+import type { InputColor } from "../Core";
+import { StrokeJoin, StrokeCap, PaintStyle } from "../Core";
 import type { ShaderJS } from "../Shader";
 import type { ImageFilterJS } from "../ImageFilter";
 import { HostObject } from "../HostObject";
 import type { MaskFilterJS } from "../MaskFilter/MaskFilter";
-import { createOffscreenTexture } from "../Core/Platform";
 import type { ColorFilterJS } from "../ColorFilter/ColorFilter";
-import type { SVGContext } from "../SVG";
 
 import { nativeBlendMode } from "./BlendMode";
-
-interface PaintContext {
-  ctx: CanvasRenderingContext2D;
-  svgCtx: SVGContext;
-}
 
 export class PaintJS extends HostObject<"Paint"> implements Paint {
   private style = PaintStyle.Fill;
@@ -42,84 +30,14 @@ export class PaintJS extends HostObject<"Paint"> implements Paint {
   private strokeCap: Cap | null = null;
   private blendMode: GlobalCompositeOperation | null = null;
 
+  private paint = new NativePaint();
+
   constructor() {
     super("Paint");
   }
 
-  apply(paintCtx: PaintContext, input: Drawable | (() => void)) {
-    const shape =
-      typeof input === "function" ? new CustomDrawable(input) : input;
-    const { ctx } = paintCtx;
-    ctx.save();
-    this.processFilter(paintCtx);
-    this.processStyle(ctx);
-    shape.draw(ctx, this.style.value === PaintStyle.Stroke.value);
-    ctx.restore();
-  }
-
-  private processStyle(ctx: CanvasRenderingContext2D) {
-    let style: CanvasPattern | string | null = null;
-    if (this.shader) {
-      const bufferCtx = createOffscreenTexture(
-        ctx.canvas.width,
-        ctx.canvas.height
-      );
-      const currenTransform = ctx.getTransform();
-      bufferCtx.setTransform(currenTransform);
-      const texture = this.shader.paint(bufferCtx);
-      // This will fail on Safari 17 (https://bugs.webkit.org/show_bug.cgi?id=149986)
-      try {
-        const pattern = ctx.createPattern(texture, "no-repeat")!;
-        pattern.setTransform(currenTransform.inverse());
-        style = pattern;
-      } catch (e) {}
-      ctx.globalAlpha = this.color[3];
-    } else {
-      style = nativeColor(this.color);
-    }
-    if (style && this.style === PaintStyle.Fill) {
-      ctx.fillStyle = style;
-    } else if (style) {
-      ctx.strokeStyle = style;
-    }
-    if (this.strokeMiter !== null) {
-      ctx.miterLimit = this.strokeMiter;
-    }
-    if (this.strokeWidth !== null) {
-      ctx.lineWidth = this.strokeWidth;
-    }
-    if (this.strokeCap !== null) {
-      ctx.lineCap = this.strokeCap;
-    }
-    if (this.strokeJoin !== null) {
-      ctx.lineJoin = this.strokeJoin;
-    }
-    if (this.blendMode) {
-      ctx.globalCompositeOperation = this.blendMode;
-    }
-  }
-
-  private processFilter(paintCtx: PaintContext) {
-    const { ctx, svgCtx } = paintCtx;
-    if (this.maskFilter || this.imageFilter || this.colorFilter) {
-      const filter: string[] = [];
-      if (this.maskFilter) {
-        const { id, filters } = this.maskFilter;
-        const url = svgCtx.create(id, filters);
-        filter.push(url);
-      }
-      if (this.imageFilter) {
-        const { id, filters } = this.imageFilter;
-        const url = svgCtx.create(id, filters);
-        filter.push(url);
-      }
-      if (this.colorFilter) {
-        const { id, filters } = this.colorFilter;
-        const url = svgCtx.create(id, filters);
-        filter.push(url);
-      }
-      ctx.filter = filter.join(" ");
-    }
+  getPaint() {
+    return this.paint;
   }
 
   copy(): Paint {

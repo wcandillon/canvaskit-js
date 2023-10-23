@@ -1,4 +1,5 @@
 import { IndexedHostObject, type RenderingContext } from "../Constants";
+import type { Drawable } from "../Drawable";
 import { DrawableImage, DrawablePath } from "../Drawable";
 import type { ImageFilter } from "../ImageFilter";
 import { Paint } from "../Paint";
@@ -75,6 +76,15 @@ export class Canvas extends IndexedHostObject {
         )
       );
     }
+  }
+
+  draw(drawable: Drawable, paint: Paint) {
+    paint.applyToContext(
+      this.ctx.renderingCtx,
+      this.svgCtx,
+      this.ctx.matrix,
+      drawable
+    );
   }
 
   drawPath(path: Path, paint: Paint) {

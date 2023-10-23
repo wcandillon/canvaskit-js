@@ -1,8 +1,11 @@
+import type { Applier } from "./Contour";
 import { Contour } from "./Contour";
+import type { PathComponent } from "./PathComponents";
 import {
   CubicPathComponent,
   LinearPathComponent,
   QuadraticPathComponent,
+  computeTightBounds,
 } from "./PathComponents";
 import { PathVerb } from "./PathComponents/PathVerb";
 
@@ -20,11 +23,25 @@ export class Path {
     return this.contours[this.contours.length - 1];
   }
 
-  private addContour(isClosed = false) {
+  enumerateComponents(
+    linearApplier?: Applier<LinearPathComponent>,
+    quadApplier?: Applier<QuadraticPathComponent>,
+    cubicApplier?: Applier<CubicPathComponent>,
+    contourApplier?: Applier<Contour>
+  ) {
+    this.contours.forEach((c, index) => {
+      if (contourApplier) {
+        contourApplier(c, index);
+      }
+      c.enumerateComponents(linearApplier, quadApplier, cubicApplier);
+    });
+  }
+
+  addContour(isClosed = false) {
     this.contours.push(new Contour(isClosed));
   }
 
-  private closeContour() {
+  closeContour() {
     this.contour.closed = true;
     return this;
   }
@@ -56,6 +73,68 @@ export class Path {
     );
     this.current = point;
     return this;
+  }
+
+  addComponent(comp: PathComponent) {
+    this.contour.components.push(comp);
+    return this;
+  }
+
+  addLinearComponent(p1: DOMPoint, p2: DOMPoint) {
+    this.contour.components.push(new LinearPathComponent(p1, p2));
+    return this;
+  }
+
+  addQuadraticComponent(p1: DOMPoint, cp: DOMPoint, p2: DOMPoint) {
+    this.contour.components.push(new QuadraticPathComponent(p1, cp, p2));
+    return this;
+  }
+
+  addCubicComponent(p1: DOMPoint, cp1: DOMPoint, cp2: DOMPoint, p2: DOMPoint) {
+    this.contour.components.push(new CubicPathComponent(p1, cp1, cp2, p2));
+    return this;
+  }
+
+  getLastComponent() {
+    return this.contour.getLastComponent();
+  }
+
+  length() {
+    return this.contours.reduce((acc, c) => acc + c.length(), 0);
+  }
+
+  computeTightBounds(result: Float32Array) {
+    const bounds = computeTightBounds(
+      this.contours.filter((c) => c.components.length > 0)
+    );
+    result[0] = bounds[0];
+    result[1] = bounds[1];
+    result[2] = bounds[2];
+    result[3] = bounds[3];
+  }
+
+  getPoints() {
+    const points: DOMPoint[] = [];
+    this.contours.forEach((contour) => {
+      contour.enumerateComponents(
+        (linear) => {
+          points.push(linear.p1);
+          points.push(linear.p2);
+        },
+        (quad) => {
+          points.push(quad.p1);
+          points.push(quad.p2);
+          points.push(quad.cp);
+        },
+        (cubic) => {
+          points.push(cubic.p1);
+          points.push(cubic.p2);
+          points.push(cubic.cp1);
+          points.push(cubic.cp2);
+        }
+      );
+    });
+    return points;
   }
 
   getPath2D(ctm: DOMMatrix) {

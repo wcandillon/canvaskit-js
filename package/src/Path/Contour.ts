@@ -1,12 +1,5 @@
+import { CubicPathComponent, LinearPathComponent, PathComponent, QuadraticPathComponent, TightBounds, computeTightBounds } from "c2d";
 import { PathVerb } from "../Core";
-
-import type { PathComponent } from "./PathComponents";
-import {
-  CubicPathComponent,
-  LinearPathComponent,
-  QuadraticPathComponent,
-} from "./PathComponents";
-import { computeTightBounds, type TightBounds } from "./PathComponents/Bounds";
 
 export type Applier<T> = (comp: T, index: number) => void;
 
@@ -87,7 +80,7 @@ export class Contour implements TightBounds {
       return [];
     }
     const [comp] = this.components;
-    const cmds = [PathVerb.Move, comp.p1[0], comp.p1[1]];
+    const cmds = [PathVerb.Move, comp.p1.x, comp.p1.y];
     const cmdToAdd = this.components.map((c) => c.toCmd());
     if (this.closed) {
       cmdToAdd[cmdToAdd.length - 1] = [PathVerb.Close];
@@ -101,7 +94,7 @@ export class Contour implements TightBounds {
       return "";
     }
     const [comp] = this.components;
-    const cmds = [`M${comp.p1[0]} ${comp.p1[1]}`];
+    const cmds = [`M${comp.p1.x} ${comp.p1.y}`];
     cmds.push(...this.components.map((c) => c.toSVGString()));
     if (this.closed) {
       cmds[cmds.length - 1] = "Z";

@@ -1,5 +1,4 @@
-import { saturate } from "../../math";
-import { Path } from "../Path";
+import { Path, saturate } from "c2d";
 
 import type { PathEffect } from "./PathEffect";
 

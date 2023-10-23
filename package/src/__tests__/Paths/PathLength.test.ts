@@ -1,7 +1,8 @@
 import type { ContourMeasure, Path } from "canvaskit-wasm";
+import { vec } from "c2d";
 
 import { PathBuilder } from "../../Path/PathBuilder";
-import { vec } from "../../Vector";
+
 import "../setup";
 
 const totalLength = (path: Path, close = false) => {
