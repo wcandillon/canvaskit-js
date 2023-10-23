@@ -48,11 +48,7 @@ export class Shader implements Shader {
     // Set the CTM
     const matrixLocation = gl.getUniformLocation(program, "u_matrix");
     if (matrixLocation) {
-      gl.uniformMatrix4fv(
-        matrixLocation,
-        false,
-        ctm.inverse().toFloat32Array()
-      );
+      gl.uniformMatrix4fv(matrixLocation, false, ctm.toFloat32Array());
     }
     // Set the resolution
     const resolutionLocation = gl.getUniformLocation(program, "u_resolution");

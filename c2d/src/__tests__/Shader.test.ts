@@ -127,4 +127,34 @@ describe("Shaders", () => {
     );
     checkImage(image, "snapshots/c2d/shader4.png");
   });
+  it("should draw a simple shader (5)", async () => {
+    // TODO: simplify shader API
+    const image = await remoteSurface.draw(
+      ({
+        canvas,
+        width,
+        height,
+        c2d: { Path, Paint, ShaderContext, Shader },
+      }) => {
+        const glsl = `void mainImage(out vec4 fragColor, in vec2 fragCoord){
+  fragColor = fragCoord.x > 0. && fragCoord.y > 0. ? vec4(1.0, 0.0, 0.0, 1.0) : vec4(0.0, 0.0, 1.0, 1.0);
+}`;
+        const ctx = new ShaderContext(glsl)!;
+        const shader = new Shader(ctx, {}, []);
+        const path = new Path();
+        path.moveTo(new DOMPoint(width / 2, height / 2));
+        path.lineTo(new DOMPoint(width, height / 2));
+        path.lineTo(new DOMPoint(width, height));
+        path.lineTo(new DOMPoint(width / 2, height));
+        path.close();
+        const paint = new Paint();
+        paint.setShader(shader);
+        canvas.save();
+        canvas.concat(new DOMMatrix().translate(-128, 0));
+        canvas.drawPath(path, paint);
+        canvas.restore();
+      }
+    );
+    checkImage(image, "snapshots/c2d/shader5.png");
+  });
 });

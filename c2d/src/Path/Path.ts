@@ -80,8 +80,6 @@ export class Path {
         const p = projectPoint(ctm, new DOMPoint(cmds[i++], cmds[i++]));
         path.quadraticCurveTo(cp.x, cp.y, p.x, p.y);
       } else if (cmd === PathVerb.Close) {
-        // Is the increment correct?
-        //i++;
         path.closePath();
       }
     }
@@ -110,10 +108,6 @@ export class Path {
 }
 
 const projectPoint = (matrix: DOMMatrix, point: DOMPoint) => {
-  const result = new DOMPoint(point.x, point.y, 0, 1).matrixTransform(matrix);
-  return new DOMPoint(
-    result.x / result.w,
-    result.y / result.w,
-    result.z / result.w
-  );
+  const p = new DOMPoint(point.x, point.y, 0, 1).matrixTransform(matrix);
+  return new DOMPoint(p.x / p.w, p.y / p.w);
 };
