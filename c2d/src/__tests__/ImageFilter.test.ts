@@ -6,8 +6,8 @@ describe("ImageFilter", () => {
       ({ canvas, width, height, c2d: { Path, Paint, BlurImageFilter } }) => {
         const path = new Path();
         path.moveTo(new DOMPoint(0, 0));
-        path.addLinear(new DOMPoint(width / 2, 0));
-        path.addLinear(new DOMPoint(width / 2, height / 2));
+        path.lineTo(new DOMPoint(width / 2, 0));
+        path.lineTo(new DOMPoint(width / 2, height / 2));
         path.close();
         const paint = new Paint();
         paint.setColor("cyan");

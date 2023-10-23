@@ -12,15 +12,15 @@ describe("Layer", () => {
       }) => {
         const clipPath = new Path();
         clipPath.moveTo(new DOMPoint(0, center.y));
-        clipPath.addLinear(new DOMPoint(width, center.y));
-        clipPath.addLinear(new DOMPoint(width, height));
-        clipPath.addLinear(new DOMPoint(0, height));
+        clipPath.lineTo(new DOMPoint(width, center.y));
+        clipPath.lineTo(new DOMPoint(width, height));
+        clipPath.lineTo(new DOMPoint(0, height));
         clipPath.close();
 
         const path = new Path();
         path.moveTo(new DOMPoint(0, 0));
-        path.addLinear(new DOMPoint(center.x, 0));
-        path.addLinear(new DOMPoint(center.x, center.y));
+        path.lineTo(new DOMPoint(center.x, 0));
+        path.lineTo(new DOMPoint(center.x, center.y));
         path.close();
 
         const paint = new Paint();
@@ -34,9 +34,9 @@ describe("Layer", () => {
         canvas.save(new BlurImageFilter(20, 20));
         const rect = new Path();
         rect.moveTo(new DOMPoint(0, center.y));
-        rect.addLinear(new DOMPoint(center.x, center.y));
-        rect.addLinear(new DOMPoint(center.x, height));
-        rect.addLinear(new DOMPoint(0, height));
+        rect.lineTo(new DOMPoint(center.x, center.y));
+        rect.lineTo(new DOMPoint(center.x, height));
+        rect.lineTo(new DOMPoint(0, height));
         rect.close();
         const p = new Paint();
         p.setColor("rgba(255, 0, 0, 1)");

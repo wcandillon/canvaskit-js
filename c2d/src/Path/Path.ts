@@ -36,13 +36,13 @@ export class Path {
     return this;
   }
 
-  addLinear(p: DOMPoint) {
+  lineTo(p: DOMPoint) {
     this.contour.components.push(new LinearPathComponent(this.current, p));
     this.current = p;
     return this;
   }
 
-  addQuadratic(controlPoint: DOMPoint, point: DOMPoint) {
+  quadraticCurveTo(controlPoint: DOMPoint, point: DOMPoint) {
     this.contour.components.push(
       new QuadraticPathComponent(this.current, controlPoint, point)
     );
@@ -50,7 +50,7 @@ export class Path {
     return this;
   }
 
-  addCubic(cp1: DOMPoint, cp2: DOMPoint, point: DOMPoint) {
+  bezierCurveTo(cp1: DOMPoint, cp2: DOMPoint, point: DOMPoint) {
     this.contour.components.push(
       new CubicPathComponent(this.current, cp1, cp2, point)
     );
@@ -90,7 +90,7 @@ export class Path {
 
   close() {
     if (this.subpathStart) {
-      this.addLinear(this.subpathStart);
+      this.lineTo(this.subpathStart);
       this.closeContour();
       this.addContour();
     }

@@ -6,8 +6,8 @@ describe("Perspective", () => {
       ({ canvas, width, height, c2d: { Path, Paint } }) => {
         const path = new Path();
         path.moveTo(new DOMPoint(0, 0));
-        path.addLinear(new DOMPoint(width / 2, 0));
-        path.addLinear(new DOMPoint(width / 2, height / 2));
+        path.lineTo(new DOMPoint(width / 2, 0));
+        path.lineTo(new DOMPoint(width / 2, height / 2));
         path.close();
         const paint = new Paint();
         paint.setColor("cyan");
@@ -24,8 +24,8 @@ describe("Perspective", () => {
       ({ canvas, width, height, c2d: { Path, Paint } }) => {
         const path = new Path();
         path.moveTo(new DOMPoint(0, 0));
-        path.addLinear(new DOMPoint(width / 2, 0));
-        path.addLinear(new DOMPoint(width / 2, height / 2));
+        path.lineTo(new DOMPoint(width / 2, 0));
+        path.lineTo(new DOMPoint(width / 2, height / 2));
         path.close();
         const paint = new Paint();
         paint.setColor("cyan");
@@ -47,9 +47,9 @@ describe("Perspective", () => {
         const size = 100;
         const pad = (width - size) / 2;
         path.moveTo(new DOMPoint(pad, pad));
-        path.addLinear(new DOMPoint(width - pad, pad));
-        path.addLinear(new DOMPoint(width - pad, height - pad));
-        path.addLinear(new DOMPoint(pad, height - pad));
+        path.lineTo(new DOMPoint(width - pad, pad));
+        path.lineTo(new DOMPoint(width - pad, height - pad));
+        path.lineTo(new DOMPoint(pad, height - pad));
         path.close();
         const paint = new Paint();
         paint.setColor("cyan");
@@ -74,9 +74,9 @@ describe("Perspective", () => {
         const size = 100;
         const pad = (width - size) / 2;
         path.moveTo(new DOMPoint(pad, pad));
-        path.addLinear(new DOMPoint(width - pad, pad));
-        path.addLinear(new DOMPoint(width - pad, height - pad));
-        path.addLinear(new DOMPoint(pad, height - pad));
+        path.lineTo(new DOMPoint(width - pad, pad));
+        path.lineTo(new DOMPoint(width - pad, height - pad));
+        path.lineTo(new DOMPoint(pad, height - pad));
         path.close();
         const paint = new Paint();
         paint.setColor("cyan");
