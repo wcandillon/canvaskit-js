@@ -14,7 +14,8 @@ export class Shader implements Texture {
   constructor(
     private readonly ctx: ShaderContext,
     uniforms: { [name: string]: number[] },
-    private readonly children: Texture[]
+    private readonly children: Texture[],
+    private readonly localMatrix?: DOMMatrix
   ) {
     const { gl, program } = ctx;
     const uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
@@ -76,6 +77,10 @@ export class Shader implements Texture {
   }
 
   render(width: number, height: number, ctm: DOMMatrix): OffscreenCanvas {
+    //const ctm = this.localMatrix ? this.localMatrix.multiply(m3) : m3;
+    if (this.localMatrix) {
+      console.log("localMatrix", this.localMatrix.toString());
+    }
     const { gl, program, textures } = this.ctx;
     gl.canvas.width = width;
     gl.canvas.height = height;

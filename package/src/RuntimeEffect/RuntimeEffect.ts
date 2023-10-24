@@ -2,7 +2,7 @@ import type { InputMatrix, MallocObj } from "canvaskit-wasm";
 
 import { HostObject } from "../HostObject";
 import { ShaderJS } from "../Shader";
-import { normalizeArray } from "../Core";
+import { nativeMatrix, normalizeArray } from "../Core";
 import { Shader, type ShaderContext } from "../c2d";
 
 export class RuntimeEffectJS extends HostObject<"RuntimeEffect"> {
@@ -44,10 +44,15 @@ export class RuntimeEffectJS extends HostObject<"RuntimeEffect"> {
       uniforms
     );
     const children = input ? input.map((c) => c.getShader()) : [];
-    if (localMatrix) {
-      console.warn("localMatrix not implemented yet");
-    }
-    return new ShaderJS(new Shader(this.ctx, mappedUniforms, children));
+
+    return new ShaderJS(
+      new Shader(
+        this.ctx,
+        mappedUniforms,
+        children,
+        localMatrix ? nativeMatrix(localMatrix) : undefined
+      )
+    );
   }
 
   getUniform(index: number) {
@@ -120,7 +125,7 @@ export class RuntimeEffectJS extends HostObject<"RuntimeEffect"> {
     if (!uniform) {
       throw new Error(`No uniform at index ${index}`);
     }
-    return uniform.name;
+    return uniform.name!;
   }
 }
 
