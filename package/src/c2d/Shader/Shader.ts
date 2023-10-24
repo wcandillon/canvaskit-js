@@ -4,25 +4,17 @@ export interface Shader {
   render(width: number, height: number, ctm: DOMMatrix): OffscreenCanvas;
 }
 
-const assertUniformSize = (uniforms: Uniforms, name: string, count: number) => {
-  if (uniforms[name].length !== count) {
-    throw new Error(
-      `Uniform ${name} should have ${count} elements, but has ${uniforms[name].length}`
-    );
-  }
-};
-
 interface Uniforms {
   [name: string]: number[];
 }
 
 export class Shader implements Shader {
   constructor(
-    private readonly glsl: ShaderContext,
+    private readonly ctx: ShaderContext,
     uniforms: { [name: string]: number[] },
     private readonly children: Shader[]
   ) {
-    const { gl, program } = glsl;
+    const { gl, program } = ctx;
     const uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
 
     for (let i = 0; i < uniformCount; i++) {
@@ -41,8 +33,9 @@ export class Shader implements Shader {
       }
     }
   }
+
   render(width: number, height: number, ctm: DOMMatrix): OffscreenCanvas {
-    const { gl, program, textures } = this.glsl;
+    const { gl, program, textures } = this.ctx;
     gl.canvas.width = width;
     gl.canvas.height = height;
     // Set the CTM
@@ -91,3 +84,11 @@ export class Shader implements Shader {
     return gl.canvas as OffscreenCanvas;
   }
 }
+
+const assertUniformSize = (uniforms: Uniforms, name: string, count: number) => {
+  if (uniforms[name].length !== count) {
+    throw new Error(
+      `Uniform ${name} should have ${count} elements, but has ${uniforms[name].length}`
+    );
+  }
+};

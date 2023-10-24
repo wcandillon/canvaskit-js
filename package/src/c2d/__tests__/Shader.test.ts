@@ -154,4 +154,24 @@ describe("Shaders", () => {
     );
     checkImage(image, "snapshots/c2d/shader5.png");
   });
+  // it("should draw a linear gradient", async () => {
+  //   // TODO: simplify shader API
+  //   const image = await remoteSurface.draw(
+  //     ({ canvas, width, height, c2d: { Path, Paint, LinearGradient } }) => {
+  //       const shader = new LinearGradient();
+  //       const path = new Path();
+  //       path.moveTo(new DOMPoint(0, 0));
+  //       path.lineTo(new DOMPoint(width, 0));
+  //       path.lineTo(new DOMPoint(width, height));
+  //       path.lineTo(new DOMPoint(0, height));
+  //       path.close();
+  //       const paint = new Paint();
+  //       paint.setShader(shader);
+  //       canvas.save();
+  //       canvas.drawPath(path, paint);
+  //       canvas.restore();
+  //     }
+  //   );
+  //   checkImage(image, "snapshots/c2d/linear-gradient.png");
+  // });
 });

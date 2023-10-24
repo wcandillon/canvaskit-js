@@ -147,7 +147,7 @@ export class PaintJS extends HostObject<"Paint"> implements Paint {
   }
 }
 
-const lineCap = (cap: Cap) => {
+const lineCap = (cap: CanvasLineCap) => {
   switch (cap) {
     case "butt":
       return StrokeCap.Butt;
@@ -198,9 +198,6 @@ const nativeLineJoin = (join: EmbindEnumEntity) => {
       throw new Error(`Unknown line cap: ${join.value}`);
   }
 };
-
-type Miter = "miter" | "round" | "bevel";
-type Cap = "butt" | "round" | "square";
 
 // const resetCanvasContext = (ctx: CanvasRenderingContext2D) => {
 //   ctx.globalAlpha = 1;
