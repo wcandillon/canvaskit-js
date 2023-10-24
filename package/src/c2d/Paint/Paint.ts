@@ -10,18 +10,74 @@ export class Paint {
   private alpha?: number;
   private blendMode?: GlobalCompositeOperation;
 
-  private lineWidth?: number;
-  private lineCap?: CanvasLineCap;
-  private lineJoin?: CanvasLineJoin;
-  private miterLimit?: number;
+  private lineWidth = 1;
+  private lineCap: CanvasLineCap = "butt";
+  private lineJoin: CanvasLineJoin = "miter";
+  private miterLimit = 10;
 
   private shader?: Shader;
   private imageFilter?: ImageFilter;
 
   constructor() {}
 
+  copy() {
+    const paint = new Paint();
+    paint.stroke = this.stroke;
+    paint.color = this.color;
+    paint.alpha = this.alpha;
+    paint.blendMode = this.blendMode;
+    paint.lineWidth = this.lineWidth;
+    paint.lineCap = this.lineCap;
+    paint.lineJoin = this.lineJoin;
+    paint.miterLimit = this.miterLimit;
+    paint.shader = this.shader;
+    paint.imageFilter = this.imageFilter;
+    return paint;
+  }
+
+  setStrokeStyle(stroke: boolean) {
+    this.stroke = stroke;
+    return this;
+  }
+
   setColor(color: string) {
     this.color = color;
+    return this;
+  }
+
+  setStrokeWidth(strokeWidth: number) {
+    this.lineWidth = strokeWidth;
+    return this;
+  }
+
+  getStrokeWidth() {
+    return this.lineWidth;
+  }
+
+  setStrokeMiter(strokeMiter: number) {
+    this.miterLimit = strokeMiter;
+    return this;
+  }
+
+  getStrokeMiter() {
+    return this.miterLimit;
+  }
+
+  getStrokeCap() {
+    return this.lineCap;
+  }
+
+  getStrokeJoin() {
+    return this.lineJoin;
+  }
+
+  setStrokeCap(strokeCap: CanvasLineCap) {
+    this.lineCap = strokeCap;
+    return this;
+  }
+
+  setStrokeJoin(strokeJoin: CanvasLineJoin) {
+    this.lineJoin = strokeJoin;
     return this;
   }
 

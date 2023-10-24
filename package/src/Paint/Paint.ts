@@ -8,7 +8,7 @@ import type {
 
 import { Paint as NativePaint } from "../c2d";
 import type { InputColor } from "../Core";
-import { StrokeJoin, StrokeCap, PaintStyle } from "../Core";
+import { StrokeJoin, StrokeCap, PaintStyle, nativeColor } from "../Core";
 import type { ShaderJS } from "../Shader";
 import type { ImageFilterJS } from "../ImageFilter";
 import { HostObject } from "../HostObject";
@@ -18,16 +18,11 @@ import type { ColorFilterJS } from "../ColorFilter/ColorFilter";
 import { nativeBlendMode } from "./BlendMode";
 
 export class PaintJS extends HostObject<"Paint"> implements Paint {
-  private style = PaintStyle.Fill;
   private color = Float32Array.of(0, 0, 0, 1);
-  private strokeWidth: number | null = null;
-  private strokeMiter: number | null = null;
   private shader: ShaderJS | null = null;
   private colorFilter: ColorFilterJS | null = null;
   private imageFilter: ImageFilterJS | null = null;
   private maskFilter: MaskFilterJS | null = null;
-  private strokeJoin: Miter | null = null;
-  private strokeCap: Cap | null = null;
   private blendMode: GlobalCompositeOperation | null = null;
 
   private paint = new NativePaint();
@@ -41,28 +36,13 @@ export class PaintJS extends HostObject<"Paint"> implements Paint {
   }
 
   copy(): Paint {
-    const {
-      style,
-      color,
-      strokeWidth,
-      strokeMiter,
-      strokeJoin,
-      strokeCap,
-      blendMode,
-      shader,
-      imageFilter,
-      colorFilter,
-      maskFilter,
-    } = this;
+    const { color, blendMode, shader, imageFilter, colorFilter, maskFilter } =
+      this;
     const paint = new PaintJS();
-    paint.setStyle(style);
+    paint.paint = this.paint.copy();
     if (color !== null) {
       paint.color = color;
     }
-    paint.strokeWidth = strokeWidth;
-    paint.strokeMiter = strokeMiter;
-    paint.strokeJoin = strokeJoin;
-    paint.strokeCap = strokeCap;
     paint.blendMode = blendMode;
     if (shader) {
       paint.setShader(shader);
@@ -81,20 +61,21 @@ export class PaintJS extends HostObject<"Paint"> implements Paint {
   getColor() {
     return this.color;
   }
-  getStrokeCap(): EmbindEnumEntity {
-    return lineCap(this.strokeCap ?? "butt");
+  getStrokeCap() {
+    return lineCap(this.paint.getStrokeCap());
   }
-  getStrokeJoin(): EmbindEnumEntity {
-    return lineJoin(this.strokeJoin ?? "miter");
+  getStrokeJoin() {
+    return lineJoin(this.paint.getStrokeJoin());
   }
   getStrokeMiter() {
-    return this.strokeMiter ?? 10;
+    return this.paint.getStrokeMiter();
   }
   getStrokeWidth() {
-    return this.strokeWidth ?? 1;
+    return this.paint.getStrokeWidth();
   }
   setAlphaf(alpha: number) {
     this.color[3] = alpha;
+    this.paint.setColor(nativeColor(this.color));
   }
   setAntiAlias(_aa: boolean): void {}
   setBlendMode(mode: EmbindEnumEntity): void {
@@ -106,6 +87,7 @@ export class PaintJS extends HostObject<"Paint"> implements Paint {
     } else {
       this.color = Float32Array.from(color);
     }
+    this.paint.setColor(nativeColor(this.color));
   }
   setColorComponents(
     r: number,
@@ -149,19 +131,19 @@ export class PaintJS extends HostObject<"Paint"> implements Paint {
     this.shader = shader;
   }
   setStrokeCap(cap: EmbindEnumEntity): void {
-    this.strokeCap = nativeLineCap(cap);
+    this.paint.setStrokeCap(nativeLineCap(cap));
   }
   setStrokeJoin(join: EmbindEnumEntity): void {
-    this.strokeJoin = nativeLineJoin(join);
+    this.paint.setStrokeJoin(nativeLineJoin(join));
   }
   setStrokeMiter(limit: number): void {
-    this.strokeMiter = limit;
+    this.paint.setStrokeMiter(limit);
   }
   setStrokeWidth(width: number): void {
-    this.strokeWidth = width;
+    this.paint.setStrokeWidth(width);
   }
   setStyle(style: EmbindEnumEntity): void {
-    this.style = style;
+    this.paint.setStrokeStyle(style === PaintStyle.Stroke);
   }
 }
 
