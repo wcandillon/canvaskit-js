@@ -70,6 +70,7 @@ export class PaintJS extends HostObject<"Paint"> implements Paint {
   }
   setAlphaf(alpha: number) {
     this.color[3] = alpha;
+    this.paint.setAlpha(alpha);
     this.paint.setColor(nativeColor(this.color));
   }
   setAntiAlias(_aa: boolean): void {}

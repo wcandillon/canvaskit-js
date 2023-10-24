@@ -45,6 +45,11 @@ export class Paint {
     return this;
   }
 
+  setAlpha(alpha: number) {
+    this.alpha = alpha;
+    return this;
+  }
+
   setStrokeWidth(strokeWidth: number) {
     this.lineWidth = strokeWidth;
     return this;
@@ -120,9 +125,6 @@ export class Paint {
     if (this.miterLimit) {
       ctx.miterLimit = this.miterLimit;
     }
-    if (this.alpha) {
-      ctx.globalAlpha = this.alpha;
-    }
     if (this.blendMode) {
       ctx.globalCompositeOperation = this.blendMode;
     }
@@ -137,6 +139,9 @@ export class Paint {
     if (this.shader) {
       const img = this.shader.render(ctx.canvas.width, ctx.canvas.height, ctm);
       const pattern = ctx.createPattern(img, "no-repeat")!;
+      if (this.alpha) {
+        ctx.globalAlpha = this.alpha;
+      }
       if (this.stroke) {
         ctx.strokeStyle = pattern;
       } else {
