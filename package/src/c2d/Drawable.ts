@@ -54,11 +54,15 @@ export class DrawableFill implements Drawable {
 }
 
 export class DrawableImage implements Drawable {
-  constructor(private readonly image: CanvasImageSource) {}
+  constructor(
+    private readonly image: CanvasImageSource,
+    private readonly x: number = 0,
+    private readonly y: number = 0
+  ) {}
 
   // TOOD: implement ctm
   draw(ctx: RenderingContext, _ctm: DOMMatrix) {
-    ctx.drawImage(this.image, 0, 0);
+    ctx.drawImage(this.image, this.x, this.y);
   }
 }
 
