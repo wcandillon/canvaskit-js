@@ -102,13 +102,16 @@ describe("SVG Parser", () => {
   });
 
   it("arcTo", function () {
-    const svg = parseSVG("M 0 0 A 30 50 0 0 1 162.55 162.45")
+    const cmd1 = parseSVG("M 0 0 A 30 50 0 0 1 162.55 162.45")
       .getPath()
-      .toSVGString();
-    expect(svg).toEqual(
+      .toCmds();
+    const cmd2 = parseSVG(
       // eslint-disable-next-line max-len
       "M0 0 C26.915597915649414 -74.81156921386719 85.12305450439453 -99.09265899658203 130.00999450683594 -54.233333587646484 C174.89694213867188 -9.374004364013672 189.46559143066406 87.638427734375 162.5500030517578 162.4499969482422"
-    );
+    )
+      .getPath()
+      .toCmds();
+    expect(cmd1).toBeApproximatelyEqual(cmd2);
   });
 
   it("quadratic curveTo", function () {

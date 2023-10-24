@@ -172,6 +172,7 @@ describe("CanvasKit's Matrix Helpers", () => {
         RealCanvasKit.Matrix.translated(20, 10)
       );
       expect(expected).toBeApproximatelyEqual(totalMatrix);
+
       expect(localMatrix).toBeApproximatelyEqual([
         0.707106, -0.707106, 0, 7.071067, 0.707106, 0.707106, 0, 21.213203, 0,
         0, 1, 0, 0, 0, 0, 1,
