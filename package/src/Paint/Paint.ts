@@ -19,8 +19,6 @@ import { nativeBlendMode } from "./BlendMode";
 
 export class PaintJS extends HostObject<"Paint"> implements Paint {
   private color = Float32Array.of(0, 0, 0, 1);
-  private colorFilter: ColorFilterJS | null = null;
-  private maskFilter: MaskFilterJS | null = null;
 
   private paint = new NativePaint();
 
@@ -33,17 +31,11 @@ export class PaintJS extends HostObject<"Paint"> implements Paint {
   }
 
   copy(): Paint {
-    const { color, colorFilter, maskFilter } = this;
+    const { color } = this;
     const paint = new PaintJS();
     paint.paint = this.paint.copy();
     if (color !== null) {
       paint.color = color;
-    }
-    if (colorFilter) {
-      paint.colorFilter = colorFilter;
-    }
-    if (maskFilter) {
-      paint.maskFilter = maskFilter;
     }
     return paint;
   }
@@ -89,7 +81,10 @@ export class PaintJS extends HostObject<"Paint"> implements Paint {
     this.color = new Float32Array([r, g, b, a]);
   }
   setColorFilter(filter: ColorFilterJS | null): void {
-    this.colorFilter = filter;
+    if (!filter) {
+      throw new Error("Filter cannot be null");
+    }
+    this.paint.addImageFilter(...filter.filters);
   }
   setColorInt(colorInt: number, _colorSpace?: ColorSpace | undefined) {
     // Extract the color components
@@ -112,10 +107,13 @@ export class PaintJS extends HostObject<"Paint"> implements Paint {
     if (!filter) {
       throw new Error("Filter cannot be null");
     }
-    this.paint.setImageFilter(filter.getFilter());
+    this.paint.addImageFilter(...filter.filters);
   }
   setMaskFilter(filter: MaskFilterJS | null): void {
-    this.maskFilter = filter;
+    if (!filter) {
+      throw new Error("Filter cannot be null");
+    }
+    this.paint.addImageFilter(...filter.filters);
   }
   setPathEffect(_effect: PathEffect | null): void {
     throw new Error("Method not implemented.");

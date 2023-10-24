@@ -137,7 +137,7 @@ if (window) {
     canvas.width = ${width};
     canvas.height = ${height};
     document.body.appendChild(canvas);
-    const surface = ${DEBUG} ? CanvasKit.MakeCanvasRecordingSurface(canvas) : CanvasKit.MakeCanvasSurface(canvas);
+    const surface = CanvasKit.MakeCanvasSurface(canvas);
     const width = ${width};
     const height = ${height};
     const center = { x: width/2, y: height/2 };

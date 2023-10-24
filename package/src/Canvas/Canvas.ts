@@ -30,6 +30,7 @@ import {
   DrawableFill,
   DrawableText,
   DrawableDRRect,
+  DrawableImageRect,
 } from "../c2d";
 import type { PaintJS } from "../Paint";
 import { nativeBlendMode } from "../Paint";
@@ -246,13 +247,28 @@ export class CanvasJS extends HostObject<"Canvas"> implements CKCanvas {
     throw new Error("Method not implemented.");
   }
   drawImageRect(
-    _img: ImageJS,
+    img: ImageJS,
     _src: InputRect,
     _dest: InputRect,
-    _paint: PaintJS,
+    paint: PaintJS,
     _fastSample?: boolean
   ): void {
-    throw new Error("Method not implemented.");
+    const src = rectToXYWH(_src);
+    const dest = rectToXYWH(_dest);
+    this.ctx.draw(
+      new DrawableImageRect(
+        img.getImage(),
+        src.x,
+        src.y,
+        src.width,
+        src.height,
+        dest.x,
+        dest.y,
+        dest.width,
+        dest.height
+      ),
+      paint.getPaint()
+    );
   }
   drawImageRectCubic(
     _img: Image,

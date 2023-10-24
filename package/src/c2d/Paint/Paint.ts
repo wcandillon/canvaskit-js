@@ -1,8 +1,8 @@
 import type { RenderingContext } from "../Constants";
-import type { ImageFilter } from "../ImageFilter";
+import { ImageFilter } from "../ImageFilter";
 import type { Shader } from "../Shader";
 import type { Drawable } from "../Drawable";
-import type { SVGContext } from "../SVG";
+import type { SVGContext, SVGFilter } from "../SVG";
 
 export class Paint {
   private stroke?: boolean;
@@ -93,6 +93,16 @@ export class Paint {
 
   setImageFilter(imageFilter: ImageFilter) {
     this.imageFilter = imageFilter;
+    return this;
+  }
+
+  addImageFilter(...imageFilters: SVGFilter[]) {
+    if (!this.imageFilter) {
+      this.imageFilter = new ImageFilter();
+    }
+    for (const imageFilter of imageFilters) {
+      this.imageFilter.addFilter(imageFilter);
+    }
     return this;
   }
 

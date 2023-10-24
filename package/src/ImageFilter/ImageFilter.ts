@@ -1,6 +1,5 @@
 import type { ImageFilter } from "canvaskit-wasm";
 
-import { ImageFilter as NativeImageFilter } from "../c2d";
 import type { SVGFilter } from "../c2d";
 import { IndexedHostObject } from "../HostObject";
 
@@ -15,10 +14,6 @@ export abstract class NativeFilter<
 
   get filters() {
     return this._filters;
-  }
-
-  getFilter() {
-    return new NativeImageFilter(this._filters);
   }
 }
 

@@ -62,6 +62,35 @@ export class DrawableImage implements Drawable {
   }
 }
 
+export class DrawableImageRect implements Drawable {
+  constructor(
+    private readonly image: CanvasImageSource,
+    private x1: number,
+    private y1: number,
+    private width1: number,
+    private height1: number,
+    private x2: number,
+    private y2: number,
+    private width2: number,
+    private height2: number
+  ) {}
+
+  // TOOD: implement ctm
+  draw(ctx: RenderingContext, _ctm: DOMMatrix) {
+    ctx.drawImage(
+      this.image,
+      this.x1,
+      this.y1,
+      this.width1,
+      this.height1,
+      this.x2,
+      this.y2,
+      this.width2,
+      this.height2
+    );
+  }
+}
+
 // export class DrawableGlyphs implements Drawable {
 //   constructor(
 //     private readonly glyphs: number[],

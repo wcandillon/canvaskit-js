@@ -7,6 +7,10 @@ export class ImageFilter extends IndexedHostObject {
     super("image-filter");
   }
 
+  addFilter(filter: SVGFilter) {
+    this._filters.push(filter);
+  }
+
   get filters() {
     return this._filters;
   }
