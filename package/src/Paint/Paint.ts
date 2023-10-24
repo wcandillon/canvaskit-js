@@ -20,7 +20,6 @@ import { nativeBlendMode } from "./BlendMode";
 export class PaintJS extends HostObject<"Paint"> implements Paint {
   private color = Float32Array.of(0, 0, 0, 1);
   private colorFilter: ColorFilterJS | null = null;
-  private imageFilter: ImageFilterJS | null = null;
   private maskFilter: MaskFilterJS | null = null;
 
   private paint = new NativePaint();
@@ -34,14 +33,11 @@ export class PaintJS extends HostObject<"Paint"> implements Paint {
   }
 
   copy(): Paint {
-    const { color, imageFilter, colorFilter, maskFilter } = this;
+    const { color, colorFilter, maskFilter } = this;
     const paint = new PaintJS();
     paint.paint = this.paint.copy();
     if (color !== null) {
       paint.color = color;
-    }
-    if (imageFilter) {
-      paint.imageFilter = imageFilter;
     }
     if (colorFilter) {
       paint.colorFilter = colorFilter;
@@ -113,7 +109,10 @@ export class PaintJS extends HostObject<"Paint"> implements Paint {
     throw new Error("Method not implemented.");
   }
   setImageFilter(filter: ImageFilterJS | null): void {
-    this.imageFilter = filter;
+    if (!filter) {
+      throw new Error("Filter cannot be null");
+    }
+    this.paint.setImageFilter(filter.getFilter());
   }
   setMaskFilter(filter: MaskFilterJS | null): void {
     this.maskFilter = filter;

@@ -2,10 +2,8 @@ import { IndexedHostObject } from "../Constants";
 import type { SVGFilter } from "../SVG";
 import { makeBlur } from "../SVG";
 
-export abstract class ImageFilter extends IndexedHostObject {
-  protected _filters: SVGFilter[] = [];
-
-  constructor() {
+export class ImageFilter extends IndexedHostObject {
+  constructor(protected _filters: SVGFilter[] = []) {
     super("image-filter");
   }
 
