@@ -1,6 +1,7 @@
 import type { CanvasKit, CanvasKitInitOptions } from "canvaskit-wasm";
 
 import { CanvasKitJS } from "./CanvasKit";
+import { LinearGradient } from "./c2d/Shader";
 import {
   Path,
   Paint,
@@ -8,6 +9,7 @@ import {
   BlurImageFilter,
   Shader,
   ShaderContext,
+  TextureShaderContext,
 } from "./c2d";
 
 export * from "./CanvasKit";
@@ -32,6 +34,8 @@ if (window) {
     BlurImageFilter,
     Shader,
     ShaderContext,
+    TextureShaderContext,
+    LinearGradient,
   };
 }
 

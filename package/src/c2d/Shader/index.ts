@@ -1,3 +1,4 @@
 export * from "./Shader";
 export * from "./ShaderContext";
-//export * from "./LinearGradient";
+export * from "./TextureShaderContext";
+export * from "./Gradients";

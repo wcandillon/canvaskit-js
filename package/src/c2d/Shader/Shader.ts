@@ -1,6 +1,6 @@
 import type { ShaderContext } from "./ShaderContext";
 
-export interface Shader {
+export interface Texture {
   render(width: number, height: number, ctm: DOMMatrix): OffscreenCanvas;
 }
 
@@ -8,11 +8,11 @@ interface Uniforms {
   [name: string]: number[];
 }
 
-export class Shader implements Shader {
+export class Shader implements Texture {
   constructor(
     private readonly ctx: ShaderContext,
     uniforms: { [name: string]: number[] },
-    private readonly children: Shader[]
+    private readonly children: Texture[]
   ) {
     const { gl, program } = ctx;
     const uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
@@ -65,8 +65,11 @@ export class Shader implements Shader {
         throw new Error("Could not get uniform location");
       }
       if (uniformInfo.type === gl.SAMPLER_2D) {
+        if (!this.children[texIndex]) {
+          throw new Error(`No texture for uniform ${name}`);
+        }
         gl.activeTexture(gl.TEXTURE0 + texIndex);
-        gl.bindTexture(gl.TEXTURE_2D, textures[texIndex]);
+        gl.bindTexture(gl.TEXTURE_2D, textures[name].texture);
         gl.uniform1i(location, texIndex);
         gl.texImage2D(
           gl.TEXTURE_2D,

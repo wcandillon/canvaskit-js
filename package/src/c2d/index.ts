@@ -2,7 +2,12 @@ import type { Paint } from "./Paint";
 import type { Path } from "./Path";
 import type { Canvas } from "./Canvas";
 import type { BlurImageFilter } from "./ImageFilter";
-import type { ShaderContext, Shader } from "./Shader";
+import type {
+  ShaderContext,
+  Shader,
+  TextureShaderContext,
+  LinearGradient,
+} from "./Shader";
 
 export * from "./Canvas";
 export * from "./ImageFilter";
@@ -23,6 +28,8 @@ declare global {
       BlurImageFilter: typeof BlurImageFilter;
       Shader: typeof Shader;
       ShaderContext: typeof ShaderContext;
+      TextureShaderContext: typeof TextureShaderContext;
+      LinearGradient: typeof LinearGradient;
     };
   }
 }
