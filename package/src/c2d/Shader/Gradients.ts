@@ -146,7 +146,7 @@ export class SweepGradient extends Shader {
 
 export class CustomShader extends Shader {
   constructor(
-    draw: (ctx: OffscreenCanvasRenderingContext2D) => void,
+    draw: (ctx: OffscreenCanvasRenderingContext2D, ctm: DOMMatrix) => void,
     localMatrix?: DOMMatrix
   ) {
     const shaderCtx = new TextureShaderContext();

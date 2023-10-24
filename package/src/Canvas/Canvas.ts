@@ -28,11 +28,19 @@ import {
   Path as NativePath,
   Paint as NativePaint,
   DrawableFill,
+  DrawableText,
+  DrawableDRRect,
 } from "../c2d";
 import type { PaintJS } from "../Paint";
 import { nativeBlendMode } from "../Paint";
 import type { ColorSpaceJS, InputColor } from "../Core";
-import { nativeColor, intAsColor, rectToXYWH, rrectToXYWH } from "../Core";
+import {
+  nativeColor,
+  intAsColor,
+  rectToXYWH,
+  rrectToXYWH,
+  rrectToPath2D,
+} from "../Core";
 import { HostObject } from "../HostObject";
 import { nativeMatrix } from "../Core/Matrix";
 import { PathJS } from "../Path";
@@ -176,12 +184,11 @@ export class CanvasJS extends HostObject<"Canvas"> implements CKCanvas {
   drawColorInt(color: number, blendMode?: EmbindEnumEntity | undefined): void {
     this.drawColor(intAsColor(color), blendMode);
   }
-  drawDRRect(
-    _outerInput: InputRRect,
-    _innerInput: InputRRect,
-    _paint: PaintJS
-  ) {
-    throw new Error("Method not implemented.");
+  drawDRRect(outerInput: InputRRect, innerInput: InputRRect, paint: PaintJS) {
+    this.ctx.draw(
+      new DrawableDRRect(rrectToPath2D(outerInput), rrectToPath2D(innerInput)),
+      paint.getPaint()
+    );
   }
   drawGlyphs(
     _glyphs: InputGlyphIDArray,
@@ -360,13 +367,16 @@ export class CanvasJS extends HostObject<"Canvas"> implements CKCanvas {
     throw new Error("Method not implemented.");
   }
   drawText(
-    _str: string,
-    _x: number,
-    _y: number,
-    _paint: PaintJS,
-    _font: FontJS
+    str: string,
+    x: number,
+    y: number,
+    paint: PaintJS,
+    font: FontJS
   ): void {
-    throw new Error("Method not implemented.");
+    this.ctx.draw(
+      new DrawableText(str, x, y, font.fontStyle()),
+      paint.getPaint()
+    );
   }
   drawTextBlob(_blob: TextBlob, _x: number, _y: number, _paint: PaintJS): void {
     throw new Error("Method not implemented.");

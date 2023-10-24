@@ -102,7 +102,6 @@ export class Paint {
     ctm: DOMMatrix,
     drawable: Drawable
   ) {
-    const projected = true;
     if (this.color && !this.stroke) {
       ctx.fillStyle = this.color;
     }
@@ -110,8 +109,7 @@ export class Paint {
       ctx.strokeStyle = this.color;
     }
     if (this.lineWidth) {
-      ctx.lineWidth =
-        this.lineWidth * (projected ? Math.sqrt(ctm.m11 * ctm.m22) : 1);
+      ctx.lineWidth = this.lineWidth * Math.sqrt(ctm.m11 * ctm.m22);
     }
     if (this.lineCap) {
       ctx.lineCap = this.lineCap;
@@ -139,9 +137,6 @@ export class Paint {
     if (this.shader) {
       const img = this.shader.render(ctx.canvas.width, ctx.canvas.height, ctm);
       const pattern = ctx.createPattern(img, "no-repeat")!;
-      if (!projected) {
-        pattern.setTransform(ctm.inverse());
-      }
       if (this.stroke) {
         ctx.strokeStyle = pattern;
       } else {

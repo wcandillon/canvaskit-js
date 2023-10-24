@@ -5,7 +5,8 @@ describe("Paint", () => {
     const image = await skia.draw(
       ({ canvas }) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const ctx = (canvas as any).ctx as CanvasRenderingContext2D;
+        const ctx = (canvas as any).ctx.ctx
+          .renderingCtx as CanvasRenderingContext2D;
         ctx.save();
         ctx.scale(2, 2);
         ctx.translate(100, 100);
