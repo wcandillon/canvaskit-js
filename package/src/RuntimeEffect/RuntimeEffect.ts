@@ -47,7 +47,6 @@ export class RuntimeEffectJS
       this.ctx.program,
       uniforms
     );
-    console.log("namedUniforms: " + JSON.stringify(mappedUniforms, null, 2));
     if (localMatrix) {
       // TODO: to implement
       //console.warn("localMatrix not implemented yet");
@@ -173,30 +172,38 @@ const getUniformNames = (gl: WebGLRenderingContext, program: WebGLProgram) => {
 };
 
 const createUniformMap = (
-  gl: WebGLRenderingContext,
+  gl: WebGL2RenderingContext,
   program: WebGLProgram,
   values: number[]
 ) => {
   const uniformMap: Record<string, number[]> = {};
   let index = 0;
+  let uniformIndex = 0;
   const uniformNames = getUniformNames(gl, program);
   uniformNames.forEach((name) => {
+    if (name === "u_matrix" || name === "u_resolution") {
+      uniformIndex++;
+      return;
+    }
     const uniformLocation = gl.getUniformLocation(program, name);
     if (!uniformLocation) {
       console.error(`Uniform ${name} not found in shader program.`);
       return;
     }
 
-    const uniformInfo = gl.getActiveUniform(
+    const uniformInfo = gl.getActiveUniform(program, uniformIndex);
+    const [arrSize] = gl.getActiveUniforms(
       program,
-      uniformLocation as unknown as number
+      [uniformIndex],
+      gl.UNIFORM_SIZE
     );
+
     if (!uniformInfo) {
       console.error(`Unable to get information for uniform ${name}.`);
       return;
     }
 
-    const size = getUniformSize(gl, uniformInfo.type);
+    const size = getUniformSize(gl, uniformInfo.type) * arrSize;
     if (size === 0) {
       console.error(`Unsupported uniform type for ${name}.`);
       return;
@@ -204,6 +211,7 @@ const createUniformMap = (
 
     uniformMap[name] = values.slice(index, index + size);
     index += size;
+    uniformIndex++;
   });
 
   return uniformMap;
