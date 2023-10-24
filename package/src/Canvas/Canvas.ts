@@ -32,6 +32,7 @@ import {
   DrawableDRRect,
   DrawableImageRect,
   DrawableImage,
+  ImageFilter,
 } from "../c2d";
 import { PaintJS, nativeBlendMode } from "../Paint";
 import type { ColorSpaceJS, InputColor } from "../Core";
@@ -464,11 +465,12 @@ export class CanvasJS extends HostObject<"Canvas"> implements CKCanvas {
   saveLayer(
     _paint?: PaintJS,
     _bounds?: InputRect | null,
-    _imageFilter?: ImageFilterJS | null,
+    imageFilter?: ImageFilterJS | null,
     _flags?: number
   ) {
-    // TODO: imageFilter.getImageFilter()
-    this.ctx.save();
+    this.ctx.save(
+      imageFilter ? new ImageFilter(imageFilter.filters) : undefined
+    );
     return ++this.saveCount;
   }
   scale(sx: number, sy: number): void {
