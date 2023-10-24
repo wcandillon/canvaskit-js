@@ -22,22 +22,21 @@ import type {
   Vertices,
   Canvas as CKCanvas,
 } from "canvaskit-wasm";
+
 import {
   Canvas as NativeCanvas,
   Path as NativePath,
   Paint as NativePaint,
-} from "c2d";
-
+} from "../c2d";
 import type { PaintJS } from "../Paint";
 import { nativeBlendMode } from "../Paint";
-import type { ColorSpaceJS, GrDirectContextJS, InputColor } from "../Core";
+import type { ColorSpaceJS, InputColor } from "../Core";
 import { nativeColor, intAsColor, rectToXYWH, rrectToXYWH } from "../Core";
 import { HostObject } from "../HostObject";
 import { nativeMatrix } from "../Core/Matrix";
 import { PathJS } from "../Path";
 import type { ImageJS } from "../Image";
 import type { ImageFilterJS } from "../ImageFilter";
-import type { SVGContext } from "../SVG";
 import type { FontJS } from "../Text";
 import type { PictureJS } from "../Picture";
 
@@ -47,11 +46,7 @@ export class CanvasJS extends HostObject<"Canvas"> implements CKCanvas {
   private height: number;
   private saveCount = 0;
 
-  constructor(
-    ctx: CanvasRenderingContext2D,
-    public readonly svgCtx: SVGContext,
-    public readonly grCtx: GrDirectContextJS
-  ) {
+  constructor(ctx: CanvasRenderingContext2D) {
     super("Canvas");
     this.width = ctx.canvas.width;
     this.height = ctx.canvas.height;

@@ -42,7 +42,5 @@
   "publishConfig": {
     "access": "restricted"
   },
-  "dependencies": {
-    "c2d": "../c2d"
-  }
+  "dependencies": {}
 }

@@ -5,8 +5,8 @@ import type {
   Paint,
   PathEffect,
 } from "canvaskit-wasm";
-import { Paint as NativePaint } from "c2d";
 
+import { Paint as NativePaint } from "../c2d";
 import type { InputColor } from "../Core";
 import { StrokeJoin, StrokeCap, PaintStyle } from "../Core";
 import type { ShaderJS } from "../Shader";

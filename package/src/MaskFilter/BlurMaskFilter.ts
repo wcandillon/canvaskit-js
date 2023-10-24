@@ -1,5 +1,5 @@
+import { SourceGraphic, makeBlur, makeComposite, makeMerge } from "../c2d";
 import { BlurStyleEnum } from "../Core";
-import { SourceGraphic, makeBlur, makeComposite, makeMerge } from "../SVG";
 
 import { MaskFilterJS } from "./MaskFilter";
 

@@ -1,8 +1,8 @@
-import { Paint } from "./Paint";
-import { Path } from "./Path";
-import { Canvas } from "./Canvas";
-import { BlurImageFilter } from "./ImageFilter";
-import { ShaderContext, Shader } from "./Shader";
+import type { Paint } from "./Paint";
+import type { Path } from "./Path";
+import type { Canvas } from "./Canvas";
+import type { BlurImageFilter } from "./ImageFilter";
+import type { ShaderContext, Shader } from "./Shader";
 
 export * from "./Canvas";
 export * from "./ImageFilter";
@@ -25,15 +25,4 @@ declare global {
       ShaderContext: typeof ShaderContext;
     };
   }
-}
-
-if (window) {
-  window.C2D = {
-    Path,
-    Paint,
-    Canvas,
-    BlurImageFilter,
-    Shader,
-    ShaderContext,
-  };
 }

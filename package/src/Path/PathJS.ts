@@ -9,8 +9,8 @@ import type {
   InputRect,
   StrokeOpts,
 } from "canvaskit-wasm";
-import { vec, type Path as NativePath, toRad } from "c2d";
 
+import { vec, type Path as NativePath, toRad } from "../c2d";
 import { HostObject } from "../HostObject";
 import { transformPoint, type Matrix3x3 } from "../Core/Matrix";
 import {

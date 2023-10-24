@@ -1,4 +1,4 @@
-import { Path, saturate } from "c2d";
+import { Path, saturate } from "../../c2d";
 
 import type { PathEffect } from "./PathEffect";
 

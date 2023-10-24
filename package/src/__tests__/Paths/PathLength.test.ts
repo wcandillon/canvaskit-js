@@ -1,6 +1,6 @@
 import type { ContourMeasure, Path } from "canvaskit-wasm";
-import { vec } from "c2d";
 
+import { vec } from "../../c2d";
 import { PathBuilder } from "../../Path/PathBuilder";
 
 import "../setup";

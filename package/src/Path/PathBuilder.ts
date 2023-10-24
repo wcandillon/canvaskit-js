@@ -7,8 +7,7 @@ import {
   plus,
   Path as NativePath,
   vec,
-} from "c2d";
-
+} from "../c2d";
 import type { Radii, XYWH } from "../Core";
 
 import { ConvertConicToQuads } from "./Conic";

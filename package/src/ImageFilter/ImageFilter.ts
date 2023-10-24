@@ -1,7 +1,7 @@
 import type { ImageFilter } from "canvaskit-wasm";
 
+import type { SVGFilter } from "../c2d";
 import { IndexedHostObject } from "../HostObject";
-import type { SVGFilter } from "../SVG";
 
 export abstract class NativeFilter<
   T extends string

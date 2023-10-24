@@ -1,5 +1,6 @@
 import type { InputIRect, InputRRect, InputRect } from "canvaskit-wasm";
-import { vec } from "c2d";
+
+import { vec } from "../c2d";
 
 import { normalizeArray } from "./Values";
 

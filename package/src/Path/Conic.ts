@@ -1,4 +1,4 @@
-import { QuadraticPathComponent } from "c2d";
+import { QuadraticPathComponent } from "../c2d";
 
 type ConicCurve = {
   p0: DOMPoint;

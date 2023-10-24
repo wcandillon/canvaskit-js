@@ -1,11 +1,11 @@
-import type { PathComponent, TightBounds } from "../c2d";
+import type { PathComponent } from "./PathComponents";
 import {
   CubicPathComponent,
   LinearPathComponent,
   QuadraticPathComponent,
-  computeTightBounds,
-} from "../c2d";
-import { PathVerb } from "../Core";
+} from "./PathComponents";
+import { computeTightBounds, type TightBounds } from "./PathComponents/Bounds";
+import { PathVerb } from "./PathComponents/PathVerb";
 
 export type Applier<T> = (comp: T, index: number) => void;
 

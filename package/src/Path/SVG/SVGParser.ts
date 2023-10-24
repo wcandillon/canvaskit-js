@@ -1,5 +1,9 @@
-import { CubicPathComponent, QuadraticPathComponent, vec, plus } from "c2d";
-
+import {
+  CubicPathComponent,
+  QuadraticPathComponent,
+  vec,
+  plus,
+} from "../../c2d";
 import { PathBuilder } from "../PathBuilder";
 
 import { a2c } from "./Arc";
