@@ -1,3 +1,8 @@
+export const projectPoint = (matrix: DOMMatrix, point: DOMPoint) => {
+  const p = new DOMPoint(point.x, point.y, 0, 1).matrixTransform(matrix);
+  return new DOMPoint(p.x / p.w, p.y / p.w);
+};
+
 export const dist = (p1: DOMPoint, p2: DOMPoint) =>
   Math.hypot(p2.x - p1.x, p2.y - p1.y);
 

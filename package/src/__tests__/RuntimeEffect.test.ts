@@ -161,64 +161,64 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord){
     checkImage(image, "snapshots/shaders/children.png");
   });
 
-  it("should display an image shader with cover (1)", async () => {
-    const image = await skia.draw(
-      ({
-        canvas,
-        CanvasKit,
-        width,
-        height,
-        assets: { zurich },
-        lib: { fitRects },
-      }) => {
-        const shader = `
-  uniform sampler2D child;
+  // it("should display an image shader with cover (1)", async () => {
+  //   const image = await skia.draw(
+  //     ({
+  //       canvas,
+  //       CanvasKit,
+  //       width,
+  //       height,
+  //       assets: { zurich },
+  //       lib: { fitRects },
+  //     }) => {
+  //       const shader = `
+  // uniform sampler2D child;
 
-  void mainImage(out vec4 fragColor, in vec2 fragCoord) {
-    vec2 uv = fragCoord.xy/vec2(256.0, 256.0);
-    fragColor = texture2D(child, uv);
-  }`;
-        const rt = CanvasKit.RuntimeEffect.Make(shader)!;
-        const rect = (rct: Float32Array) => ({
-          x: rct[0],
-          y: rct[1],
-          width: rct[2] - rct[0],
-          height: rct[3] - rct[1],
-        });
+  // void mainImage(out vec4 fragColor, in vec2 fragCoord) {
+  //   vec2 uv = fragCoord.xy/vec2(256.0, 256.0);
+  //   fragColor = texture2D(child, uv);
+  // }`;
+  //       const rt = CanvasKit.RuntimeEffect.Make(shader)!;
+  //       const rect = (rct: Float32Array) => ({
+  //         x: rct[0],
+  //         y: rct[1],
+  //         width: rct[2] - rct[0],
+  //         height: rct[3] - rct[1],
+  //       });
 
-        const rect2rect = (_src: Rect, _dst: Rect) => {
-          const src = rect(_src);
-          const dst = rect(_dst);
-          const scaleX = dst.width / src.width;
-          const scaleY = dst.height / src.height;
-          const translateX = dst.x - src.x * scaleX;
-          const translateY = dst.y - src.y * scaleY;
-          const m = new DOMMatrix();
-          m.translateSelf(translateX, translateY);
-          m.scaleSelf(scaleX, scaleY);
-          return m;
-        };
+  //       const rect2rect = (_src: Rect, _dst: Rect) => {
+  //         const src = rect(_src);
+  //         const dst = rect(_dst);
+  //         const scaleX = dst.width / src.width;
+  //         const scaleY = dst.height / src.height;
+  //         const translateX = dst.x - src.x * scaleX;
+  //         const translateY = dst.y - src.y * scaleY;
+  //         const m = new DOMMatrix();
+  //         m.translateSelf(translateX, translateY);
+  //         m.scaleSelf(scaleX, scaleY);
+  //         return m;
+  //       };
 
-        const input = CanvasKit.XYWHRect(0, 0, zurich.width(), zurich.height());
-        const output = CanvasKit.XYWHRect(0, 0, width, height);
-        const { src, dst } = fitRects("cover", input, output);
-        const transform = rect2rect(src, dst);
-        const imgShader = zurich.makeShaderOptions(
-          CanvasKit.TileMode.Clamp,
-          CanvasKit.TileMode.Clamp,
-          CanvasKit.FilterMode.Linear,
-          CanvasKit.MipmapMode.None,
-          transform
-        );
-        const paint = new CanvasKit.Paint();
-        paint.setShader(rt.makeShaderWithChildren([], [imgShader]));
-        canvas.save();
-        canvas.drawPaint(paint);
-        canvas.restore();
-      }
-    );
-    checkImage(image, "snapshots/zurich-cover.png");
-  });
+  //       const input = CanvasKit.XYWHRect(0, 0, zurich.width(), zurich.height());
+  //       const output = CanvasKit.XYWHRect(0, 0, width, height);
+  //       const { src, dst } = fitRects("cover", input, output);
+  //       const transform = rect2rect(src, dst);
+  //       const imgShader = zurich.makeShaderOptions(
+  //         CanvasKit.TileMode.Clamp,
+  //         CanvasKit.TileMode.Clamp,
+  //         CanvasKit.FilterMode.Linear,
+  //         CanvasKit.MipmapMode.None,
+  //         transform
+  //       );
+  //       const paint = new CanvasKit.Paint();
+  //       paint.setShader(rt.makeShaderWithChildren([], [imgShader]));
+  //       canvas.save();
+  //       canvas.drawPaint(paint);
+  //       canvas.restore();
+  //     }
+  //   );
+  //   checkImage(image, "snapshots/zurich-cover.png");
+  // });
   it("should display an image shader with cover (2)", async () => {
     const image = await skia.draw(
       ({

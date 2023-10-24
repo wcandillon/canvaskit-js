@@ -10,14 +10,7 @@ export class ImageShader extends ShaderJS {
     super(
       new CustomShader(
         (ctx: OffscreenCanvasRenderingContext2D) => {
-          ctx.save();
-          if (localMatrix) {
-            ctx.setTransform(nativeMatrix(localMatrix));
-          } else {
-            ctx.resetTransform();
-          }
           ctx.drawImage(image, 0, 0);
-          ctx.restore();
         },
         localMatrix ? nativeMatrix(localMatrix) : undefined
       )

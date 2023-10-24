@@ -27,6 +27,7 @@ import {
   Canvas as NativeCanvas,
   Path as NativePath,
   Paint as NativePaint,
+  DrawableFill,
 } from "../c2d";
 import type { PaintJS } from "../Paint";
 import { nativeBlendMode } from "../Paint";
@@ -282,19 +283,7 @@ export class CanvasJS extends HostObject<"Canvas"> implements CKCanvas {
     throw new Error("Method not implemented.");
   }
   drawPaint(paint: PaintJS) {
-    const { width, height } = this;
-    const m = this.ctx.getMatrix().invertSelf();
-    const topLeft = new DOMPoint(0, 0).matrixTransform(m);
-    const topRight = new DOMPoint(width, 0).matrixTransform(m);
-    const bottomRight = new DOMPoint(width, height).matrixTransform(m);
-    const bottomLeft = new DOMPoint(0, height).matrixTransform(m);
-    const path = new PathJS();
-    path.moveTo(topLeft.x, topLeft.y);
-    path.lineTo(topRight.x, topRight.y);
-    path.lineTo(bottomRight.x, bottomRight.y);
-    path.lineTo(bottomLeft.x, bottomLeft.y);
-    path.close();
-    this.ctx.drawPath(path.getPath(), paint.getPaint());
+    this.ctx.draw(new DrawableFill(this.width, this.height), paint.getPaint());
   }
   drawParagraph(_p: Paragraph, _x: number, _y: number): void {
     throw new Error("Method not implemented.");

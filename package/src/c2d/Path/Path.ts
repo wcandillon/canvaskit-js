@@ -8,6 +8,7 @@ import {
   computeTightBounds,
 } from "./PathComponents";
 import { PathVerb } from "./PathComponents/PathVerb";
+import { projectPoint } from "./Vector";
 
 export class Path {
   contours: Contour[] = [];
@@ -185,8 +186,3 @@ export class Path {
       .trim();
   }
 }
-
-const projectPoint = (matrix: DOMMatrix, point: DOMPoint) => {
-  const p = new DOMPoint(point.x, point.y, 0, 1).matrixTransform(matrix);
-  return new DOMPoint(p.x / p.w, p.y / p.w);
-};

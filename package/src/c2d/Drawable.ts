@@ -13,8 +13,9 @@ export class DrawablePath implements Drawable {
 
   draw(ctx: RenderingContext, ctm: DOMMatrix, stroke?: boolean) {
     // TODO: it would be faster to have a version with undefined if ctm is identity
-    const path = this.path.getPath2D(ctm.is2D ? new DOMMatrix() : ctm);
-    if (ctm.is2D) {
+    const isProjected = true;
+    const path = this.path.getPath2D(!isProjected ? new DOMMatrix() : ctm);
+    if (!isProjected) {
       ctx.save();
       ctx.setTransform(ctm);
     }
@@ -26,6 +27,18 @@ export class DrawablePath implements Drawable {
     if (ctm.is2D) {
       ctx.restore();
     }
+  }
+}
+
+export class DrawableFill implements Drawable {
+  private readonly path = new Path2D();
+
+  constructor(width: number, height: number) {
+    this.path.rect(0, 0, width, height);
+  }
+
+  draw(ctx: RenderingContext, _ctm: DOMMatrix, _stroke?: boolean) {
+    ctx.fill(this.path);
   }
 }
 

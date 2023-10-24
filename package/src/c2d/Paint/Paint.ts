@@ -102,7 +102,7 @@ export class Paint {
     ctm: DOMMatrix,
     drawable: Drawable
   ) {
-    const projected = !ctm.is2D;
+    const projected = true;
     if (this.color && !this.stroke) {
       ctx.fillStyle = this.color;
     }

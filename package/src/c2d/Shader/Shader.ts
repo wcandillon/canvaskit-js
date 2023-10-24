@@ -77,10 +77,7 @@ export class Shader implements Texture {
   }
 
   render(width: number, height: number, ctm: DOMMatrix): OffscreenCanvas {
-    //const ctm = this.localMatrix ? this.localMatrix.multiply(m3) : m3;
-    if (this.localMatrix) {
-      console.log("localMatrix", this.localMatrix.toString());
-    }
+    const localMatrix = this.localMatrix ?? new DOMMatrix();
     const { gl, program, textures } = this.ctx;
     gl.canvas.width = width;
     gl.canvas.height = height;
@@ -90,7 +87,7 @@ export class Shader implements Texture {
       gl.uniformMatrix4fv(
         matrixLocation,
         false,
-        ctm.inverse().toFloat32Array()
+        ctm.multiply(localMatrix).inverse().toFloat32Array()
       );
     }
     // Set the resolution

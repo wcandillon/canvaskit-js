@@ -5,12 +5,17 @@ class CustomTexture implements Texture {
   protected texture = new OffscreenCanvas(0, 0);
   protected ctx = this.texture.getContext("2d")!;
 
-  constructor(private draw: (ctx: OffscreenCanvasRenderingContext2D) => void) {}
+  constructor(
+    private draw: (
+      ctx: OffscreenCanvasRenderingContext2D,
+      ctm: DOMMatrix
+    ) => void
+  ) {}
 
-  render(width: number, height: number, _ctm: DOMMatrix) {
+  render(width: number, height: number, ctm: DOMMatrix) {
     this.texture.width = width;
     this.texture.height = height;
-    this.draw(this.ctx);
+    this.draw(this.ctx, ctm);
     return this.texture;
   }
 }
@@ -22,15 +27,20 @@ class GradientTexture extends CustomTexture {
     factory: (
       ctx: OffscreenCanvasRenderingContext2D,
       colors: string[],
-      positions: number[]
+      positions: number[],
+      ctm: DOMMatrix
     ) => CanvasGradient
   ) {
     const pos = positions
       ? positions
       : colors.map((_, i) => i / (colors.length - 1));
-    super((ctx: OffscreenCanvasRenderingContext2D) => {
-      ctx.fillStyle = factory(ctx, colors, pos);
+    super((ctx: OffscreenCanvasRenderingContext2D, ctm: DOMMatrix) => {
+      ctx.save();
+      ctx.resetTransform();
+      //ctx.setTransform(ctx.getTransform().inverse());
+      ctx.fillStyle = factory(ctx, colors, pos, ctm);
       ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      ctx.restore();
     });
   }
 }
@@ -50,7 +60,8 @@ export class LinearGradient extends Shader {
         (
           ctx: OffscreenCanvasRenderingContext2D,
           cls: string[],
-          pos: number[]
+          pos: number[],
+          _ctm: DOMMatrix
         ) => {
           const gradient = ctx.createLinearGradient(
             start.x,
