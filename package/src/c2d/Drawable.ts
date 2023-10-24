@@ -12,11 +12,19 @@ export class DrawablePath implements Drawable {
   ) {}
 
   draw(ctx: RenderingContext, ctm: DOMMatrix, stroke?: boolean) {
-    const path = this.path.getPath2D(ctm);
+    // TODO: it would be faster to have a version with undefined if ctm is identity
+    const path = this.path.getPath2D(ctm.is2D ? new DOMMatrix() : ctm);
+    if (ctm.is2D) {
+      ctx.save();
+      ctx.setTransform(ctm);
+    }
     if (stroke) {
       ctx.stroke(path);
     } else {
       ctx.fill(path, this.fillType);
+    }
+    if (ctm.is2D) {
+      ctx.restore();
     }
   }
 }
