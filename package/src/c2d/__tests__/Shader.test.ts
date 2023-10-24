@@ -178,4 +178,54 @@ describe("Shaders", () => {
     );
     checkImage(image, "snapshots/c2d/linear-gradient.png");
   });
+  it("should draw a spiral", async () => {
+    // TODO: simplify shader API
+    const image = await remoteSurface.draw(
+      ({
+        canvas,
+        width,
+        height,
+        c2d: { Path, Paint, Shader, ShaderContext },
+      }) => {
+        const glsl = `uniform float scale;
+uniform vec2 center;
+uniform vec4 c1;
+uniform vec4 c2;
+
+void mainImage(out vec4 fragColor, in vec2 fragCoord) {
+    vec2 pp = fragCoord.xy - center;
+    float radius = sqrt(dot(pp, pp));
+    radius = sqrt(radius);
+    float angle = atan(pp.y, pp.x);
+    float t = (angle + 3.1415926/2.0) / 3.1415926;
+    t += radius * scale;
+    t = fract(t);
+    fragColor = mix(c1, c2, t);
+}`;
+        const ctx = new ShaderContext(glsl);
+        const shader = new Shader(
+          ctx,
+          {
+            scale: [0.6],
+            center: [width / 2, height / 2],
+            c1: [1, 0, 0, 1],
+            c2: [0, 1, 0, 1],
+          },
+          []
+        );
+        const path = new Path();
+        path.moveTo(new DOMPoint(0, 0));
+        path.lineTo(new DOMPoint(width, 0));
+        path.lineTo(new DOMPoint(width, height));
+        path.lineTo(new DOMPoint(0, height));
+        path.close();
+        const paint = new Paint();
+        paint.setShader(shader);
+        canvas.save();
+        canvas.drawPath(path, paint);
+        canvas.restore();
+      }
+    );
+    checkImage(image, "snapshots/c2d/spiral.png");
+  });
 });

@@ -1,11 +1,13 @@
 import type { ShaderContext } from "./ShaderContext";
 
-export interface Texture {
-  render(width: number, height: number, ctm: DOMMatrix): OffscreenCanvas;
+interface RuntimeEffectChild {
+  texture: WebGLTexture;
+  location: WebGLUniformLocation;
 }
 
-interface Uniforms {
-  [name: string]: number[];
+export type RuntimeEffectChildren = RuntimeEffectChild[];
+export interface Texture {
+  render(width: number, height: number, ctm: DOMMatrix): OffscreenCanvas;
 }
 
 export class Shader implements Texture {
@@ -16,20 +18,59 @@ export class Shader implements Texture {
   ) {
     const { gl, program } = ctx;
     const uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
-
     for (let i = 0; i < uniformCount; i++) {
       const uniformInfo = gl.getActiveUniform(program, i);
       if (!uniformInfo) {
         throw new Error("Could not get uniform info");
       }
       const { name } = uniformInfo;
+      if (name === "u_matrix" || name === "u_resolution") {
+        continue;
+      }
       const location = gl.getUniformLocation(program, name);
       if (!location) {
         throw new Error("Could not get uniform location");
       }
       if (uniformInfo.type === gl.FLOAT) {
-        assertUniformSize(uniforms, name, 1);
-        gl.uniform1fv(location, uniforms[name]);
+        processUniform(
+          this.ctx,
+          uniforms[name],
+          uniformInfo,
+          gl.uniform1fv.bind(gl)
+        );
+      } else if (uniformInfo.type === gl.FLOAT_VEC2) {
+        processUniform(
+          this.ctx,
+          uniforms[name],
+          uniformInfo,
+          gl.uniform2fv.bind(gl)
+        );
+      } else if (uniformInfo.type === gl.FLOAT_VEC3) {
+        processUniform(
+          this.ctx,
+          uniforms[name],
+          uniformInfo,
+          gl.uniform3fv.bind(gl)
+        );
+      } else if (uniformInfo.type === gl.FLOAT_VEC4) {
+        processUniform(
+          this.ctx,
+          uniforms[name],
+          uniformInfo,
+          gl.uniform4fv.bind(gl)
+        );
+      } else if (uniformInfo.type === gl.FLOAT_MAT2) {
+        processUniform(this.ctx, uniforms[name], uniformInfo, (loc, subarr) =>
+          gl.uniformMatrix2fv(loc, false, subarr)
+        );
+      } else if (uniformInfo.type === gl.FLOAT_MAT3) {
+        processUniform(this.ctx, uniforms[name], uniformInfo, (loc, subarr) =>
+          gl.uniformMatrix3fv(loc, false, subarr)
+        );
+      } else if (uniformInfo.type === gl.FLOAT_MAT4) {
+        processUniform(this.ctx, uniforms[name], uniformInfo, (loc, subarr) =>
+          gl.uniformMatrix4fv(loc, false, subarr)
+        );
       }
     }
   }
@@ -88,10 +129,17 @@ export class Shader implements Texture {
   }
 }
 
-const assertUniformSize = (uniforms: Uniforms, name: string, count: number) => {
-  if (uniforms[name].length !== count) {
-    throw new Error(
-      `Uniform ${name} should have ${count} elements, but has ${uniforms[name].length}`
-    );
+const processUniform = (
+  ctx: ShaderContext,
+  values: number[],
+  uniformInfo: WebGLActiveInfo,
+  setter: (loc: WebGLUniformLocation | null, values: number[]) => void
+) => {
+  const { gl, program } = ctx;
+  const { name } = uniformInfo;
+  const location = gl.getUniformLocation(program, name);
+  if (!location) {
+    console.error("Could not find uniform location for " + name);
   }
+  setter(gl.getUniformLocation(program, name), values);
 };
