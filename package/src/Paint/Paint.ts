@@ -22,7 +22,6 @@ export class PaintJS extends HostObject<"Paint"> implements Paint {
   private colorFilter: ColorFilterJS | null = null;
   private imageFilter: ImageFilterJS | null = null;
   private maskFilter: MaskFilterJS | null = null;
-  private blendMode: GlobalCompositeOperation | null = null;
 
   private paint = new NativePaint();
 
@@ -35,13 +34,12 @@ export class PaintJS extends HostObject<"Paint"> implements Paint {
   }
 
   copy(): Paint {
-    const { color, blendMode, imageFilter, colorFilter, maskFilter } = this;
+    const { color, imageFilter, colorFilter, maskFilter } = this;
     const paint = new PaintJS();
     paint.paint = this.paint.copy();
     if (color !== null) {
       paint.color = color;
     }
-    paint.blendMode = blendMode;
     if (imageFilter) {
       paint.imageFilter = imageFilter;
     }
@@ -74,8 +72,8 @@ export class PaintJS extends HostObject<"Paint"> implements Paint {
     this.paint.setColor(nativeColor(this.color));
   }
   setAntiAlias(_aa: boolean): void {}
-  setBlendMode(mode: EmbindEnumEntity): void {
-    this.blendMode = nativeBlendMode(mode);
+  setBlendMode(mode: EmbindEnumEntity) {
+    this.paint.setBlendMode(nativeBlendMode(mode));
   }
   setColor(color: InputColor, _colorSpace?: ColorSpace | undefined): void {
     if (color instanceof Float32Array) {
