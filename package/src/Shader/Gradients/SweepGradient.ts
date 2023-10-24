@@ -1,24 +1,23 @@
 import type { InputFlexibleColorArray, InputPoint } from "canvaskit-wasm";
 
-import { Gradient } from "./Gradient";
+import { ShaderJS } from "../Shader";
+import { SweepGradient as NativeSweepGradient } from "../../c2d";
+import { nativeColor, nativePoint, normalizeInputColorArray } from "../../Core";
 
-export class SweepGradient extends Gradient {
+export class SweepGradient extends ShaderJS {
   constructor(
-    private readonly c: InputPoint,
-    private readonly startAngle: number,
+    c: InputPoint,
+    startAngle: number,
     colors: InputFlexibleColorArray,
     pos: number[] | null
   ) {
-    super(colors, pos);
-  }
-
-  paint(ctx: OffscreenCanvasRenderingContext2D) {
-    const grd = ctx.createConicGradient(this.startAngle, this.c[0], this.c[1]);
-    this.colors.forEach((color, i) => {
-      grd.addColorStop(this.pos[i], color);
-    });
-    ctx.fillStyle = grd;
-    this.fill(ctx);
-    return ctx.canvas.transferToImageBitmap();
+    super(
+      new NativeSweepGradient(
+        nativePoint(c),
+        startAngle,
+        normalizeInputColorArray(colors).map((cl) => nativeColor(cl)),
+        pos ?? undefined
+      )
+    );
   }
 }

@@ -137,7 +137,11 @@ export class Paint {
     if (this.shader) {
       const img = this.shader.render(ctx.canvas.width, ctx.canvas.height, ctm);
       const pattern = ctx.createPattern(img, "no-repeat")!;
-      ctx.fillStyle = pattern;
+      if (this.stroke) {
+        ctx.strokeStyle = pattern;
+      } else {
+        ctx.fillStyle = pattern;
+      }
     }
     drawable.draw(ctx, ctm, this.stroke);
   }

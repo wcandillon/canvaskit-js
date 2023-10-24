@@ -8,7 +8,6 @@ import type {
 
 import { HostObject } from "../HostObject";
 import type { ShaderJS } from "../Shader";
-import { RuntimeEffectShader } from "../Shader/RuntimeEffectShader";
 import { normalizeArray } from "../Core";
 
 export interface RuntimeEffectChild {
@@ -144,8 +143,9 @@ export class RuntimeEffectJS
       // TODO: to implement
       //console.warn("localMatrix not implemented yet");
     }
+    console.log(!!children);
 
-    return new RuntimeEffectShader(this.ctx, childrenCtx, children);
+    throw new Error("Not implemented yet");
   }
   getUniform(index: number): SkSLUniform {
     const { gl, program } = this.ctx;

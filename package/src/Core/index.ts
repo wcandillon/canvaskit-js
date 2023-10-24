@@ -6,3 +6,4 @@ export * from "./Values";
 export * from "./Constants";
 export * from "./CoreCanvasKit";
 export * from "./Matrix";
+export * from "./Vector";

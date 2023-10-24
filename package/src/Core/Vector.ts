@@ -2,7 +2,10 @@ import type {
   VectorN,
   VectorHelpers as CKVectorHelpers,
   Vector3,
+  InputPoint,
 } from "canvaskit-wasm";
+
+export const nativePoint = (pt: InputPoint) => new DOMPoint(...pt);
 
 export const VectorHelpers: CKVectorHelpers = {
   add: function (a: VectorN, b: VectorN): VectorN {

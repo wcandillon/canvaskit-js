@@ -19,7 +19,6 @@ import { nativeBlendMode } from "./BlendMode";
 
 export class PaintJS extends HostObject<"Paint"> implements Paint {
   private color = Float32Array.of(0, 0, 0, 1);
-  private shader: ShaderJS | null = null;
   private colorFilter: ColorFilterJS | null = null;
   private imageFilter: ImageFilterJS | null = null;
   private maskFilter: MaskFilterJS | null = null;
@@ -36,17 +35,13 @@ export class PaintJS extends HostObject<"Paint"> implements Paint {
   }
 
   copy(): Paint {
-    const { color, blendMode, shader, imageFilter, colorFilter, maskFilter } =
-      this;
+    const { color, blendMode, imageFilter, colorFilter, maskFilter } = this;
     const paint = new PaintJS();
     paint.paint = this.paint.copy();
     if (color !== null) {
       paint.color = color;
     }
     paint.blendMode = blendMode;
-    if (shader) {
-      paint.setShader(shader);
-    }
     if (imageFilter) {
       paint.imageFilter = imageFilter;
     }
@@ -128,7 +123,10 @@ export class PaintJS extends HostObject<"Paint"> implements Paint {
     throw new Error("Method not implemented.");
   }
   setShader(shader: ShaderJS | null): void {
-    this.shader = shader;
+    if (!shader) {
+      throw new Error("Shader cannot be null");
+    }
+    this.paint.setShader(shader.getShader());
   }
   setStrokeCap(cap: EmbindEnumEntity): void {
     this.paint.setStrokeCap(nativeLineCap(cap));
