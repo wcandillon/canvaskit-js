@@ -137,13 +137,11 @@ export class Paint {
       ctx.filter = url;
     }
     if (this.shader) {
-      const img = this.shader.render(
-        ctx.canvas.width,
-        ctx.canvas.height,
-        projected ? ctm : new DOMMatrix()
-      );
+      const img = this.shader.render(ctx.canvas.width, ctx.canvas.height, ctm);
       const pattern = ctx.createPattern(img, "no-repeat")!;
-
+      if (!projected) {
+        pattern.setTransform(ctm.inverse());
+      }
       if (this.stroke) {
         ctx.strokeStyle = pattern;
       } else {
