@@ -30,8 +30,6 @@ class GradientTexture extends CustomTexture {
       : colors.map((_, i) => i / (colors.length - 1));
     super((ctx: OffscreenCanvasRenderingContext2D) => {
       ctx.save();
-      ctx.resetTransform();
-      //ctx.setTransform(ctx.getTransform().inverse());
       ctx.fillStyle = factory(ctx, colors, pos);
       ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
       ctx.restore();

@@ -138,7 +138,6 @@ export class Paint {
     }
 
     if (this.shader) {
-      // TODO: remove ctm here
       const img = this.shader.render(ctx.canvas.width, ctx.canvas.height);
       const pattern = ctx.createPattern(img, "no-repeat")!;
       if (this.stroke) {
