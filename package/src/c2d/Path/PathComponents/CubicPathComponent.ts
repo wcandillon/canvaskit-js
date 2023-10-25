@@ -1,30 +1,20 @@
-/* eslint-disable @typescript-eslint/no-shadow */
-import type { Point } from "canvaskit-wasm";
-
-import { PathVerb } from "../../Core";
-import {
-  dist,
-  minus,
-  multiplyScalar,
-  normalize,
-  plus,
-  vec,
-} from "../../Vector";
-import { saturate } from "../../math";
+import { dist, minus, multiplyScalar, normalize, plus } from "../Vector";
+import { saturate } from "../../Math";
 
 import { PathComponentType, type PathComponent } from "./PathComponent";
 import { Polyline, linearSolve } from "./Polyline";
 import { QuadraticPathComponent } from "./QuadraticPathComponent";
 import { Flatennable } from "./Flattenable";
+import { PathVerb } from "./PathVerb";
 
 export class CubicPathComponent extends Flatennable implements PathComponent {
   type = PathComponentType.Cubic;
 
   constructor(
-    readonly p1: Point,
-    readonly cp1: Point,
-    readonly cp2: Point,
-    readonly p2: Point
+    readonly p1: DOMPoint,
+    readonly cp1: DOMPoint,
+    readonly cp2: DOMPoint,
+    readonly p2: DOMPoint
   ) {
     super();
   }
@@ -64,10 +54,19 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
     const quads: QuadraticPathComponent[] = [];
 
     const maxHypot2 = 432.0 * accuracy * accuracy;
-    let p1x2 = this.cp1.map((_, i) => 3.0 * this.cp1[i] - this.p1[i]);
-    let p2x2 = this.cp2.map((_, i) => 3.0 * this.cp2[i] - this.p2[i]);
-    const p = p2x2.map((_, i) => p2x2[i] - p1x2[i]);
-    const err = p.reduce((a, b) => a + b * b, 0);
+
+    const p1x2 = new DOMPoint(
+      3.0 * this.cp1.x - this.p1.x,
+      3.0 * this.cp1.y - this.p1.y
+    );
+    const p2x2 = new DOMPoint(
+      3.0 * this.cp2.x - this.p2.x,
+      3.0 * this.cp2.y - this.p2.y
+    );
+
+    const p = new DOMPoint(p2x2.x - p1x2.x, p2x2.y - p1x2.y);
+    const err = p.x * p.x + p.y * p.y;
+
     const quadCount = Math.max(
       1,
       Math.ceil(Math.pow(err / maxHypot2, 1 / 6.0))
@@ -77,9 +76,21 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
       const t0 = i / quadCount;
       const t1 = (i + 1) / quadCount;
       const seg = this.subsegment(t0, t1);
-      p1x2 = seg.cp1.map((_, i) => 3.0 * seg.cp1[i] - seg.p1[i]);
-      p2x2 = seg.cp2.map((_, i) => 3.0 * seg.cp2[i] - seg.p2[i]);
-      const middle = p1x2.map((_, i) => (p1x2[i] + p2x2[i]) / 4.0);
+
+      const segP1x2 = new DOMPoint(
+        3.0 * seg.cp1.x - seg.p1.x,
+        3.0 * seg.cp1.y - seg.p1.y
+      );
+      const segP2x2 = new DOMPoint(
+        3.0 * seg.cp2.x - seg.p2.x,
+        3.0 * seg.cp2.y - seg.p2.y
+      );
+
+      const middle = new DOMPoint(
+        (segP1x2.x + segP2x2.x) / 4.0,
+        (segP1x2.y + segP2x2.y) / 4.0
+      );
+
       quads.push(new QuadraticPathComponent(seg.p1, middle, seg.p2));
     }
     return quads;
@@ -130,45 +141,33 @@ export class CubicPathComponent extends Flatennable implements PathComponent {
   }
 
   toSVGString() {
-    return `C${this.cp1[0]} ${this.cp1[1]} ${this.cp2[0]} ${this.cp2[1]} ${this.p2[0]} ${this.p2[1]}`;
+    return `C${this.cp1.x} ${this.cp1.y} ${this.cp2.x} ${this.cp2.y} ${this.p2.x} ${this.p2.y}`;
   }
 
   toCmd() {
     return [
       PathVerb.Cubic,
-      this.cp1[0],
-      this.cp1[1],
-      this.cp2[0],
-      this.cp2[1],
-      this.p2[0],
-      this.p2[1],
+      this.cp1.x,
+      this.cp1.y,
+      this.cp2.x,
+      this.cp2.y,
+      this.p2.x,
+      this.p2.y,
     ];
   }
 
   solve(t: number) {
-    return vec(
-      cubicSolve(t, this.p1[0], this.cp1[0], this.cp2[0], this.p2[0]),
-      cubicSolve(t, this.p1[1], this.cp1[1], this.cp2[1], this.p2[1])
+    return new DOMPoint(
+      cubicSolve(t, this.p1.x, this.cp1.x, this.cp2.x, this.p2.x),
+      cubicSolve(t, this.p1.y, this.cp1.y, this.cp2.y, this.p2.y)
     );
   }
 
   solveDerivative(t: number) {
     return normalize(
-      vec(
-        cubicSolveDerivative(
-          t,
-          this.p1[0],
-          this.cp1[0],
-          this.cp2[0],
-          this.p2[0]
-        ),
-        cubicSolveDerivative(
-          t,
-          this.p1[1],
-          this.cp1[1],
-          this.cp2[1],
-          this.p2[1]
-        )
+      new DOMPoint(
+        cubicSolveDerivative(t, this.p1.x, this.cp1.x, this.cp2.x, this.p2.x),
+        cubicSolveDerivative(t, this.p1.y, this.cp1.y, this.cp2.y, this.p2.y)
       )
     );
   }

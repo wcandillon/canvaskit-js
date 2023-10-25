@@ -11,41 +11,30 @@ import type {
 import { IndexedHostObject } from "./HostObject";
 import { CanvasJS } from "./Canvas";
 import { ImageJS } from "./Image";
-import { GrDirectContextJS, rectToXYWH } from "./Core";
-import { SVGContext } from "./SVG/SVGContext";
+import { rectToXYWH } from "./Core";
 import { CanvasProxyHandler } from "./Core/CanvasProxyHandler";
 
 export class SurfaceJS extends IndexedHostObject<"Surface"> implements Surface {
   private canvas: Canvas;
-  private svgCtx: SVGContext;
-  private grCtx: GrDirectContextJS;
   private ctx: CanvasRenderingContext2D;
   private proxyHandler: CanvasProxyHandler | null = null;
 
-  constructor(
-    ctx: CanvasRenderingContext2D,
-    grCtx?: GrDirectContextJS,
-    debug = false
-  ) {
+  constructor(ctx: CanvasRenderingContext2D, debug = false) {
     super("Surface", "surface");
-    // TODO: move everything to GrDirectContextJS: SVGContext, CanvasRenderingContext2D
-    this.svgCtx = new SVGContext(this.id);
-    this.grCtx = grCtx ?? new GrDirectContextJS(ctx);
     if (debug) {
       this.proxyHandler = new CanvasProxyHandler();
       this.ctx = new Proxy(ctx, this.proxyHandler);
     } else {
       this.ctx = ctx;
     }
-    // this.ctx.imageSmoothingEnabled = true;
-    // this.ctx.imageSmoothingQuality = "high";
-    this.canvas = new CanvasJS(this.ctx, this.svgCtx, this.grCtx);
+    this.canvas = new CanvasJS(this.ctx);
   }
   drawOnce(drawFrame: (_: Canvas) => void): void {
     this.requestAnimationFrame(drawFrame);
   }
   dispose(): void {
-    this.svgCtx.dispose();
+    // TODO: dispose of the SVG resource
+    //this.svgCtx.dispose();
   }
   flush(): void {
     if (this.proxyHandler) {

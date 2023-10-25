@@ -1,8 +1,6 @@
-import type { Point } from "canvaskit-wasm";
+import { dist } from "../Vector";
 
-import { dist, vec } from "../../Vector";
-
-export type PolylineItem = { t: number; point: Point };
+export type PolylineItem = { t: number; point: DOMPoint };
 
 export class Polyline {
   private readonly cumulativeLengths: number[];
@@ -59,13 +57,13 @@ export class Polyline {
       throw new Error("The polyline has no points to determine bounds.");
     }
 
-    let minX = this.items[0].point[0];
-    let minY = this.items[0].point[1];
-    let maxX = this.items[0].point[0];
-    let maxY = this.items[0].point[1];
+    let minX = this.items[0].point.x;
+    let minY = this.items[0].point.y;
+    let maxX = this.items[0].point.x;
+    let maxY = this.items[0].point.y;
 
     for (const item of this.items) {
-      const [x, y] = item.point;
+      const { x, y } = item.point;
       minX = Math.min(minX, x);
       minY = Math.min(minY, y);
       maxX = Math.max(maxX, x);
@@ -78,12 +76,12 @@ export class Polyline {
 
 const lerp = (t: number, a: number, b: number) => (1 - t) * a + t * b;
 
-export const linearSolve = (t: number, p0: Point, p1: Point) =>
-  vec(lerp(t, p0[0], p1[0]), lerp(t, p0[1], p1[1]));
+export const linearSolve = (t: number, p0: DOMPoint, p1: DOMPoint) =>
+  new DOMPoint(lerp(t, p0.x, p1.x), lerp(t, p0.y, p1.y));
 
-export const linearSolveDerivative = (p1: Point, p2: Point) => {
-  const dx = p2[0] - p1[0];
-  const dy = p2[1] - p1[1];
+export const linearSolveDerivative = (p1: DOMPoint, p2: DOMPoint) => {
+  const dx = p2.x - p1.x;
+  const dy = p2.y - p1.y;
   const magnitude = Math.hypot(dx, dy);
-  return vec(dx / magnitude, dy / magnitude);
+  return new DOMPoint(dx / magnitude, dy / magnitude);
 };

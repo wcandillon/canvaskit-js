@@ -1,15 +1,13 @@
-import type { Point } from "canvaskit-wasm";
-
-import { PathVerb } from "../../Core";
-import { dist } from "../../Vector";
+import { dist } from "../Vector";
 
 import { PathComponentType, type PathComponent } from "./PathComponent";
 import { linearSolve, linearSolveDerivative } from "./Polyline";
+import { PathVerb } from "./PathVerb";
 
 export class LinearPathComponent implements PathComponent {
   type = PathComponentType.Linear;
 
-  constructor(readonly p1: Point, readonly p2: Point) {}
+  constructor(readonly p1: DOMPoint, readonly p2: DOMPoint) {}
 
   segment(start: number, stop: number): PathComponent {
     return new LinearPathComponent(
@@ -19,10 +17,10 @@ export class LinearPathComponent implements PathComponent {
   }
 
   computeTightBounds() {
-    const minX = Math.min(this.p1[0], this.p2[0]);
-    const minY = Math.min(this.p1[1], this.p2[1]);
-    const maxX = Math.max(this.p1[0], this.p2[0]);
-    const maxY = Math.max(this.p1[1], this.p2[1]);
+    const minX = Math.min(this.p1.x, this.p2.x);
+    const minY = Math.min(this.p1.y, this.p2.y);
+    const maxX = Math.max(this.p1.x, this.p2.x);
+    const maxY = Math.max(this.p1.y, this.p2.y);
     return Float32Array.of(minX, minY, maxX, maxY);
   }
 
@@ -39,11 +37,11 @@ export class LinearPathComponent implements PathComponent {
   }
 
   toCmd() {
-    return [PathVerb.Line, this.p2[0], this.p2[1]];
+    return [PathVerb.Line, this.p2.x, this.p2.y];
   }
 
   toSVGString() {
-    return `L${this.p2[0]} ${this.p2[1]}`;
+    return `L${this.p2.x} ${this.p2.y}`;
   }
 
   length() {

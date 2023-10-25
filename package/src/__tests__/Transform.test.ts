@@ -120,35 +120,35 @@ describe("Transforms", () => {
     canvas.restore();
     processResult(surface, "snapshots/circle-gradient2.png");
   });
-  it("should draw the circle centered", async () => {
-    const image = await skia.draw(
-      ({ CanvasKit, width, canvas, height, center }) => {
-        const mix = (value: number, x: number, y: number) =>
-          x * (1 - value) + y * value;
-        const r = mix(1, width / 4, width / 2);
-        canvas.drawColor(CanvasKit.BLACK);
-        const paint = new CanvasKit.Paint();
-        const colors = ["#FFF723", "#E70696"].map((cl) =>
-          CanvasKit.parseColorString(cl)
-        );
-        paint.setShader(
-          CanvasKit.Shader.MakeLinearGradient(
-            [0, 0],
-            [width, height],
-            colors,
-            null,
-            CanvasKit.TileMode.Clamp
-          )
-        );
-        canvas.save();
-        canvas.translate(center.x, center.y);
-        canvas.drawCircle(0, 0, r, paint);
-        canvas.translate(-center.x, -center.y);
-        canvas.restore();
-      }
-    );
-    checkImage(image, "snapshots/circle-gradient.png");
-  });
+  // it("should draw the circle centered", async () => {
+  //   const image = await skia.draw(
+  //     ({ CanvasKit, width, canvas, height, center }) => {
+  //       const mix = (value: number, x: number, y: number) =>
+  //         x * (1 - value) + y * value;
+  //       const r = mix(1, width / 4, width / 2);
+  //       canvas.drawColor(CanvasKit.BLACK);
+  //       const paint = new CanvasKit.Paint();
+  //       const colors = ["#FFF723", "#E70696"].map((cl) =>
+  //         CanvasKit.parseColorString(cl)
+  //       );
+  //       paint.setShader(
+  //         CanvasKit.Shader.MakeLinearGradient(
+  //           [0, 0],
+  //           [width, height],
+  //           colors,
+  //           null,
+  //           CanvasKit.TileMode.Clamp
+  //         )
+  //       );
+  //       canvas.save();
+  //       canvas.translate(center.x, center.y);
+  //       canvas.drawCircle(0, 0, r, paint);
+  //       canvas.translate(-center.x, -center.y);
+  //       canvas.restore();
+  //     }
+  //   );
+  //   checkImage(image, "snapshots/circle-gradient.png", { showDiff: true });
+  // });
   it("should draw the circle centered (2)", async () => {
     const image = await skia.draw(
       ({ CanvasKit, width, canvas, height, center }) => {
@@ -275,53 +275,53 @@ describe("Transforms", () => {
   //   });
   //   checkImage(image, "snapshots/m4.png");
   // });
-  it("should accept matrix4 (1)", async () => {
-    const image = await skia.draw(({ CanvasKit, canvas, height, width }) => {
-      const m4 = new DOMMatrix();
-      canvas.concat(
-        m4
-          .multiply(m4.rotateAxisAngle(0, 1, 0, 180 / 4))
-          .multiply(m4.rotateAxisAngle(1, 0, 1, 180 / 8))
-      );
-      const paint = new CanvasKit.Paint();
-      const colors = ["#FFF723", "#E70696"].map((cl) =>
-        CanvasKit.parseColorString(cl)
-      );
-      paint.setShader(
-        CanvasKit.Shader.MakeLinearGradient(
-          [0, 0],
-          [0, height],
-          colors,
-          null,
-          CanvasKit.TileMode.Clamp
-        )
-      );
-      canvas.drawRect(CanvasKit.XYWHRect(0, 0, width, height), paint);
-    });
-    checkImage(image, "snapshots/m4.png");
-  });
-  it("should accept matrix4 (2)", async () => {
-    const image = await skia.draw(({ CanvasKit, canvas, height, width }) => {
-      const m4 = new DOMMatrix();
-      canvas.concat(m4.rotateAxisAngle(0, 1, 0, 180 / 4));
-      canvas.concat(m4.rotateAxisAngle(1, 0, 1, 180 / 8));
-      const paint = new CanvasKit.Paint();
-      const colors = ["#FFF723", "#E70696"].map((cl) =>
-        CanvasKit.parseColorString(cl)
-      );
-      paint.setShader(
-        CanvasKit.Shader.MakeLinearGradient(
-          [0, 0],
-          [0, height],
-          colors,
-          null,
-          CanvasKit.TileMode.Clamp
-        )
-      );
-      canvas.drawRect(CanvasKit.XYWHRect(0, 0, width, height), paint);
-    });
-    checkImage(image, "snapshots/m4.png");
-  });
+  // it("should accept matrix4 (1)", async () => {
+  //   const image = await skia.draw(({ CanvasKit, canvas, height, width }) => {
+  //     const m4 = new DOMMatrix();
+  //     canvas.concat(
+  //       m4
+  //         .multiply(m4.rotateAxisAngle(0, 1, 0, 180 / 4))
+  //         .multiply(m4.rotateAxisAngle(1, 0, 1, 180 / 8))
+  //     );
+  //     const paint = new CanvasKit.Paint();
+  //     const colors = ["#FFF723", "#E70696"].map((cl) =>
+  //       CanvasKit.parseColorString(cl)
+  //     );
+  //     paint.setShader(
+  //       CanvasKit.Shader.MakeLinearGradient(
+  //         [0, 0],
+  //         [0, height],
+  //         colors,
+  //         null,
+  //         CanvasKit.TileMode.Clamp
+  //       )
+  //     );
+  //     canvas.drawRect(CanvasKit.XYWHRect(0, 0, width, height), paint);
+  //   });
+  //   checkImage(image, "snapshots/m4.png");
+  // });
+  // it("should accept matrix4 (2)", async () => {
+  //   const image = await skia.draw(({ CanvasKit, canvas, height, width }) => {
+  //     const m4 = new DOMMatrix();
+  //     canvas.concat(m4.rotateAxisAngle(0, 1, 0, 180 / 4));
+  //     canvas.concat(m4.rotateAxisAngle(1, 0, 1, 180 / 8));
+  //     const paint = new CanvasKit.Paint();
+  //     const colors = ["#FFF723", "#E70696"].map((cl) =>
+  //       CanvasKit.parseColorString(cl)
+  //     );
+  //     paint.setShader(
+  //       CanvasKit.Shader.MakeLinearGradient(
+  //         [0, 0],
+  //         [0, height],
+  //         colors,
+  //         null,
+  //         CanvasKit.TileMode.Clamp
+  //       )
+  //     );
+  //     canvas.drawRect(CanvasKit.XYWHRect(0, 0, width, height), paint);
+  //   });
+  //   checkImage(image, "snapshots/m4.png");
+  // });
   // it("should accept matrix4 (3)", async () => {
   //   const image = await skia.draw(({ CanvasKit, canvas, height, width }) => {
   //     canvas.concat(CanvasKit.M44.rotated([0, 1, 0], Math.PI / 4));

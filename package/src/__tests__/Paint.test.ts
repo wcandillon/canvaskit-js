@@ -5,7 +5,8 @@ describe("Paint", () => {
     const image = await skia.draw(
       ({ canvas }) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const ctx = (canvas as any).ctx as CanvasRenderingContext2D;
+        const ctx = (canvas as any).ctx.ctx
+          .renderingCtx as CanvasRenderingContext2D;
         ctx.save();
         ctx.scale(2, 2);
         ctx.translate(100, 100);
@@ -93,6 +94,37 @@ describe("Paint", () => {
       canvas.restore();
     });
     checkImage(image, "snapshots/paint/blue.png");
+  });
+
+  it("should draw a paint (5)", async () => {
+    const image = await skia.draw(({ CanvasKit, canvas }) => {
+      canvas.save();
+      canvas.scale(0.5, 1.5);
+      canvas.translate(100, 100);
+      canvas.rotate(45, 128, 128);
+      canvas.clear(CanvasKit.WHITE);
+      const paint = new CanvasKit.Paint();
+      paint.setColor(CanvasKit.BLUE);
+      paint.setAlphaf(0.5);
+      canvas.drawPaint(paint);
+      canvas.restore();
+    });
+    checkImage(image, "snapshots/paint/lightblue.png");
+  });
+
+  it("should draw a paint (6)", async () => {
+    const image = await skia.draw(({ CanvasKit, canvas }) => {
+      canvas.save();
+      canvas.scale(0.5, 1.5);
+      canvas.translate(100, 100);
+      canvas.rotate(45, 128, 128);
+      canvas.clear(CanvasKit.WHITE);
+      const paint = new CanvasKit.Paint();
+      paint.setColor(CanvasKit.parseColorString("#0000ff55"));
+      canvas.drawPaint(paint);
+      canvas.restore();
+    });
+    checkImage(image, "snapshots/paint/lightblue2.png");
   });
 
   it("should draw a blue paint via setColorInt", async () => {

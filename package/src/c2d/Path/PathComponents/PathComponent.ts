@@ -1,5 +1,3 @@
-import type { Point } from "canvaskit-wasm";
-
 import type { TightBounds } from "./Bounds";
 
 export enum PathComponentType {
@@ -9,8 +7,8 @@ export enum PathComponentType {
 }
 
 export interface PathComponent extends TightBounds {
-  p1: Point;
-  p2: Point;
+  p1: DOMPoint;
+  p2: DOMPoint;
   type: PathComponentType;
 
   toCmd(): number[];
@@ -22,6 +20,6 @@ export interface PathComponent extends TightBounds {
 
   length(): number;
 
-  solve(t: number): Point;
-  solveDerivative(t: number): Point;
+  solve(t: number): DOMPoint;
+  solveDerivative(t: number): DOMPoint;
 }

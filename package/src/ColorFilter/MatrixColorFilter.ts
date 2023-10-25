@@ -1,4 +1,4 @@
-import { makeColorMatrix } from "../SVG";
+import { makeColorMatrix } from "../c2d";
 
 import { ColorFilterJS } from "./ColorFilter";
 

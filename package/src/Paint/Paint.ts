@@ -6,189 +6,82 @@ import type {
   PathEffect,
 } from "canvaskit-wasm";
 
-import type { Drawable, InputColor } from "../Core";
-import {
-  CustomDrawable,
-  StrokeJoin,
-  nativeColor,
-  StrokeCap,
-  PaintStyle,
-} from "../Core";
+import { Paint as NativePaint } from "../c2d";
+import type { InputColor } from "../Core";
+import { StrokeJoin, StrokeCap, PaintStyle } from "../Core";
 import type { ShaderJS } from "../Shader";
 import type { ImageFilterJS } from "../ImageFilter";
 import { HostObject } from "../HostObject";
 import type { MaskFilterJS } from "../MaskFilter/MaskFilter";
-import { createOffscreenTexture } from "../Core/Platform";
 import type { ColorFilterJS } from "../ColorFilter/ColorFilter";
-import type { SVGContext } from "../SVG";
 
 import { nativeBlendMode } from "./BlendMode";
 
-interface PaintContext {
-  ctx: CanvasRenderingContext2D;
-  svgCtx: SVGContext;
-}
-
 export class PaintJS extends HostObject<"Paint"> implements Paint {
-  private style = PaintStyle.Fill;
   private color = Float32Array.of(0, 0, 0, 1);
-  private strokeWidth: number | null = null;
-  private strokeMiter: number | null = null;
-  private shader: ShaderJS | null = null;
-  private colorFilter: ColorFilterJS | null = null;
-  private imageFilter: ImageFilterJS | null = null;
-  private maskFilter: MaskFilterJS | null = null;
-  private strokeJoin: Miter | null = null;
-  private strokeCap: Cap | null = null;
-  private blendMode: GlobalCompositeOperation | null = null;
+
+  private paint = new NativePaint();
 
   constructor() {
     super("Paint");
   }
 
-  apply(paintCtx: PaintContext, input: Drawable | (() => void)) {
-    const shape =
-      typeof input === "function" ? new CustomDrawable(input) : input;
-    const { ctx } = paintCtx;
-    ctx.save();
-    this.processFilter(paintCtx);
-    this.processStyle(ctx);
-    shape.draw(ctx, this.style.value === PaintStyle.Stroke.value);
-    ctx.restore();
-  }
-
-  private processStyle(ctx: CanvasRenderingContext2D) {
-    let style: CanvasPattern | string | null = null;
-    if (this.shader) {
-      const bufferCtx = createOffscreenTexture(
-        ctx.canvas.width,
-        ctx.canvas.height
-      );
-      const currenTransform = ctx.getTransform();
-      bufferCtx.setTransform(currenTransform);
-      const texture = this.shader.paint(bufferCtx);
-      // This will fail on Safari 17 (https://bugs.webkit.org/show_bug.cgi?id=149986)
-      try {
-        const pattern = ctx.createPattern(texture, "no-repeat")!;
-        pattern.setTransform(currenTransform.inverse());
-        style = pattern;
-      } catch (e) {}
-      ctx.globalAlpha = this.color[3];
-    } else {
-      style = nativeColor(this.color);
-    }
-    if (style && this.style === PaintStyle.Fill) {
-      ctx.fillStyle = style;
-    } else if (style) {
-      ctx.strokeStyle = style;
-    }
-    if (this.strokeMiter !== null) {
-      ctx.miterLimit = this.strokeMiter;
-    }
-    if (this.strokeWidth !== null) {
-      ctx.lineWidth = this.strokeWidth;
-    }
-    if (this.strokeCap !== null) {
-      ctx.lineCap = this.strokeCap;
-    }
-    if (this.strokeJoin !== null) {
-      ctx.lineJoin = this.strokeJoin;
-    }
-    if (this.blendMode) {
-      ctx.globalCompositeOperation = this.blendMode;
-    }
-  }
-
-  private processFilter(paintCtx: PaintContext) {
-    const { ctx, svgCtx } = paintCtx;
-    if (this.maskFilter || this.imageFilter || this.colorFilter) {
-      const filter: string[] = [];
-      if (this.maskFilter) {
-        const { id, filters } = this.maskFilter;
-        const url = svgCtx.create(id, filters);
-        filter.push(url);
-      }
-      if (this.imageFilter) {
-        const { id, filters } = this.imageFilter;
-        const url = svgCtx.create(id, filters);
-        filter.push(url);
-      }
-      if (this.colorFilter) {
-        const { id, filters } = this.colorFilter;
-        const url = svgCtx.create(id, filters);
-        filter.push(url);
-      }
-      ctx.filter = filter.join(" ");
-    }
+  getPaint() {
+    return this.paint;
   }
 
   copy(): Paint {
-    const {
-      style,
-      color,
-      strokeWidth,
-      strokeMiter,
-      strokeJoin,
-      strokeCap,
-      blendMode,
-      shader,
-      imageFilter,
-      colorFilter,
-      maskFilter,
-    } = this;
+    const { color } = this;
     const paint = new PaintJS();
-    paint.setStyle(style);
+    paint.paint = this.paint.copy();
     if (color !== null) {
       paint.color = color;
     }
-    paint.strokeWidth = strokeWidth;
-    paint.strokeMiter = strokeMiter;
-    paint.strokeJoin = strokeJoin;
-    paint.strokeCap = strokeCap;
-    paint.blendMode = blendMode;
-    if (shader) {
-      paint.setShader(shader);
-    }
-    if (imageFilter) {
-      paint.imageFilter = imageFilter;
-    }
-    if (colorFilter) {
-      paint.colorFilter = colorFilter;
-    }
-    if (maskFilter) {
-      paint.maskFilter = maskFilter;
-    }
     return paint;
   }
+
   getColor() {
     return this.color;
   }
-  getStrokeCap(): EmbindEnumEntity {
-    return lineCap(this.strokeCap ?? "butt");
+
+  getStrokeCap() {
+    return lineCap(this.paint.getStrokeCap());
   }
-  getStrokeJoin(): EmbindEnumEntity {
-    return lineJoin(this.strokeJoin ?? "miter");
+
+  getStrokeJoin() {
+    return lineJoin(this.paint.getStrokeJoin());
   }
+
   getStrokeMiter() {
-    return this.strokeMiter ?? 10;
+    return this.paint.getStrokeMiter();
   }
+
   getStrokeWidth() {
-    return this.strokeWidth ?? 1;
+    return this.paint.getStrokeWidth();
   }
+
   setAlphaf(alpha: number) {
     this.color[3] = alpha;
+    this.paint.setAlpha(alpha);
   }
+
   setAntiAlias(_aa: boolean): void {}
-  setBlendMode(mode: EmbindEnumEntity): void {
-    this.blendMode = nativeBlendMode(mode);
+
+  setBlendMode(mode: EmbindEnumEntity) {
+    this.paint.setBlendMode(nativeBlendMode(mode));
   }
+
   setColor(color: InputColor, _colorSpace?: ColorSpace | undefined): void {
-    if (color instanceof Float32Array) {
-      this.color = color;
-    } else {
-      this.color = Float32Array.from(color);
-    }
+    this.color =
+      color instanceof Float32Array ? color : Float32Array.from(color);
+    this.paint.setAlpha(this.color[3]);
+    this.paint.setColor(
+      `rgb(${Math.round(this.color[0] * 255)}, ${Math.round(
+        this.color[1] * 255
+      )}, ${Math.round(this.color[2] * 255)})`
+    );
   }
+
   setColorComponents(
     r: number,
     g: number,
@@ -196,11 +89,16 @@ export class PaintJS extends HostObject<"Paint"> implements Paint {
     a: number,
     _colorSpace?: ColorSpace | undefined
   ): void {
-    this.color = new Float32Array([r, g, b, a]);
+    this.setColor(Float32Array.of(r, g, b, a));
   }
+
   setColorFilter(filter: ColorFilterJS | null): void {
-    this.colorFilter = filter;
+    if (!filter) {
+      throw new Error("Filter cannot be null");
+    }
+    this.paint.addImageFilter(...filter.filters);
   }
+
   setColorInt(colorInt: number, _colorSpace?: ColorSpace | undefined) {
     // Extract the color components
     let alpha = (colorInt >>> 24) & 255;
@@ -215,39 +113,58 @@ export class PaintJS extends HostObject<"Paint"> implements Paint {
     blue /= 255;
     this.setColor(Float32Array.of(red, green, blue, alpha));
   }
+
   setDither(_shouldDither: boolean): void {
     throw new Error("Method not implemented.");
   }
+
   setImageFilter(filter: ImageFilterJS | null): void {
-    this.imageFilter = filter;
+    if (!filter) {
+      throw new Error("Filter cannot be null");
+    }
+    this.paint.addImageFilter(...filter.filters);
   }
+
   setMaskFilter(filter: MaskFilterJS | null): void {
-    this.maskFilter = filter;
+    if (!filter) {
+      throw new Error("Filter cannot be null");
+    }
+    this.paint.addImageFilter(...filter.filters);
   }
+
   setPathEffect(_effect: PathEffect | null): void {
     throw new Error("Method not implemented.");
   }
+
   setShader(shader: ShaderJS | null): void {
-    this.shader = shader;
+    if (!shader) {
+      throw new Error("Shader cannot be null");
+    }
+    this.paint.setShader(shader.getShader());
   }
+
   setStrokeCap(cap: EmbindEnumEntity): void {
-    this.strokeCap = nativeLineCap(cap);
+    this.paint.setStrokeCap(nativeLineCap(cap));
   }
+
   setStrokeJoin(join: EmbindEnumEntity): void {
-    this.strokeJoin = nativeLineJoin(join);
+    this.paint.setStrokeJoin(nativeLineJoin(join));
   }
+
   setStrokeMiter(limit: number): void {
-    this.strokeMiter = limit;
+    this.paint.setStrokeMiter(limit);
   }
+
   setStrokeWidth(width: number): void {
-    this.strokeWidth = width;
+    this.paint.setStrokeWidth(width);
   }
+
   setStyle(style: EmbindEnumEntity): void {
-    this.style = style;
+    this.paint.setStrokeStyle(style === PaintStyle.Stroke);
   }
 }
 
-const lineCap = (cap: Cap) => {
+const lineCap = (cap: CanvasLineCap) => {
   switch (cap) {
     case "butt":
       return StrokeCap.Butt;
@@ -298,9 +215,6 @@ const nativeLineJoin = (join: EmbindEnumEntity) => {
       throw new Error(`Unknown line cap: ${join.value}`);
   }
 };
-
-type Miter = "miter" | "round" | "bevel";
-type Cap = "butt" | "round" | "square";
 
 // const resetCanvasContext = (ctx: CanvasRenderingContext2D) => {
 //   ctx.globalAlpha = 1;

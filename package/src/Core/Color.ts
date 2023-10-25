@@ -1,6 +1,10 @@
-import type { InputColor } from "canvaskit-wasm";
+import type {
+  Color,
+  InputColor,
+  InputFlexibleColorArray,
+} from "canvaskit-wasm";
 
-import { saturate } from "../math";
+import { saturate } from "../c2d";
 
 import { normalizeArray } from "./Values";
 
@@ -54,6 +58,25 @@ export const nativeColor = (inputColor: InputColor) => {
     Math.round(cl[2] * 255),
     cl[3],
   ].join(", ")})`;
+};
+
+export const normalizeInputColorArray = (input: InputFlexibleColorArray) => {
+  if (input instanceof Float32Array || input instanceof Uint32Array) {
+    const colors: Color[] = [];
+    for (let i = 0; i < input.length; i += 4) {
+      const result = input.subarray(i, i + 4);
+      if (result instanceof Float32Array) {
+        colors.push(result);
+      } else {
+        colors.push(
+          ...Array.from(result).map((c) => uIntColorToCanvasKitColor(c))
+        );
+      }
+    }
+    return colors;
+  } else {
+    return input;
+  }
 };
 
 export const uIntColorToCanvasKitColor = (c: number) => {

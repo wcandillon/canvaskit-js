@@ -33,15 +33,25 @@ import type {
 
 import { HostObject } from "../HostObject";
 
-import { DrawingContext } from "./DrawingContext";
-
 type Command = {
   name: string;
   args: any[];
 };
 
+class RecordingContext {
+  private saveCount = 0;
+
+  save(): number {
+    return this.saveCount++;
+  }
+
+  restore(): void {
+    this.saveCount--;
+  }
+}
+
 export class CanvasRecorder extends HostObject<"Canvas"> implements Canvas {
-  private ctx = new DrawingContext();
+  private ctx = new RecordingContext();
   private commands: Command[] = [];
 
   constructor(readonly bounds: Rect) {

@@ -23,6 +23,7 @@ import { PathJS } from "../Path";
 import { ContourMeasureIterJS } from "../Path/ContourMeasure";
 import { TypefaceFactory } from "../Text/TypefaceFactory";
 
+import { DOMPoint } from "./DOMPoint";
 import { fitRects } from "./lib/FitRect";
 
 import "./matchers";
@@ -136,7 +137,7 @@ if (window) {
     canvas.width = ${width};
     canvas.height = ${height};
     document.body.appendChild(canvas);
-    const surface = ${DEBUG} ? CanvasKit.MakeCanvasRecordingSurface(canvas) : CanvasKit.MakeCanvasSurface(canvas);
+    const surface = CanvasKit.MakeCanvasSurface(canvas);
     const width = ${width};
     const height = ${height};
     const center = { x: width/2, y: height/2 };
@@ -191,6 +192,7 @@ beforeAll(async () => {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const CanvasKitInit = require("canvaskit-wasm/full");
   global.RealCanvasKit = await CanvasKitInit({});
+  global.DOMPoint = DOMPoint;
   await skia.init();
 });
 
@@ -201,6 +203,7 @@ afterAll(async () => {
 declare global {
   var CanvasKit: CanvasKitType;
   var RealCanvasKit: CanvasKitType;
+  var DOMPoint: typeof DOMPoint;
 }
 
 class HeadlessCanvasKit extends CoreCanvasKit {

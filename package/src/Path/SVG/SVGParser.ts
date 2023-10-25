@@ -1,6 +1,10 @@
-import { plus, vec } from "../../Vector";
+import {
+  CubicPathComponent,
+  QuadraticPathComponent,
+  vec,
+  plus,
+} from "../../c2d";
 import { PathBuilder } from "../PathBuilder";
-import { CubicPathComponent, QuadraticPathComponent } from "../PathComponents";
 
 import { a2c } from "./Arc";
 
@@ -43,8 +47,8 @@ const stackCmd = (
     const lCmd = cmd.toLowerCase();
     const rel = lCmd === cmd;
     const lastPoint = path.getLastPoint();
-    const dx = rel ? lastPoint[0] : 0;
-    const dy = rel ? lastPoint[1] : 0;
+    const dx = rel ? lastPoint.x : 0;
+    const dy = rel ? lastPoint.y : 0;
     const delta = vec(dx, dy);
 
     if (lCmd === "m") {
@@ -61,9 +65,9 @@ const stackCmd = (
     } else if (lCmd === "l") {
       path.lineTo(vec(args[0], args[1]), rel);
     } else if (lCmd === "h") {
-      path.lineTo(vec(dx + args[0], path.getLastPoint()[1]));
+      path.lineTo(vec(dx + args[0], path.getLastPoint().y));
     } else if (lCmd === "v") {
-      path.lineTo(vec(path.getLastPoint()[0], dy + args[0]));
+      path.lineTo(vec(path.getLastPoint().x, dy + args[0]));
     } else if (lCmd === "s") {
       const lastComp = path.getPath().getLastComponent();
       const cp2 =
@@ -80,8 +84,8 @@ const stackCmd = (
       path.quadraticCurveTo(cp, plus(delta, vec(args[2], args[3])));
     } else if (lCmd === "a") {
       const curves = a2c(
-        lastPoint[0],
-        lastPoint[1],
+        lastPoint.x,
+        lastPoint.y,
         dx + args[5],
         dy + args[6],
         args[3],

@@ -1,167 +1,71 @@
-import type {
-  InputMatrix,
-  MallocObj,
-  RuntimeEffect,
-  Shader,
-  SkSLUniform,
-} from "canvaskit-wasm";
+import type { InputMatrix, MallocObj } from "canvaskit-wasm";
 
 import { HostObject } from "../HostObject";
-import type { ShaderJS } from "../Shader";
-import { RuntimeEffectShader } from "../Shader/RuntimeEffectShader";
-import { normalizeArray } from "../Core";
+import { ShaderJS } from "../Shader";
+import { nativeMatrix, normalizeArray } from "../Core";
+import { WebGLShader, type WebGLContext } from "../c2d";
 
-export interface RuntimeEffectChild {
-  texture: WebGLTexture;
-  location: WebGLUniformLocation;
-}
+export class RuntimeEffectJS extends HostObject<"RuntimeEffect"> {
+  private uniformMap;
 
-export type RuntimeEffectChildren = RuntimeEffectChild[];
-
-export type Textures = { [name: string]: RuntimeEffectChild };
-
-export interface RuntimeEffectContext {
-  gl: WebGL2RenderingContext;
-  program: WebGLProgram;
-  textures: Textures;
-}
-
-interface UniformProcessingState {
-  uniformIndex: number;
-  shaderIndex: number;
-}
-
-export class RuntimeEffectJS
-  extends HostObject<"RuntimeEffect">
-  implements RuntimeEffect
-{
-  private uniformMap: number[] = [];
-
-  constructor(private readonly ctx: RuntimeEffectContext) {
+  constructor(private readonly ctx: WebGLContext) {
     super("RuntimeEffect");
+    this.uniformMap = this.getUniforms().filter(
+      (u) => u.type !== ctx.gl.SAMPLER_2D
+    );
+  }
+
+  private getUniforms() {
     const { gl, program } = this.ctx;
     const uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
-    for (let i = 0; i < uniformCount; i++) {
-      const uniformInfo = gl.getActiveUniform(program, i);
-      if (uniformInfo && uniformInfo.type !== gl.SAMPLER_2D) {
-        this.uniformMap.push(i);
-      }
-    }
+    return Array.from({ length: uniformCount }, (_, i) =>
+      gl.getActiveUniform(program, i)
+    )
+      .filter(Boolean)
+      .map((uniform, index) => ({ ...uniform, index }));
   }
 
   makeShader(
-    uniforms: MallocObj | Float32Array | number[],
+    inputUniforms: MallocObj | Float32Array | number[],
     localMatrix?: InputMatrix
-  ): Shader {
-    return this.makeShaderWithChildren(uniforms, undefined, localMatrix);
+  ): ShaderJS {
+    return this.makeShaderWithChildren(inputUniforms, undefined, localMatrix);
   }
 
   makeShaderWithChildren(
     inputUniforms: MallocObj | Float32Array | number[],
     input?: ShaderJS[],
     localMatrix?: InputMatrix
-  ): Shader {
-    const children = input ? input : [];
-    const childrenCtx: RuntimeEffectChildren = [];
-    const { gl, program, textures } = this.ctx;
-    const uniforms = normalizeArray(inputUniforms);
-    const state: UniformProcessingState = { uniformIndex: 0, shaderIndex: 0 };
-    const uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
-    for (let i = 0; i < uniformCount; i++) {
-      const uniformInfo = gl.getActiveUniform(program, i)!;
-      if (uniformInfo.type === gl.FLOAT) {
-        processUniform(
-          this.ctx,
-          state,
-          uniforms,
-          uniformInfo,
-          1,
-          gl.uniform1fv.bind(gl)
-        );
-      } else if (uniformInfo.type === gl.FLOAT_VEC2) {
-        processUniform(
-          this.ctx,
-          state,
-          uniforms,
-          uniformInfo,
-          2,
-          gl.uniform2fv.bind(gl)
-        );
-      } else if (uniformInfo.type === gl.FLOAT_VEC3) {
-        processUniform(
-          this.ctx,
-          state,
-          uniforms,
-          uniformInfo,
-          3,
-          gl.uniform3fv.bind(gl)
-        );
-      } else if (uniformInfo.type === gl.FLOAT_VEC4) {
-        processUniform(
-          this.ctx,
-          state,
-          uniforms,
-          uniformInfo,
-          4,
-          gl.uniform4fv.bind(gl)
-        );
-      } else if (uniformInfo.type === gl.FLOAT_MAT2) {
-        processUniform(
-          this.ctx,
-          state,
-          uniforms,
-          uniformInfo,
-          4,
-          (loc, subarr) => gl.uniformMatrix2fv(loc, false, subarr)
-        );
-      } else if (uniformInfo.type === gl.FLOAT_MAT3) {
-        processUniform(
-          this.ctx,
-          state,
-          uniforms,
-          uniformInfo,
-          9,
-          (loc, subarr) => gl.uniformMatrix3fv(loc, false, subarr)
-        );
-      } else if (uniformInfo.type === gl.FLOAT_MAT4) {
-        processUniform(
-          this.ctx,
-          state,
-          uniforms,
-          uniformInfo,
-          16,
-          (loc, subarr) => gl.uniformMatrix4fv(loc, false, subarr)
-        );
-      } else if (uniformInfo.type === gl.SAMPLER_2D) {
-        const { name } = uniformInfo;
+  ): ShaderJS {
+    const uniforms = Array.from(normalizeArray(inputUniforms));
+    const mappedUniforms = createUniformMap(
+      this.ctx.gl,
+      this.ctx.program,
+      uniforms
+    );
+    const children = input ? input.map((c) => c.getShader()) : [];
 
-        childrenCtx.push(textures[name]);
-        state.shaderIndex++;
-      }
-    }
-
-    if (localMatrix) {
-      // TODO: to implement
-      //console.warn("localMatrix not implemented yet");
-    }
-
-    return new RuntimeEffectShader(this.ctx, childrenCtx, children);
+    return new ShaderJS(
+      new WebGLShader(
+        this.ctx,
+        mappedUniforms,
+        children,
+        localMatrix ? nativeMatrix(localMatrix) : undefined
+      )
+    );
   }
-  getUniform(index: number): SkSLUniform {
-    const { gl, program } = this.ctx;
-    const i = this.uniformMap.indexOf(index);
-    const uniformInfo = gl.getActiveUniform(program, i);
-    if (!uniformInfo) {
-      throw new Error(`No uniform at index ${i}`);
+
+  getUniform(index: number) {
+    const uniform = this.uniformMap[index];
+    if (!uniform) {
+      throw new Error(`No uniform at index ${index}`);
     }
+    const { gl } = this.ctx;
+    let rows = 1,
+      columns = 1,
+      isInteger = false;
 
-    let rows = 1;
-    let columns = 1;
-    let isInteger = false;
-
-    switch (uniformInfo.type) {
-      case gl.FLOAT:
-        break;
+    switch (uniform.type) {
       case gl.FLOAT_VEC2:
         rows = 2;
         break;
@@ -199,74 +103,96 @@ export class RuntimeEffectJS
         rows = 4;
         break;
       default:
-        throw new Error("Unsupported uniform type: " + uniformInfo.type);
+        if (uniform.type !== gl.FLOAT) {
+          throw new Error(`Unsupported uniform type: ${uniform.type}`);
+        }
     }
-    const uniform: SkSLUniform = {
-      columns,
-      rows,
-      slot: i,
-      isInteger,
-    };
-
-    return uniform;
+    return { columns, rows, slot: uniform.index, isInteger };
   }
-  getUniformCount(): number {
-    const { gl, program } = this.ctx;
-    let count = 0;
-    const uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
 
-    for (let i = 0; i < uniformCount; i++) {
-      const uniformInfo = gl.getActiveUniform(program, i);
-      if (uniformInfo && uniformInfo.type !== gl.SAMPLER_2D) {
-        count++;
-      }
-    }
-    return count;
+  getUniformCount() {
+    return this.uniformMap.length;
   }
+
   getUniformFloatCount() {
-    const { gl, program } = this.ctx;
-    let floatCount = 0;
-    const uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
-
-    for (let i = 0; i < uniformCount; i++) {
-      const uniformInfo = gl.getActiveUniform(program, i);
-      if (uniformInfo && uniformInfo.type === gl.FLOAT) {
-        floatCount += uniformInfo.size;
-      }
-    }
-    return floatCount;
+    return this.uniformMap
+      .filter((u) => u.type === this.ctx.gl.FLOAT)
+      .reduce((count, u) => count + u.size!, 0);
   }
 
   getUniformName(index: number) {
-    const { gl, program } = this.ctx;
-    const uniformInfo = gl.getActiveUniform(program, index);
-    if (!uniformInfo) {
+    const uniform = this.uniformMap[index];
+    if (!uniform) {
       throw new Error(`No uniform at index ${index}`);
     }
-    return uniformInfo.name;
+    return uniform.name!;
   }
 }
 
-const processUniform = (
-  ctx: RuntimeEffectContext,
-  state: UniformProcessingState,
-  uniforms: Float32Array,
-  uniformInfo: WebGLActiveInfo,
-  size: number,
-  setter: (loc: WebGLUniformLocation | null, subarr: Float32Array) => void
-) => {
-  const { gl, program } = ctx;
-  const { name } = uniformInfo;
-  const location = gl.getUniformLocation(program, name);
-  if (!location) {
-    console.error("Could not find uniform location for " + name);
+const getUniformNames = (
+  gl: WebGL2RenderingContext,
+  program: WebGLProgram
+): string[] => {
+  const uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
+  return Array.from(
+    { length: uniformCount },
+    (_, i) => gl.getActiveUniform(program, i)!.name
+  ).filter(Boolean);
+};
+
+const createUniformMap = (
+  gl: WebGL2RenderingContext,
+  program: WebGLProgram,
+  values: number[]
+): Record<string, number[]> => {
+  const uniformNames = getUniformNames(gl, program);
+  let index = 0;
+  return uniformNames.reduce((map, name, uniformIndex) => {
+    if (name === "u_matrix" || name === "u_resolution") {
+      return map;
+    }
+    const location = gl.getUniformLocation(program, name);
+    if (!location) {
+      console.error(`Uniform ${name} not found in shader program.`);
+      return map;
+    }
+    const info = gl.getActiveUniform(program, uniformIndex);
+    if (!info) {
+      return map;
+    }
+    const size = getUniformSize(gl, info.type) * info.size;
+    if (size === 0) {
+      console.error(`Unsupported uniform type for ${name}.`);
+      return map;
+    }
+    map[name] = values.slice(index, index + size);
+    index += size;
+    return map;
+  }, {} as Record<string, number[]>);
+};
+
+const getUniformSize = (gl: WebGL2RenderingContext, type: number): number => {
+  switch (type) {
+    case gl.FLOAT:
+    case gl.INT:
+    case gl.SAMPLER_2D:
+    case gl.SAMPLER_CUBE:
+      return 1;
+    case gl.FLOAT_VEC2:
+    case gl.INT_VEC2:
+      return 2;
+    case gl.FLOAT_VEC3:
+    case gl.INT_VEC3:
+      return 3;
+    case gl.FLOAT_VEC4:
+    case gl.INT_VEC4:
+    case gl.FLOAT_MAT2:
+      return 4;
+    case gl.FLOAT_MAT3:
+      return 9;
+    case gl.FLOAT_MAT4:
+      return 16;
+    default:
+      return 0;
   }
-  setter(
-    gl.getUniformLocation(program, name),
-    uniforms.subarray(
-      state.uniformIndex,
-      state.uniformIndex + size * uniformInfo.size
-    )
-  );
-  state.uniformIndex += size;
 };

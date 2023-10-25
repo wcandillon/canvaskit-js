@@ -1,5 +1,4 @@
 import type {
-  Canvas,
   ColorIntArray,
   CubicResampler,
   EmbindEnumEntity,
@@ -16,96 +15,100 @@ import type {
   InputRect,
   InputVector3,
   MallocObj,
-  Paint,
   Paragraph,
-  Path,
+  Paint as CKPaint,
   Surface,
   TextBlob,
   Vertices,
+  Canvas as CKCanvas,
 } from "canvaskit-wasm";
 
-import { PaintJS, nativeBlendMode } from "../Paint";
-import type { ColorSpaceJS, GrDirectContextJS, InputColor } from "../Core";
 import {
-  DrawableRect,
-  DrawablePath,
-  nativeColor,
+  Canvas as NativeCanvas,
+  Path as NativePath,
+  DrawableFill,
+  DrawableText,
+  DrawableDRRect,
+  DrawableImageRect,
+  DrawableImage,
+  ImageFilter,
+} from "../c2d";
+import { PaintJS } from "../Paint";
+import type { ColorSpaceJS, InputColor } from "../Core";
+import {
   intAsColor,
   rectToXYWH,
   rrectToXYWH,
-  DrawableCircle,
-  DrawableText,
-  DrawableDRRect,
   rrectToPath2D,
-  normalizeArray,
-  DrawableGlyphs,
+  BlendMode,
 } from "../Core";
 import { HostObject } from "../HostObject";
 import { nativeMatrix } from "../Core/Matrix";
-import type { PathJS } from "../Path";
+import { PathJS } from "../Path";
 import type { ImageJS } from "../Image";
 import type { ImageFilterJS } from "../ImageFilter";
-import type { SVGContext } from "../SVG";
 import type { FontJS } from "../Text";
 import type { PictureJS } from "../Picture";
 
-import { DrawingContext } from "./DrawingContext";
+export class CanvasJS extends HostObject<"Canvas"> implements CKCanvas {
+  private ctx: NativeCanvas;
+  private width: number;
+  private height: number;
+  private saveCount = 0;
 
-export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
-  private context: DrawingContext;
-
-  constructor(
-    ctx: CanvasRenderingContext2D,
-    public readonly svgCtx: SVGContext,
-    public readonly grCtx: GrDirectContextJS
-  ) {
+  constructor(ctx: CanvasRenderingContext2D) {
     super("Canvas");
-    this.context = new DrawingContext(ctx);
-  }
-
-  get ctx() {
-    return this.context.ctx!;
-  }
-
-  get paintCtx() {
-    return { ctx: this.ctx, svgCtx: this.svgCtx };
+    this.width = ctx.canvas.width;
+    this.height = ctx.canvas.height;
+    this.ctx = new NativeCanvas(ctx);
   }
 
   clear(color: InputColor): void {
-    this.svgCtx.discardCacheIfNeeded();
-    this.ctx.save();
-    this.ctx.setTransform();
-    this.ctx.globalCompositeOperation = "copy";
-    this.ctx.fillStyle = nativeColor(color);
-    this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-    this.ctx.restore();
+    const paint = new PaintJS();
+    paint.setColor(color);
+    paint.setBlendMode(BlendMode.Clear);
+    this.drawPaint(paint);
   }
+
   clipPath(path: PathJS, _op: EmbindEnumEntity, _doAntiAlias: boolean): void {
-    this._clip(path.getPath2D());
+    this._clip(path.getPath());
   }
   clipRect(rect: InputRect, _op: EmbindEnumEntity, _doAntiAlias: boolean) {
     const { x, y, width, height } = rectToXYWH(rect);
-    const path = new Path2D();
-    path.rect(x, y, width, height);
+    const path = new NativePath();
+    path.moveTo(new DOMPoint(x, y));
+    path.lineTo(new DOMPoint(x + width, y));
+    path.lineTo(new DOMPoint(x + width, y + height));
+    path.lineTo(new DOMPoint(x, y + height));
+    path.close();
     this._clip(path);
   }
   clipRRect(rrect: InputRRect, _op: EmbindEnumEntity, _doAntiAlias: boolean) {
     const { x, y, width, height, radii } = rrectToXYWH(rrect);
-    const path = new Path2D();
-    path.roundRect(x, y, width, height, [
-      { x: radii.topLeft[0], y: radii.topLeft[1] },
-      { x: radii.topRight[0], y: radii.topRight[1] },
-      { x: radii.bottomRight[0], y: radii.bottomRight[1] },
-      { x: radii.bottomLeft[0], y: radii.bottomLeft[1] },
+    const path = new PathJS();
+    path.addRRect([
+      x,
+      y,
+      width,
+      height,
+      radii.topLeft.x,
+      radii.topLeft.y,
+      radii.topRight.x,
+      radii.topRight.y,
+      radii.bottomRight.x,
+      radii.bottomRight.y,
+      radii.bottomLeft.x,
+      radii.bottomLeft.y,
     ]);
-    this._clip(path);
+    this._clip(path.getPath());
   }
-  private _clip(path: Path2D) {
+
+  private _clip(path: NativePath) {
     this.ctx.clip(path);
   }
   concat(m: InputMatrix) {
     const m3 = nativeMatrix(m);
-    this.context.transform(m3);
+    this.ctx.concat(m3);
   }
   drawArc(
     oval: InputRect,
@@ -114,7 +117,7 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     _useCenter: boolean,
     paint: PaintJS
   ): void {
-    const path = new Path2D();
+    const path = new PathJS();
     const rct = rectToXYWH(oval);
     path.arc(
       rct.width / 2,
@@ -123,13 +126,13 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
       startAngle,
       sweepAngle
     );
-    paint.apply(this.paintCtx, new DrawablePath(path));
+    this.ctx.drawPath(path.getPath(), paint.getPaint());
   }
   drawAtlas(
     _atlas: Image,
     _srcRects: InputFlattenedRectangleArray,
     _dstXforms: InputFlattenedRSXFormArray,
-    _paint: Paint,
+    _paint: CKPaint,
     _blendMode?: EmbindEnumEntity | null | undefined,
     _colors?: ColorIntArray | null | undefined,
     _sampling?: CubicResampler | FilterOptions | undefined
@@ -137,17 +140,17 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     throw new Error("Method not implemented.");
   }
   drawCircle(cx: number, cy: number, radius: number, paint: PaintJS) {
-    paint.apply(this.paintCtx, new DrawableCircle(cx, cy, radius));
+    const path = new PathJS();
+    path.addCircle(cx, cy, radius);
+    this.ctx.drawPath(path.getPath(), paint.getPaint());
   }
   drawColor(color: InputColor, blendMode?: EmbindEnumEntity | undefined): void {
-    this.ctx.save();
-    this.ctx.setTransform();
+    const paint = new PaintJS();
+    paint.setColor(color);
     if (blendMode) {
-      this.ctx.globalCompositeOperation = nativeBlendMode(blendMode);
+      paint.setBlendMode(blendMode);
     }
-    this.ctx.fillStyle = nativeColor(color);
-    this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-    this.ctx.restore();
+    this.drawPaint(paint);
   }
   drawColorComponents(
     r: number,
@@ -162,38 +165,24 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     this.drawColor(intAsColor(color), blendMode);
   }
   drawDRRect(outerInput: InputRRect, innerInput: InputRRect, paint: PaintJS) {
-    paint.apply(
-      this.paintCtx,
-      new DrawableDRRect(rrectToPath2D(outerInput), rrectToPath2D(innerInput))
+    this.ctx.draw(
+      new DrawableDRRect(rrectToPath2D(outerInput), rrectToPath2D(innerInput)),
+      paint.getPaint()
     );
   }
   drawGlyphs(
-    glyphs: InputGlyphIDArray,
-    positions: InputFlattenedPointArray,
-    x: number,
-    y: number,
-    font: FontJS,
-    paint: PaintJS
+    _glyphs: InputGlyphIDArray,
+    _positions: InputFlattenedPointArray,
+    _x: number,
+    _y: number,
+    _font: FontJS,
+    _paint: PaintJS
   ): void {
-    paint.apply(
-      this.paintCtx,
-      new DrawableGlyphs(
-        Array.from(normalizeArray(glyphs)),
-        normalizeArray(positions),
-        x,
-        y,
-        font
-      )
-    );
+    throw new Error("Method not implemented.");
   }
-  drawImage(img: ImageJS, left: number, top: number, paint?: PaintJS): void {
-    if (paint) {
-      paint.apply(this.paintCtx, () => {
-        this.ctx.drawImage(img.getImage(), left, top);
-      });
-    } else {
-      this.ctx.drawImage(img.getImage(), left, top);
-    }
+  drawImage(img: ImageJS, x: number, y: number, _paint?: PaintJS): void {
+    const paint = _paint || new PaintJS();
+    this.ctx.draw(new DrawableImage(img.getImage(), x, y), paint.getPaint());
   }
   drawImageCubic(
     _img: Image,
@@ -201,7 +190,7 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     _top: number,
     _B: number,
     _C: number,
-    _paint?: Paint | null | undefined
+    _paint?: PaintJS | null | undefined
   ): void {
     throw new Error("Method not implemented.");
   }
@@ -211,7 +200,7 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     _top: number,
     _fm: EmbindEnumEntity,
     _mm: EmbindEnumEntity,
-    _paint?: Paint | null | undefined
+    _paint?: PaintJS | null | undefined
   ): void {
     throw new Error("Method not implemented.");
   }
@@ -220,7 +209,7 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     _center: InputIRect,
     _dest: InputRect,
     _filter: EmbindEnumEntity,
-    _paint?: Paint | null | undefined
+    _paint?: PaintJS | null | undefined
   ): void {
     throw new Error("Method not implemented.");
   }
@@ -233,8 +222,8 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
   ): void {
     const src = rectToXYWH(_src);
     const dest = rectToXYWH(_dest);
-    paint.apply(this.paintCtx, () => {
-      this.ctx.drawImage(
+    this.ctx.draw(
+      new DrawableImageRect(
         img.getImage(),
         src.x,
         src.y,
@@ -244,8 +233,9 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
         dest.y,
         dest.width,
         dest.height
-      );
-    });
+      ),
+      paint.getPaint()
+    );
   }
   drawImageRectCubic(
     _img: Image,
@@ -253,7 +243,7 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     _dest: InputRect,
     _B: number,
     _C: number,
-    _paint?: Paint | null | undefined
+    _paint?: PaintJS | null | undefined
   ): void {
     throw new Error("Method not implemented.");
   }
@@ -263,7 +253,7 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     _dest: InputRect,
     _fm: EmbindEnumEntity,
     _mm: EmbindEnumEntity,
-    _paint?: Paint | null | undefined
+    _paint?: PaintJS | null | undefined
   ): void {
     throw new Error("Method not implemented.");
   }
@@ -274,44 +264,29 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     y1: number,
     paint: PaintJS
   ): void {
-    const path = new Path2D();
+    const path = new PathJS();
     path.moveTo(x0, y0);
     path.lineTo(x1, y1);
-    paint.apply(this.paintCtx, new DrawablePath(path));
+    this.ctx.drawPath(path.getPath(), paint.getPaint());
   }
-  drawOval(_oval: InputRect, _paint: Paint): void {
+  drawOval(_oval: InputRect, _paint: PaintJS): void {
     throw new Error("Method not implemented.");
   }
   drawPaint(paint: PaintJS) {
-    const { width, height } = this.ctx.canvas;
-    const m = this.ctx.getTransform().invertSelf();
-    const topLeft = new DOMPoint(0, 0).matrixTransform(m);
-    const topRight = new DOMPoint(width, 0).matrixTransform(m);
-    const bottomRight = new DOMPoint(width, height).matrixTransform(m);
-    const bottomLeft = new DOMPoint(0, height).matrixTransform(m);
-    const path = new Path2D();
-    path.moveTo(topLeft.x, topLeft.y);
-    path.lineTo(topRight.x, topRight.y);
-    path.lineTo(bottomRight.x, bottomRight.y);
-    path.lineTo(bottomLeft.x, bottomLeft.y);
-    path.closePath();
-    paint.apply(this.paintCtx, new DrawablePath(path));
+    this.ctx.draw(new DrawableFill(this.width, this.height), paint.getPaint());
   }
   drawParagraph(_p: Paragraph, _x: number, _y: number): void {
     throw new Error("Method not implemented.");
   }
   drawPath(path: PathJS, paint: PaintJS): void {
-    paint.apply(
-      this.paintCtx,
-      new DrawablePath(path.getPath2D(), path.getNativeFillType())
-    );
+    this.ctx.drawPath(path.getPath(), paint.getPaint());
   }
   drawPatch(
     _cubics: InputFlattenedPointArray,
     _colors?: ColorIntArray | Float32Array[] | null | undefined,
     _texs?: InputFlattenedPointArray | null | undefined,
     _mode?: EmbindEnumEntity | null | undefined,
-    _paint?: Paint | undefined
+    _paint?: PaintJS | undefined
   ): void {
     throw new Error("Method not implemented.");
   }
@@ -321,13 +296,15 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
   drawPoints(
     _mode: EmbindEnumEntity,
     _points: InputFlattenedPointArray,
-    _paint: Paint
+    _paint: PaintJS
   ): void {
     throw new Error("Method not implemented.");
   }
   drawRect(rect: InputRect, paint: PaintJS) {
     const { x, y, width, height } = rectToXYWH(rect);
-    paint.apply(this.paintCtx, new DrawableRect(x, y, width, height));
+    const path = new PathJS();
+    path.addRect(Float32Array.of(x, y, width, height));
+    this.ctx.drawPath(path.getPath(), paint.getPaint());
   }
   drawRect4f(
     left: number,
@@ -342,17 +319,27 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
   }
   drawRRect(rrect: InputRRect, paint: PaintJS): void {
     const { x, y, width, height, radii } = rrectToXYWH(rrect);
-    const path = new Path2D();
-    path.roundRect(x, y, width, height, [
-      { x: radii.topLeft[0], y: radii.topLeft[1] },
-      { x: radii.topRight[0], y: radii.topRight[1] },
-      { x: radii.bottomRight[0], y: radii.bottomRight[1] },
-      { x: radii.bottomLeft[0], y: radii.bottomLeft[1] },
-    ]);
-    paint.apply(this.paintCtx, new DrawablePath(path));
+    const path = new PathJS();
+    path.addRRect(
+      Float32Array.of(
+        x,
+        y,
+        width,
+        height,
+        radii.topLeft.x,
+        radii.topLeft.y,
+        radii.topRight.x,
+        radii.topRight.y,
+        radii.bottomRight.x,
+        radii.bottomRight.y,
+        radii.bottomLeft.x,
+        radii.bottomLeft.y
+      )
+    );
+    this.ctx.drawPath(path.getPath(), paint.getPaint());
   }
   drawShadow(
-    _path: Path,
+    _path: PathJS,
     _zPlaneParams: InputVector3,
     _lightPos: InputVector3,
     _lightRadius: number,
@@ -369,20 +356,27 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     paint: PaintJS,
     font: FontJS
   ): void {
-    paint.apply(this.paintCtx, new DrawableText(str, x, y, font.fontStyle()));
+    this.ctx.draw(
+      new DrawableText(str, x, y, font.fontStyle()),
+      paint.getPaint()
+    );
   }
-  drawTextBlob(_blob: TextBlob, _x: number, _y: number, _paint: Paint): void {
+  drawTextBlob(_blob: TextBlob, _x: number, _y: number, _paint: PaintJS): void {
     throw new Error("Method not implemented.");
   }
-  drawVertices(_verts: Vertices, _mode: EmbindEnumEntity, _paint: Paint): void {
+  drawVertices(
+    _verts: Vertices,
+    _mode: EmbindEnumEntity,
+    _paint: PaintJS
+  ): void {
     throw new Error("Method not implemented.");
   }
   getDeviceClipBounds(_output?: Int32Array | undefined): Int32Array {
     throw new Error("Method not implemented.");
   }
   getLocalToDevice() {
-    const m = this.ctx.getTransform();
-    return new Float32Array([
+    const m = this.ctx.getMatrix();
+    return Float32Array.of(
       m.m11,
       m.m21,
       m.m31,
@@ -398,15 +392,25 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
       m.m14,
       m.m24,
       m.m34,
-      m.m44,
-    ]);
+      m.m44
+    );
   }
   getSaveCount() {
-    return this.context.saveCount();
+    return this.saveCount;
   }
-  getTotalMatrix(): number[] {
-    const m = this.ctx.getTransform();
-    return [m.a, m.c, m.e, m.b, m.d, m.f, 0, 0, 1];
+  getTotalMatrix() {
+    const matrix = this.ctx.getMatrix();
+    return [
+      matrix.m11,
+      matrix.m21,
+      matrix.m41,
+      matrix.m12,
+      matrix.m22,
+      matrix.m42,
+      matrix.m14,
+      matrix.m24,
+      matrix.m44,
+    ];
   }
   makeSurface(_info: ImageInfo): Surface | null {
     throw new Error("Method not implemented.");
@@ -421,22 +425,7 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     throw new Error("Method not implemented.");
   }
   restore() {
-    const { layer, ctx } = this.context.restore()!;
-    if (layer) {
-      const { imageFilter } = layer;
-      this.ctx.save();
-      this.ctx.resetTransform();
-      if (imageFilter) {
-        const paint = new PaintJS();
-        paint.setImageFilter(imageFilter);
-        paint.apply(this.paintCtx, () => {
-          this.ctx.drawImage(this.ctx.canvas, 0, 0);
-        });
-      } else {
-        this.ctx.drawImage(ctx!.canvas, 0, 0);
-      }
-      this.ctx.restore();
-    }
+    this.ctx.restore();
   }
   restoreToCount(saveCount: number): void {
     for (let i = 1; i <= saveCount; i++) {
@@ -448,20 +437,19 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     this.concat(m);
   }
   save() {
-    return this.context.save();
+    this.ctx.save();
+    return ++this.saveCount;
   }
   saveLayer(
-    paint?: PaintJS,
-    bounds?: InputRect | null,
+    _paint?: PaintJS,
+    _bounds?: InputRect | null,
     imageFilter?: ImageFilterJS | null,
-    flags?: number
+    _flags?: number
   ) {
-    return this.context.saveLayer({
-      imageFilter: imageFilter ?? undefined,
-      flags,
-      bounds: bounds ? rectToXYWH(bounds) : undefined,
-      paint,
-    });
+    this.ctx.save(
+      imageFilter ? new ImageFilter(imageFilter.filters) : undefined
+    );
+    return ++this.saveCount;
   }
   scale(sx: number, sy: number): void {
     const m = new DOMMatrix().scale(sx, sy);
@@ -474,29 +462,18 @@ export class CanvasJS extends HostObject<"Canvas"> implements Canvas {
     this.concat(m);
   }
   translate(x: number, y: number): void {
-    const m = new DOMMatrix().translate(x, y);
-    this.concat(m);
+    this.concat(new DOMMatrix().translate(x, y));
   }
   writePixels(
-    pixels: number[] | Uint8Array,
-    width: number,
-    height: number,
-    destX: number,
-    destY: number,
+    _pixels: number[] | Uint8Array,
+    _width: number,
+    _height: number,
+    _destX: number,
+    _destY: number,
     _alphaType?: EmbindEnumEntity | undefined,
     _colorType?: EmbindEnumEntity | undefined,
-    colorSpace?: ColorSpaceJS | undefined
+    _colorSpace?: ColorSpaceJS | undefined
   ): boolean {
-    this.ctx.putImageData(
-      {
-        data: new Uint8ClampedArray(pixels),
-        width,
-        height,
-        colorSpace: colorSpace ? colorSpace.getNativeValue() : "srgb",
-      },
-      destX,
-      destY
-    );
-    return true;
+    throw new Error("Method not implemented.");
   }
 }

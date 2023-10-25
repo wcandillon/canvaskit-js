@@ -1,4 +1,4 @@
-import type { Path } from "../Path";
+import type { Path } from "../../c2d";
 
 export interface PathEffect {
   filterPath(path: Path): Path;

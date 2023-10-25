@@ -10,9 +10,9 @@ import type {
   StrokeOpts,
 } from "canvaskit-wasm";
 
+import { vec, type Path as NativePath, toRad } from "../c2d";
 import { HostObject } from "../HostObject";
-import { type Matrix3x3, transformPoint } from "../Core/Matrix";
-import { toRad } from "../math/index";
+import { transformPoint, type Matrix3x3 } from "../Core/Matrix";
 import {
   FillType,
   FillTypeEnum,
@@ -21,12 +21,10 @@ import {
   rectToXYWH,
   rrectToXYWH,
 } from "../Core";
-import { vec } from "../Vector";
 
 import { PathBuilder } from "./PathBuilder";
 import { parseSVG } from "./SVG";
 import { TrimPathEffect } from "./PathEffects";
-import type { Path } from "./Path";
 
 export class PathJS extends HostObject<"Path"> implements SkPath {
   private path: PathBuilder;
@@ -37,7 +35,7 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
     this.path = path ?? new PathBuilder();
   }
 
-  private swap(path: Path) {
+  private swap(path: NativePath) {
     this.path = new PathBuilder(path);
     return this;
   }
@@ -213,8 +211,8 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
   getPoint(index: number, outputArray?: Float32Array) {
     const result = outputArray ?? new Float32Array(2);
     const point = this.path.getPath().getPoints()[index];
-    result[0] = point[0];
-    result[1] = point[1];
+    result[0] = point.x;
+    result[1] = point.y;
     return result;
   }
   isEmpty(): boolean {
@@ -341,7 +339,8 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
         const to = transformPoint(m3, cmds[i++], cmds[i++]);
         path.quadraticCurveTo(cp, to);
       } else if (cmd === PathVerb.Close) {
-        i++;
+        // TODO: is this correct?
+        //i++;
         path.close();
       }
     }
@@ -471,7 +470,7 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
   }
 }
 
-const calculateBounds = (points: Float32Array[], outputArray: Float32Array) => {
+const calculateBounds = (points: DOMPoint[], outputArray: Float32Array) => {
   if (!points.length) {
     throw new Error("No points provided");
   }
@@ -482,8 +481,8 @@ const calculateBounds = (points: Float32Array[], outputArray: Float32Array) => {
   let bottom = -Infinity;
 
   for (const point of points) {
-    const x = point[0];
-    const y = point[1];
+    const x = point.x;
+    const y = point.y;
 
     if (x < left) {
       left = x;

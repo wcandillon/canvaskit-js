@@ -1,4 +1,4 @@
-import { makeBlur } from "../SVG";
+import { makeBlur } from "../c2d";
 
 import { ImageFilterJS } from "./ImageFilter";
 

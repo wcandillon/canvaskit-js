@@ -29,7 +29,7 @@ describe("Path Interpolation", () => {
     const path2 = CanvasKit.Path.MakeFromCmds(cmd)!;
     expect(path1).toBeTruthy();
     expect(path2).toBeTruthy();
-    expect(path1.toSVGString()).toEqual(path2.toSVGString());
+    expect(path1.toCmds()).toBeApproximatelyEqual(path2.toCmds());
   });
 
   it("basic interpolation", () => {

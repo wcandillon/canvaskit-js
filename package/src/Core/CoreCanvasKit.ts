@@ -2,8 +2,6 @@
 /* eslint-disable camelcase */
 import type { Color, InputRect } from "canvaskit-wasm";
 
-import { VectorHelpers } from "../Vector";
-
 import { Matrix3, Matrix4 } from "./Matrix";
 import {
   color,
@@ -49,6 +47,7 @@ import {
   TileMode,
   VertexMode,
 } from "./Constants";
+import { VectorHelpers } from "./Vector";
 
 // This should contains all functions and variables that don't depend on the Web APIs
 export abstract class CoreCanvasKit {

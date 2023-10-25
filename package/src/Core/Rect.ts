@@ -1,6 +1,6 @@
-import type { InputIRect, InputRRect, InputRect, Point } from "canvaskit-wasm";
+import type { InputIRect, InputRRect, InputRect } from "canvaskit-wasm";
 
-import { vec } from "../Vector";
+import { vec } from "../c2d";
 
 import { normalizeArray } from "./Values";
 
@@ -64,10 +64,10 @@ export const rectToXYWH = (r: InputRect | InputIRect) => {
 };
 
 export interface Radii {
-  topLeft: Point;
-  topRight: Point;
-  bottomRight: Point;
-  bottomLeft: Point;
+  topLeft: DOMPoint;
+  topRight: DOMPoint;
+  bottomRight: DOMPoint;
+  bottomLeft: DOMPoint;
 }
 
 export const rrectToXYWH = (r: InputRRect) => {

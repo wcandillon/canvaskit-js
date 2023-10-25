@@ -1,12 +1,10 @@
-import type { Point } from "canvaskit-wasm";
-
-import { cross, dot, minus, normalize, vec } from "../../Vector";
-import { PathVerb } from "../../Core";
+import { cross, dot, minus, normalize } from "../Vector";
 
 import { PathComponentType, type PathComponent } from "./PathComponent";
 import type { PolylineItem } from "./Polyline";
 import { Polyline, linearSolve } from "./Polyline";
 import { Flatennable } from "./Flattenable";
+import { PathVerb } from "./PathVerb";
 
 const defaultCurveTolerance = 0.1;
 
@@ -16,7 +14,11 @@ export class QuadraticPathComponent
 {
   type = PathComponentType.Quadratic;
 
-  constructor(readonly p1: Point, readonly cp: Point, readonly p2: Point) {
+  constructor(
+    readonly p1: DOMPoint,
+    readonly cp: DOMPoint,
+    readonly p2: DOMPoint
+  ) {
     super();
   }
 
@@ -35,7 +37,7 @@ export class QuadraticPathComponent
     const crossV = cross(minus(this.p2, this.p1), dd);
     const x0 = (dot(d01, dd) * 1) / crossV;
     const x2 = (dot(d12, dd) * 1) / crossV;
-    const scale = Math.abs(crossV / (Math.hypot(dd[0], dd[1]) * (x2 - x0)));
+    const scale = Math.abs(crossV / (Math.hypot(dd.x, dd.y) * (x2 - x0)));
 
     const a0 = approximateParabolaIntegral(x0);
     const a2 = approximateParabolaIntegral(x2);
@@ -69,8 +71,8 @@ export class QuadraticPathComponent
   private chop(t: number, side: "left" | "right") {
     const { p1: p0, cp: p1, p2 } = this;
 
-    const p01: Point = linearSolve(t, p0, p1);
-    const p12: Point = linearSolve(t, p1, p2);
+    const p01 = linearSolve(t, p0, p1);
+    const p12 = linearSolve(t, p1, p2);
     if (side === "left") {
       return new QuadraticPathComponent(p0, p01, linearSolve(t, p01, p12));
     } else {
@@ -86,25 +88,25 @@ export class QuadraticPathComponent
   }
 
   toSVGString() {
-    return `Q${this.cp[0]} ${this.cp[1]} ${this.p2[0]} ${this.p2[1]}`;
+    return `Q${this.cp.x} ${this.cp.y} ${this.p2.x} ${this.p2.y}`;
   }
 
   toCmd() {
-    return [PathVerb.Quad, this.cp[0], this.cp[1], this.p2[0], this.p2[1]];
+    return [PathVerb.Quad, this.cp.x, this.cp.y, this.p2.x, this.p2.y];
   }
 
   solve(t: number) {
-    return vec(
-      quadraticSolve(t, this.p1[0], this.cp[0], this.p2[0]),
-      quadraticSolve(t, this.p1[1], this.cp[1], this.p2[1])
+    return new DOMPoint(
+      quadraticSolve(t, this.p1.x, this.cp.x, this.p2.x),
+      quadraticSolve(t, this.p1.y, this.cp.y, this.p2.y)
     );
   }
 
   solveDerivative(t: number) {
     return normalize(
-      vec(
-        quadraticSolveDerivative(t, this.p1[0], this.cp[0], this.p2[0]),
-        quadraticSolveDerivative(t, this.p1[1], this.cp[1], this.p2[1])
+      new DOMPoint(
+        quadraticSolveDerivative(t, this.p1.x, this.cp.x, this.p2.x),
+        quadraticSolveDerivative(t, this.p1.y, this.cp.y, this.p2.y)
       )
     );
   }
