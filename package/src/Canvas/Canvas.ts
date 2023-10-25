@@ -34,7 +34,7 @@ import {
   DrawableImage,
   ImageFilter,
 } from "../c2d";
-import { PaintJS, nativeBlendMode } from "../Paint";
+import { PaintJS } from "../Paint";
 import type { ColorSpaceJS, InputColor } from "../Core";
 import {
   nativeColor,

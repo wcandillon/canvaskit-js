@@ -56,7 +56,7 @@ export class Canvas extends IndexedHostObject {
 
   clip(path: Path) {
     this.ctx.clip = path;
-    this.ctx.renderingCtx.clip(path.getPath2D(this.ctx.matrix));
+    this.ctx.renderingCtx.clip(path.getPath2D());
   }
 
   restore() {
@@ -92,7 +92,7 @@ export class Canvas extends IndexedHostObject {
       this.ctx.renderingCtx,
       this.svgCtx,
       this.ctx.matrix,
-      new DrawablePath(path)
+      new DrawablePath(path.getPath2D())
     );
   }
 
@@ -106,7 +106,7 @@ export class Canvas extends IndexedHostObject {
       throw new Error("Failed to create canvas context");
     }
     if (this.ctx.clip) {
-      ctx.clip(this.ctx.clip.getPath2D(this.ctx.matrix));
+      ctx.clip(this.ctx.clip.getPath2D());
     }
     ctx.drawImage(this.ctx.renderingCtx.canvas, 0, 0);
     return ctx;

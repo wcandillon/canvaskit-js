@@ -8,8 +8,6 @@ import {
   computeTightBounds,
 } from "./PathComponents";
 import { PathVerb } from "./PathComponents/PathVerb";
-import { projectPoint } from "./Vector";
-
 export class Path {
   contours: Contour[] = [];
   private current = new DOMPoint(0, 0);
@@ -138,26 +136,26 @@ export class Path {
     return points;
   }
 
-  getPath2D(ctm: DOMMatrix) {
+  getPath2D() {
     const path = new Path2D();
     const cmds = this.toCmds();
     let i = 0;
     while (i < cmds.length) {
       const cmd = cmds[i++];
       if (cmd === PathVerb.Move) {
-        const p = projectPoint(ctm, new DOMPoint(cmds[i++], cmds[i++]));
+        const p = new DOMPoint(cmds[i++], cmds[i++]);
         path.moveTo(p.x, p.y);
       } else if (cmd === PathVerb.Line) {
-        const p = projectPoint(ctm, new DOMPoint(cmds[i++], cmds[i++]));
+        const p = new DOMPoint(cmds[i++], cmds[i++]);
         path.lineTo(p.x, p.y);
       } else if (cmd === PathVerb.Cubic) {
-        const cp1 = projectPoint(ctm, new DOMPoint(cmds[i++], cmds[i++]));
-        const cp2 = projectPoint(ctm, new DOMPoint(cmds[i++], cmds[i++]));
-        const p = projectPoint(ctm, new DOMPoint(cmds[i++], cmds[i++]));
+        const cp1 = new DOMPoint(cmds[i++], cmds[i++]);
+        const cp2 = new DOMPoint(cmds[i++], cmds[i++]);
+        const p = new DOMPoint(cmds[i++], cmds[i++]);
         path.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, p.x, p.y);
       } else if (cmd === PathVerb.Quad) {
-        const cp = projectPoint(ctm, new DOMPoint(cmds[i++], cmds[i++]));
-        const p = projectPoint(ctm, new DOMPoint(cmds[i++], cmds[i++]));
+        const cp = new DOMPoint(cmds[i++], cmds[i++]);
+        const p = new DOMPoint(cmds[i++], cmds[i++]);
         path.quadraticCurveTo(cp.x, cp.y, p.x, p.y);
       } else if (cmd === PathVerb.Close) {
         path.closePath();

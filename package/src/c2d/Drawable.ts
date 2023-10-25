@@ -1,22 +1,20 @@
 import type { RenderingContext } from "./Constants";
-import type { Path } from "./Path";
 
 export interface Drawable {
-  draw(ctx: RenderingContext, ctm: DOMMatrix, stroke?: boolean): void;
+  draw(ctx: RenderingContext, stroke?: boolean): void;
 }
 
 export class DrawablePath implements Drawable {
   constructor(
-    private readonly path: Path,
+    private readonly path: Path2D,
     private readonly fillType: CanvasFillRule = "nonzero"
   ) {}
 
-  draw(ctx: RenderingContext, ctm: DOMMatrix, stroke?: boolean) {
-    const path = this.path.getPath2D(ctm);
+  draw(ctx: RenderingContext, stroke?: boolean) {
     if (stroke) {
-      ctx.stroke(path);
+      ctx.stroke(this.path);
     } else {
-      ctx.fill(path, this.fillType);
+      ctx.fill(this.path, this.fillType);
     }
   }
 }
@@ -29,7 +27,7 @@ export class DrawableText implements Drawable {
     private readonly font: string | null
   ) {}
 
-  draw(ctx: RenderingContext, _ctm: DOMMatrix, stroke?: boolean) {
+  draw(ctx: RenderingContext, stroke?: boolean) {
     if (this.font) {
       ctx.font = this.font;
     }
@@ -48,7 +46,7 @@ export class DrawableFill implements Drawable {
     this.path.rect(0, 0, width, height);
   }
 
-  draw(ctx: RenderingContext, _ctm: DOMMatrix, _stroke?: boolean) {
+  draw(ctx: RenderingContext, _stroke?: boolean) {
     ctx.fill(this.path);
   }
 }
@@ -60,8 +58,7 @@ export class DrawableImage implements Drawable {
     private readonly y: number = 0
   ) {}
 
-  // TOOD: implement ctm
-  draw(ctx: RenderingContext, _ctm: DOMMatrix) {
+  draw(ctx: RenderingContext) {
     ctx.drawImage(this.image, this.x, this.y);
   }
 }
@@ -79,8 +76,7 @@ export class DrawableImageRect implements Drawable {
     private height2: number
   ) {}
 
-  // TOOD: implement ctm
-  draw(ctx: RenderingContext, _ctm: DOMMatrix) {
+  draw(ctx: RenderingContext) {
     ctx.drawImage(
       this.image,
       this.x1,
@@ -130,7 +126,7 @@ export class DrawableImageRect implements Drawable {
 
 export class DrawableDRRect implements Drawable {
   constructor(private readonly outer: Path2D, private readonly inner: Path2D) {}
-  draw(ctx: CanvasRenderingContext2D, _ctm: DOMMatrix, stroke?: boolean): void {
+  draw(ctx: CanvasRenderingContext2D, stroke?: boolean): void {
     // TODO: implement ctm
     // Combine the outer and inner paths
     const combinedPath = new Path2D();

@@ -117,7 +117,8 @@ export class Paint {
     ctm: DOMMatrix,
     drawable: Drawable
   ) {
-    // ctx.save();
+    ctx.save();
+    ctx.setTransform(ctm);
     ctx.globalAlpha = this.alpha;
     if (this.stroke) {
       ctx.strokeStyle = this.color;
@@ -137,15 +138,22 @@ export class Paint {
     }
 
     if (this.shader) {
-      const img = this.shader.render(ctx.canvas.width, ctx.canvas.height, ctm);
+      // TODO: remove ctm here
+      const img = this.shader.render(
+        ctx.canvas.width,
+        ctx.canvas.height,
+        new DOMMatrix()
+      );
       const pattern = ctx.createPattern(img, "no-repeat")!;
+      // This call doesn't need to be done if we don't implement the ctm ourselves
+      //pattern.setTransform(ctm.inverse());
       if (this.stroke) {
         ctx.strokeStyle = pattern;
       } else {
         ctx.fillStyle = pattern;
       }
     }
-    drawable.draw(ctx, ctm, this.stroke);
-    //  ctx.restore();
+    drawable.draw(ctx, this.stroke);
+    ctx.restore();
   }
 }
