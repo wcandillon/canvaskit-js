@@ -7,7 +7,7 @@ interface RuntimeEffectChild {
 
 export type RuntimeEffectChildren = RuntimeEffectChild[];
 export interface Texture {
-  render(width: number, height: number, ctm: DOMMatrix): OffscreenCanvas;
+  render(width: number, height: number): OffscreenCanvas;
 }
 
 export class Shader implements Texture {
@@ -76,7 +76,7 @@ export class Shader implements Texture {
     }
   }
 
-  render(width: number, height: number, ctm: DOMMatrix): OffscreenCanvas {
+  render(width: number, height: number): OffscreenCanvas {
     const localMatrix = this.localMatrix ?? new DOMMatrix();
     const { gl, program, textures } = this.ctx;
     gl.canvas.width = width;
@@ -87,7 +87,7 @@ export class Shader implements Texture {
       gl.uniformMatrix4fv(
         matrixLocation,
         false,
-        ctm.multiply(localMatrix).inverse().toFloat32Array()
+        localMatrix.inverse().toFloat32Array()
       );
     }
     // Set the resolution
@@ -120,7 +120,7 @@ export class Shader implements Texture {
           gl.RGBA,
           gl.RGBA,
           gl.UNSIGNED_BYTE,
-          this.children[texIndex].render(width, height, ctm)
+          this.children[texIndex].render(width, height)
         );
         texIndex++;
       }

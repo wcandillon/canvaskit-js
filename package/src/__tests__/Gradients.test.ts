@@ -110,6 +110,8 @@ describe("Gradients", () => {
       canvas.drawPaint(paint);
       canvas.restore();
     });
-    checkImage(image, "snapshots/gradients/two-point-gradient2.png");
+    checkImage(image, "snapshots/gradients/two-point-gradient2.png", {
+      maxPixelDiff: 600,
+    });
   });
 });

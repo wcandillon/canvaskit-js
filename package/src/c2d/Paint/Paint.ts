@@ -125,7 +125,7 @@ export class Paint {
     } else {
       ctx.fillStyle = this.color;
     }
-    ctx.lineWidth = this.lineWidth * Math.sqrt(ctm.m11 * ctm.m22);
+    ctx.lineWidth = this.lineWidth;
     ctx.lineCap = this.lineCap;
     ctx.lineJoin = this.lineJoin;
     ctx.miterLimit = this.miterLimit;
@@ -139,14 +139,8 @@ export class Paint {
 
     if (this.shader) {
       // TODO: remove ctm here
-      const img = this.shader.render(
-        ctx.canvas.width,
-        ctx.canvas.height,
-        new DOMMatrix()
-      );
+      const img = this.shader.render(ctx.canvas.width, ctx.canvas.height);
       const pattern = ctx.createPattern(img, "no-repeat")!;
-      // This call doesn't need to be done if we don't implement the ctm ourselves
-      //pattern.setTransform(ctm.inverse());
       if (this.stroke) {
         ctx.strokeStyle = pattern;
       } else {

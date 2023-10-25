@@ -5,17 +5,12 @@ class CustomTexture implements Texture {
   protected texture = new OffscreenCanvas(0, 0);
   protected ctx = this.texture.getContext("2d")!;
 
-  constructor(
-    private draw: (
-      ctx: OffscreenCanvasRenderingContext2D,
-      ctm: DOMMatrix
-    ) => void
-  ) {}
+  constructor(private draw: (ctx: OffscreenCanvasRenderingContext2D) => void) {}
 
-  render(width: number, height: number, ctm: DOMMatrix) {
+  render(width: number, height: number) {
     this.texture.width = width;
     this.texture.height = height;
-    this.draw(this.ctx, ctm);
+    this.draw(this.ctx);
     return this.texture;
   }
 }
@@ -27,18 +22,17 @@ class GradientTexture extends CustomTexture {
     factory: (
       ctx: OffscreenCanvasRenderingContext2D,
       colors: string[],
-      positions: number[],
-      ctm: DOMMatrix
+      positions: number[]
     ) => CanvasGradient
   ) {
     const pos = positions
       ? positions
       : colors.map((_, i) => i / (colors.length - 1));
-    super((ctx: OffscreenCanvasRenderingContext2D, ctm: DOMMatrix) => {
+    super((ctx: OffscreenCanvasRenderingContext2D) => {
       ctx.save();
       ctx.resetTransform();
       //ctx.setTransform(ctx.getTransform().inverse());
-      ctx.fillStyle = factory(ctx, colors, pos, ctm);
+      ctx.fillStyle = factory(ctx, colors, pos);
       ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
       ctx.restore();
     });
@@ -60,8 +54,7 @@ export class LinearGradient extends Shader {
         (
           ctx: OffscreenCanvasRenderingContext2D,
           cls: string[],
-          pos: number[],
-          _ctm: DOMMatrix
+          pos: number[]
         ) => {
           const gradient = ctx.createLinearGradient(
             start.x,
@@ -146,7 +139,7 @@ export class SweepGradient extends Shader {
 
 export class CustomShader extends Shader {
   constructor(
-    draw: (ctx: OffscreenCanvasRenderingContext2D, ctm: DOMMatrix) => void,
+    draw: (ctx: OffscreenCanvasRenderingContext2D) => void,
     localMatrix?: DOMMatrix
   ) {
     const shaderCtx = new TextureShaderContext();
