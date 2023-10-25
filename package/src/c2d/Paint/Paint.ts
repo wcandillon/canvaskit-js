@@ -136,16 +136,21 @@ export class Paint {
       const url = svgCtx.create(id, filters);
       ctx.filter = url;
     }
-
-    if (this.shader) {
-      const img = this.shader.render(ctx.canvas.width, ctx.canvas.height);
-      const pattern = ctx.createPattern(img, "no-repeat")!;
-      if (this.stroke) {
-        ctx.strokeStyle = pattern;
-      } else {
-        ctx.fillStyle = pattern;
+    // This will fail on Safari 17 (https://bugs.webkit.org/show_bug.cgi?id=149986)
+    try {
+      if (this.shader) {
+        // const buffer = new OffscreenCanvas(ctx.canvas.width, ctx.canvas.height);
+        // const bufferCtx = buffer.getContext("2d")!;
+        // bufferCtx.setTransform(ctm);
+        const img = this.shader.render(ctx.canvas.width, ctx.canvas.height);
+        const pattern = ctx.createPattern(img, "no-repeat")!;
+        if (this.stroke) {
+          ctx.strokeStyle = pattern;
+        } else {
+          ctx.fillStyle = pattern;
+        }
       }
-    }
+    } catch (e) {}
     drawable.draw(ctx, this.stroke);
     ctx.restore();
   }
