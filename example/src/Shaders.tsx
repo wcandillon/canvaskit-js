@@ -20,7 +20,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
   vec2 xy = fragCoord.xy;
   xy.x += sin(xy.y / r) * 4.0;
   xy /= resolution;
-  fragColor = texture2D(child, vec2(xy.x, 1.0 - xy.y)).rbga;
+  fragColor = texture2D(child, xy).rbga;
 }`)!;
 
 const drawShader = (
