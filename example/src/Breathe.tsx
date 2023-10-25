@@ -18,7 +18,7 @@ c1.setColor(CanvasKit.parseColorString("#61bea2"));
 const c2 = root.copy();
 c2.setColor(CanvasKit.parseColorString("#529ca0"));
 
-const bgColor = CanvasKit.parseColorString("black"); //CanvasKit.parseColorString("#242b38");
+const bgColor = CanvasKit.parseColorString("#242b38");
 
 const drawRing = (
   progress: AnimationValue,

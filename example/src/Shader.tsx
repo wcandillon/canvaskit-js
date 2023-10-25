@@ -8,9 +8,9 @@ const filter = CanvasKit.RuntimeEffect.Make(`precision mediump float;
 uniform float iTime;
 uniform vec2 iResolution;
 
-void main() {
+void mainImage(out vec4 fragColor, in vec2 fragCoord) {
   vec4 o = vec4(0);
-  vec2 p = vec2(0), c=p, u=gl_FragCoord.xy*2.-iResolution.xy;
+  vec2 p = vec2(0), c=p, u=fragCoord.xy*2.-iResolution.xy;
   float a;
   for (float i=0.0; i<4e2; i++) {
     a = i/2e2-1.;
@@ -18,7 +18,7 @@ void main() {
     c = u/iResolution.y+vec2(p.x,a)/(p.y+2.);
     o += (cos(i+vec4(0,2,4,0))+1.)/dot(c,c)*(1.-p.y)/3e4;
   }
-  gl_FragColor = o;
+  fragColor = o;
 }`)!;
 
 const drawShader = (

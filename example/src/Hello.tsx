@@ -5,14 +5,13 @@ import type { AnimationValue, Info } from "./components";
 import { Canvas, useOnDraw, useLoop, fitbox } from "./components";
 
 // https://www.shadertoy.com/view/XsVSzW
-const plasma = CanvasKit.RuntimeEffect.Make(`precision mediump float;
-
+const plasma = CanvasKit.RuntimeEffect.Make(`
 uniform float iTime;
 uniform vec2 iResolution;
 
-void main() {
+void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 	float time=iTime*1.0;
-	vec2 uv = (gl_FragCoord.xy / iResolution.xx-0.5)*8.0;
+	vec2 uv = (fragCoord.xy / iResolution.xx-0.5)*8.0;
     vec2 uv0=uv;
 	float i0=1.0;
 	float i1=1.0;
@@ -33,7 +32,7 @@ void main() {
   float r=sin(uv.x-time)*0.5+0.5;
   float b=sin(uv.y+time)*0.5+0.5;
   float g=sin((uv.x+uv.y+sin(time*0.5))*0.5)*0.5+0.5;
-	gl_FragColor = vec4(r,g,b,1.0);
+	fragColor = vec4(r,g,b,1.0);
 }`)!;
 
 // const colors = [

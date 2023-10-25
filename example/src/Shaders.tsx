@@ -11,17 +11,16 @@ import {
 } from "./components";
 import zurich from "./assets/zurich.jpg";
 
-const filter = CanvasKit.RuntimeEffect.Make(`precision mediump float;
-
+const filter = CanvasKit.RuntimeEffect.Make(`
 uniform sampler2D child;
 uniform vec2 resolution;
 uniform float r;
 
-void main() {
-  vec2 xy = gl_FragCoord.xy;
+void mainImage(out vec4 fragColor, in vec2 fragCoord) {
+  vec2 xy = fragCoord.xy;
   xy.x += sin(xy.y / r) * 4.0;
   xy /= resolution;
-  gl_FragColor = texture2D(child, vec2(xy.x, 1.0 - xy.y)).rbga;
+  fragColor = texture2D(child, vec2(xy.x, 1.0 - xy.y)).rbga;
 }`)!;
 
 const drawShader = (
