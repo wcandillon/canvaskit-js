@@ -36,7 +36,7 @@ export class Canvas extends IndexedHostObject {
     const isLayer = imageFilter !== undefined;
     this.stack.push({
       matrix: DOMMatrix.fromMatrix(this.ctx.matrix),
-      clip: this.ctx.clip,
+      clip: this.ctx.clip ? new Path2D(this.ctx.clip) : null,
       imageFilter: imageFilter ?? null,
       renderingCtx: isLayer ? this.makeLayer() : this.ctx.renderingCtx,
     });
@@ -55,7 +55,12 @@ export class Canvas extends IndexedHostObject {
   }
 
   clip(path: Path) {
-    this.ctx.clip = path.getPath2D();
+    const p = path.getPath2D();
+    if (this.ctx.clip) {
+      this.ctx.clip.addPath(p);
+    } else {
+      this.ctx.clip = path.getPath2D();
+    }
   }
 
   restore() {
