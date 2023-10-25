@@ -155,24 +155,12 @@ export class CanvasJS extends HostObject<"Canvas"> implements CKCanvas {
     this.ctx.drawPath(path.getPath(), paint.getPaint());
   }
   drawColor(color: InputColor, blendMode?: EmbindEnumEntity | undefined): void {
-    const paint = new NativePaint();
-    paint.setColor(nativeColor(color));
+    const paint = new PaintJS();
+    paint.setColor(color);
     if (blendMode) {
-      paint.setBlendMode(nativeBlendMode(blendMode));
+      paint.setBlendMode(blendMode);
     }
-    const { width, height } = this;
-    const m = this.ctx.getMatrix().invertSelf();
-    const topLeft = new DOMPoint(0, 0).matrixTransform(m);
-    const topRight = new DOMPoint(width, 0).matrixTransform(m);
-    const bottomRight = new DOMPoint(width, height).matrixTransform(m);
-    const bottomLeft = new DOMPoint(0, height).matrixTransform(m);
-    const path = new PathJS();
-    path.moveTo(topLeft.x, topLeft.y);
-    path.lineTo(topRight.x, topRight.y);
-    path.lineTo(bottomRight.x, bottomRight.y);
-    path.lineTo(bottomLeft.x, bottomLeft.y);
-    path.close();
-    this.ctx.drawPath(path.getPath(), paint);
+    this.drawPaint(paint);
   }
   drawColorComponents(
     r: number,
