@@ -120,7 +120,7 @@ describe("Paint", () => {
       canvas.rotate(45, 128, 128);
       canvas.clear(CanvasKit.WHITE);
       const paint = new CanvasKit.Paint();
-      paint.setColor(CanvasKit.parseColorString("#6600ff00"));
+      paint.setColor(CanvasKit.parseColorString("#0000ff55"));
       canvas.drawPaint(paint);
       canvas.restore();
     });

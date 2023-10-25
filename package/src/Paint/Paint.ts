@@ -76,7 +76,7 @@ export class PaintJS extends HostObject<"Paint"> implements Paint {
       color instanceof Float32Array ? color : Float32Array.from(color);
     this.paint.setAlpha(this.color[3]);
     this.paint.setColor(
-      `rbg(${Math.round(this.color[0] * 255)}, ${Math.round(
+      `rgb(${Math.round(this.color[0] * 255)}, ${Math.round(
         this.color[1] * 255
       )}, ${Math.round(this.color[2] * 255)})`
     );

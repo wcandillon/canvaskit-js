@@ -47,7 +47,10 @@ export class DrawableFill implements Drawable {
   }
 
   draw(ctx: RenderingContext, _stroke?: boolean) {
+    ctx.save();
+    ctx.setTransform();
     ctx.fill(this.path);
+    ctx.restore();
   }
 }
 
