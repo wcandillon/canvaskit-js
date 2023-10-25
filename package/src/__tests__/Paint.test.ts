@@ -96,6 +96,37 @@ describe("Paint", () => {
     checkImage(image, "snapshots/paint/blue.png");
   });
 
+  it("should draw a paint (5)", async () => {
+    const image = await skia.draw(({ CanvasKit, canvas }) => {
+      canvas.save();
+      canvas.scale(0.5, 1.5);
+      canvas.translate(100, 100);
+      canvas.rotate(45, 128, 128);
+      canvas.clear(CanvasKit.WHITE);
+      const paint = new CanvasKit.Paint();
+      paint.setColor(CanvasKit.BLUE);
+      paint.setAlphaf(0.5);
+      canvas.drawPaint(paint);
+      canvas.restore();
+    });
+    checkImage(image, "snapshots/paint/lightblue.png");
+  });
+
+  it("should draw a paint (6)", async () => {
+    const image = await skia.draw(({ CanvasKit, canvas }) => {
+      canvas.save();
+      canvas.scale(0.5, 1.5);
+      canvas.translate(100, 100);
+      canvas.rotate(45, 128, 128);
+      canvas.clear(CanvasKit.WHITE);
+      const paint = new CanvasKit.Paint();
+      paint.setColor(CanvasKit.parseColorString("#6600ff00"));
+      canvas.drawPaint(paint);
+      canvas.restore();
+    });
+    checkImage(image, "snapshots/paint/lightblue2.png");
+  });
+
   it("should draw a blue paint via setColorInt", async () => {
     const image = await skia.draw(({ CanvasKit, canvas }) => {
       const paint = new CanvasKit.Paint();

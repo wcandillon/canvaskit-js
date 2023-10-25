@@ -5,18 +5,18 @@ import type { Drawable } from "../Drawable";
 import type { SVGContext, SVGFilter } from "../SVG";
 
 export class Paint {
-  private stroke?: boolean;
-  private color?: string;
-  private alpha?: number;
-  private blendMode?: GlobalCompositeOperation;
+  private stroke = false;
+  private color = "black";
+  private alpha = 1;
+  private blendMode: GlobalCompositeOperation = "source-over";
 
   private lineWidth = 1;
   private lineCap: CanvasLineCap = "butt";
   private lineJoin: CanvasLineJoin = "miter";
   private miterLimit = 10;
 
-  private shader?: Shader;
-  private imageFilter?: ImageFilter;
+  private shader: Shader | null = null;
+  private imageFilter: ImageFilter | null = null;
 
   constructor() {}
 
@@ -117,41 +117,28 @@ export class Paint {
     ctm: DOMMatrix,
     drawable: Drawable
   ) {
-    if (this.color && !this.stroke) {
+    // ctx.save();
+    ctx.globalAlpha = this.alpha;
+    if (this.stroke) {
+      ctx.strokeStyle = this.color;
+    } else {
       ctx.fillStyle = this.color;
     }
-    if (this.color && this.stroke) {
-      ctx.strokeStyle = this.color;
-    }
-    if (this.lineWidth) {
-      ctx.lineWidth = this.lineWidth * Math.sqrt(ctm.m11 * ctm.m22);
-    }
-    if (this.lineCap) {
-      ctx.lineCap = this.lineCap;
-    }
-    if (this.lineJoin) {
-      ctx.lineJoin = this.lineJoin;
-    }
-    if (this.miterLimit) {
-      ctx.miterLimit = this.miterLimit;
-    }
-    if (this.blendMode) {
-      ctx.globalCompositeOperation = this.blendMode;
-    }
-    if (this.shader) {
-      this.shader.render(ctx.canvas.width, ctx.canvas.height, ctm);
-    }
+    ctx.lineWidth = this.lineWidth * Math.sqrt(ctm.m11 * ctm.m22);
+    ctx.lineCap = this.lineCap;
+    ctx.lineJoin = this.lineJoin;
+    ctx.miterLimit = this.miterLimit;
+    ctx.globalCompositeOperation = this.blendMode;
+
     if (this.imageFilter) {
       const { id, filters } = this.imageFilter;
       const url = svgCtx.create(id, filters);
       ctx.filter = url;
     }
+
     if (this.shader) {
       const img = this.shader.render(ctx.canvas.width, ctx.canvas.height, ctm);
       const pattern = ctx.createPattern(img, "no-repeat")!;
-      if (this.alpha) {
-        ctx.globalAlpha = this.alpha;
-      }
       if (this.stroke) {
         ctx.strokeStyle = pattern;
       } else {
@@ -159,5 +146,6 @@ export class Paint {
       }
     }
     drawable.draw(ctx, ctm, this.stroke);
+    //  ctx.restore();
   }
 }
