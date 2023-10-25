@@ -42,6 +42,7 @@ import {
   rectToXYWH,
   rrectToXYWH,
   rrectToPath2D,
+  BlendMode,
 } from "../Core";
 import { HostObject } from "../HostObject";
 import { nativeMatrix } from "../Core/Matrix";
@@ -65,19 +66,10 @@ export class CanvasJS extends HostObject<"Canvas"> implements CKCanvas {
   }
 
   clear(color: InputColor): void {
-    this.ctx.save();
-    this.ctx.resetMatrix();
-    const paint = new NativePaint();
-    paint.setColor(nativeColor(color));
-    paint.setBlendMode("copy");
-    const path = new NativePath();
-    path.moveTo(new DOMPoint(0, 0));
-    path.lineTo(new DOMPoint(this.width, 0));
-    path.lineTo(new DOMPoint(this.width, this.height));
-    path.lineTo(new DOMPoint(0, this.height));
-    path.close();
-    this.ctx.drawPath(path, paint);
-    this.ctx.restore();
+    const paint = new PaintJS();
+    paint.setColor(color);
+    paint.setBlendMode(BlendMode.Clear);
+    this.drawPaint(paint);
   }
 
   clipPath(path: PathJS, _op: EmbindEnumEntity, _doAntiAlias: boolean): void {
