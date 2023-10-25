@@ -10,7 +10,7 @@ export interface Texture {
   render(width: number, height: number): OffscreenCanvas;
 }
 
-export class Shader implements Texture {
+export class WebGLShader implements Texture {
   constructor(
     private readonly ctx: ShaderContext,
     uniforms: { [name: string]: number[] },

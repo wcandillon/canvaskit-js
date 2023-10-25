@@ -1,6 +1,6 @@
 import type { Shader } from "canvaskit-wasm";
 
-import type { Shader as NativeShader } from "../c2d";
+import type { WebGLShader as NativeShader } from "../c2d";
 import { HostObject } from "../HostObject";
 
 export class ShaderJS extends HostObject<"Shader"> implements Shader {

@@ -3,7 +3,7 @@ import type { InputMatrix, MallocObj } from "canvaskit-wasm";
 import { HostObject } from "../HostObject";
 import { ShaderJS } from "../Shader";
 import { nativeMatrix, normalizeArray } from "../Core";
-import { Shader, type ShaderContext } from "../c2d";
+import { WebGLShader, type ShaderContext } from "../c2d";
 
 export class RuntimeEffectJS extends HostObject<"RuntimeEffect"> {
   private uniformMap;
@@ -46,7 +46,7 @@ export class RuntimeEffectJS extends HostObject<"RuntimeEffect"> {
     const children = input ? input.map((c) => c.getShader()) : [];
 
     return new ShaderJS(
-      new Shader(
+      new WebGLShader(
         this.ctx,
         mappedUniforms,
         children,

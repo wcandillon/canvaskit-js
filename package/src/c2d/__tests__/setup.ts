@@ -12,7 +12,7 @@ import type { Path } from "../Path";
 import type { BlurImageFilter } from "../ImageFilter";
 import type {
   LinearGradient,
-  Shader,
+  WebGLShader,
   ShaderContext,
   TextureShaderContext,
 } from "../Shader";
@@ -38,7 +38,7 @@ interface DrawingContext {
     Path: typeof Path;
     Paint: typeof Paint;
     BlurImageFilter: typeof BlurImageFilter;
-    Shader: typeof Shader;
+    WebGLShader: typeof WebGLShader;
     ShaderContext: typeof ShaderContext;
     TextureShaderContext: typeof TextureShaderContext;
     LinearGradient: typeof LinearGradient;
@@ -98,7 +98,7 @@ class RemoteSurface {
       Path: C2D.Path,
       Paint: C2D.Paint,
       BlurImageFilter: C2D.BlurImageFilter,
-      Shader: C2D.Shader,
+      WebGLShader: C2D.WebGLShader,
       ShaderContext: C2D.ShaderContext,
       TextureShaderContext: C2D.TextureShaderContext,
       LinearGradient: C2D.LinearGradient,

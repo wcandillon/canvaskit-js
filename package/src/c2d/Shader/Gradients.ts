@@ -1,4 +1,4 @@
-import { Shader, type Texture } from "./Shader";
+import { WebGLShader, type Texture } from "./Shader";
 import { TextureShaderContext } from "./TextureShaderContext";
 
 class CustomTexture implements Texture {
@@ -37,7 +37,7 @@ class GradientTexture extends CustomTexture {
   }
 }
 
-export class LinearGradient extends Shader {
+export class LinearGradient extends WebGLShader {
   constructor(
     start: DOMPoint,
     end: DOMPoint,
@@ -70,7 +70,7 @@ export class LinearGradient extends Shader {
   }
 }
 
-export class TwoPointConicalGradient extends Shader {
+export class TwoPointConicalGradient extends WebGLShader {
   constructor(
     c1: DOMPoint,
     r1: number,
@@ -107,7 +107,7 @@ export class TwoPointConicalGradient extends Shader {
   }
 }
 
-export class SweepGradient extends Shader {
+export class SweepGradient extends WebGLShader {
   constructor(
     c: DOMPoint,
     angle: number,
@@ -135,7 +135,7 @@ export class SweepGradient extends Shader {
   }
 }
 
-export class CustomShader extends Shader {
+export class CustomShader extends WebGLShader {
   constructor(
     draw: (ctx: OffscreenCanvasRenderingContext2D) => void,
     localMatrix?: DOMMatrix

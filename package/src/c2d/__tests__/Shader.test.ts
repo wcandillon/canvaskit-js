@@ -7,13 +7,13 @@ describe("Shaders", () => {
         canvas,
         width,
         height,
-        c2d: { Path, Paint, ShaderContext, Shader },
+        c2d: { Path, Paint, ShaderContext, WebGLShader },
       }) => {
         const glsl = `void mainImage(out vec4 fragColor, in vec2 fragCoord){
           fragColor = fragCoord.x > 128. ? vec4(1.0, 0.0, 0.0, 1.0) : vec4(0.0, 0.0, 1.0, 1.0);
         }`;
         const ctx = new ShaderContext(glsl);
-        const shader = new Shader(ctx, {}, []);
+        const shader = new WebGLShader(ctx, {}, []);
         const path = new Path();
         path.moveTo(new DOMPoint(0, 0));
         path.lineTo(new DOMPoint(width, 0));
@@ -35,13 +35,13 @@ describe("Shaders", () => {
         canvas,
         width,
         height,
-        c2d: { Path, Paint, ShaderContext, Shader },
+        c2d: { Path, Paint, ShaderContext, WebGLShader },
       }) => {
         const glsl = `void mainImage(out vec4 fragColor, in vec2 fragCoord){
   fragColor = fragCoord.x > 64. && fragCoord.y > 64. ? vec4(1.0, 0.0, 0.0, 1.0) : vec4(0.0, 0.0, 1.0, 1.0);
 }`;
         const ctx = new ShaderContext(glsl);
-        const shader = new Shader(ctx, {}, []);
+        const shader = new WebGLShader(ctx, {}, []);
         const path = new Path();
         path.moveTo(new DOMPoint(0, 0));
         path.lineTo(new DOMPoint(width / 2, 0));
@@ -65,7 +65,7 @@ describe("Shaders", () => {
         width,
         height,
         center,
-        c2d: { Path, Paint, ShaderContext, Shader },
+        c2d: { Path, Paint, ShaderContext, WebGLShader },
       }) => {
         const glsl = `void mainImage(out vec4 fragColor, in vec2 fragCoord){
           fragColor = fragCoord.x > 128. ? vec4(1.0, 0.0, 0.0, 1.0) : vec4(0.0, 0.0, 1.0, 1.0);
@@ -79,7 +79,7 @@ describe("Shaders", () => {
         path.lineTo(new DOMPoint(pad, height - pad));
         path.close();
         const paint = new Paint();
-        const shader = new Shader(ctx, {}, []);
+        const shader = new WebGLShader(ctx, {}, []);
         paint.setShader(shader);
         paint.setColor("cyan");
         canvas.save();
@@ -102,13 +102,13 @@ describe("Shaders", () => {
         canvas,
         width,
         height,
-        c2d: { Path, Paint, ShaderContext, Shader },
+        c2d: { Path, Paint, ShaderContext, WebGLShader },
       }) => {
         const glsl = `void mainImage(out vec4 fragColor, in vec2 fragCoord){
   fragColor = fragCoord.x > 128. && fragCoord.y > 128. ? vec4(1.0, 0.0, 0.0, 1.0) : vec4(0.0, 0.0, 1.0, 1.0);
 }`;
         const ctx = new ShaderContext(glsl);
-        const shader = new Shader(ctx, {}, []);
+        const shader = new WebGLShader(ctx, {}, []);
         const path = new Path();
         path.moveTo(new DOMPoint(width / 2, height / 2));
         path.lineTo(new DOMPoint(width, height / 2));
@@ -131,13 +131,13 @@ describe("Shaders", () => {
         canvas,
         width,
         height,
-        c2d: { Path, Paint, ShaderContext, Shader },
+        c2d: { Path, Paint, ShaderContext, WebGLShader },
       }) => {
         const glsl = `void mainImage(out vec4 fragColor, in vec2 fragCoord){
   fragColor = fragCoord.x > 0. ? vec4(1.0, 0.0, 0.0, 1.0) : vec4(0.0, 0.0, 1.0, 1.0);
 }`;
         const ctx = new ShaderContext(glsl);
-        const shader = new Shader(ctx, {}, []);
+        const shader = new WebGLShader(ctx, {}, []);
         const path = new Path();
         path.moveTo(new DOMPoint(width / 2, height / 2));
         path.lineTo(new DOMPoint(width, height / 2));
@@ -185,7 +185,7 @@ describe("Shaders", () => {
         canvas,
         width,
         height,
-        c2d: { Path, Paint, Shader, ShaderContext },
+        c2d: { Path, Paint, WebGLShader, ShaderContext },
       }) => {
         const glsl = `uniform float scale;
 uniform vec2 center;
@@ -203,7 +203,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     fragColor = mix(c1, c2, t);
 }`;
         const ctx = new ShaderContext(glsl);
-        const shader = new Shader(
+        const shader = new WebGLShader(
           ctx,
           {
             scale: [0.6],
@@ -235,7 +235,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
         canvas,
         width,
         height,
-        c2d: { Path, Paint, Shader, ShaderContext },
+        c2d: { Path, Paint, WebGLShader, ShaderContext },
       }) => {
         const glsl = `uniform float scale;
 uniform vec2 center;
@@ -252,7 +252,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     fragColor = mix(colors[0], colors[1], t);
 }`;
         const ctx = new ShaderContext(glsl);
-        const shader = new Shader(
+        const shader = new WebGLShader(
           ctx,
           {
             scale: [0.6],

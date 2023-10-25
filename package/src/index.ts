@@ -7,7 +7,7 @@ import {
   Paint,
   Canvas,
   BlurImageFilter,
-  Shader,
+  WebGLShader,
   ShaderContext,
   TextureShaderContext,
 } from "./c2d";
@@ -32,7 +32,7 @@ if (window) {
     Paint,
     Canvas,
     BlurImageFilter,
-    Shader,
+    WebGLShader,
     ShaderContext,
     TextureShaderContext,
     LinearGradient,
