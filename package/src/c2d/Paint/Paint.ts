@@ -115,9 +115,13 @@ export class Paint {
     ctx: RenderingContext,
     svgCtx: SVGContext,
     ctm: DOMMatrix,
+    clip: Path2D | null,
     drawable: Drawable
   ) {
     ctx.save();
+    if (clip) {
+      ctx.clip(clip);
+    }
     ctx.setTransform(ctm);
     ctx.globalAlpha = this.alpha;
     if (this.stroke) {

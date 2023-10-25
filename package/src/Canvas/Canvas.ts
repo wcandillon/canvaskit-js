@@ -26,7 +26,6 @@ import type {
 import {
   Canvas as NativeCanvas,
   Path as NativePath,
-  Paint as NativePaint,
   DrawableFill,
   DrawableText,
   DrawableDRRect,
@@ -37,7 +36,6 @@ import {
 import { PaintJS } from "../Paint";
 import type { ColorSpaceJS, InputColor } from "../Core";
 import {
-  nativeColor,
   intAsColor,
   rectToXYWH,
   rrectToXYWH,
