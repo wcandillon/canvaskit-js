@@ -5,7 +5,7 @@ import type {
   TracedShader,
 } from "canvaskit-wasm";
 
-import { ShaderContext } from "../c2d";
+import { WebGLContext } from "../c2d";
 
 import { RuntimeEffectJS } from "./RuntimeEffect";
 
@@ -14,7 +14,7 @@ export const RuntimeEffectFactory: IRuntimeEffectFactory = {
     sksl: string,
     callback?: ((err: string) => void) | undefined
   ): RuntimeEffect | null {
-    return new RuntimeEffectJS(new ShaderContext(sksl, false, callback));
+    return new RuntimeEffectJS(new WebGLContext(sksl, false, callback));
   },
   MakeTraced(
     _shader: Shader,

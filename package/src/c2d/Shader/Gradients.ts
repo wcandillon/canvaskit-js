@@ -1,11 +1,13 @@
-import { WebGLShader, type Texture } from "./Shader";
-import { TextureShaderContext } from "./TextureShaderContext";
+import { type Shader } from "./Shader";
 
-class CustomTexture implements Texture {
+// TODO: rename to CustomShader
+export abstract class CustomTexture implements Shader {
   protected texture = new OffscreenCanvas(0, 0);
   protected ctx = this.texture.getContext("2d")!;
 
-  constructor(private draw: (ctx: OffscreenCanvasRenderingContext2D) => void) {}
+  constructor() {}
+
+  abstract draw(ctx: OffscreenCanvasRenderingContext2D): void;
 
   render(width: number, height: number) {
     this.texture.width = width;
@@ -15,132 +17,84 @@ class CustomTexture implements Texture {
   }
 }
 
-class GradientTexture extends CustomTexture {
-  constructor(
-    colors: string[],
-    positions: number[] | undefined,
-    factory: (
-      ctx: OffscreenCanvasRenderingContext2D,
-      colors: string[],
-      positions: number[]
-    ) => CanvasGradient
-  ) {
-    const pos = positions
-      ? positions
-      : colors.map((_, i) => i / (colors.length - 1));
-    super((ctx: OffscreenCanvasRenderingContext2D) => {
-      ctx.save();
-      ctx.fillStyle = factory(ctx, colors, pos);
-      ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-      ctx.restore();
+abstract class GradientTexture extends CustomTexture {
+  protected positions: number[];
+
+  constructor(protected colors: string[], pos?: number[]) {
+    super();
+    this.positions = pos ? pos : colors.map((_, i) => i / (colors.length - 1));
+  }
+
+  draw(ctx: OffscreenCanvasRenderingContext2D) {
+    const gradient = this.getGradient(ctx);
+    this.colors.forEach((color, i) => {
+      gradient.addColorStop(this.positions[i], color);
     });
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   }
+
+  abstract getGradient(ctx: OffscreenCanvasRenderingContext2D): CanvasGradient;
 }
 
-export class LinearGradient extends WebGLShader {
+export class LinearGradient extends GradientTexture {
   constructor(
-    start: DOMPoint,
-    end: DOMPoint,
+    private start: DOMPoint,
+    private end: DOMPoint,
     colors: string[],
     positions?: number[]
   ) {
-    const shaderCtx = new TextureShaderContext();
-    super(shaderCtx, {}, [
-      new GradientTexture(
-        colors,
-        positions,
-        (
-          ctx: OffscreenCanvasRenderingContext2D,
-          cls: string[],
-          pos: number[]
-        ) => {
-          const gradient = ctx.createLinearGradient(
-            start.x,
-            start.y,
-            end.x,
-            end.y
-          );
-          cls.forEach((color, i) => {
-            gradient.addColorStop(pos[i], color);
-          });
-          return gradient;
-        }
-      ),
-    ]);
+    super(colors, positions);
+  }
+
+  getGradient(ctx: OffscreenCanvasRenderingContext2D) {
+    const gradient = ctx.createLinearGradient(
+      this.start.x,
+      this.start.y,
+      this.end.x,
+      this.end.y
+    );
+    return gradient;
   }
 }
 
-export class TwoPointConicalGradient extends WebGLShader {
+export class TwoPointConicalGradient extends GradientTexture {
   constructor(
-    c1: DOMPoint,
-    r1: number,
-    c2: DOMPoint,
-    r2: number,
+    private c1: DOMPoint,
+    private r1: number,
+    private c2: DOMPoint,
+    private r2: number,
     colors: string[],
     positions?: number[]
   ) {
-    const shaderCtx = new TextureShaderContext();
-    super(shaderCtx, {}, [
-      new GradientTexture(
-        colors,
-        positions,
-        (
-          ctx: OffscreenCanvasRenderingContext2D,
-          cls: string[],
-          pos: number[]
-        ) => {
-          const gradient = ctx.createRadialGradient(
-            c1.x,
-            c1.y,
-            r1,
-            c2.x,
-            c2.y,
-            r2
-          );
-          cls.forEach((color, i) => {
-            gradient.addColorStop(pos[i], color);
-          });
-          return gradient;
-        }
-      ),
-    ]);
+    super(colors, positions);
+  }
+
+  getGradient(ctx: OffscreenCanvasRenderingContext2D) {
+    const gradient = ctx.createRadialGradient(
+      this.c1.x,
+      this.c1.y,
+      this.r1,
+      this.c2.x,
+      this.c2.y,
+      this.r2
+    );
+    return gradient;
   }
 }
 
-export class SweepGradient extends WebGLShader {
+export class SweepGradient extends GradientTexture {
   constructor(
-    c: DOMPoint,
-    angle: number,
+    private c: DOMPoint,
+    private angle: number,
     colors: string[],
     positions?: number[]
   ) {
-    const shaderCtx = new TextureShaderContext();
-    super(shaderCtx, {}, [
-      new GradientTexture(
-        colors,
-        positions,
-        (
-          ctx: OffscreenCanvasRenderingContext2D,
-          cls: string[],
-          pos: number[]
-        ) => {
-          const gradient = ctx.createConicGradient(angle, c.x, c.y);
-          cls.forEach((color, i) => {
-            gradient.addColorStop(pos[i], color);
-          });
-          return gradient;
-        }
-      ),
-    ]);
+    super(colors, positions);
   }
-}
 
-export class CustomShader extends WebGLShader {
-  constructor(
-    draw: (ctx: OffscreenCanvasRenderingContext2D) => void,
-    localMatrix?: DOMMatrix
-  ) {
-    const shaderCtx = new TextureShaderContext();
-    super(shaderCtx, {}, [new CustomTexture(draw)], localMatrix);
+  getGradient(ctx: OffscreenCanvasRenderingContext2D) {
+    const gradient = ctx.createConicGradient(this.angle, this.c.x, this.c.y);
+    return gradient;
   }
 }

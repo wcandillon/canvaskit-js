@@ -10,12 +10,7 @@ import type { Canvas } from "../Canvas";
 import type { Paint } from "../Paint";
 import type { Path } from "../Path";
 import type { BlurImageFilter } from "../ImageFilter";
-import type {
-  LinearGradient,
-  WebGLShader,
-  ShaderContext,
-  TextureShaderContext,
-} from "../Shader";
+import type { LinearGradient, WebGLShader, WebGLContext } from "../Shader";
 
 const DEBUG = process.env.DEBUG === "true";
 
@@ -39,8 +34,7 @@ interface DrawingContext {
     Paint: typeof Paint;
     BlurImageFilter: typeof BlurImageFilter;
     WebGLShader: typeof WebGLShader;
-    ShaderContext: typeof ShaderContext;
-    TextureShaderContext: typeof TextureShaderContext;
+    WebGLContext: typeof WebGLContext;
     LinearGradient: typeof LinearGradient;
   };
 }
@@ -99,8 +93,7 @@ class RemoteSurface {
       Paint: C2D.Paint,
       BlurImageFilter: C2D.BlurImageFilter,
       WebGLShader: C2D.WebGLShader,
-      ShaderContext: C2D.ShaderContext,
-      TextureShaderContext: C2D.TextureShaderContext,
+      WebGLContext: C2D.WebGLContext,
       LinearGradient: C2D.LinearGradient,
     };
     const ctx = {

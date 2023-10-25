@@ -8,8 +8,7 @@ import {
   Canvas,
   BlurImageFilter,
   WebGLShader,
-  ShaderContext,
-  TextureShaderContext,
+  WebGLContext,
 } from "./c2d";
 
 export * from "./CanvasKit";
@@ -33,8 +32,7 @@ if (window) {
     Canvas,
     BlurImageFilter,
     WebGLShader,
-    ShaderContext,
-    TextureShaderContext,
+    WebGLContext,
     LinearGradient,
   };
 }

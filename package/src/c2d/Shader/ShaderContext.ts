@@ -27,7 +27,7 @@ const handleError = (
   return null;
 };
 
-export class ShaderContext {
+export class WebGLContext {
   private _gl: WebGL2RenderingContext | null = null;
   private _program: WebGLProgram | null = null;
   private _textures: Textures | null = null;

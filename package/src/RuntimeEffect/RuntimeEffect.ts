@@ -3,12 +3,12 @@ import type { InputMatrix, MallocObj } from "canvaskit-wasm";
 import { HostObject } from "../HostObject";
 import { ShaderJS } from "../Shader";
 import { nativeMatrix, normalizeArray } from "../Core";
-import { WebGLShader, type ShaderContext } from "../c2d";
+import { WebGLShader, type WebGLContext } from "../c2d";
 
 export class RuntimeEffectJS extends HostObject<"RuntimeEffect"> {
   private uniformMap;
 
-  constructor(private readonly ctx: ShaderContext) {
+  constructor(private readonly ctx: WebGLContext) {
     super("RuntimeEffect");
     this.uniformMap = this.getUniforms().filter(
       (u) => u.type !== ctx.gl.SAMPLER_2D

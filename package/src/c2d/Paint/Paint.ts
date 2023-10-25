@@ -1,6 +1,6 @@
 import type { RenderingContext } from "../Constants";
 import { ImageFilter } from "../ImageFilter";
-import type { WebGLShader } from "../Shader";
+import type { Shader } from "../Shader";
 import type { Drawable } from "../Drawable";
 import type { SVGContext, SVGFilter } from "../SVG";
 
@@ -15,7 +15,7 @@ export class Paint {
   private lineJoin: CanvasLineJoin = "miter";
   private miterLimit = 10;
 
-  private shader: WebGLShader | null = null;
+  private shader: Shader | null = null;
   private imageFilter: ImageFilter | null = null;
 
   constructor() {}
@@ -106,7 +106,7 @@ export class Paint {
     return this;
   }
 
-  setShader(shader: WebGLShader) {
+  setShader(shader: Shader) {
     this.shader = shader;
     return this;
   }

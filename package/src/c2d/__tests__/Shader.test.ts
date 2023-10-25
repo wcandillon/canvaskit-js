@@ -7,12 +7,12 @@ describe("Shaders", () => {
         canvas,
         width,
         height,
-        c2d: { Path, Paint, ShaderContext, WebGLShader },
+        c2d: { Path, Paint, WebGLContext, WebGLShader },
       }) => {
         const glsl = `void mainImage(out vec4 fragColor, in vec2 fragCoord){
           fragColor = fragCoord.x > 128. ? vec4(1.0, 0.0, 0.0, 1.0) : vec4(0.0, 0.0, 1.0, 1.0);
         }`;
-        const ctx = new ShaderContext(glsl);
+        const ctx = new WebGLContext(glsl);
         const shader = new WebGLShader(ctx, {}, []);
         const path = new Path();
         path.moveTo(new DOMPoint(0, 0));
@@ -35,12 +35,12 @@ describe("Shaders", () => {
         canvas,
         width,
         height,
-        c2d: { Path, Paint, ShaderContext, WebGLShader },
+        c2d: { Path, Paint, WebGLContext, WebGLShader },
       }) => {
         const glsl = `void mainImage(out vec4 fragColor, in vec2 fragCoord){
   fragColor = fragCoord.x > 64. && fragCoord.y > 64. ? vec4(1.0, 0.0, 0.0, 1.0) : vec4(0.0, 0.0, 1.0, 1.0);
 }`;
-        const ctx = new ShaderContext(glsl);
+        const ctx = new WebGLContext(glsl);
         const shader = new WebGLShader(ctx, {}, []);
         const path = new Path();
         path.moveTo(new DOMPoint(0, 0));
@@ -65,12 +65,12 @@ describe("Shaders", () => {
         width,
         height,
         center,
-        c2d: { Path, Paint, ShaderContext, WebGLShader },
+        c2d: { Path, Paint, WebGLContext, WebGLShader },
       }) => {
         const glsl = `void mainImage(out vec4 fragColor, in vec2 fragCoord){
           fragColor = fragCoord.x > 128. ? vec4(1.0, 0.0, 0.0, 1.0) : vec4(0.0, 0.0, 1.0, 1.0);
         }`;
-        const ctx = new ShaderContext(glsl)!;
+        const ctx = new WebGLContext(glsl)!;
         const path = new Path();
         const pad = 0;
         path.moveTo(new DOMPoint(pad, pad));
@@ -102,12 +102,12 @@ describe("Shaders", () => {
         canvas,
         width,
         height,
-        c2d: { Path, Paint, ShaderContext, WebGLShader },
+        c2d: { Path, Paint, WebGLContext, WebGLShader },
       }) => {
         const glsl = `void mainImage(out vec4 fragColor, in vec2 fragCoord){
   fragColor = fragCoord.x > 128. && fragCoord.y > 128. ? vec4(1.0, 0.0, 0.0, 1.0) : vec4(0.0, 0.0, 1.0, 1.0);
 }`;
-        const ctx = new ShaderContext(glsl);
+        const ctx = new WebGLContext(glsl);
         const shader = new WebGLShader(ctx, {}, []);
         const path = new Path();
         path.moveTo(new DOMPoint(width / 2, height / 2));
@@ -131,12 +131,12 @@ describe("Shaders", () => {
         canvas,
         width,
         height,
-        c2d: { Path, Paint, ShaderContext, WebGLShader },
+        c2d: { Path, Paint, WebGLContext, WebGLShader },
       }) => {
         const glsl = `void mainImage(out vec4 fragColor, in vec2 fragCoord){
   fragColor = fragCoord.x > 0. ? vec4(1.0, 0.0, 0.0, 1.0) : vec4(0.0, 0.0, 1.0, 1.0);
 }`;
-        const ctx = new ShaderContext(glsl);
+        const ctx = new WebGLContext(glsl);
         const shader = new WebGLShader(ctx, {}, []);
         const path = new Path();
         path.moveTo(new DOMPoint(width / 2, height / 2));
@@ -185,7 +185,7 @@ describe("Shaders", () => {
         canvas,
         width,
         height,
-        c2d: { Path, Paint, WebGLShader, ShaderContext },
+        c2d: { Path, Paint, WebGLShader, WebGLContext },
       }) => {
         const glsl = `uniform float scale;
 uniform vec2 center;
@@ -202,7 +202,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     t = fract(t);
     fragColor = mix(c1, c2, t);
 }`;
-        const ctx = new ShaderContext(glsl);
+        const ctx = new WebGLContext(glsl);
         const shader = new WebGLShader(
           ctx,
           {
@@ -235,7 +235,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
         canvas,
         width,
         height,
-        c2d: { Path, Paint, WebGLShader, ShaderContext },
+        c2d: { Path, Paint, WebGLShader, WebGLContext },
       }) => {
         const glsl = `uniform float scale;
 uniform vec2 center;
@@ -251,7 +251,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     t = fract(t);
     fragColor = mix(colors[0], colors[1], t);
 }`;
-        const ctx = new ShaderContext(glsl);
+        const ctx = new WebGLContext(glsl);
         const shader = new WebGLShader(
           ctx,
           {

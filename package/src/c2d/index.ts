@@ -2,12 +2,7 @@ import type { Paint } from "./Paint";
 import type { Path } from "./Path";
 import type { Canvas } from "./Canvas";
 import type { BlurImageFilter } from "./ImageFilter";
-import type {
-  ShaderContext,
-  WebGLShader,
-  TextureShaderContext,
-  LinearGradient,
-} from "./Shader";
+import type { WebGLContext, WebGLShader, LinearGradient } from "./Shader";
 
 export * from "./Canvas";
 export * from "./ImageFilter";
@@ -27,8 +22,7 @@ declare global {
       Paint: typeof Paint;
       BlurImageFilter: typeof BlurImageFilter;
       WebGLShader: typeof WebGLShader;
-      ShaderContext: typeof ShaderContext;
-      TextureShaderContext: typeof TextureShaderContext;
+      WebGLContext: typeof WebGLContext;
       LinearGradient: typeof LinearGradient;
     };
   }

@@ -1,4 +1,4 @@
-import type { ShaderContext } from "./ShaderContext";
+import type { WebGLContext } from "./ShaderContext";
 
 interface RuntimeEffectChild {
   texture: WebGLTexture;
@@ -6,15 +6,16 @@ interface RuntimeEffectChild {
 }
 
 export type RuntimeEffectChildren = RuntimeEffectChild[];
-export interface Texture {
+// TODO: rename to shader
+export interface Shader {
   render(width: number, height: number): OffscreenCanvas;
 }
 
-export class WebGLShader implements Texture {
+export class WebGLShader implements Shader {
   constructor(
-    private readonly ctx: ShaderContext,
+    private readonly ctx: WebGLContext,
     uniforms: { [name: string]: number[] },
-    private readonly children: Texture[],
+    private readonly children: Shader[],
     private readonly localMatrix?: DOMMatrix
   ) {
     const { gl, program } = ctx;
@@ -132,7 +133,7 @@ export class WebGLShader implements Texture {
 }
 
 const processUniform = (
-  ctx: ShaderContext,
+  ctx: WebGLContext,
   values: number[],
   uniformInfo: WebGLActiveInfo,
   setter: (loc: WebGLUniformLocation | null, values: number[]) => void
