@@ -1,4 +1,5 @@
 import type { RenderingContext } from "./Constants";
+import { projectPoint } from "./Path";
 
 export interface Drawable {
   draw(ctx: RenderingContext, stroke?: boolean): void;
@@ -40,17 +41,31 @@ export class DrawableText implements Drawable {
 }
 
 export class DrawableFill implements Drawable {
-  private readonly path = new Path2D();
+  private topLeft: DOMPoint;
+  private topRight: DOMPoint;
+  private bottomRight: DOMPoint;
+  private bottomLeft: DOMPoint;
 
   constructor(width: number, height: number) {
-    this.path.rect(0, 0, width, height);
+    this.topLeft = new DOMPoint(0, 0);
+    this.topRight = new DOMPoint(width, 0);
+    this.bottomRight = new DOMPoint(width, height);
+    this.bottomLeft = new DOMPoint(0, height);
   }
 
   draw(ctx: RenderingContext, _stroke?: boolean) {
-    ctx.save();
-    ctx.setTransform();
-    ctx.fill(this.path);
-    ctx.restore();
+    const path = new Path2D();
+    const ctm = ctx.getTransform().inverse();
+    const topLeft = projectPoint(ctm, this.topLeft);
+    const topRight = projectPoint(ctm, this.topRight);
+    const bottomRight = projectPoint(ctm, this.bottomRight);
+    const bottomLeft = projectPoint(ctm, this.bottomLeft);
+    path.moveTo(topLeft.x, topLeft.y);
+    path.lineTo(topRight.x, topRight.y);
+    path.lineTo(bottomRight.x, bottomRight.y);
+    path.lineTo(bottomLeft.x, bottomLeft.y);
+    path.closePath();
+    ctx.fill(path);
   }
 }
 

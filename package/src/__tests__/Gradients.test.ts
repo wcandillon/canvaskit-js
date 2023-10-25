@@ -114,4 +114,28 @@ describe("Gradients", () => {
       maxPixelDiff: 600,
     });
   });
+  it("should draw a two point conical gradient (3)", async () => {
+    const image = await skia.draw(({ CanvasKit, canvas, width, height }) => {
+      const cx = width / 2;
+      const cy = width / 2;
+      const shader = CanvasKit.Shader.MakeTwoPointConicalGradient(
+        [cx, cy],
+        cy,
+        [cx, 16],
+        16,
+        [CanvasKit.BLUE, CanvasKit.YELLOW],
+        null,
+        CanvasKit.TileMode.Clamp
+      );
+      canvas.save();
+      canvas.scale(3, 1.5);
+      const paint = new CanvasKit.Paint();
+      paint.setShader(shader);
+      canvas.drawRect(CanvasKit.XYWHRect(0, 0, width, height), paint);
+      canvas.restore();
+    });
+    checkImage(image, "snapshots/gradients/two-point-gradient2.png", {
+      maxPixelDiff: 600,
+    });
+  });
 });
