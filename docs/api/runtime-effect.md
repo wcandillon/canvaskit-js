@@ -15,7 +15,7 @@ half4 main(float2 xy) {
 
 const paint = new CanvasKit.Paint();
 paint.setShader(
-  re.makeShaderWithChildren([CanvasKit.Mix(progress.value, 1, 100)], [imageShader])
+  re.makeShaderWithChildren([mix(progress.value, 1, 100)], [imageShader])
 );
 const pd = window.devicePixelRatio;
 canvas.scale(pd, pd);
