@@ -1,4 +1,4 @@
-# `Start React Native` License
+# `canvaskit-js` License
 
 This license is granted to all members of the [Start React Native](https://start-react-native.dev/) community for the use of this project's source code and package.
 
