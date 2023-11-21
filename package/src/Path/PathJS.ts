@@ -20,6 +20,7 @@ import { PathBuilder } from "./PathBuilder";
 import { parseSVG } from "./SVG";
 import { TrimPathEffect } from "./PathEffects";
 import type { Path } from "./Path";
+import { DashPathEffect } from "./PathEffects/DathPathEffect";
 
 export class PathJS extends HostObject<"Path"> implements SkPath {
   private path: PathBuilder;
@@ -175,8 +176,10 @@ export class PathJS extends HostObject<"Path"> implements SkPath {
     );
     return this;
   }
-  dash(_on: number, _off: number, _phase: number): boolean {
-    throw new Error("Method not implemented.");
+  dash(on: number, off: number, phase: number) {
+    const pe = new DashPathEffect(on, off, phase);
+    this.swap(pe.filterPath(this.path.getPath()));
+    return true;
   }
   equals(_other: SkPath): boolean {
     throw new Error("Method not implemented.");
