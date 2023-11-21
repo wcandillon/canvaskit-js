@@ -26,10 +26,7 @@ export class DashPathEffect implements PathEffect {
           dashEnd = Math.min(dashEnd, contourLength);
 
           // Add the dash segment to the dashed path
-          const dashSegment = contour.getSegment(
-            dashStart / contourLength,
-            dashEnd / contourLength
-          );
+          const dashSegment = contour.getSegment(dashStart, dashEnd);
           dashedPath.contours.push(dashSegment);
         }
 
