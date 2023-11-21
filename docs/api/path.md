@@ -40,7 +40,7 @@ Please file an issue if you would like to see support for some of these unsuppor
 | copy                                 |   ✅   |          |
 | countPoints                          |   ✅   |          |
 | cubicTo                              |   ✅   |          |
-| dash                                 |   ❌   |          |
+| dash                                 |   ✅   |          |
 | equals                               |   ❌   |          |
 | getBounds                            |   ✅   |          |
 | getNativeFillType                    |   ✅   |          |
