@@ -303,7 +303,7 @@ export class CanvasJS extends HostObject<"Canvas"> implements CKCanvas {
   drawRect(rect: InputRect, paint: PaintJS) {
     const { x, y, width, height } = rectToXYWH(rect);
     const path = new PathJS();
-    path.addRect(Float32Array.of(x, y, width, height));
+    path.addRect(Float32Array.of(x, y, x + width, y + height));
     this.ctx.drawPath(path.getPath(), paint.getPaint());
   }
   drawRect4f(
@@ -313,9 +313,7 @@ export class CanvasJS extends HostObject<"Canvas"> implements CKCanvas {
     bottom: number,
     paint: PaintJS
   ) {
-    const width = right - left;
-    const height = bottom - top;
-    this.drawRect(Float32Array.of(left, top, width, height), paint);
+    this.drawRect(Float32Array.of(left, top, right, bottom), paint);
   }
   drawRRect(rrect: InputRRect, paint: PaintJS): void {
     const { x, y, width, height, radii } = rrectToXYWH(rrect);
@@ -324,8 +322,8 @@ export class CanvasJS extends HostObject<"Canvas"> implements CKCanvas {
       Float32Array.of(
         x,
         y,
-        width,
-        height,
+        x + width,
+        y + height,
         radii.topLeft.x,
         radii.topLeft.y,
         radii.topRight.x,
