@@ -1,7 +1,7 @@
 import type { Point } from "canvaskit-wasm";
 
 import type { DrawingContext } from "./setup";
-import { checkImage, skia } from "./setup";
+import { checkImage, processResult, setupRealSkia, skia } from "./setup";
 
 type Vector = Point;
 export interface PolarPoint {
@@ -74,6 +74,57 @@ describe("Shapes", () => {
       canvas.drawCircle(width / 2, height - r, r, yellow);
     });
     checkImage(image, "snapshots/helloworld.png");
+  });
+
+  it("should draw the hello world example but with rects (reference)", async () => {
+    const { width, height, canvas, surface } = setupRealSkia();
+
+    const CanvasKit = RealCanvasKit;
+
+    const fromCircle = (x: number, y: number, r: number) => {
+      return CanvasKit.XYWHRect(x - r, y - r, r * 2, r * 2);
+    };
+    const paint = new CanvasKit.Paint();
+    paint.setBlendMode(CanvasKit.BlendMode.Multiply);
+
+    const cyan = paint.copy();
+    const r = 92;
+    cyan.setColor(CanvasKit.CYAN);
+    canvas.drawRect(fromCircle(r, r, r), cyan);
+    // Magenta Circle
+    const magenta = paint.copy();
+    magenta.setColor(CanvasKit.MAGENTA);
+    canvas.drawRect(fromCircle(width - r, r, r), magenta);
+    // Yellow Circle
+    const yellow = paint.copy();
+    yellow.setColor(CanvasKit.YELLOW);
+    canvas.drawRect(fromCircle(width / 2, height - r, r), yellow);
+
+    processResult(surface, "snapshots/helloworld2.png");
+  });
+
+  it("should draw the hello world example but with rects", async () => {
+    const image = await skia.draw(({ CanvasKit, canvas, width, height }) => {
+      const fromCircle = (x: number, y: number, r: number) => {
+        return CanvasKit.XYWHRect(x - r, y - r, r * 2, r * 2);
+      };
+      const paint = new CanvasKit.Paint();
+      paint.setBlendMode(CanvasKit.BlendMode.Multiply);
+
+      const cyan = paint.copy();
+      const r = 92;
+      cyan.setColor(CanvasKit.CYAN);
+      canvas.drawRect(fromCircle(r, r, r), cyan);
+      // Magenta Circle
+      const magenta = paint.copy();
+      magenta.setColor(CanvasKit.MAGENTA);
+      canvas.drawRect(fromCircle(width - r, r, r), magenta);
+      // Yellow Circle
+      const yellow = paint.copy();
+      yellow.setColor(CanvasKit.YELLOW);
+      canvas.drawRect(fromCircle(width / 2, height - r, r), yellow);
+    });
+    checkImage(image, "snapshots/helloworld2.png");
   });
 
   const demo = ({ CanvasKit, surface }: DrawingContext, progress: number) => {

@@ -301,9 +301,8 @@ export class CanvasJS extends HostObject<"Canvas"> implements CKCanvas {
     throw new Error("Method not implemented.");
   }
   drawRect(rect: InputRect, paint: PaintJS) {
-    const { x, y, width, height } = rectToXYWH(rect);
     const path = new PathJS();
-    path.addRect(Float32Array.of(x, y, x + width, y + height));
+    path.addRect(rect);
     this.ctx.drawPath(path.getPath(), paint.getPaint());
   }
   drawRect4f(
@@ -316,24 +315,8 @@ export class CanvasJS extends HostObject<"Canvas"> implements CKCanvas {
     this.drawRect(Float32Array.of(left, top, right, bottom), paint);
   }
   drawRRect(rrect: InputRRect, paint: PaintJS): void {
-    const { x, y, width, height, radii } = rrectToXYWH(rrect);
     const path = new PathJS();
-    path.addRRect(
-      Float32Array.of(
-        x,
-        y,
-        x + width,
-        y + height,
-        radii.topLeft.x,
-        radii.topLeft.y,
-        radii.topRight.x,
-        radii.topRight.y,
-        radii.bottomRight.x,
-        radii.bottomRight.y,
-        radii.bottomLeft.x,
-        radii.bottomLeft.y
-      )
-    );
+    path.addRRect(rrect);
     this.ctx.drawPath(path.getPath(), paint.getPaint());
   }
   drawShadow(
