@@ -137,10 +137,7 @@ export class PaintJS extends HostObject<"Paint"> implements Paint {
   }
 
   setShader(shader: ShaderJS | null): void {
-    if (!shader) {
-      throw new Error("Shader cannot be null");
-    }
-    this.paint.setShader(shader.getShader());
+    this.paint.setShader(shader ? shader.getShader() : shader);
   }
 
   setStrokeCap(cap: EmbindEnumEntity): void {

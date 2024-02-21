@@ -106,7 +106,7 @@ export class Paint {
     return this;
   }
 
-  setShader(shader: Shader) {
+  setShader(shader: Shader | null) {
     this.shader = shader;
     return this;
   }
