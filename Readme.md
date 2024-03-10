@@ -26,9 +26,7 @@ However, there are three main differences between the two projects:
 The URL of each package version is available on the [Github Releases](https://github.com/wcandillon/canvaskit-js/releases).
 
 ```sh
-npm install https://bit.ly/canvaskit-js_v211a
-# or
-yarn add https://bit.ly/canvaskit-js_v211a
+npm install canvaskit-js
 ```
 
 ## Getting Started

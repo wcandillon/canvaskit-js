@@ -1,29 +1,21 @@
-# `canvaskit-js` License
+MIT License
 
-This license is granted to all members of the [Start React Native](https://start-react-native.dev/) community for the use of this project's source code and package.
+Copyright (c) 2023-present William Candillon
 
-- [License Terms](#license-terms)
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-## License Terms
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-Copyright © 2023 [Start React Native](https://start-react-native.dev/)
-
-### Eligibility
-
-All members and entities associated with the Start React Native community are eligible to use this software.
-
-### Allowed use cases
-
-Permission is granted to all eligible members to use the software, both non-commercially and commercially, and to adapt the software to suit their specific requirements. They can also contribute enhancements or fixes back to the software repository.
-
-### Disallowed use cases
-
-It is prohibited to reproduce or adapt the software's code to sell, lease, license, sublicense, or distribute your version derived from this software.
-
-### Warranty notice
-
-The software is presented "as is", without any guarantee of any nature, whether explicit or implied. This includes but isn't limited to guarantees of saleability, suitability for a particular purpose, and non-violation. The creators or copyright holders are not responsible for any claims, damages, or other liabilities that might arise from using the software or any dealings related to it.
-
-### Support and Updates
-
-Support will be provided through the project's GitHub repository at [https://github.com/wcandillon/canvaskit-js](https://github.com/wcandillon/canvaskit-js). Members with expired memberships can continue to use the package but will not have access to the GitHub repository nor receive any updates.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
