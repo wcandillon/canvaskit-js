@@ -1,7 +1,7 @@
 {
   "name": "canvaskit-js",
   "version": "0.0.0-development",
-  "private": true,
+  "private": false,
   "description": "A CanvasKit polyfill to the browser APIs",
   "main": "dist/index.js",
   "scripts": {
