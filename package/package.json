@@ -40,7 +40,7 @@
     "tsup": "7.1.0"
   },
   "publishConfig": {
-    "access": "restricted"
+    "access": "public"
   },
   "dependencies": {}
 }
