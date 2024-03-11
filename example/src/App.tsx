@@ -11,6 +11,7 @@ import { CanvasKitProvider } from "./components/CanvasKitContext";
 import { Shader1 } from "./Shader1";
 import { Shader2 } from "./Shader2";
 import { Hello } from "./Hello";
+import { RNBreathe } from "./RNBreathe";
 
 const strictMode = false;
 const Wrapper = strictMode ? StrictMode : Fragment;
@@ -50,6 +51,10 @@ const router = createBrowserRouter([
   {
     path: "/hello",
     element: <Hello />,
+  },
+  {
+    path: "/rn-breathe",
+    element: <RNBreathe />,
   },
 ]);
 

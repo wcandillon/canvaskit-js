@@ -27,6 +27,9 @@ export const Menu = () => {
       <li>
         <Link to="shader2">Shader 2 (WASM)</Link>
       </li>
+      <li>
+        <Link to="rn-breathe">Breathe (React Native)</Link>
+      </li>
     </ul>
   );
 };
