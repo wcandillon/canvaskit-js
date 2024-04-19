@@ -12,6 +12,7 @@ import {
 } from "./c2d";
 
 export * from "./CanvasKit";
+export type { CanvasKit };
 
 declare global {
   interface Window {
