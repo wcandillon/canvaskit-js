@@ -11,6 +11,7 @@ import { CanvasKitProvider } from "./components/CanvasKitContext";
 import { Shader1 } from "./Shader1";
 import { Shader2 } from "./Shader2";
 import { Hello } from "./Hello";
+import { RedrawDemo } from "./Redraw";
 
 const strictMode = false;
 const Wrapper = strictMode ? StrictMode : Fragment;
@@ -18,6 +19,10 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <Menu />,
+  },
+  {
+    path: "/redraw",
+    element: <RedrawDemo />,
   },
   {
     path: "/breathe",

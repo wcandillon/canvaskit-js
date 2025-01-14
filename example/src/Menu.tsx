@@ -4,6 +4,9 @@ export const Menu = () => {
   return (
     <ul>
       <li>
+        <Link to="redraw">Redraw</Link>
+      </li>
+      <li>
         <Link to="breathe">Breathe</Link>
       </li>
       <li>
