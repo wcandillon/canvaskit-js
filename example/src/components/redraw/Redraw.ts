@@ -8,15 +8,11 @@ export class Paint {
   constructor() {}
 }
 
-interface Drawing {
-  pipeline: GPURenderPipeline;
-  vertexCount: number;
-}
-
 class Canvas {
-  drawings: Drawing[] = [];
-
-  constructor(private device: GPUDevice) {}
+  constructor(
+    private device: GPUDevice,
+    public passEncoder: GPURenderPassEncoder
+  ) {}
 
   drawCircle(pos: Point, r: number, paint: Paint) {
     const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
@@ -42,25 +38,18 @@ class Canvas {
         topology: "triangle-list",
       },
     });
-    this.drawings.push({ pipeline, vertexCount: 6 });
+    this.passEncoder.setPipeline(pipeline);
+    this.passEncoder.draw(6);
   }
 }
 
 class Surface {
   private canvas: Canvas;
-  constructor(private device: GPUDevice, private texture: GPUTexture) {
-    this.canvas = new Canvas(device);
-  }
+  private commandEncoder: GPUCommandEncoder;
 
-  getCanvas() {
-    return this.canvas;
-  }
-
-  flush() {
-    const { device, texture } = this;
-    const commandEncoder = device.createCommandEncoder();
+  constructor(private device: GPUDevice, texture: GPUTexture) {
     const view = texture.createView();
-
+    this.commandEncoder = device.createCommandEncoder();
     const renderPassDescriptor: GPURenderPassDescriptor = {
       colorAttachments: [
         {
@@ -72,14 +61,19 @@ class Surface {
       ],
     };
 
-    const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
-    this.canvas.drawings.forEach(({ pipeline, vertexCount }) => {
-      passEncoder.setPipeline(pipeline);
-      passEncoder.draw(vertexCount);
-      passEncoder.end();
-    });
+    const passEncoder =
+      this.commandEncoder.beginRenderPass(renderPassDescriptor);
+    this.canvas = new Canvas(device, passEncoder);
+  }
 
-    device.queue.submit([commandEncoder.finish()]);
+  getCanvas() {
+    return this.canvas;
+  }
+
+  flush() {
+    const { device } = this;
+    this.canvas.passEncoder.end();
+    device.queue.submit([this.commandEncoder.finish()]);
   }
 }
 

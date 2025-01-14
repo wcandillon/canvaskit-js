@@ -16,7 +16,7 @@ export const RedrawDemo = () => {
       const surface = Redraw.Surface.MakeFromCanvas(ref.current!);
       const canvas = surface.getCanvas();
       const paint = new Paint();
-      canvas.drawCircle(vec2.create(0, 0), 100, paint);
+      canvas.drawCircle(vec2.create(0, 0), 500, paint);
       surface.flush();
     })();
   });
@@ -28,7 +28,10 @@ export const RedrawDemo = () => {
         backgroundColor: "cyan",
       }}
     >
-      <canvas ref={ref} style={{ display: "flex" }} />
+      <canvas
+        ref={ref}
+        style={{ display: "flex", flex: 1, width: "100%", height: "100%" }}
+      />
     </div>
   );
 };
