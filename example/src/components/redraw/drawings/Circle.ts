@@ -33,10 +33,10 @@ fn vs(
   let vertexPos = pos[VertexIndex];
 
   // Apply transformation matrix to vertex position
-  let transformedPos = vec4f(vertexPos, 0.0, 1.0);
+  let transformedPos = info.matrix * vec4f(vertexPos, 0.0, 1.0);
 
   var output: VertexOutput;
-  output.position = vec4f(vertexPos, 0.0, 1.0);
+  output.position = transformedPos;
   output.originalPos = vertexPos; // Pass original position to fragment shader
   return output;
 }
