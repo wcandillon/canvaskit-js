@@ -33,7 +33,7 @@ fn vs(
   let transformedPos = info.matrix * vec4f(vertexPos, 0.0, 1.0);
 
   var output: VertexOutput;
-  output.position = vec4f(vertexPos, 0.0, 1.0);
+  output.position = info.matrix * vec4f(vertexPos, 0.0, 1.0);
   output.originalPos = transformedPos.xy;
   return output;
 }
