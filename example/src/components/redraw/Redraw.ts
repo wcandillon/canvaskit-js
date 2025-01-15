@@ -1,6 +1,7 @@
 import { mat4 } from "wgpu-matrix";
 
 import { CircleShader } from "./drawings/Circle";
+import { FillShader } from "./drawings/Fill";
 
 type TypedArray =
   | Int8Array
@@ -68,7 +69,12 @@ type Color = Float32Array;
 type Matrix = Float32Array;
 
 export class Paint {
+  color: Color | null = null;
   constructor() {}
+
+  setColor(r: number, g: number, b: number, a: number) {
+    this.color = Float32Array.of(r, g, b, a);
+  }
 }
 
 interface Context {
@@ -102,6 +108,48 @@ class Canvas {
     this.contextes.pop();
   }
 
+  drawPaint(paint: Paint) {
+    const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
+    const { device } = this;
+    const module = device.createShaderModule({
+      code: FillShader,
+    });
+    const pipeline = device.createRenderPipeline({
+      layout: "auto",
+      label: "Fill",
+      vertex: {
+        module,
+      },
+      fragment: {
+        module,
+        targets: [
+          {
+            format: presentationFormat,
+          },
+        ],
+      },
+      primitive: {
+        topology: "triangle-list",
+      },
+    });
+    this.passEncoder.setPipeline(pipeline);
+    const uniform = makeUniform({
+      color: paint.color!,
+    });
+    const buffer = this.device.createBuffer({
+      label: "uniforms for drawPaint",
+      size: uniform.byteLength,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    });
+    this.device.queue.writeBuffer(buffer, 0, uniform);
+    const bindGroup = device.createBindGroup({
+      layout: pipeline.getBindGroupLayout(0),
+      entries: [{ binding: 0, resource: { buffer } }],
+    });
+    this.passEncoder.setBindGroup(0, bindGroup);
+    this.passEncoder.draw(6);
+  }
+
   drawCircle(pos: Point, r: number, paint: Paint) {
     const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
     const { device } = this;
@@ -132,6 +180,7 @@ class Canvas {
       center: pos,
       radius: Float32Array.of(r),
       matrix: this.ctx.matrix,
+      color: paint.color!,
     });
     const buffer = this.device.createBuffer({
       label: "uniforms for drawCircle",

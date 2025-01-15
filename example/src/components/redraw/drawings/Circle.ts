@@ -9,6 +9,7 @@ struct Info {
   center: vec2f,
   radius: f32,
   matrix: mat4x4f,
+  color: vec4f,
 };
 
 @group(0) @binding(0) var<uniform> info: Info;
@@ -43,7 +44,7 @@ fn vs(
 fn fs(in: VertexOutput) -> @location(0) vec4f {
   let dist = length(in.originalPos);
   if (dist <= 1.0) {
-    return vec4f(0.0, 0.0, 0.0, 1.0);
+    return info.color;
   }
   return vec4f(0.0, 0.0, 0.0, 0.0);
 }`;
