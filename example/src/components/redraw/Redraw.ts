@@ -19,6 +19,7 @@ class Canvas {
     const { device } = this;
     const pipeline = device.createRenderPipeline({
       layout: "auto",
+      label: "Circle",
       vertex: {
         module: device.createShaderModule({
           code: QuadVertex,
@@ -48,9 +49,9 @@ class Surface {
   private commandEncoder: GPUCommandEncoder;
 
   constructor(private device: GPUDevice, texture: GPUTexture) {
-    const view = texture.createView();
     this.commandEncoder = device.createCommandEncoder();
-    const renderPassDescriptor: GPURenderPassDescriptor = {
+    const view = texture.createView();
+    const renderPassDescriptor = {
       colorAttachments: [
         {
           view,
