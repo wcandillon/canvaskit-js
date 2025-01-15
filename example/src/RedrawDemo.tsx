@@ -20,7 +20,7 @@ export const RedrawDemo = () => {
       const paint = new Paint();
       canvas.save();
       canvas.scale(pd, pd);
-      canvas.drawCircle(vec2.create(0, 0), 100, paint);
+      canvas.drawCircle(vec2.create(400, 300), 100, paint);
       canvas.restore();
       surface.flush();
     })();

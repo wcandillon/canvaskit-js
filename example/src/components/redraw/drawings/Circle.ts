@@ -18,29 +18,31 @@ fn vs(
   @builtin(vertex_index) VertexIndex : u32
 ) -> VertexOutput {
   var pos = array<vec2f, 6>(
-    vec2(-0.5, 0.5),  // Top-left
-    vec2(0.5, 0.5),   // Top-right
-    vec2(-0.5, -0.5), // Bottom-left
+    vec2(-1.0, 1.0),   // Top-left
+    vec2(1.0, 1.0),    // Top-right
+    vec2(-1.0, -1.0),  // Bottom-left
     
-    vec2(-0.5, -0.5), // Bottom-left
-    vec2(0.5, 0.5),   // Top-right
-    vec2(0.5, -0.5)   // Bottom-right
+    vec2(-1.0, -1.0),  // Bottom-left
+    vec2(1.0, 1.0),    // Top-right
+    vec2(1.0, -1.0)    // Bottom-right
   );
-
-  let vertexPos = pos[VertexIndex];
   
-  // Apply transformation matrix
-  let transformedPos = info.matrix * vec4f(vertexPos, 0.0, 1.0);
-
+  let aspectRatio = info.resolution.x / info.resolution.y;
+  let vertexPos = pos[VertexIndex] * info.radius;
+  
+  // Adjust for aspect ratio and convert to normalized device coordinates
+  let adjustedPos = vec2f(
+    (vertexPos.x + info.center.x - info.radius) / (info.resolution.x * 0.5) * 2.0 - 1.0,
+    -((vertexPos.y + info.center.y - info.radius) / (info.resolution.y * 0.5) * 2.0 - 1.0)
+  );
+  
   var output: VertexOutput;
-  output.position = info.matrix * vec4f(vertexPos, 0.0, 1.0);
-  output.originalPos = transformedPos.xy;
+  output.position = vec4f(adjustedPos, 0.0, 1.0);
+  output.originalPos = vertexPos + info.center - vec2f(info.radius, info.radius);
   return output;
 }
 
 @fragment
 fn fs(in: VertexOutput) -> @location(0) vec4f {
-  let dist = length(in.originalPos);
-  let alpha = 1.0 - smoothstep(0.9, 1.0, dist);
   return vec4f(1.0, 0.0, 0.0, 1.0);
 }`;
