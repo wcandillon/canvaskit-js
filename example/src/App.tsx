@@ -11,7 +11,7 @@ import { CanvasKitProvider } from "./components/CanvasKitContext";
 import { Shader1 } from "./Shader1";
 import { Shader2 } from "./Shader2";
 import { Hello } from "./Hello";
-import { RedrawDemo } from "./Redraw";
+import { RedrawDemo } from "./RedrawDemo";
 
 const strictMode = false;
 const Wrapper = strictMode ? StrictMode : Fragment;
