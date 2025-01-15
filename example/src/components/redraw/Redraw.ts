@@ -2,6 +2,36 @@ import { mat4 } from "wgpu-matrix";
 
 import { CircleShader } from "./drawings/Circle";
 
+type TypedArray =
+  | Int8Array
+  | Uint8Array
+  | Uint8ClampedArray
+  | Int16Array
+  | Uint16Array
+  | Int32Array
+  | Uint32Array
+  | Float32Array
+  | Float64Array;
+
+// class Uniform<T extends Record<string, TypedArray>> {
+//   public data: Int8Array;
+
+const makeUniform = <T extends Record<string, TypedArray>>(uniform: T) => {
+  const size = Object.values(uniform).reduce(
+    (acc, val) => acc + val.byteLength,
+    0
+  );
+  const totalSize = Math.ceil(size / 16) * 16;
+  const data = new Uint8Array(totalSize);
+  let offset = 0;
+  for (const key in uniform) {
+    const value = new Uint8Array(uniform[key].buffer);
+    data.set(value, offset);
+    offset += value.length;
+  }
+  return data;
+};
+
 type Point = Float32Array;
 type Color = Float32Array;
 type Matrix = Float32Array;
@@ -66,19 +96,22 @@ class Canvas {
       },
     });
     this.passEncoder.setPipeline(pipeline);
-    const size = 2 + 4 + 16 + 2;
-    const uniformValues = new Float32Array(size);
-    uniformValues.set([this.width, this.height, pos[0], pos[1], r, 0], 0);
-    uniformValues.set(this.ctx.matrix, 4 + 2 + 2);
-    const uniformBuffer = this.device.createBuffer({
+    console.log({ resolution: Float32Array.of(this.width, this.height) });
+    const uniform = makeUniform({
+      resolution: Float32Array.of(this.width, this.height),
+      center: pos,
+      radius: Float32Array.of(r),
+      matrix: this.ctx.matrix,
+    });
+    const buffer = this.device.createBuffer({
       label: "uniforms for drawCircle",
-      size: size * Float32Array.BYTES_PER_ELEMENT,
+      size: uniform.byteLength,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
-    this.device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
+    this.device.queue.writeBuffer(buffer, 0, uniform);
     const bindGroup = device.createBindGroup({
       layout: pipeline.getBindGroupLayout(0),
-      entries: [{ binding: 0, resource: { buffer: uniformBuffer } }],
+      entries: [{ binding: 0, resource: { buffer } }],
     });
     this.passEncoder.setBindGroup(0, bindGroup);
     this.passEncoder.draw(6);

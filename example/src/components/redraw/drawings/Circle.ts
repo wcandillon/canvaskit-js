@@ -8,7 +8,6 @@ struct Info {
   resolution: vec2f,
   center: vec2f,
   radius: f32,
-  _pad: f32,
   matrix: mat4x4f,
 };
 
@@ -30,26 +29,18 @@ fn vs(
 
   let vertexPos = pos[VertexIndex];
   
-  // Calculate the scale needed for the diagonal to be 2 * radius
-  let diagonalScale = (2.0 * info.radius) / sqrt(2.0);
-  
-  // Scale vertex position to achieve desired radius
-  let scaledPos = vertexPos * diagonalScale;
-  
-  // Convert to clip space coordinates (-1 to 1)
-  // We divide by resolution/2 to normalize to clip space
-  let clipSpacePos = scaledPos / (info.resolution * 0.5);
-  
   // Apply transformation matrix
-  let transformedPos = info.matrix * vec4f(clipSpacePos, 0.0, 1.0);
+  let transformedPos = info.matrix * vec4f(vertexPos, 0.0, 1.0);
 
   var output: VertexOutput;
-  output.position = transformedPos;
-  output.originalPos = vertexPos;
+  output.position = vec4f(vertexPos, 0.0, 1.0);
+  output.originalPos = transformedPos.xy;
   return output;
 }
 
 @fragment
 fn fs(in: VertexOutput) -> @location(0) vec4f {
+  let dist = length(in.originalPos);
+  let alpha = 1.0 - smoothstep(0.9, 1.0, dist);
   return vec4f(1.0, 0.0, 0.0, 1.0);
 }`;
