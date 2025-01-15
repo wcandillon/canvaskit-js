@@ -43,7 +43,7 @@ fn vs(
 fn fs(in: VertexOutput) -> @location(0) vec4f {
   let dist = length(in.originalPos);
   if (dist <= 1.0) {
-    return vec4f(1.0, 0.0, 0.0, 1.0);
+    return vec4f(0.0, 0.0, 0.0, 1.0);
   }
   return vec4f(0.0, 0.0, 0.0, 0.0);
 }`;
