@@ -27,22 +27,23 @@ fn vs(
     vec2(1.0, -1.0)    // Bottom-right
   );
   
-  let aspectRatio = info.resolution.x / info.resolution.y;
-  let vertexPos = pos[VertexIndex] * info.radius;
-  
-  // Adjust for aspect ratio and convert to normalized device coordinates
-  let adjustedPos = vec2f(
-    (vertexPos.x + info.center.x - info.radius) / (info.resolution.x * 0.5) * 2.0 - 1.0,
-    -((vertexPos.y + info.center.y - info.radius) / (info.resolution.y * 0.5) * 2.0 - 1.0)
+  let vertexPos = pos[VertexIndex];
+  let offset = vec2f(
+    (info.center.x / info.resolution.x) * 2.0 - 1.0,
+    -((info.center.y / info.resolution.y) * 2.0 - 1.0)  // Flip Y and shift
   );
-  
+  let adjustedPos =  vertexPos * (info.radius * 2.0 / info.resolution) + vec2f(0.5, -0.5) + offset;
   var output: VertexOutput;
-  output.position = vec4f(adjustedPos, 0.0, 1.0);
-  output.originalPos = vertexPos + info.center - vec2f(info.radius, info.radius);
+  output.position = info.matrix * vec4f(adjustedPos, 0.0, 1.0);
+  output.originalPos = vertexPos;
   return output;
 }
 
 @fragment
 fn fs(in: VertexOutput) -> @location(0) vec4f {
-  return vec4f(1.0, 0.0, 0.0, 1.0);
+  let dist = length(in.originalPos);
+  if (dist <= 1.0) {
+    return vec4f(1.0, 0.0, 0.0, 1.0);
+  }
+  return vec4f(0.0, 0.0, 0.0, 0.0);
 }`;
