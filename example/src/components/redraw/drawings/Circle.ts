@@ -1,8 +1,7 @@
 export const CircleShader = /* wgsl */ `
-
 struct VertexOutput {
   @builtin(position) position: vec4f,
-  @location(0) originalPos: vec2f, // Pass through original position for fragment shader
+  @location(0) originalPos: vec2f,
 };
 
 struct Info {
@@ -19,42 +18,38 @@ struct Info {
 fn vs(
   @builtin(vertex_index) VertexIndex : u32
 ) -> VertexOutput {
-  // Define the quad as two triangles using 6 vertices
   var pos = array<vec2f, 6>(
-    // First triangle (top-left, bottom-left, bottom-right)
-    vec2(-1.0, 1.0),
-    vec2(1.0, 1.0),
-    vec2(-1.0, -1.0),
-
-    // Second triangle (top-left, bottom-right, top-right)
-    vec2(-1.0, -1.0),
-    vec2(1.0, 1.0),
-    vec2(1.0, -1.0)
+    vec2(-0.5, 0.5),  // Top-left
+    vec2(0.5, 0.5),   // Top-right
+    vec2(-0.5, -0.5), // Bottom-left
+    
+    vec2(-0.5, -0.5), // Bottom-left
+    vec2(0.5, 0.5),   // Top-right
+    vec2(0.5, -0.5)   // Bottom-right
   );
 
-  let vertexPos = pos[VertexIndex] / info.resolution * info.radius;
-
-  // Apply transformation matrix to vertex position
-  let transformedPos = info.matrix * vec4f(vertexPos, 0.0, 1.0);
+  let vertexPos = pos[VertexIndex];
+  
+  // Calculate the scale needed for the diagonal to be 2 * radius
+  let diagonalScale = (2.0 * info.radius) / sqrt(2.0);
+  
+  // Scale vertex position to achieve desired radius
+  let scaledPos = vertexPos * diagonalScale;
+  
+  // Convert to clip space coordinates (-1 to 1)
+  // We divide by resolution/2 to normalize to clip space
+  let clipSpacePos = scaledPos / (info.resolution * 0.5);
+  
+  // Apply transformation matrix
+  let transformedPos = info.matrix * vec4f(clipSpacePos, 0.0, 1.0);
 
   var output: VertexOutput;
   output.position = transformedPos;
-  output.originalPos = vertexPos; // Pass original position to fragment shader
+  output.originalPos = vertexPos;
   return output;
 }
-
 
 @fragment
 fn fs(in: VertexOutput) -> @location(0) vec4f {
   return vec4f(1.0, 0.0, 0.0, 1.0);
-  // // Calculate distance from specified center using original position
-  // // Note: We use originalPos since it's in the same space as our center uniform
-  // let dist = length(in.position.xy - info.center);
-
-  // // Check if point is inside circle
-  // if (dist <= info.radius) {
-  //     return vec4f(1.0, 0.0, 0.0, 1.0); // Red inside circle
-  // } else {
-  //     return vec4f(0.0, 0.0, 0.0, 0.0); // Transparent outside circle
-  // }
 }`;
