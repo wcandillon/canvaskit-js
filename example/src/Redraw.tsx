@@ -3,6 +3,8 @@ import { vec2 } from "wgpu-matrix";
 
 import { Instance, Paint } from "./components/redraw/Redraw";
 
+const pd = window.devicePixelRatio;
+
 export const RedrawDemo = () => {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
@@ -16,7 +18,7 @@ export const RedrawDemo = () => {
       const surface = Redraw.Surface.MakeFromCanvas(ref.current!);
       const canvas = surface.getCanvas();
       const paint = new Paint();
-      canvas.drawCircle(vec2.create(0, 0), 100, paint);
+      canvas.drawCircle(vec2.create(400 * pd, 300 * pd), 300 * pd, paint);
       surface.flush();
     })();
   });

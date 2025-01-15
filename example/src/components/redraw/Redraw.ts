@@ -99,6 +99,9 @@ class SurfaceFactory {
   constructor(private device: GPUDevice) {}
 
   MakeFromCanvas(canvas: HTMLCanvasElement): Surface {
+    const { devicePixelRatio } = window;
+    canvas.width = canvas.clientWidth * devicePixelRatio;
+    canvas.height = canvas.clientHeight * devicePixelRatio;
     const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
     const { device } = this;
     const ctx = canvas.getContext("webgpu");
