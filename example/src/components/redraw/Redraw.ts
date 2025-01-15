@@ -1,34 +1,58 @@
-import { CircleFragment } from "./drawings/Circle";
-import { QuadVertex } from "./drawings/Quad";
+import { mat4 } from "wgpu-matrix";
+
+import { CircleShader } from "./drawings/Circle";
 
 type Point = Float32Array;
 type Color = Float32Array;
+type Matrix = Float32Array;
 
 export class Paint {
   constructor() {}
 }
 
+interface Context {
+  matrix: Matrix;
+}
+
 class Canvas {
+  private contextes: Context[] = [{ matrix: mat4.identity() }];
+
   constructor(
     private device: GPUDevice,
     public passEncoder: GPURenderPassEncoder
   ) {}
 
+  get ctx() {
+    return this.contextes[this.contextes.length - 1];
+  }
+
+  save() {
+    this.contextes.push({ matrix: this.ctx.matrix.slice() });
+  }
+
+  scale(x: number, y: number) {
+    const m = this.ctx.matrix;
+    mat4.scale(m, [x, y, 1], m);
+  }
+
+  restore() {
+    this.contextes.pop();
+  }
+
   drawCircle(pos: Point, r: number, paint: Paint) {
     const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
     const { device } = this;
+    const module = device.createShaderModule({
+      code: CircleShader,
+    });
     const pipeline = device.createRenderPipeline({
       layout: "auto",
       label: "Circle",
       vertex: {
-        module: device.createShaderModule({
-          code: QuadVertex,
-        }),
+        module,
       },
       fragment: {
-        module: device.createShaderModule({
-          code: CircleFragment,
-        }),
+        module,
         targets: [
           {
             format: presentationFormat,
@@ -40,16 +64,16 @@ class Canvas {
       },
     });
     this.passEncoder.setPipeline(pipeline);
+    const size = 4 + 16;
+    const uniformValues = new Float32Array(size);
+    uniformValues.set([pos[0], pos[1], r], 0);
+    uniformValues.set(this.ctx.matrix, 4);
     const uniformBuffer = this.device.createBuffer({
       label: "uniforms for drawCircle",
-      size: 4 * Float32Array.BYTES_PER_ELEMENT,
+      size: size * Float32Array.BYTES_PER_ELEMENT,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
-    this.device.queue.writeBuffer(
-      uniformBuffer,
-      0,
-      Float32Array.of(pos[0], pos[1], r, 0)
-    );
+    this.device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
     const bindGroup = device.createBindGroup({
       layout: pipeline.getBindGroupLayout(0),
       entries: [{ binding: 0, resource: { buffer: uniformBuffer } }],
