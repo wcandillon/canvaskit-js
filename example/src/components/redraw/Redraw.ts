@@ -127,12 +127,11 @@ class Canvas {
       },
     });
     this.passEncoder.setPipeline(pipeline);
-    console.log({ resolution: Float32Array.of(this.width, this.height) });
     const uniform = makeUniform({
       resolution: Float32Array.of(this.width, this.height),
       center: pos,
       radius: Float32Array.of(r),
-      matrix: mat4.identity(),
+      matrix: this.ctx.matrix,
     });
     const buffer = this.device.createBuffer({
       label: "uniforms for drawCircle",
