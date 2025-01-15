@@ -16,7 +16,7 @@ export const RedrawDemo = () => {
       const surface = Redraw.Surface.MakeFromCanvas(ref.current!);
       const canvas = surface.getCanvas();
       const paint = new Paint();
-      canvas.drawCircle(vec2.create(0, 0), 500, paint);
+      canvas.drawCircle(vec2.create(0, 0), 100, paint);
       surface.flush();
     })();
   });

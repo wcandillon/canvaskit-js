@@ -40,6 +40,21 @@ class Canvas {
       },
     });
     this.passEncoder.setPipeline(pipeline);
+    const uniformBuffer = this.device.createBuffer({
+      label: "uniforms for drawCircle",
+      size: 4 * Float32Array.BYTES_PER_ELEMENT,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    });
+    this.device.queue.writeBuffer(
+      uniformBuffer,
+      0,
+      Float32Array.of(pos[0], pos[1], r, 0)
+    );
+    const bindGroup = device.createBindGroup({
+      layout: pipeline.getBindGroupLayout(0),
+      entries: [{ binding: 0, resource: { buffer: uniformBuffer } }],
+    });
+    this.passEncoder.setBindGroup(0, bindGroup);
     this.passEncoder.draw(6);
   }
 }
@@ -49,7 +64,9 @@ class Surface {
   private commandEncoder: GPUCommandEncoder;
 
   constructor(private device: GPUDevice, texture: GPUTexture) {
-    this.commandEncoder = device.createCommandEncoder();
+    this.commandEncoder = device.createCommandEncoder({
+      label: "Redraw encoder",
+    });
     const view = texture.createView();
     const renderPassDescriptor = {
       colorAttachments: [
@@ -91,7 +108,7 @@ class SurfaceFactory {
     ctx.configure({
       device,
       format: presentationFormat,
-      alphaMode: "opaque",
+      alphaMode: "premultiplied",
     });
     return new Surface(this.device, ctx.getCurrentTexture());
   }
