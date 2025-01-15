@@ -6,8 +6,10 @@ struct VertexOutput {
 };
 
 struct Info {
+  resolution: vec2f,
   center: vec2f,
   radius: f32,
+  _pad: f32,
   matrix: mat4x4f,
 };
 
@@ -30,7 +32,7 @@ fn vs(
     vec2(1.0, -1.0)
   );
 
-  let vertexPos = pos[VertexIndex];
+  let vertexPos = pos[VertexIndex] / info.resolution * info.radius;
 
   // Apply transformation matrix to vertex position
   let transformedPos = info.matrix * vec4f(vertexPos, 0.0, 1.0);
@@ -44,14 +46,15 @@ fn vs(
 
 @fragment
 fn fs(in: VertexOutput) -> @location(0) vec4f {
-  // Calculate distance from specified center using original position
-  // Note: We use originalPos since it's in the same space as our center uniform
-  let dist = length(in.position.xy - info.center);
+  return vec4f(1.0, 0.0, 0.0, 1.0);
+  // // Calculate distance from specified center using original position
+  // // Note: We use originalPos since it's in the same space as our center uniform
+  // let dist = length(in.position.xy - info.center);
 
-  // Check if point is inside circle
-  if (dist <= info.radius) {
-      return vec4f(1.0, 0.0, 0.0, 1.0); // Red inside circle
-  } else {
-      return vec4f(0.0, 0.0, 0.0, 0.0); // Transparent outside circle
-  }
+  // // Check if point is inside circle
+  // if (dist <= info.radius) {
+  //     return vec4f(1.0, 0.0, 0.0, 1.0); // Red inside circle
+  // } else {
+  //     return vec4f(0.0, 0.0, 0.0, 0.0); // Transparent outside circle
+  // }
 }`;

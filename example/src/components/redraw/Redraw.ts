@@ -19,7 +19,9 @@ class Canvas {
 
   constructor(
     private device: GPUDevice,
-    public passEncoder: GPURenderPassEncoder
+    public passEncoder: GPURenderPassEncoder,
+    private width: number,
+    private height: number
   ) {}
 
   get ctx() {
@@ -64,10 +66,10 @@ class Canvas {
       },
     });
     this.passEncoder.setPipeline(pipeline);
-    const size = 4 + 16;
+    const size = 2 + 4 + 16 + 2;
     const uniformValues = new Float32Array(size);
-    uniformValues.set([pos[0], pos[1], r], 0);
-    uniformValues.set(this.ctx.matrix, 4);
+    uniformValues.set([this.width, this.height, pos[0], pos[1], r, 0], 0);
+    uniformValues.set(this.ctx.matrix, 4 + 2 + 2);
     const uniformBuffer = this.device.createBuffer({
       label: "uniforms for drawCircle",
       size: size * Float32Array.BYTES_PER_ELEMENT,
@@ -105,7 +107,12 @@ class Surface {
 
     const passEncoder =
       this.commandEncoder.beginRenderPass(renderPassDescriptor);
-    this.canvas = new Canvas(device, passEncoder);
+    this.canvas = new Canvas(
+      device,
+      passEncoder,
+      texture.width,
+      texture.height
+    );
   }
 
   getCanvas() {
