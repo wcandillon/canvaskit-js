@@ -1,6 +1,11 @@
+import type { Color } from "../Data";
 import { makeUniform } from "../Uniform";
 
 import { Drawable } from "./Drawable";
+
+interface FillProps {
+  color: Color;
+}
 
 export const FillShader = /* wgsl */ `
 struct VertexOutput {
@@ -8,11 +13,11 @@ struct VertexOutput {
   @location(0) originalPos: vec2f,
 };
 
-struct Info {
+struct Props {
   color: vec4f,
 };
 
-@group(0) @binding(0) var<uniform> info: Info;
+@group(0) @binding(0) var<uniform> props: Props;
 
 @vertex
 fn vs(
@@ -33,12 +38,8 @@ fn vs(
 
 @fragment
 fn fs() -> @location(0) vec4f {
-  return info.color;
+  return props.color;
 }`;
-
-interface FillProps {
-  color: Float32Array;
-}
 
 export class Fill extends Drawable<FillProps> {
   static pipeline: GPURenderPipeline;
@@ -75,19 +76,12 @@ export class Fill extends Drawable<FillProps> {
     });
   }
 
-  draw(passEncoder: GPURenderPassEncoder, data: FillProps) {
+  draw(passEncoder: GPURenderPassEncoder, props: FillProps) {
     passEncoder.setPipeline(Fill.pipeline);
-    const uniform = makeUniform(data);
-    const buffer = this.device.createBuffer({
-      label: "uniforms for drawPaint",
-      size: uniform.byteLength,
-      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-    });
-    this.device.queue.writeBuffer(buffer, 0, uniform);
-    const bindGroup = this.device.createBindGroup({
-      layout: Fill.pipeline.getBindGroupLayout(0),
-      entries: [{ binding: 0, resource: { buffer } }],
-    });
+    const bindGroup = this.createBindGroup(
+      Fill.pipeline.getBindGroupLayout(0),
+      props
+    );
     passEncoder.setBindGroup(0, bindGroup);
     passEncoder.draw(6);
   }
