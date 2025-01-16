@@ -21,7 +21,7 @@ export class Canvas {
   }
 
   save() {
-    this.contextes.push({ matrix: mat4.clone(this.ctx.matrix) });
+    this.contextes.push({ matrix: this.ctx.matrix.slice() });
   }
 
   scale(x: number, y: number, z = 1) {
