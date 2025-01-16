@@ -36,9 +36,9 @@ export class Surface {
         {
           view,
           clearValue: [0, 0, 0, 0], // Clear to transparent
-          loadOp: "clear" as const,
-          storeOp: "store" as const,
-        },
+          loadOp: "clear",
+          storeOp: "store",
+        } as const,
       ],
     };
     const commandEncoder = device.createCommandEncoder({

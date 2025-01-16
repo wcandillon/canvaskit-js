@@ -32,13 +32,23 @@ export const startAnimations = (
 const easing = Easing.inOut(Easing.ease);
 
 export class AnimationValue {
+  private hasChanged = false;
   constructor(protected _value: number) {}
 
   get value() {
     return this._value;
   }
 
+  set value(value: number) {
+    this.hasChanged = true;
+    this._value = value;
+  }
+
   onFrame(_timespace: number) {
+    if (this.hasChanged) {
+      this.hasChanged = false;
+      return true;
+    }
     return false;
   }
 }

@@ -1,7 +1,6 @@
 import { mat4 } from "wgpu-matrix";
-import type { Point } from "canvaskit-wasm";
 
-import type { Matrix } from "./Data";
+import type { Matrix, Point } from "./Data";
 import type { Paint } from "./Paint";
 import { Circle, Fill } from "./drawings";
 import type { DrawingCommand } from "./drawings/Drawable";
@@ -22,7 +21,7 @@ export class Canvas {
   }
 
   save() {
-    this.contextes.push({ matrix: this.ctx.matrix.slice() });
+    this.contextes.push({ matrix: mat4.clone(this.ctx.matrix) });
   }
 
   scale(x: number, y: number, z = 1) {
@@ -43,7 +42,9 @@ export class Canvas {
   }
 
   restore() {
-    this.contextes.pop();
+    if (this.contextes.length > 0) {
+      this.contextes.pop();
+    }
   }
 
   fill(paint: Paint) {
