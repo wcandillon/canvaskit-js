@@ -21,9 +21,9 @@ export const RedrawDemo = () => {
       paint.setColor(36 / 256, 43 / 256, 56 / 256, 1);
       canvas.save();
       canvas.scale(pd, pd);
-      canvas.drawPaint(paint);
+      canvas.fill(paint);
       paint.setColor(97 / 256, 190 / 256, 162 / 256, 1);
-      canvas.drawCircle(vec2.create(0, 0), 100, paint);
+      canvas.drawCircle(vec2.create(400, 300), 100, paint);
       canvas.restore();
       surface.flush();
     })();

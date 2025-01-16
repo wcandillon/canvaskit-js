@@ -1,72 +1,9 @@
 import { mat4 } from "wgpu-matrix";
 
 import { CircleShader } from "./drawings/Circle";
-import { FillShader } from "./drawings/Fill";
-
-type TypedArray =
-  | Int8Array
-  | Uint8Array
-  | Uint8ClampedArray
-  | Int16Array
-  | Uint16Array
-  | Int32Array
-  | Uint32Array
-  | Float32Array
-  | Float64Array;
-
-// class Uniform<T extends Record<string, TypedArray>> {
-//   public data: Int8Array;
-const getTypeAlignment = (array: TypedArray): number => {
-  // Float32Array and Int32Array are 4 bytes
-  if (array instanceof Float32Array || array instanceof Int32Array) {
-    if (array.length <= 1) {
-      return 4;
-    } // Single value
-    if (array.length <= 4) {
-      return 8;
-    } // vec2/vec3/vec4
-    return 16; // matrices
-  }
-  // Add other type checks as needed
-  return 4; // Default alignment
-};
-
-const getAlignedOffset = (offset: number, alignment: number): number => {
-  return Math.ceil(offset / alignment) * alignment;
-};
-
-const makeUniform = <T extends Record<string, TypedArray>>(uniform: T) => {
-  // First pass: calculate total size with alignment
-  let totalSize = 0;
-  for (const key in uniform) {
-    const value = uniform[key];
-    const alignment = getTypeAlignment(value);
-    totalSize = getAlignedOffset(totalSize, alignment);
-    totalSize += value.byteLength;
-  }
-
-  // Round up total size to 16 bytes for uniform buffer requirements
-  totalSize = Math.ceil(totalSize / 16) * 16;
-  const data = new Uint8Array(totalSize);
-
-  // Second pass: copy data with proper alignment
-  let offset = 0;
-  for (const key in uniform) {
-    const value = uniform[key];
-    const alignment = getTypeAlignment(value);
-    offset = getAlignedOffset(offset, alignment);
-
-    const view = new Uint8Array(value.buffer);
-    data.set(view, offset);
-    offset += value.byteLength;
-  }
-
-  return data;
-};
-
-type Point = Float32Array;
-type Color = Float32Array;
-type Matrix = Float32Array;
+import { Fill } from "./drawings/Fill";
+import type { Color, Matrix, Point } from "./Data";
+import { makeUniform } from "./Uniform";
 
 export class Paint {
   color: Color | null = null;
@@ -108,46 +45,10 @@ class Canvas {
     this.contextes.pop();
   }
 
-  drawPaint(paint: Paint) {
-    const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
+  fill(paint: Paint) {
     const { device } = this;
-    const module = device.createShaderModule({
-      code: FillShader,
-    });
-    const pipeline = device.createRenderPipeline({
-      layout: "auto",
-      label: "Fill",
-      vertex: {
-        module,
-      },
-      fragment: {
-        module,
-        targets: [
-          {
-            format: presentationFormat,
-          },
-        ],
-      },
-      primitive: {
-        topology: "triangle-list",
-      },
-    });
-    this.passEncoder.setPipeline(pipeline);
-    const uniform = makeUniform({
-      color: paint.color!,
-    });
-    const buffer = this.device.createBuffer({
-      label: "uniforms for drawPaint",
-      size: uniform.byteLength,
-      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-    });
-    this.device.queue.writeBuffer(buffer, 0, uniform);
-    const bindGroup = device.createBindGroup({
-      layout: pipeline.getBindGroupLayout(0),
-      entries: [{ binding: 0, resource: { buffer } }],
-    });
-    this.passEncoder.setBindGroup(0, bindGroup);
-    this.passEncoder.draw(6);
+    const drawing = new Fill(device);
+    drawing.draw(this.passEncoder, { color: paint.color! });
   }
 
   drawCircle(pos: Point, r: number, paint: Paint) {
