@@ -76,11 +76,8 @@ export class Fill extends Drawable<FillProps> {
   }
 
   draw(passEncoder: GPURenderPassEncoder, data: FillProps) {
-    console.log("Drawing Fill");
     passEncoder.setPipeline(Fill.pipeline);
-    const uniform = makeUniform({
-      color: data.color!,
-    });
+    const uniform = makeUniform(data);
     const buffer = this.device.createBuffer({
       label: "uniforms for drawPaint",
       size: uniform.byteLength,

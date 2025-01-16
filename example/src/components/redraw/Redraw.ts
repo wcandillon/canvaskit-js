@@ -1,9 +1,7 @@
 import { mat4 } from "wgpu-matrix";
 
-import { CircleShader } from "./drawings/Circle";
-import { Fill } from "./drawings/Fill";
+import { Circle, Fill } from "./drawings";
 import type { Color, Matrix, Point } from "./Data";
-import { makeUniform } from "./Uniform";
 
 export class Paint {
   color: Color | null = null;
@@ -52,49 +50,15 @@ class Canvas {
   }
 
   drawCircle(pos: Point, r: number, paint: Paint) {
-    const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
     const { device } = this;
-    const module = device.createShaderModule({
-      code: CircleShader,
-    });
-    const pipeline = device.createRenderPipeline({
-      layout: "auto",
-      label: "Circle",
-      vertex: {
-        module,
-      },
-      fragment: {
-        module,
-        targets: [
-          {
-            format: presentationFormat,
-          },
-        ],
-      },
-      primitive: {
-        topology: "triangle-list",
-      },
-    });
-    this.passEncoder.setPipeline(pipeline);
-    const uniform = makeUniform({
+    const drawing = new Circle(device);
+    drawing.draw(this.passEncoder, {
       resolution: Float32Array.of(this.width, this.height),
       center: pos,
       radius: Float32Array.of(r),
       matrix: this.ctx.matrix,
       color: paint.color!,
     });
-    const buffer = this.device.createBuffer({
-      label: "uniforms for drawCircle",
-      size: uniform.byteLength,
-      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-    });
-    this.device.queue.writeBuffer(buffer, 0, uniform);
-    const bindGroup = device.createBindGroup({
-      layout: pipeline.getBindGroupLayout(0),
-      entries: [{ binding: 0, resource: { buffer } }],
-    });
-    this.passEncoder.setBindGroup(0, bindGroup);
-    this.passEncoder.draw(6);
   }
 }
 

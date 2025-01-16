@@ -30,7 +30,7 @@ const getAlignedOffset = (offset: number, alignment: number): number => {
   return Math.ceil(offset / alignment) * alignment;
 };
 
-export const makeUniform = <T extends Record<string, TypedArray>>(
+export const makeUniform = <T extends Record<keyof T, TypedArray>>(
   uniform: T
 ) => {
   // First pass: calculate total size with alignment

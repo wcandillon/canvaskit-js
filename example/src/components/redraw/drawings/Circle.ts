@@ -1,4 +1,9 @@
-export const CircleShader = /* wgsl */ `
+import type { Color, Matrix, Point } from "../Data";
+import { makeUniform } from "../Uniform";
+
+import { Drawable } from "./Drawable";
+
+const CircleShader = /* wgsl */ `
 struct VertexOutput {
   @builtin(position) position: vec4f,
   @location(0) originalPos: vec2f,
@@ -48,3 +53,64 @@ fn fs(in: VertexOutput) -> @location(0) vec4f {
   }
   return vec4f(0.0, 0.0, 0.0, 0.0);
 }`;
+
+interface CircleProps {
+  resolution: Point;
+  center: Point;
+  radius: Float32Array;
+  matrix: Matrix;
+  color: Color;
+}
+
+export class Circle extends Drawable<CircleProps> {
+  static pipeline: GPURenderPipeline;
+
+  constructor(device: GPUDevice) {
+    super(device);
+    if (!Circle.pipeline) {
+      Circle.pipeline = this.createPipeline();
+    }
+  }
+
+  protected createPipeline() {
+    const { device, format } = this;
+    const module = device.createShaderModule({
+      code: CircleShader,
+    });
+    return device.createRenderPipeline({
+      layout: "auto",
+      label: "Circle",
+      vertex: {
+        module,
+      },
+      fragment: {
+        module,
+        targets: [
+          {
+            format,
+          },
+        ],
+      },
+      primitive: {
+        topology: "triangle-list",
+      },
+    });
+  }
+
+  draw(passEncoder: GPURenderPassEncoder, data: CircleProps) {
+    passEncoder.setPipeline(Circle.pipeline);
+    const uniform = makeUniform(data);
+    const buffer = this.device.createBuffer({
+      label: "uniforms for drawPaint",
+      size: uniform.byteLength,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    });
+    this.device.queue.writeBuffer(buffer, 0, uniform);
+    const bindGroup = this.device.createBindGroup({
+      layout: Circle.pipeline.getBindGroupLayout(0),
+      entries: [{ binding: 0, resource: { buffer } }],
+    });
+    passEncoder.setBindGroup(0, bindGroup);
+    passEncoder.draw(6);
+  }
+}
