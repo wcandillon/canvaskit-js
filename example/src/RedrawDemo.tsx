@@ -26,8 +26,8 @@ export const RedrawDemo = () => {
       canvas.drawCircle(vec2.create(400, 300), 100, paint);
       paint.setColor(Redraw.Color("#529ca0"));
       canvas.drawCircle(vec2.create(0, 0), 100, paint);
-      paint.setColor(Redraw.Color("rgba(255, 0, 0, 0.5)"));
-      // canvas.fill(paint);
+      paint.setColor(Redraw.Color("rgba(255, 0, 0, 0.2)"));
+      canvas.fill(paint);
       canvas.restore();
       surface.flush();
     })();

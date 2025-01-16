@@ -66,6 +66,18 @@ export class Fill extends Drawable<FillProps> {
         targets: [
           {
             format,
+            blend: {
+              color: {
+                operation: "add",
+                srcFactor: "one",
+                dstFactor: "one-minus-src-alpha",
+              },
+              alpha: {
+                operation: "add",
+                srcFactor: "one",
+                dstFactor: "one-minus-src-alpha",
+              },
+            },
           },
         ],
       },

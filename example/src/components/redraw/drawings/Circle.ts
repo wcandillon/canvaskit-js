@@ -88,6 +88,18 @@ export class Circle extends Drawable<CircleProps> {
         targets: [
           {
             format,
+            blend: {
+              color: {
+                operation: "add",
+                srcFactor: "one",
+                dstFactor: "one-minus-src-alpha",
+              },
+              alpha: {
+                operation: "add",
+                srcFactor: "one",
+                dstFactor: "one-minus-src-alpha",
+              },
+            },
           },
         ],
       },
