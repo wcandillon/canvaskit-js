@@ -1,5 +1,4 @@
 import type { Color } from "../Data";
-import { makeUniform } from "../Uniform";
 
 import { Drawable } from "./Drawable";
 

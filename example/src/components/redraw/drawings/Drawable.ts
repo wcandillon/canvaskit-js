@@ -1,5 +1,5 @@
-import type { TypedArray } from "../Uniform";
-import { makeUniform } from "../Uniform";
+import type { TypedArray } from "./Uniform";
+import { makeUniform } from "./Uniform";
 
 export abstract class Drawable<T> {
   format: GPUTextureFormat;
