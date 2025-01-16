@@ -58,6 +58,7 @@ fn fs(in: VertexOutput) -> @location(0) vec4f {
   if (dist <= 1.0) {
     return props.color;
   }
+  discard;
   return vec4f(0.0, 0.0, 0.0, 0.0);
 }`;
 
