@@ -114,3 +114,5 @@ export class Circle extends Drawable<CircleProps> {
     passEncoder.draw(6);
   }
 }
+// TODO: use float32 for uniform
+// Use css color parsing

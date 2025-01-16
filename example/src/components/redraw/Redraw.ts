@@ -1,14 +1,14 @@
 import { mat4 } from "wgpu-matrix";
 
 import { Circle, Fill } from "./drawings";
-import type { Color, Matrix, Point } from "./Data";
+import { ColorFactory, type Color, type Matrix, type Point } from "./Data";
 
 export class Paint {
   color: Color | null = null;
   constructor() {}
 
-  setColor(r: number, g: number, b: number, a: number) {
-    this.color = Float32Array.of(r, g, b, a);
+  setColor(color: Color) {
+    this.color = color;
   }
 }
 
@@ -137,6 +137,7 @@ class SurfaceFactory {
 
 export class Instance {
   public Surface: SurfaceFactory;
+  public Color = ColorFactory;
 
   constructor(device: GPUDevice) {
     this.Surface = new SurfaceFactory(device);

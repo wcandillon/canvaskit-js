@@ -18,11 +18,11 @@ export const RedrawDemo = () => {
       const surface = Redraw.Surface.MakeFromCanvas(ref.current!);
       const canvas = surface.getCanvas();
       const paint = new Paint();
-      paint.setColor(36 / 256, 43 / 256, 56 / 256, 1);
+      paint.setColor(Redraw.Color("rgb(36,43,56)"));
       canvas.save();
       canvas.scale(pd, pd);
       canvas.fill(paint);
-      paint.setColor(97 / 256, 190 / 256, 162 / 256, 1);
+      paint.setColor(Redraw.Color("#61bea2"));
       canvas.drawCircle(vec2.create(400, 300), 100, paint);
       canvas.restore();
       surface.flush();
