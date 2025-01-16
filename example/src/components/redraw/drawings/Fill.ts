@@ -51,15 +51,25 @@ fn fs() -> FragOut {
 export class Fill extends Drawable<FillProps> {
   static pipeline: GPURenderPipeline;
 
-  constructor(device: GPUDevice) {
-    super(device);
+  constructor(device: GPUDevice, props: FillProps) {
+    super(device, props);
     if (!Fill.pipeline) {
       Fill.pipeline = this.createPipeline();
     }
   }
 
-  protected createPipeline() {
-    const { device, format } = this;
+  getDrawingCommand() {
+    const layout = Fill.pipeline.getBindGroupLayout(0);
+    return {
+      pipeline: Fill.pipeline,
+      bindGroup: this.createBindGroup(layout),
+      vertexCount: 6,
+    };
+  }
+
+  createPipeline() {
+    const { device } = this;
+    const format = navigator.gpu.getPreferredCanvasFormat();
     const module = device.createShaderModule({
       code: FillShader,
     });
@@ -79,12 +89,12 @@ export class Fill extends Drawable<FillProps> {
                 operation: "add",
                 srcFactor: "one",
                 dstFactor: "one-minus-src-alpha",
-              },
+              } as const,
               alpha: {
                 operation: "add",
                 srcFactor: "one",
                 dstFactor: "one-minus-src-alpha",
-              },
+              } as const,
             },
           },
         ],
@@ -93,15 +103,5 @@ export class Fill extends Drawable<FillProps> {
         topology: "triangle-list",
       },
     });
-  }
-
-  draw(passEncoder: GPURenderPassEncoder, props: FillProps) {
-    passEncoder.setPipeline(Fill.pipeline);
-    const bindGroup = this.createBindGroup(
-      Fill.pipeline.getBindGroupLayout(0),
-      props
-    );
-    passEncoder.setBindGroup(0, bindGroup);
-    passEncoder.draw(6);
   }
 }

@@ -73,21 +73,31 @@ fn fs(in: VertexOutput) -> FragOut {
 export class Circle extends Drawable<CircleProps> {
   static pipeline: GPURenderPipeline;
 
-  constructor(device: GPUDevice) {
-    super(device);
+  constructor(device: GPUDevice, props: CircleProps) {
+    super(device, props);
     if (!Circle.pipeline) {
       Circle.pipeline = this.createPipeline();
     }
   }
 
-  protected createPipeline() {
-    const { device, format } = this;
+  getDrawingCommand() {
+    const layout = Circle.pipeline.getBindGroupLayout(0);
+    return {
+      pipeline: Circle.pipeline,
+      bindGroup: this.createBindGroup(layout),
+      vertexCount: 6,
+    };
+  }
+
+  createPipeline() {
+    const { device } = this;
+    const format = navigator.gpu.getPreferredCanvasFormat();
     const module = device.createShaderModule({
       code: CircleShader,
     });
     return device.createRenderPipeline({
       layout: "auto",
-      label: "Circle",
+      label: "Fill",
       vertex: {
         module,
       },
@@ -96,15 +106,17 @@ export class Circle extends Drawable<CircleProps> {
         targets: [
           {
             format,
-            color: {
-              operation: "add",
-              srcFactor: "one",
-              dstFactor: "one-minus-src-alpha",
-            },
-            alpha: {
-              operation: "add",
-              srcFactor: "one",
-              dstFactor: "one-minus-src-alpha",
+            blend: {
+              color: {
+                operation: "add",
+                srcFactor: "one",
+                dstFactor: "one-minus-src-alpha",
+              } as const,
+              alpha: {
+                operation: "add",
+                srcFactor: "one",
+                dstFactor: "one-minus-src-alpha",
+              } as const,
             },
           },
         ],
@@ -113,15 +125,5 @@ export class Circle extends Drawable<CircleProps> {
         topology: "triangle-list",
       },
     });
-  }
-
-  draw(passEncoder: GPURenderPassEncoder, props: CircleProps) {
-    passEncoder.setPipeline(Circle.pipeline);
-    const bindGroup = this.createBindGroup(
-      Circle.pipeline.getBindGroupLayout(0),
-      props
-    );
-    passEncoder.setBindGroup(0, bindGroup);
-    passEncoder.draw(6);
   }
 }

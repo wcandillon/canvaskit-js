@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 
 import { Easing } from "./Easing";
 
@@ -87,3 +87,18 @@ export const useLoop = (value = 0, duration = 3000) =>
 export const useValue = (value = 0) =>
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useMemo(() => new AnimationValue(value), []);
+
+export const useOnFrame = (callback: () => void, values: AnimationValue[]) => {
+  useEffect(() => {
+    const redraw = () => {
+      callback();
+    };
+
+    // Start animations with redraw callback
+    const stopAnimations = startAnimations(values, redraw);
+
+    return () => {
+      stopAnimations(); // Clean up animation frame on unmount
+    };
+  }, [callback, values]);
+};

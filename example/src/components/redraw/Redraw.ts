@@ -1,19 +1,36 @@
 import { Canvas } from "./Canvas";
 import { ColorFactory } from "./Data";
 
-class Surface {
+export class Surface {
   private canvas: Canvas;
-  private commandEncoder: GPUCommandEncoder;
 
   constructor(
     private device: GPUDevice,
-    private texture: GPUTexture,
+    private getCurrentTexture: () => GPUTexture,
     private pd = window.devicePixelRatio
   ) {
-    this.commandEncoder = device.createCommandEncoder({
-      label: "Redraw encoder",
-    });
-    const view = texture.createView();
+    const resolution = Float32Array.of(
+      this.getCurrentTexture().width,
+      this.getCurrentTexture().height
+    );
+    this.canvas = new Canvas(device, resolution);
+  }
+
+  get width() {
+    return this.getCurrentTexture().width / this.pd;
+  }
+
+  get height() {
+    return this.getCurrentTexture().height / this.pd;
+  }
+
+  getCanvas() {
+    return this.canvas;
+  }
+
+  flush() {
+    const { device } = this;
+    const view = this.getCurrentTexture().createView();
     const renderPassDescriptor = {
       colorAttachments: [
         {
@@ -24,33 +41,18 @@ class Surface {
         },
       ],
     };
-
-    const passEncoder =
-      this.commandEncoder.beginRenderPass(renderPassDescriptor);
-    this.canvas = new Canvas(
-      device,
-      passEncoder,
-      texture.width,
-      texture.height
-    );
-  }
-
-  get width() {
-    return this.texture.width / this.pd;
-  }
-
-  get height() {
-    return this.texture.height / this.pd;
-  }
-
-  getCanvas() {
-    return this.canvas;
-  }
-
-  flush() {
-    const { device } = this;
-    this.canvas.passEncoder.end();
-    device.queue.submit([this.commandEncoder.finish()]);
+    const commandEncoder = device.createCommandEncoder({
+      label: "Redraw encoder",
+    });
+    const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
+    const commands = this.canvas.popDrawingCommands();
+    commands.forEach(({ pipeline, bindGroup, vertexCount }) => {
+      passEncoder.setPipeline(pipeline);
+      passEncoder.setBindGroup(0, bindGroup);
+      passEncoder.draw(vertexCount);
+    });
+    passEncoder.end();
+    device.queue.submit([commandEncoder.finish()]);
   }
 }
 
@@ -72,7 +74,7 @@ class SurfaceFactory {
       format: presentationFormat,
       alphaMode: "premultiplied",
     });
-    return new Surface(this.device, ctx.getCurrentTexture());
+    return new Surface(this.device, () => ctx.getCurrentTexture());
   }
 
   MakeOffscreen(width: number, height: number) {
@@ -82,7 +84,7 @@ class SurfaceFactory {
       format: presentationFormat,
       usage: GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT,
     });
-    return new Surface(this.device, texture);
+    return new Surface(this.device, () => texture);
   }
 }
 

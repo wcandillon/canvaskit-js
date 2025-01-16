@@ -1,18 +1,21 @@
 import type { TypedArray } from "./Uniform";
 import { makeUniform } from "./Uniform";
 
-export abstract class Drawable<T> {
+export interface DrawingCommand {
+  pipeline: GPURenderPipeline;
+  bindGroup: GPUBindGroup;
+  vertexCount: number;
+}
+
+export abstract class Drawable<Props extends Record<keyof Props, TypedArray>> {
   format: GPUTextureFormat;
 
-  constructor(protected device: GPUDevice) {
+  constructor(protected device: GPUDevice, private props: Props) {
     this.format = navigator.gpu.getPreferredCanvasFormat();
   }
 
-  protected createBindGroup<Props extends Record<keyof Props, TypedArray>>(
-    layout: GPUBindGroupLayout,
-    props: Props
-  ) {
-    const uniform = makeUniform(props);
+  protected createBindGroup(layout: GPUBindGroupLayout) {
+    const uniform = makeUniform(this.props);
     const buffer = this.device.createBuffer({
       label: "uniforms for drawPaint",
       size: uniform.byteLength,
@@ -27,5 +30,5 @@ export abstract class Drawable<T> {
 
   protected abstract createPipeline(): GPURenderPipeline;
 
-  abstract draw(passEncoder: GPURenderPassEncoder, data: T): void;
+  abstract getDrawingCommand(): DrawingCommand;
 }

@@ -4,20 +4,18 @@ import type { Point } from "canvaskit-wasm";
 import type { Matrix } from "./Data";
 import type { Paint } from "./Paint";
 import { Circle, Fill } from "./drawings";
+import type { DrawingCommand } from "./drawings/Drawable";
 
 interface Context {
   matrix: Matrix;
 }
 
 export class Canvas {
+  private drawingCommands: DrawingCommand[] = [];
+
   private contextes: Context[] = [{ matrix: mat4.identity() }];
 
-  constructor(
-    private device: GPUDevice,
-    public passEncoder: GPURenderPassEncoder,
-    private width: number,
-    private height: number
-  ) {}
+  constructor(private device: GPUDevice, private resolution: Float32Array) {}
 
   get ctx() {
     return this.contextes[this.contextes.length - 1];
@@ -50,19 +48,23 @@ export class Canvas {
 
   fill(paint: Paint) {
     const { device } = this;
-    const drawing = new Fill(device);
-    drawing.draw(this.passEncoder, { color: paint.color! });
+    const fill = new Fill(device, { color: paint.color! });
+    this.drawingCommands.push(fill.getDrawingCommand());
   }
 
   drawCircle(pos: Point, r: number, paint: Paint) {
     const { device } = this;
-    const drawing = new Circle(device);
-    drawing.draw(this.passEncoder, {
-      resolution: Float32Array.of(this.width, this.height),
+    const circle = new Circle(device, {
+      resolution: this.resolution,
       center: pos,
       radius: Float32Array.of(r),
       matrix: this.ctx.matrix,
       color: paint.color!,
     });
+    this.drawingCommands.push(circle.getDrawingCommand());
+  }
+
+  popDrawingCommands() {
+    return this.drawingCommands.splice(0, this.drawingCommands.length - 1);
   }
 }
