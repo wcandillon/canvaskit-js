@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { vec2 } from "wgpu-matrix";
 
-import { Instance, Paint } from "./components/redraw/Redraw";
+import { Instance, Paint } from "./components/redraw";
 
 const pd = window.devicePixelRatio;
 
@@ -26,7 +26,7 @@ export const RedrawDemo = () => {
       canvas.drawCircle(vec2.create(400, 300), 100, paint);
       paint.setColor(Redraw.Color("#529ca0"));
       canvas.drawCircle(vec2.create(0, 0), 100, paint);
-      paint.setColor(Redraw.Color("rgba(255, 0, 0, 0.2)"));
+      paint.setColor(Redraw.Color("rgba(255, 0, 0, 0.0)"));
       canvas.fill(paint);
       canvas.restore();
       surface.flush();
