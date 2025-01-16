@@ -7,6 +7,7 @@ interface FillProps {
 }
 
 export const FillShader = /* wgsl */ `
+
 struct VertexOutput {
   @builtin(position) position: vec4f,
   @location(0) originalPos: vec2f,
@@ -35,9 +36,16 @@ fn vs(
   return vec4f(pos[VertexIndex], 0.0, 1.0);
 }
 
+struct FragOut {
+  // This is the actual color to be written to the color attachment
+  @location(0) color : vec4f,
+};
+
 @fragment
-fn fs() -> @location(0) vec4f {
-  return props.color;
+fn fs() -> FragOut {
+  var out: FragOut;
+  out.color = props.color;
+  return out;
 }`;
 
 export class Fill extends Drawable<FillProps> {

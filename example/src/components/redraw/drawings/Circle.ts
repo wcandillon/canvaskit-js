@@ -11,6 +11,8 @@ interface CircleProps {
 }
 
 const CircleShader = /* wgsl */ `
+enable dual_source_blending;
+
 struct VertexOutput {
   @builtin(position) position: vec4f,
   @location(0) originalPos: vec2f,
@@ -52,14 +54,20 @@ fn vs(
   return output;
 }
 
+struct FragOut {
+  @location(0) color : vec4f,
+};
+
 @fragment
-fn fs(in: VertexOutput) -> @location(0) vec4f {
+fn fs(in: VertexOutput) -> FragOut {
+  var out : FragOut;
   let dist = length(in.originalPos);
   if (dist <= 1.0) {
-    return props.color;
+    out.color = props.color;
+  } else {
+    discard;
   }
-  discard;
-  return vec4f(0.0, 0.0, 0.0, 0.0);
+  return out;
 }`;
 
 export class Circle extends Drawable<CircleProps> {
@@ -88,17 +96,15 @@ export class Circle extends Drawable<CircleProps> {
         targets: [
           {
             format,
-            blend: {
-              color: {
-                operation: "add",
-                srcFactor: "one",
-                dstFactor: "one-minus-src-alpha",
-              },
-              alpha: {
-                operation: "add",
-                srcFactor: "one",
-                dstFactor: "one-minus-src-alpha",
-              },
+            color: {
+              operation: "add",
+              srcFactor: "one",
+              dstFactor: "one-minus-src-alpha",
+            },
+            alpha: {
+              operation: "add",
+              srcFactor: "one",
+              dstFactor: "one-minus-src-alpha",
             },
           },
         ],

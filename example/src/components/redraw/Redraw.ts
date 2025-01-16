@@ -5,7 +5,11 @@ class Surface {
   private canvas: Canvas;
   private commandEncoder: GPUCommandEncoder;
 
-  constructor(private device: GPUDevice, texture: GPUTexture) {
+  constructor(
+    private device: GPUDevice,
+    private texture: GPUTexture,
+    private pd = window.devicePixelRatio
+  ) {
     this.commandEncoder = device.createCommandEncoder({
       label: "Redraw encoder",
     });
@@ -29,6 +33,14 @@ class Surface {
       texture.width,
       texture.height
     );
+  }
+
+  get width() {
+    return this.texture.width / this.pd;
+  }
+
+  get height() {
+    return this.texture.height / this.pd;
   }
 
   getCanvas() {
@@ -80,5 +92,22 @@ export class Instance {
 
   constructor(device: GPUDevice) {
     this.Surface = new SurfaceFactory(device);
+  }
+
+  static async get() {
+    const adapter = await navigator.gpu.requestAdapter();
+    if (!adapter) {
+      throw new Error("WebGPU not supported");
+    }
+    if (!adapter.features.has("dual-source-blending")) {
+      // Fall back to the multiple pipeline approach
+      console.warn(
+        "Dual source blending not supported, falling back to multiple pipelines"
+      );
+    }
+    const device = await adapter.requestDevice({
+      requiredFeatures: ["dual-source-blending"] as const,
+    });
+    return new Instance(device);
   }
 }

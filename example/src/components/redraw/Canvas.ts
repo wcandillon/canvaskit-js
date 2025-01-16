@@ -27,9 +27,21 @@ export class Canvas {
     this.contextes.push({ matrix: this.ctx.matrix.slice() });
   }
 
-  scale(x: number, y: number) {
+  scale(x: number, y: number, z = 1) {
     const m = this.ctx.matrix;
-    mat4.scale(m, [x, y, 1], m);
+    mat4.scale(m, [x, y, z], m);
+  }
+
+  rotate(rot: number, rx: number, ry: number, rz = 0) {
+    const m = this.ctx.matrix;
+    mat4.translate(m, [rx, ry, rz], m);
+    mat4.rotateZ(m, rot, m);
+    mat4.translate(m, [-rx, -ry, rz], m);
+  }
+
+  translate(x: number, y: number, z = 0) {
+    const m = this.ctx.matrix;
+    mat4.translate(m, [x, y, z], m);
   }
 
   restore() {

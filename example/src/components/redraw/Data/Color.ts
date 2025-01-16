@@ -22,8 +22,6 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
 
-export type Color = Float32Array;
-
 // http://www.w3.org/TR/css3-color/
 const kCSSColorTable = {
   transparent: [0, 0, 0, 0],

@@ -1,33 +1,80 @@
 import { useEffect, useRef } from "react";
-import { vec2 } from "wgpu-matrix";
 
+import type { Canvas } from "./components/redraw";
 import { Instance, Paint } from "./components/redraw";
+import type { AnimationValue, Info } from "./components";
+import { mix, polar2Canvas, useLoop, vec } from "./components";
 
 const pd = window.devicePixelRatio;
+const c1 = "#61bea2";
+const c2 = "#529ca0";
+const bgColor = "#242b38";
+
+interface Size {
+  width: number;
+  height: number;
+}
+
+const drawRing = (
+  Redraw: Instance,
+  progress: AnimationValue,
+  canvas: Canvas,
+  { width, height }: Size,
+  index: number
+) => {
+  const r = height / 4;
+  const center = vec(width / 2, height / 2);
+  const theta = (index * (2 * Math.PI)) / 6;
+  const translation = polar2Canvas(
+    { theta, radius: progress.value * r },
+    vec(0, 0)
+  );
+  const scale = mix(progress.value, 0.2, 1);
+  canvas.save();
+  canvas.translate(center[0], center[1]);
+  canvas.translate(translation[0], translation[1]);
+  // canvas.scale(scale, scale);
+  canvas.translate(-center[0], -center[1]);
+  const paint = new Paint();
+  paint.setColor(index % 2 ? c1 : c2);
+  canvas.drawCircle(center, r, paint);
+  canvas.restore();
+};
+
+const drawRings = (
+  Redraw: Instance,
+  progress: AnimationValue,
+  canvas: Canvas,
+  info: Info
+) => {
+  const paint = new Paint();
+  paint.setColor(bgColor);
+  canvas.fill(paint);
+  const rotate = mix(progress.value, 0, Math.PI);
+  canvas.save();
+  //canvas.rotate(rotate, info.center[0], info.center[1]);
+  new Array(6).fill(0).map((_, index) => {
+    drawRing(Redraw, progress, canvas, info, index);
+  });
+  canvas.restore();
+  paint.setColor(Redraw.Color(c1));
+};
 
 export const RedrawDemo = () => {
+  const progress = useLoop();
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     (async () => {
-      const adapter = await navigator.gpu.requestAdapter();
-      if (!adapter) {
-        throw new Error("WebGPU not supported");
-      }
-      const device = await adapter.requestDevice();
-      const Redraw = new Instance(device);
+      const Redraw = await Instance.get();
       const surface = Redraw.Surface.MakeFromCanvas(ref.current!);
       const canvas = surface.getCanvas();
-      const paint = new Paint();
-      paint.setColor(Redraw.Color("rgb(36,43,56)"));
-      canvas.save();
       canvas.scale(pd, pd);
-      canvas.fill(paint);
-      paint.setColor(Redraw.Color("#61bea2"));
-      canvas.drawCircle(vec2.create(400, 300), 100, paint);
-      paint.setColor(Redraw.Color("#529ca0"));
-      canvas.drawCircle(vec2.create(0, 0), 100, paint);
-      paint.setColor(Redraw.Color("rgba(255, 0, 0, 0.0)"));
-      canvas.fill(paint);
+      console.log(surface.width, surface.height);
+      drawRings(Redraw, progress, canvas, {
+        width: surface.width,
+        height: surface.height,
+        center: Float32Array.of(surface.width / 2, surface.height / 2),
+      });
       canvas.restore();
       surface.flush();
     })();
