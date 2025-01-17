@@ -6,8 +6,7 @@ export class Surface {
 
   constructor(
     private device: GPUDevice,
-    private getCurrentTexture: () => GPUTexture,
-    private pd = window.devicePixelRatio
+    private getCurrentTexture: () => GPUTexture
   ) {
     const resolution = Float32Array.of(
       this.getCurrentTexture().width,
@@ -17,11 +16,11 @@ export class Surface {
   }
 
   get width() {
-    return this.getCurrentTexture().width / this.pd;
+    return this.getCurrentTexture().width;
   }
 
   get height() {
-    return this.getCurrentTexture().height / this.pd;
+    return this.getCurrentTexture().height;
   }
 
   getCanvas() {

@@ -4,7 +4,6 @@ import { makeUniform } from "./Uniform";
 export interface DrawingCommand {
   pipeline: GPURenderPipeline;
   bindGroup: GPUBindGroup;
-  vertexBuffer?: GPUBuffer;
   vertexCount: number;
 }
 

@@ -84,7 +84,6 @@ export const RedrawDemo = () => {
       const canvas = surface.current.getCanvas();
       canvas.save();
       //canvas.scale(pd, pd);
-      canvas.translate(width / 2, height / 2);
       drawRings(Redraw.current!, progress, canvas, {
         width,
         height,

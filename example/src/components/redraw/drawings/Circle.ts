@@ -1,4 +1,3 @@
-/* eslint-disable prefer-destructuring */
 import type { Color, Matrix, Point } from "../Data";
 
 import { Drawable } from "./Drawable";
@@ -14,7 +13,6 @@ interface CircleProps {
 const CircleShader = /* wgsl */ `
 struct VertexOutput {
   @builtin(position) position: vec4f,
-  @location(0) originalPos: vec2f,
 };
 
 struct Props {
@@ -31,14 +29,16 @@ struct Props {
 fn vs(
   @builtin(vertex_index) VertexIndex : u32
 ) -> VertexOutput {
-  var pos = array<vec2f, 6>(
-    vec2(props.center.x - props.radius, props.center.x - props.radius),   // Top-left
-    vec2(props.center.x + props.radius, props.center.x - props.radius),    // Top-right
-    vec2(props.center.x - props.radius, props.center.x + props.radius),  // Bottom-left
+  let c = props.center;
+  let r = props.radius;
+  let pos = array<vec2f, 6>(
+    vec2(c.x - r, c.y - props.radius),   // Top-left
+    vec2(c.x + r, c.y - r),    // Top-right
+    vec2(c.x - r, c.y + r),  // Bottom-left
     
-    vec2(props.center.x - props.radius, props.center.x + props.radius),  // Bottom-left
-    vec2(props.center.x + props.radius, props.center.x - props.radius),    // Top-right
-    vec2(props.center.x + props.radius, props.center.x + props.radius),  // Bottom-left
+    vec2(c.x - r, c.y + r),  // Bottom-left
+    vec2(c.x + r, c.y - r),    // Top-right
+    vec2(c.x + r, c.y + r),  // Bottom-left
   );
   
   let vertexPos = pos[VertexIndex];
@@ -55,7 +55,6 @@ fn vs(
   let clipSpace = flippedClipSpace * vec2f(1, -1);
   var output: VertexOutput;
   output.position = vec4f(clipSpace, 0.0, 1.0);
-  output.originalPos = vertexPos;
   return output;
 }
 
@@ -66,9 +65,7 @@ struct FragOut {
 @fragment
 fn fs(in: VertexOutput) -> FragOut {
   var out : FragOut;
-  let d = length(in.position.xy);
-  //if (d <= 1.0) {
-    out.color = props.color;
+  out.color = props.color;
   // } else {
   //   discard;
   // }
@@ -86,34 +83,10 @@ export class Circle extends Drawable<CircleProps> {
   }
 
   getDrawingCommand() {
-    const x = this.props.center[0];
-    const y = this.props.center[1];
-    const r = this.props.radius[0];
-    const vertexData = new Float32Array([
-      x - r,
-      y - r, // Top-left
-      x + r,
-      y + r, // Top-right
-      x - r,
-      x - r, // Bottom-left
-      x - r,
-      x - r, // Bottom-left
-      x + r,
-      y + r, // Top-right
-      x + r,
-      x - r, // Bottom-right
-    ]);
-    const vertexBuffer = this.device.createBuffer({
-      label: "vertex buffer vertices",
-      size: vertexData.byteLength,
-      usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
-    });
-    this.device.queue.writeBuffer(vertexBuffer, 0, vertexData);
     const layout = Circle.pipeline.getBindGroupLayout(0);
     return {
       pipeline: Circle.pipeline,
       bindGroup: this.createBindGroup(layout),
-      vertexBuffer,
       vertexCount: 6,
     };
   }
