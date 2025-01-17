@@ -1,16 +1,16 @@
 import type { StructuredView } from "webgpu-utils";
 
-import type { Paint } from "../Paint";
+import type { ImageFilter, Paint } from "../Paint";
 import { GPUBlendModes } from "../Paint";
 
 export interface DrawingCommand {
   pipeline: GPURenderPipeline;
   bindGroup: GPUBindGroup;
   vertexCount: number;
-  imageFilter?: ImageFilter;
+  imageFilter: ImageFilter | null;
 }
 
-class GPUResources {
+export class GPUResources {
   public modules: Map<string, GPUShaderModule> = new Map();
   public pipelines: Map<string, GPURenderPipeline> = new Map();
   private static instances: Map<GPUDevice, GPUResources> = new Map();
@@ -88,5 +88,6 @@ export const makeDrawable = <T>(
     pipeline,
     bindGroup: createBindGroup(device, layout, propsView),
     vertexCount,
+    imageFilter: paint.getImageFilter(),
   };
 };

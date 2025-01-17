@@ -1,1 +1,4 @@
-export interface ImageFilter {}
+export class ImageFilter {
+  texture: GPUTexture | null = null;
+  constructor() {}
+}

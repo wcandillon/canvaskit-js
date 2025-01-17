@@ -1,4 +1,6 @@
 import { Canvas } from "./Canvas";
+import { makeTexturePipeline } from "./drawings/Texture";
+import { BlendMode } from "./Paint/BlendMode";
 
 export class Surface {
   private canvas: Canvas;
@@ -28,26 +30,55 @@ export class Surface {
 
   flush() {
     const { device } = this;
-    const view = this.getCurrentTexture().createView();
-    const renderPassDescriptor = {
-      colorAttachments: [
-        {
-          view,
-          clearValue: [0, 0, 0, 0], // Clear to transparent
-          loadOp: "clear",
-          storeOp: "store",
-        } as const,
-      ],
-    };
     const commandEncoder = device.createCommandEncoder({
       label: "Redraw encoder",
     });
-    const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
     const commands = this.canvas.popDrawingCommands();
-    commands.forEach(({ pipeline, bindGroup, vertexCount }) => {
-      passEncoder.setPipeline(pipeline);
-      passEncoder.setBindGroup(0, bindGroup);
-      passEncoder.draw(vertexCount);
+    // 1. Create Textures for image filters
+    commands.forEach(({ pipeline, bindGroup, vertexCount, imageFilter }) => {
+      if (imageFilter) {
+        const texture = this.makeTexture();
+        const passEncoder = commandEncoder.beginRenderPass(
+          makeRenderPassDescriptor(texture)
+        );
+        passEncoder.setPipeline(pipeline);
+        passEncoder.setBindGroup(0, bindGroup);
+        passEncoder.draw(vertexCount);
+        passEncoder.end();
+        imageFilter.texture = texture;
+      }
+    });
+    const passEncoder = commandEncoder.beginRenderPass(
+      makeRenderPassDescriptor(this.getCurrentTexture())
+    );
+    const sampler = device.createSampler({
+      magFilter: "linear",
+      minFilter: "linear",
+    });
+    commands.forEach(({ pipeline, bindGroup, vertexCount, imageFilter }) => {
+      if (!imageFilter) {
+        passEncoder.setPipeline(pipeline);
+        passEncoder.setBindGroup(0, bindGroup);
+        passEncoder.draw(vertexCount);
+      } else {
+        const renderPipeline = makeTexturePipeline(device, BlendMode.Screen);
+        passEncoder.setPipeline(renderPipeline);
+        const textureBindGroup = device.createBindGroup({
+          layout: renderPipeline.getBindGroupLayout(0),
+          entries: [
+            {
+              binding: 0,
+              resource: sampler,
+            },
+            {
+              binding: 1,
+              resource: imageFilter.texture!.createView(),
+            },
+          ],
+        });
+        passEncoder.setBindGroup(0, textureBindGroup);
+        passEncoder.draw(6);
+      }
     });
     passEncoder.end();
     device.queue.submit([commandEncoder.finish()]);
@@ -57,7 +88,22 @@ export class Surface {
     return this.device.createTexture({
       size: [this.width, this.height],
       format: this.getCurrentTexture().format,
-      usage: GPUTextureUsage.RENDER_ATTACHMENT,
+      usage:
+        GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING,
     });
   }
 }
+
+const makeRenderPassDescriptor = (texture: GPUTexture) => {
+  const view = texture.createView();
+  return {
+    colorAttachments: [
+      {
+        view,
+        clearValue: [0, 0, 0, 0], // Clear to transparent
+        loadOp: "clear",
+        storeOp: "store",
+      } as const,
+    ],
+  };
+};

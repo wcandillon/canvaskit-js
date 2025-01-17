@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 
 import type { Canvas, Surface } from "./components/redraw";
-import { Instance, Paint, BlendMode } from "./components/redraw";
+import { Instance, Paint, BlendMode, ImageFilter } from "./components/redraw";
 import type { AnimationValue, Info } from "./components";
 import { mix, polar2Canvas, useLoop, useOnFrame, vec } from "./components";
 
@@ -39,16 +39,12 @@ const drawRing = (
   const paint = new Paint();
   paint.setBlendMode(BlendMode.Screen);
   paint.setColor(index % 2 ? c1 : c2);
+  paint.setImageFilter(new ImageFilter());
   canvas.drawCircle(center, r, paint);
   canvas.restore();
 };
 
-const drawRings = (
-  Redraw: Instance,
-  progress: AnimationValue,
-  canvas: Canvas,
-  info: Info
-) => {
+const drawRings = (progress: AnimationValue, canvas: Canvas, info: Info) => {
   const paint = new Paint();
   paint.setColor(bgColor);
   canvas.fill(paint);
@@ -59,7 +55,6 @@ const drawRings = (
     drawRing(progress, canvas, info, index);
   });
   canvas.restore();
-  paint.setColor(Redraw.Color(c1));
 };
 
 export const RedrawDemo = () => {
@@ -80,7 +75,7 @@ export const RedrawDemo = () => {
       const canvas = surface.current.getCanvas();
       canvas.save();
       canvas.scale(pd, pd);
-      drawRings(Redraw.current!, progress, canvas, {
+      drawRings(progress, canvas, {
         width: width / pd,
         height: height / pd,
         center: Float32Array.of(width / pd / 2, height / pd / 2),
