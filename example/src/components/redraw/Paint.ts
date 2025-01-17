@@ -34,28 +34,36 @@ export const GPUBlendModes: Record<BlendMode, GPUBlendState> = {
 };
 
 export class Paint {
-  _color: Color | null = null;
-  _alpha = 1;
-  blendMode = BlendMode.SrcOver;
+  private color: Color | null = null;
+  private alpha = 1;
+  private blendMode = BlendMode.SrcOver;
 
   constructor() {}
 
-  set color(color: Float32Array | string) {
-    this._color = color instanceof Float32Array ? color : ColorFactory(color);
+  setColor(color: Float32Array | string) {
+    this.color = color instanceof Float32Array ? color : ColorFactory(color);
   }
 
-  get color() {
-    return this._color;
+  getColor() {
+    return this.color;
   }
 
-  set alpha(alpha: number) {
+  setAlpha(alpha: number) {
     this.alpha = alpha;
     if (this.color) {
-      this._color[3] = alpha;
+      this.color[3] = alpha;
     }
   }
 
-  get alpha() {
-    return this._alpha;
+  getAlpha() {
+    return this.alpha;
+  }
+
+  setBlendMode(blendMode: BlendMode) {
+    this.blendMode = blendMode;
+  }
+
+  getBlendMode() {
+    return this.blendMode;
   }
 }
