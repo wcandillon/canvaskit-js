@@ -1,7 +1,6 @@
 import type { StructuredView } from "webgpu-utils";
 
-import type { BlendMode } from "../Paint";
-import type { TypedArray } from "../Data";
+import { GPUBlendModes, type BlendMode } from "../Paint";
 
 export interface DrawingCommand {
   pipeline: GPURenderPipeline;
@@ -9,34 +8,82 @@ export interface DrawingCommand {
   vertexCount: number;
 }
 
-export abstract class Drawable<
-  Props extends Record<keyof Props, TypedArray | number>
-> {
-  format: GPUTextureFormat;
+class GPUResources {
+  public modules: Map<string, GPUShaderModule> = new Map();
+  public pipelines: Map<string, GPURenderPipeline> = new Map();
+  private static instances: Map<GPUDevice, GPUResources> = new Map();
 
-  constructor(
-    protected device: GPUDevice,
-    protected propsView: StructuredView,
-    protected props: Props
-  ) {
-    this.format = navigator.gpu.getPreferredCanvasFormat();
+  private constructor() {}
+
+  static getInstance(device: GPUDevice) {
+    if (!GPUResources.instances.has(device)) {
+      GPUResources.instances.set(device, new GPUResources());
+    }
+    return GPUResources.instances.get(device)!;
   }
-
-  protected createBindGroup(layout: GPUBindGroupLayout) {
-    this.propsView.set(this.props);
-    const buffer = this.device.createBuffer({
-      size: this.propsView.arrayBuffer.byteLength,
-      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-    });
-    this.device.queue.writeBuffer(buffer, 0, this.propsView.arrayBuffer);
-    return this.device.createBindGroup({
-      layout,
-      entries: [{ binding: 0, resource: { buffer } }],
-    });
-  }
-
-  protected abstract createPipeline(blendMode: BlendMode): GPURenderPipeline;
-  protected abstract createModule(): GPUShaderModule;
-
-  abstract getDrawingCommand(blendMode: BlendMode): DrawingCommand;
 }
+
+const createBindGroup = (
+  device: GPUDevice,
+  layout: GPUBindGroupLayout,
+  propsView: StructuredView
+) => {
+  const buffer = device.createBuffer({
+    size: propsView.arrayBuffer.byteLength,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  });
+  device.queue.writeBuffer(buffer, 0, propsView.arrayBuffer);
+  return device.createBindGroup({
+    layout,
+    entries: [{ binding: 0, resource: { buffer } }],
+  });
+};
+
+export const makeDrawable = <T>(
+  device: GPUDevice,
+  key: string,
+  module: string,
+  blendMode: BlendMode,
+  propsView: StructuredView,
+  props: T,
+  vertexCount: number
+) => {
+  const resources = GPUResources.getInstance(device);
+  if (!resources.modules.has(key)) {
+    resources.modules.set(key, device.createShaderModule({ code: module }));
+  }
+  const mod = resources.modules.get(key)!;
+  const pipelineKey = `${key}-${blendMode}`;
+  if (!resources.pipelines.has(pipelineKey)) {
+    const format = navigator.gpu.getPreferredCanvasFormat();
+    const pipeline = device.createRenderPipeline({
+      layout: "auto",
+      label: "Fill",
+      vertex: {
+        module: mod,
+      },
+      fragment: {
+        module: mod,
+        targets: [
+          {
+            format,
+            blend: GPUBlendModes[blendMode],
+          },
+        ],
+      },
+      primitive: {
+        topology: "triangle-list",
+      },
+    });
+    resources.pipelines.set(pipelineKey, pipeline);
+  }
+  const pipeline = resources.pipelines.get(pipelineKey)!;
+  const layout = pipeline.getBindGroupLayout(0);
+  layout.label = "Circle Bind Group Layout";
+  propsView.set(props);
+  return {
+    pipeline,
+    bindGroup: createBindGroup(device, layout, propsView),
+    vertexCount,
+  };
+};

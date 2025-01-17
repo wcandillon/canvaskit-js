@@ -3,7 +3,7 @@ import { makeShaderDataDefinitions, makeStructuredView } from "webgpu-utils";
 import type { Color } from "../Data";
 import type { BlendMode } from "../Paint";
 
-import { Drawable } from "./Drawable";
+import { Drawable, makeDrawable } from "./Drawable";
 
 interface FillProps {
   color: Color;
@@ -54,76 +54,18 @@ fn fs() -> FragOut {
 const defs = makeShaderDataDefinitions(FillShader);
 const propsView = makeStructuredView(defs.uniforms.props);
 
-export class Fill extends Drawable<FillProps> {
-  static module: GPUShaderModule | null = null;
-  static pipeline: Map<BlendMode, GPURenderPipeline> = new Map();
-
-  constructor(device: GPUDevice, props: FillProps) {
-    super(device, propsView, props);
-    if (Fill.module === null) {
-      Fill.module = this.createModule();
-    }
-  }
-
-  getDrawingCommand(blendMode: BlendMode) {
-    const pipeline = this.createPipeline(blendMode);
-    const layout = pipeline.getBindGroupLayout(0);
-    layout.label = "Circle Bind Group Layout";
-    return {
-      pipeline,
-      bindGroup: this.createBindGroup(layout),
-      vertexCount: 6,
-    };
-  }
-
-  protected createModule(): GPUShaderModule {
-    const { device } = this;
-    return device.createShaderModule({
-      code: FillShader,
-    });
-  }
-
-  createPipeline(blendMode: BlendMode) {
-    const cachedPipeline = Fill.pipeline.get(blendMode);
-    if (cachedPipeline) {
-      return cachedPipeline;
-    }
-    const { device } = this;
-    const format = navigator.gpu.getPreferredCanvasFormat();
-    const module = device.createShaderModule({
-      code: FillShader,
-    });
-    const pipeline = device.createRenderPipeline({
-      layout: "auto",
-      label: "Fill",
-      vertex: {
-        module,
-      },
-      fragment: {
-        module,
-        targets: [
-          {
-            format,
-            blend: {
-              color: {
-                operation: "add",
-                srcFactor: "one",
-                dstFactor: "one-minus-src-alpha",
-              } as const,
-              alpha: {
-                operation: "add",
-                srcFactor: "one",
-                dstFactor: "one-minus-src-alpha",
-              } as const,
-            },
-          },
-        ],
-      },
-      primitive: {
-        topology: "triangle-list",
-      },
-    });
-    Fill.pipeline.set(blendMode, pipeline);
-    return pipeline;
-  }
-}
+export const makeFill = (
+  device: GPUDevice,
+  blendMode: BlendMode,
+  props: FillProps
+) => {
+  return makeDrawable(
+    device,
+    "fill",
+    FillShader,
+    blendMode,
+    propsView,
+    props,
+    6
+  );
+};

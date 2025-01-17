@@ -3,7 +3,7 @@ import { makeShaderDataDefinitions, makeStructuredView } from "webgpu-utils";
 import type { Matrix, Point } from "../Data";
 import { GPUBlendModes, type BlendMode } from "../Paint";
 
-import { Drawable } from "./Drawable";
+import { makeDrawable } from "./Drawable";
 
 const CircleShader = /* wgsl */ `
 struct VertexOutput {
@@ -82,63 +82,18 @@ interface CircleProps {
 const defs = makeShaderDataDefinitions(CircleShader);
 const propsView = makeStructuredView(defs.uniforms.props);
 
-export class Circle extends Drawable<CircleProps> {
-  static module: GPUShaderModule | null = null;
-  static pipeline: Map<BlendMode, GPURenderPipeline> = new Map();
-
-  constructor(device: GPUDevice, props: CircleProps) {
-    super(device, propsView, props);
-    if (Circle.module === null) {
-      Circle.module = this.createModule();
-    }
-  }
-
-  getDrawingCommand(blendMode: BlendMode) {
-    const pipeline = this.createPipeline(blendMode);
-    const layout = pipeline.getBindGroupLayout(0);
-    layout.label = "Circle Bind Group Layout";
-    return {
-      pipeline,
-      bindGroup: this.createBindGroup(layout),
-      vertexCount: 6,
-    };
-  }
-
-  protected createModule(): GPUShaderModule {
-    const { device } = this;
-    return device.createShaderModule({
-      code: CircleShader,
-    });
-  }
-
-  createPipeline(blendMode: BlendMode) {
-    const cachedPipeline = Circle.pipeline.get(blendMode);
-    if (cachedPipeline) {
-      return cachedPipeline;
-    }
-    const { device } = this;
-    const format = navigator.gpu.getPreferredCanvasFormat();
-    const module = Circle.module!;
-    const pipeline = device.createRenderPipeline({
-      layout: "auto",
-      label: "Fill",
-      vertex: {
-        module,
-      },
-      fragment: {
-        module,
-        targets: [
-          {
-            format,
-            blend: GPUBlendModes[blendMode],
-          },
-        ],
-      },
-      primitive: {
-        topology: "triangle-list",
-      },
-    });
-    Circle.pipeline.set(blendMode, pipeline);
-    return pipeline;
-  }
-}
+export const makeCircle = (
+  device: GPUDevice,
+  blendMode: BlendMode,
+  props: CircleProps
+) => {
+  return makeDrawable(
+    device,
+    "circle",
+    CircleShader,
+    blendMode,
+    propsView,
+    props,
+    6
+  );
+};

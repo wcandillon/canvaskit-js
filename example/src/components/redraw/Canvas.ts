@@ -2,7 +2,7 @@ import { mat4 } from "wgpu-matrix";
 
 import type { Matrix, Point } from "./Data";
 import type { Paint } from "./Paint";
-import { Circle, Fill } from "./drawings";
+import { Circle, Fill, makeCircle, makeFill } from "./drawings";
 import type { DrawingCommand } from "./drawings/Drawable";
 
 interface Context {
@@ -49,20 +49,24 @@ export class Canvas {
 
   fill(paint: Paint) {
     const { device } = this;
-    const fill = new Fill(device, { color: paint.getColor()! });
-    this.drawingCommands.push(fill.getDrawingCommand(paint.getBlendMode()));
+    this.drawingCommands.push(
+      makeFill(device, paint.getBlendMode(), {
+        color: paint.getColor()!,
+      })
+    );
   }
 
   drawCircle(pos: Point, radius: number, paint: Paint) {
     const { device } = this;
-    const circle = new Circle(device, {
-      resolution: this.resolution,
-      center: pos,
-      radius,
-      matrix: this.ctx.matrix,
-      color: paint.getColor()!,
-    });
-    this.drawingCommands.push(circle.getDrawingCommand(paint.getBlendMode()));
+    this.drawingCommands.push(
+      makeCircle(device, paint.getBlendMode(), {
+        resolution: this.resolution,
+        center: pos,
+        radius,
+        matrix: this.ctx.matrix,
+        color: paint.getColor()!,
+      })
+    );
   }
 
   popDrawingCommands() {
