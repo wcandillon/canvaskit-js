@@ -1,15 +1,9 @@
+import { makeShaderDataDefinitions, makeStructuredView } from "webgpu-utils";
+
 import type { Matrix, Point } from "../Data";
 import { GPUBlendModes, type BlendMode } from "../Paint";
 
 import { Drawable } from "./Drawable";
-
-interface CircleProps {
-  resolution: Point;
-  center: Point;
-  radius: Float32Array;
-  matrix: Matrix;
-  color: Float32Array;
-}
 
 const CircleShader = /* wgsl */ `
 struct VertexOutput {
@@ -77,12 +71,23 @@ fn fs(in: VertexOutput) -> FragOut {
   return out;
 }`;
 
+interface CircleProps {
+  resolution: Point;
+  center: Point;
+  radius: Float32Array;
+  matrix: Matrix;
+  color: Float32Array;
+}
+
+const defs = makeShaderDataDefinitions(CircleShader);
+const propsView = makeStructuredView(defs.uniforms.props);
+
 export class Circle extends Drawable<CircleProps> {
   static module: GPUShaderModule | null = null;
   static pipeline: Map<BlendMode, GPURenderPipeline> = new Map();
 
   constructor(device: GPUDevice, props: CircleProps) {
-    super(device, props);
+    super(device, propsView, props);
     if (Circle.module === null) {
       Circle.module = this.createModule();
     }

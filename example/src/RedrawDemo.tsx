@@ -45,7 +45,7 @@ const drawRing = (
   canvas.translate(-center[0], -center[1]);
   const paint = new Paint();
   paint.blendMode = BlendMode.Screen;
-  paint.setColor(index % 2 ? c1 : c2);
+  paint.color = index % 2 ? c1 : c2;
   canvas.drawCircle(center, r, paint);
   canvas.restore();
 };
@@ -57,7 +57,7 @@ const drawRings = (
   info: Info
 ) => {
   const paint = new Paint();
-  paint.setColor(bgColor);
+  paint.color = bgColor;
   canvas.fill(paint);
   const rotate = mix(progress.value, 0, Math.PI);
   canvas.save();
@@ -66,7 +66,7 @@ const drawRings = (
     drawRing(progress, canvas, info, index);
   });
   canvas.restore();
-  paint.setColor(Redraw.Color(c1));
+  paint.color = Redraw.Color(c1);
 };
 
 export const RedrawDemo = () => {

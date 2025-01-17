@@ -1,3 +1,5 @@
+import { makeShaderDataDefinitions, makeStructuredView } from "webgpu-utils";
+
 import type { Color } from "../Data";
 import type { BlendMode } from "../Paint";
 
@@ -49,12 +51,15 @@ fn fs() -> FragOut {
   return out;
 }`;
 
+const defs = makeShaderDataDefinitions(FillShader);
+const propsView = makeStructuredView(defs.uniforms.props);
+
 export class Fill extends Drawable<FillProps> {
   static module: GPUShaderModule | null = null;
   static pipeline: Map<BlendMode, GPURenderPipeline> = new Map();
 
   constructor(device: GPUDevice, props: FillProps) {
-    super(device, props);
+    super(device, propsView, props);
     if (Fill.module === null) {
       Fill.module = this.createModule();
     }

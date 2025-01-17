@@ -1,7 +1,7 @@
-import type { BlendMode } from "../Paint";
+import type { StructuredView } from "webgpu-utils";
 
-import type { TypedArray } from "./Uniform";
-import { makeUniform } from "./Uniform";
+import type { BlendMode } from "../Paint";
+import type { TypedArray } from "../Data";
 
 export interface DrawingCommand {
   pipeline: GPURenderPipeline;
@@ -9,20 +9,26 @@ export interface DrawingCommand {
   vertexCount: number;
 }
 
-export abstract class Drawable<Props extends Record<keyof Props, TypedArray>> {
+export abstract class Drawable<
+  Props extends Record<keyof Props, TypedArray | number>
+> {
   format: GPUTextureFormat;
 
-  constructor(protected device: GPUDevice, protected props: Props) {
+  constructor(
+    protected device: GPUDevice,
+    protected propsView: StructuredView,
+    protected props: Props
+  ) {
     this.format = navigator.gpu.getPreferredCanvasFormat();
   }
 
   protected createBindGroup(layout: GPUBindGroupLayout) {
-    const uniform = makeUniform(this.props);
+    this.propsView.set(this.props);
     const buffer = this.device.createBuffer({
-      size: uniform.byteLength,
+      size: this.propsView.arrayBuffer.byteLength,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
-    this.device.queue.writeBuffer(buffer, 0, uniform);
+    this.device.queue.writeBuffer(buffer, 0, this.propsView.arrayBuffer);
     return this.device.createBindGroup({
       layout,
       entries: [{ binding: 0, resource: { buffer } }],
