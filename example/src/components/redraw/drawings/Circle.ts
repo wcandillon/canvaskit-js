@@ -1,4 +1,4 @@
-import type { Color, Matrix, Point } from "../Data";
+import type { Matrix, Point } from "../Data";
 
 import { Drawable } from "./Drawable";
 
@@ -7,12 +7,13 @@ interface CircleProps {
   center: Point;
   radius: Float32Array;
   matrix: Matrix;
-  color: Color;
+  color: Float32Array;
 }
 
 const CircleShader = /* wgsl */ `
 struct VertexOutput {
   @builtin(position) position: vec4f,
+  @location(0) localPos: vec2f,
 };
 
 struct Props {
@@ -32,17 +33,17 @@ fn vs(
   let c = props.center;
   let r = props.radius;
   let pos = array<vec2f, 6>(
-    vec2(c.x - r, c.y - props.radius),   // Top-left
-    vec2(c.x + r, c.y - r),    // Top-right
-    vec2(c.x - r, c.y + r),  // Bottom-left
+    vec2f(c.x - r, c.y - r),   // Top-left
+    vec2f(c.x + r, c.y - r),    // Top-right
+    vec2f(c.x - r, c.y + r),  // Bottom-left
     
-    vec2(c.x - r, c.y + r),  // Bottom-left
-    vec2(c.x + r, c.y - r),    // Top-right
-    vec2(c.x + r, c.y + r),  // Bottom-left
+    vec2f(c.x - r, c.y + r),  // Bottom-left
+    vec2f(c.x + r, c.y - r),    // Top-right
+    vec2f(c.x + r, c.y + r),  // Bottom-left
   );
   
   let vertexPos = pos[VertexIndex];
-
+  let localPos = vertexPos - c;
   // Multiply by a matrix
   let position = (props.matrix * vec4f(vertexPos, 0, 1)).xy;
   // convert the position from pixels to a 0.0 to 1.0 value
@@ -55,6 +56,7 @@ fn vs(
   let clipSpace = flippedClipSpace * vec2f(1, -1);
   var output: VertexOutput;
   output.position = vec4f(clipSpace, 0.0, 1.0);
+  output.localPos = localPos;
   return output;
 }
 
@@ -64,11 +66,14 @@ struct FragOut {
 
 @fragment
 fn fs(in: VertexOutput) -> FragOut {
-  var out : FragOut;
-  out.color = props.color;
-  // } else {
-  //   discard;
-  // }
+  var out: FragOut;
+  let dist = length(in.localPos);
+  if (dist <= props.radius) {
+    out.color = props.color;
+  } else {
+    discard;
+  }
+
   return out;
 }`;
 
