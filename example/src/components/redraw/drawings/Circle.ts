@@ -74,7 +74,7 @@ fn fs(in: VertexOutput) -> FragOut {
 interface CircleProps {
   resolution: Point;
   center: Point;
-  radius: Float32Array;
+  radius: number;
   matrix: Matrix;
   color: Float32Array;
 }

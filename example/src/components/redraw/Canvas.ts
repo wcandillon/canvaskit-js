@@ -49,20 +49,20 @@ export class Canvas {
 
   fill(paint: Paint) {
     const { device } = this;
-    const fill = new Fill(device, { color: paint.color! });
-    this.drawingCommands.push(fill.getDrawingCommand(paint.blendMode));
+    const fill = new Fill(device, { color: paint.getColor()! });
+    this.drawingCommands.push(fill.getDrawingCommand(paint.getBlendMode()));
   }
 
-  drawCircle(pos: Point, r: number, paint: Paint) {
+  drawCircle(pos: Point, radius: number, paint: Paint) {
     const { device } = this;
     const circle = new Circle(device, {
       resolution: this.resolution,
       center: pos,
-      radius: Float32Array.of(r),
+      radius,
       matrix: this.ctx.matrix,
-      color: paint.color!,
+      color: paint.getColor()!,
     });
-    this.drawingCommands.push(circle.getDrawingCommand(paint.blendMode));
+    this.drawingCommands.push(circle.getDrawingCommand(paint.getBlendMode()));
   }
 
   popDrawingCommands() {
