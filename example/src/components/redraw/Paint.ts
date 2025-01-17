@@ -66,4 +66,12 @@ export class Paint {
   getBlendMode() {
     return this.blendMode;
   }
+
+  copy() {
+    const paint = new Paint();
+    paint.color = this.color;
+    paint.alpha = this.alpha;
+    paint.blendMode = this.blendMode;
+    return paint;
+  }
 }
