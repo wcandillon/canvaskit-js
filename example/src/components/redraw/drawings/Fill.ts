@@ -3,7 +3,7 @@ import { makeShaderDataDefinitions, makeStructuredView } from "webgpu-utils";
 import type { Color } from "../Data";
 import type { BlendMode } from "../Paint";
 
-import { Drawable, makeDrawable } from "./Drawable";
+import { makeDrawable } from "./Drawable";
 
 interface FillProps {
   color: Color;

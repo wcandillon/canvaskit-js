@@ -2,7 +2,7 @@ import { mat4 } from "wgpu-matrix";
 
 import type { Matrix, Point } from "./Data";
 import type { Paint } from "./Paint";
-import { Circle, Fill, makeCircle, makeFill } from "./drawings";
+import { makeCircle, makeFill } from "./drawings";
 import type { DrawingCommand } from "./drawings/Drawable";
 
 interface Context {

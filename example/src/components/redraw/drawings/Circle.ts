@@ -1,7 +1,7 @@
 import { makeShaderDataDefinitions, makeStructuredView } from "webgpu-utils";
 
 import type { Matrix, Point } from "../Data";
-import { GPUBlendModes, type BlendMode } from "../Paint";
+import { type BlendMode } from "../Paint";
 
 import { makeDrawable } from "./Drawable";
 

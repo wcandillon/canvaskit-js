@@ -257,8 +257,8 @@ export function parseCSSColor(css_str: string) {
   const op = str.indexOf("("),
     ep = str.indexOf(")");
   if (op !== -1 && ep + 1 === str.length) {
-    const fname = str.substr(0, op);
-    const params = str.substr(op + 1, ep - (op + 1)).split(",");
+    const fname = str.substring(0, op);
+    const params = str.substring(op + 1, ep - (op + 1)).split(",");
     let alpha = 1; // To allow case fallthrough.
     switch (fname) {
       case "rgba":
@@ -266,6 +266,7 @@ export function parseCSSColor(css_str: string) {
           return null;
         }
         alpha = parse_css_float(params.pop()!);
+        break;
       // Fall through.
       case "rgb":
         if (params.length !== 3) {
@@ -282,6 +283,7 @@ export function parseCSSColor(css_str: string) {
           return null;
         }
         alpha = parse_css_float(params.pop()!);
+        break;
       // Fall through.
       case "hsl":
         if (params.length !== 3) {
