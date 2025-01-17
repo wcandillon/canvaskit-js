@@ -17,7 +17,6 @@ export abstract class Drawable<Props extends Record<keyof Props, TypedArray>> {
   protected createBindGroup(layout: GPUBindGroupLayout) {
     const uniform = makeUniform(this.props);
     const buffer = this.device.createBuffer({
-      label: "uniforms for drawPaint",
       size: uniform.byteLength,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });

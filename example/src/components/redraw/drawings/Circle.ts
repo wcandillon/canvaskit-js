@@ -73,24 +73,24 @@ fn fs(in: VertexOutput) -> FragOut {
   } else {
     discard;
   }
-
   return out;
 }`;
 
 export class Circle extends Drawable<CircleProps> {
-  static pipeline: GPURenderPipeline;
+  static pipeline: GPURenderPipeline | null = null;
 
   constructor(device: GPUDevice, props: CircleProps) {
     super(device, props);
-    if (!Circle.pipeline) {
+    if (Circle.pipeline === null) {
       Circle.pipeline = this.createPipeline();
     }
   }
 
   getDrawingCommand() {
-    const layout = Circle.pipeline.getBindGroupLayout(0);
+    const layout = Circle.pipeline!.getBindGroupLayout(0);
+    layout.label = "Circle Bind Group Layout";
     return {
-      pipeline: Circle.pipeline,
+      pipeline: Circle.pipeline!,
       bindGroup: this.createBindGroup(layout),
       vertexCount: 6,
     };

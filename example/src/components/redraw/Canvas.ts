@@ -56,7 +56,7 @@ export class Canvas {
   drawCircle(pos: Point, r: number, paint: Paint) {
     const { device } = this;
     const circle = new Circle(device, {
-      resolution: new Float32Array([this.resolution[0], this.resolution[1]]),
+      resolution: this.resolution,
       center: pos,
       radius: Float32Array.of(r),
       matrix: this.ctx.matrix,
@@ -66,6 +66,6 @@ export class Canvas {
   }
 
   popDrawingCommands() {
-    return this.drawingCommands.splice(0, this.drawingCommands.length - 1);
+    return this.drawingCommands.splice(0, this.drawingCommands.length);
   }
 }

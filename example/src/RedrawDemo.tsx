@@ -3,7 +3,14 @@ import { useEffect, useRef } from "react";
 import type { Canvas, Surface } from "./components/redraw";
 import { Instance, Paint } from "./components/redraw";
 import type { AnimationValue, Info } from "./components";
-import { mix, polar2Canvas, useLoop, useOnFrame, vec } from "./components";
+import {
+  mix,
+  polar2Canvas,
+  useLoop,
+  useOnFrame,
+  useValue,
+  vec,
+} from "./components";
 
 const pd = window.devicePixelRatio;
 const c1 = "#61bea2";

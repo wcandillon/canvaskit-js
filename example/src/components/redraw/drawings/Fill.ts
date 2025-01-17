@@ -60,6 +60,7 @@ export class Fill extends Drawable<FillProps> {
 
   getDrawingCommand() {
     const layout = Fill.pipeline.getBindGroupLayout(0);
+    layout.label = "Circle Bind Group Layout";
     return {
       pipeline: Fill.pipeline,
       bindGroup: this.createBindGroup(layout),
