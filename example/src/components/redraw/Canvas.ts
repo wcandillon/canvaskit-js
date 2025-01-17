@@ -50,7 +50,7 @@ export class Canvas {
   fill(paint: Paint) {
     const { device } = this;
     this.drawingCommands.push(
-      makeFill(device, paint.getBlendMode(), {
+      makeFill(device, paint, {
         color: paint.getColor()!,
       })
     );
@@ -59,7 +59,7 @@ export class Canvas {
   drawCircle(pos: Point, radius: number, paint: Paint) {
     const { device } = this;
     this.drawingCommands.push(
-      makeCircle(device, paint.getBlendMode(), {
+      makeCircle(device, paint, {
         resolution: this.resolution,
         center: pos,
         radius,

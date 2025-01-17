@@ -1,7 +1,7 @@
 import { makeShaderDataDefinitions, makeStructuredView } from "webgpu-utils";
 
 import type { Color } from "../Data";
-import type { BlendMode } from "../Paint";
+import type { Paint } from "../Paint";
 
 import { makeDrawable } from "./Drawable";
 
@@ -54,18 +54,6 @@ fn fs() -> FragOut {
 const defs = makeShaderDataDefinitions(FillShader);
 const propsView = makeStructuredView(defs.uniforms.props);
 
-export const makeFill = (
-  device: GPUDevice,
-  blendMode: BlendMode,
-  props: FillProps
-) => {
-  return makeDrawable(
-    device,
-    "fill",
-    FillShader,
-    blendMode,
-    propsView,
-    props,
-    6
-  );
+export const makeFill = (device: GPUDevice, paint: Paint, props: FillProps) => {
+  return makeDrawable(device, "fill", FillShader, paint, propsView, props, 6);
 };

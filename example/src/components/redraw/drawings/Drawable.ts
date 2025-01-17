@@ -1,6 +1,7 @@
 import type { StructuredView } from "webgpu-utils";
 
-import { GPUBlendModes, type BlendMode } from "../Paint";
+import { GPUBlendModes } from "../Paint";
+import type { Paint } from "../Paint";
 
 export interface DrawingCommand {
   pipeline: GPURenderPipeline;
@@ -43,7 +44,7 @@ export const makeDrawable = <T>(
   device: GPUDevice,
   key: string,
   module: string,
-  blendMode: BlendMode,
+  paint: Paint,
   propsView: StructuredView,
   props: T,
   vertexCount: number
@@ -52,6 +53,7 @@ export const makeDrawable = <T>(
   if (!resources.modules.has(key)) {
     resources.modules.set(key, device.createShaderModule({ code: module }));
   }
+  const blendMode = paint.getBlendMode();
   const mod = resources.modules.get(key)!;
   const pipelineKey = `${key}-${blendMode}`;
   if (!resources.pipelines.has(pipelineKey)) {

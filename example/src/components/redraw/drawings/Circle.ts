@@ -1,7 +1,7 @@
 import { makeShaderDataDefinitions, makeStructuredView } from "webgpu-utils";
 
 import type { Matrix, Point } from "../Data";
-import { type BlendMode } from "../Paint";
+import type { Paint } from "../Paint";
 
 import { makeDrawable } from "./Drawable";
 
@@ -84,14 +84,14 @@ const propsView = makeStructuredView(defs.uniforms.props);
 
 export const makeCircle = (
   device: GPUDevice,
-  blendMode: BlendMode,
+  paint: Paint,
   props: CircleProps
 ) => {
   return makeDrawable(
     device,
     "circle",
     CircleShader,
-    blendMode,
+    paint,
     propsView,
     props,
     6
