@@ -4,13 +4,14 @@ import { makeUniform } from "./Uniform";
 export interface DrawingCommand {
   pipeline: GPURenderPipeline;
   bindGroup: GPUBindGroup;
+  vertexBuffer?: GPUBuffer;
   vertexCount: number;
 }
 
 export abstract class Drawable<Props extends Record<keyof Props, TypedArray>> {
   format: GPUTextureFormat;
 
-  constructor(protected device: GPUDevice, private props: Props) {
+  constructor(protected device: GPUDevice, protected props: Props) {
     this.format = navigator.gpu.getPreferredCanvasFormat();
   }
 

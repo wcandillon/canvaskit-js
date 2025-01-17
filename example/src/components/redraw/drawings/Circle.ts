@@ -1,3 +1,4 @@
+/* eslint-disable prefer-destructuring */
 import type { Color, Matrix, Point } from "../Data";
 
 import { Drawable } from "./Drawable";
@@ -11,8 +12,6 @@ interface CircleProps {
 }
 
 const CircleShader = /* wgsl */ `
-enable dual_source_blending;
-
 struct VertexOutput {
   @builtin(position) position: vec4f,
   @location(0) originalPos: vec2f,
@@ -33,23 +32,29 @@ fn vs(
   @builtin(vertex_index) VertexIndex : u32
 ) -> VertexOutput {
   var pos = array<vec2f, 6>(
-    vec2(-1.0, 1.0),   // Top-left
-    vec2(1.0, 1.0),    // Top-right
-    vec2(-1.0, -1.0),  // Bottom-left
+    vec2(props.center.x - props.radius, props.center.x - props.radius),   // Top-left
+    vec2(props.center.x + props.radius, props.center.x - props.radius),    // Top-right
+    vec2(props.center.x - props.radius, props.center.x + props.radius),  // Bottom-left
     
-    vec2(-1.0, -1.0),  // Bottom-left
-    vec2(1.0, 1.0),    // Top-right
-    vec2(1.0, -1.0)    // Bottom-right
+    vec2(props.center.x - props.radius, props.center.x + props.radius),  // Bottom-left
+    vec2(props.center.x + props.radius, props.center.x - props.radius),    // Top-right
+    vec2(props.center.x + props.radius, props.center.x + props.radius),  // Bottom-left
   );
   
   let vertexPos = pos[VertexIndex];
-  let offset = vec2f(
-    (props.center.x / props.resolution.x) * 2.0 - 1.0,
-    -((props.center.y / props.resolution.y) * 2.0 - 1.0)  // Flip Y and shift
-  );
-  let adjustedPos =  vertexPos * (props.radius * 2.0 / props.resolution) + vec2f(0.5, -0.5) + offset;
+
+  // Multiply by a matrix
+  let position = (props.matrix * vec4f(vertexPos, 0, 1)).xy;
+  // convert the position from pixels to a 0.0 to 1.0 value
+  let zeroToOne = position / props.resolution;
+  // convert from 0 <-> 1 to 0 <-> 2
+  let zeroToTwo = zeroToOne * 2.0;
+  // covert from 0 <-> 2 to -1 <-> +1 (clip space)
+  let flippedClipSpace = zeroToTwo - 1.0;
+  // flip Y
+  let clipSpace = flippedClipSpace * vec2f(1, -1);
   var output: VertexOutput;
-  output.position = props.matrix * vec4f(adjustedPos, 0.0, 1.0);
+  output.position = vec4f(clipSpace, 0.0, 1.0);
   output.originalPos = vertexPos;
   return output;
 }
@@ -61,12 +66,12 @@ struct FragOut {
 @fragment
 fn fs(in: VertexOutput) -> FragOut {
   var out : FragOut;
-  let dist = length(in.originalPos);
-  if (dist <= 1.0) {
+  let d = length(in.position.xy);
+  //if (d <= 1.0) {
     out.color = props.color;
-  } else {
-    discard;
-  }
+  // } else {
+  //   discard;
+  // }
   return out;
 }`;
 
@@ -81,10 +86,34 @@ export class Circle extends Drawable<CircleProps> {
   }
 
   getDrawingCommand() {
+    const x = this.props.center[0];
+    const y = this.props.center[1];
+    const r = this.props.radius[0];
+    const vertexData = new Float32Array([
+      x - r,
+      y - r, // Top-left
+      x + r,
+      y + r, // Top-right
+      x - r,
+      x - r, // Bottom-left
+      x - r,
+      x - r, // Bottom-left
+      x + r,
+      y + r, // Top-right
+      x + r,
+      x - r, // Bottom-right
+    ]);
+    const vertexBuffer = this.device.createBuffer({
+      label: "vertex buffer vertices",
+      size: vertexData.byteLength,
+      usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+    });
+    this.device.queue.writeBuffer(vertexBuffer, 0, vertexData);
     const layout = Circle.pipeline.getBindGroupLayout(0);
     return {
       pipeline: Circle.pipeline,
       bindGroup: this.createBindGroup(layout),
+      vertexBuffer,
       vertexCount: 6,
     };
   }

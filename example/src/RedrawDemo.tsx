@@ -37,10 +37,10 @@ const drawRing = (
   );
   const scale = mix(progress.value, 0.2, 1);
   canvas.save();
-  // canvas.translate(center[0], center[1]);
-  //canvas.translate(translation[0], translation[1]);
-  //canvas.scale(scale, scale);
-  //canvas.translate(-center[0], -center[1]);
+  canvas.translate(center[0], center[1]);
+  canvas.translate(translation[0], translation[1]);
+  canvas.scale(scale, scale);
+  canvas.translate(-center[0], -center[1]);
   const paint = new Paint();
   paint.setColor(index % 2 ? c1 : c2);
   canvas.drawCircle(center, r, paint);
@@ -58,7 +58,7 @@ const drawRings = (
   canvas.fill(paint);
   const rotate = mix(progress.value, 0, Math.PI);
   canvas.save();
-  //canvas.rotate(rotate, info.center[0], info.center[1]);
+  canvas.rotate(rotate, info.center[0], info.center[1]);
   new Array(6).fill(0).map((_, index) => {
     drawRing(progress, canvas, info, index);
   });
@@ -67,7 +67,7 @@ const drawRings = (
 };
 
 export const RedrawDemo = () => {
-  const progress = useValue(1); //useLoop();
+  const progress = useLoop();
   const ref = useRef<HTMLCanvasElement>(null);
   const Redraw = useRef<Instance>();
   const surface = useRef<Surface>();
@@ -83,8 +83,8 @@ export const RedrawDemo = () => {
       const { width, height } = surface.current;
       const canvas = surface.current.getCanvas();
       canvas.save();
-      canvas.scale(pd, pd);
-      //canvas.translate(width / 2, height / 2);
+      //canvas.scale(pd, pd);
+      canvas.translate(width / 2, height / 2);
       drawRings(Redraw.current!, progress, canvas, {
         width,
         height,
