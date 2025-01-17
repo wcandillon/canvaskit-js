@@ -52,4 +52,12 @@ export class Surface {
     passEncoder.end();
     device.queue.submit([commandEncoder.finish()]);
   }
+
+  private makeTexture() {
+    return this.device.createTexture({
+      size: [this.width, this.height],
+      format: this.getCurrentTexture().format,
+      usage: GPUTextureUsage.RENDER_ATTACHMENT,
+    });
+  }
 }

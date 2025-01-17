@@ -1,7 +1,7 @@
 import { makeShaderDataDefinitions, makeStructuredView } from "webgpu-utils";
 
 import type { Color } from "../Data";
-import type { Paint } from "../Paint";
+import type { Paint } from "../Paint/Paint";
 
 import { makeDrawable } from "./Drawable";
 

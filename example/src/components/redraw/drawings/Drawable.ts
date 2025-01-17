@@ -1,12 +1,13 @@
 import type { StructuredView } from "webgpu-utils";
 
-import { GPUBlendModes } from "../Paint";
 import type { Paint } from "../Paint";
+import { GPUBlendModes } from "../Paint";
 
 export interface DrawingCommand {
   pipeline: GPURenderPipeline;
   bindGroup: GPUBindGroup;
   vertexCount: number;
+  imageFilter?: ImageFilter;
 }
 
 class GPUResources {

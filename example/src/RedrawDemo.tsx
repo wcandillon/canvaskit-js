@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 
 import type { Canvas, Surface } from "./components/redraw";
-import { BlendMode, Instance, Paint } from "./components/redraw";
+import { Instance, Paint, BlendMode } from "./components/redraw";
 import type { AnimationValue, Info } from "./components";
 import { mix, polar2Canvas, useLoop, useOnFrame, vec } from "./components";
 

@@ -1,7 +1,7 @@
 import { mat4 } from "wgpu-matrix";
 
 import type { Matrix, Point } from "./Data";
-import type { Paint } from "./Paint";
+import type { Paint } from "./Paint/Paint";
 import { makeCircle, makeFill } from "./drawings";
 import type { DrawingCommand } from "./drawings/Drawable";
 
