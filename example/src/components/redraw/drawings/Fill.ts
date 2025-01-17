@@ -1,4 +1,5 @@
 import type { Color } from "../Data";
+import type { BlendMode } from "../Paint";
 
 import { Drawable } from "./Drawable";
 
@@ -49,32 +50,45 @@ fn fs() -> FragOut {
 }`;
 
 export class Fill extends Drawable<FillProps> {
-  static pipeline: GPURenderPipeline;
+  static module: GPUShaderModule | null = null;
+  static pipeline: Map<BlendMode, GPURenderPipeline> = new Map();
 
   constructor(device: GPUDevice, props: FillProps) {
     super(device, props);
-    if (!Fill.pipeline) {
-      Fill.pipeline = this.createPipeline();
+    if (Fill.module === null) {
+      Fill.module = this.createModule();
     }
   }
 
-  getDrawingCommand() {
-    const layout = Fill.pipeline.getBindGroupLayout(0);
+  getDrawingCommand(blendMode: BlendMode) {
+    const pipeline = this.createPipeline(blendMode);
+    const layout = pipeline.getBindGroupLayout(0);
     layout.label = "Circle Bind Group Layout";
     return {
-      pipeline: Fill.pipeline,
+      pipeline,
       bindGroup: this.createBindGroup(layout),
       vertexCount: 6,
     };
   }
 
-  createPipeline() {
+  protected createModule(): GPUShaderModule {
+    const { device } = this;
+    return device.createShaderModule({
+      code: FillShader,
+    });
+  }
+
+  createPipeline(blendMode: BlendMode) {
+    const cachedPipeline = Fill.pipeline.get(blendMode);
+    if (cachedPipeline) {
+      return cachedPipeline;
+    }
     const { device } = this;
     const format = navigator.gpu.getPreferredCanvasFormat();
     const module = device.createShaderModule({
       code: FillShader,
     });
-    return device.createRenderPipeline({
+    const pipeline = device.createRenderPipeline({
       layout: "auto",
       label: "Fill",
       vertex: {
@@ -104,5 +118,7 @@ export class Fill extends Drawable<FillProps> {
         topology: "triangle-list",
       },
     });
+    Fill.pipeline.set(blendMode, pipeline);
+    return pipeline;
   }
 }

@@ -313,12 +313,7 @@ export const ColorFactory = (color: string) => {
   if (!cl) {
     throw new Error(`Invalid color: ${color}`);
   }
-  const [, , , a] = cl;
-  // Colors are premultiplied
-  return Float32Array.of(
-    (cl[0] * a) / 255,
-    (cl[1] * a) / 255,
-    (cl[2] * a) / 255,
-    a
-  );
+  // premultiplied colors
+  const [r, g, b, a] = cl;
+  return Float32Array.of((r * a) / 255, (g * a) / 255, (b * a) / 255, a);
 };

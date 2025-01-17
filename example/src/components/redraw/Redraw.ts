@@ -102,13 +102,11 @@ export class Instance {
     }
     if (!adapter.features.has("dual-source-blending")) {
       // Fall back to the multiple pipeline approach
-      console.warn(
-        "Dual source blending not supported, falling back to multiple pipelines"
-      );
+      throw new Error("Dual source blending not supported");
     }
     const device = await adapter.requestDevice({
-      requiredFeatures: ["dual-source-blending"] as const,
-    });
+      requiredFeatures: ["dual-source-blending"],
+    } as const);
     return new Instance(device);
   }
 }

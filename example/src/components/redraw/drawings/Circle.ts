@@ -1,4 +1,5 @@
 import type { Matrix, Point } from "../Data";
+import { GPUBlendModes, type BlendMode } from "../Paint";
 
 import { Drawable } from "./Drawable";
 
@@ -77,32 +78,43 @@ fn fs(in: VertexOutput) -> FragOut {
 }`;
 
 export class Circle extends Drawable<CircleProps> {
-  static pipeline: GPURenderPipeline | null = null;
+  static module: GPUShaderModule | null = null;
+  static pipeline: Map<BlendMode, GPURenderPipeline> = new Map();
 
   constructor(device: GPUDevice, props: CircleProps) {
     super(device, props);
-    if (Circle.pipeline === null) {
-      Circle.pipeline = this.createPipeline();
+    if (Circle.module === null) {
+      Circle.module = this.createModule();
     }
   }
 
-  getDrawingCommand() {
-    const layout = Circle.pipeline!.getBindGroupLayout(0);
+  getDrawingCommand(blendMode: BlendMode) {
+    const pipeline = this.createPipeline(blendMode);
+    const layout = pipeline.getBindGroupLayout(0);
     layout.label = "Circle Bind Group Layout";
     return {
-      pipeline: Circle.pipeline!,
+      pipeline,
       bindGroup: this.createBindGroup(layout),
       vertexCount: 6,
     };
   }
 
-  createPipeline() {
+  protected createModule(): GPUShaderModule {
     const { device } = this;
-    const format = navigator.gpu.getPreferredCanvasFormat();
-    const module = device.createShaderModule({
+    return device.createShaderModule({
       code: CircleShader,
     });
-    return device.createRenderPipeline({
+  }
+
+  createPipeline(blendMode: BlendMode) {
+    const cachedPipeline = Circle.pipeline.get(blendMode);
+    if (cachedPipeline) {
+      return cachedPipeline;
+    }
+    const { device } = this;
+    const format = navigator.gpu.getPreferredCanvasFormat();
+    const module = Circle.module!;
+    const pipeline = device.createRenderPipeline({
       layout: "auto",
       label: "Fill",
       vertex: {
@@ -113,18 +125,7 @@ export class Circle extends Drawable<CircleProps> {
         targets: [
           {
             format,
-            blend: {
-              color: {
-                operation: "add",
-                srcFactor: "one",
-                dstFactor: "one-minus-src-alpha",
-              },
-              alpha: {
-                operation: "add",
-                srcFactor: "one",
-                dstFactor: "one-minus-src-alpha",
-              },
-            } as const,
+            blend: GPUBlendModes[blendMode],
           },
         ],
       },
@@ -132,5 +133,7 @@ export class Circle extends Drawable<CircleProps> {
         topology: "triangle-list",
       },
     });
+    Circle.pipeline.set(blendMode, pipeline);
+    return pipeline;
   }
 }

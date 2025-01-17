@@ -19,6 +19,7 @@
     "react-scripts": "5.0.1",
     "typescript": "^4.9.5",
     "web-vitals": "^2.1.4",
+    "webgpu-utils": "^1.9.3",
     "wgpu-matrix": "^3.3.0"
   },
   "scripts": {

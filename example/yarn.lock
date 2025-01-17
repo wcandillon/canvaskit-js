@@ -9246,6 +9246,11 @@ web-vitals@^2.1.4:
   resolved "https://registry.yarnpkg.com/web-vitals/-/web-vitals-2.1.4.tgz#76563175a475a5e835264d373704f9dde718290c"
   integrity sha512-sVWcwhU5mX6crfI5Vd2dC4qchyTqxV8URinzt25XqVh+bHEPGH4C3NPrNionCP7Obx59wrYEbNlw4Z8sjALzZg==
 
+webgpu-utils@^1.9.3:
+  version "1.9.3"
+  resolved "https://registry.yarnpkg.com/webgpu-utils/-/webgpu-utils-1.9.3.tgz#af7f1bfa613ebb3d395e2e389c2b3d0aa98e2dca"
+  integrity sha512-b9QqW9Gc15ifpmn2zT/axIWjjVqX5WCpdnT19HQu5KZi22PApSwzjoaijLfzg3zYFw3wSDDUXMDT6lpCE/H9kw==
+
 webidl-conversions@^4.0.2:
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/webidl-conversions/-/webidl-conversions-4.0.2.tgz#a855980b1f0b6b359ba1d5d9fb39ae941faa63ad"

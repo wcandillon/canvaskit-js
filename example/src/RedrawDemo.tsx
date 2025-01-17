@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 
 import type { Canvas, Surface } from "./components/redraw";
-import { Instance, Paint } from "./components/redraw";
+import { BlendMode, Instance, Paint } from "./components/redraw";
 import type { AnimationValue, Info } from "./components";
 import {
   mix,
@@ -44,6 +44,7 @@ const drawRing = (
   canvas.scale(scale, scale);
   canvas.translate(-center[0], -center[1]);
   const paint = new Paint();
+  paint.blendMode = BlendMode.Screen;
   paint.setColor(index % 2 ? c1 : c2);
   canvas.drawCircle(center, r, paint);
   canvas.restore();

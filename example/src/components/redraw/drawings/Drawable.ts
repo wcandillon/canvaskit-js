@@ -1,3 +1,5 @@
+import type { BlendMode } from "../Paint";
+
 import type { TypedArray } from "./Uniform";
 import { makeUniform } from "./Uniform";
 
@@ -27,7 +29,8 @@ export abstract class Drawable<Props extends Record<keyof Props, TypedArray>> {
     });
   }
 
-  protected abstract createPipeline(): GPURenderPipeline;
+  protected abstract createPipeline(blendMode: BlendMode): GPURenderPipeline;
+  protected abstract createModule(): GPUShaderModule;
 
-  abstract getDrawingCommand(): DrawingCommand;
+  abstract getDrawingCommand(blendMode: BlendMode): DrawingCommand;
 }

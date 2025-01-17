@@ -50,7 +50,7 @@ export class Canvas {
   fill(paint: Paint) {
     const { device } = this;
     const fill = new Fill(device, { color: paint.color! });
-    this.drawingCommands.push(fill.getDrawingCommand());
+    this.drawingCommands.push(fill.getDrawingCommand(paint.blendMode));
   }
 
   drawCircle(pos: Point, r: number, paint: Paint) {
@@ -62,7 +62,7 @@ export class Canvas {
       matrix: this.ctx.matrix,
       color: paint.color!,
     });
-    this.drawingCommands.push(circle.getDrawingCommand());
+    this.drawingCommands.push(circle.getDrawingCommand(paint.blendMode));
   }
 
   popDrawingCommands() {
