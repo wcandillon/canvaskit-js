@@ -37,11 +37,19 @@ export enum BlendMode {
 
 export class Paint {
   color: Color | null = null;
+  alpha = 1;
   blendMode = BlendMode.SrcOver;
 
   constructor() {}
 
   setColor(color: Float32Array | string) {
     this.color = color instanceof Float32Array ? color : ColorFactory(color);
+  }
+
+  setAlpha(alpha: number) {
+    this.alpha = alpha;
+    if (this.color) {
+      this.color[3] = alpha;
+    }
   }
 }

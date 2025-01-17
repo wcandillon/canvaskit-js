@@ -3,14 +3,7 @@ import { useEffect, useRef } from "react";
 import type { Canvas, Surface } from "./components/redraw";
 import { Instance, Paint } from "./components/redraw";
 import type { AnimationValue, Info } from "./components";
-import {
-  mix,
-  polar2Canvas,
-  useLoop,
-  useOnFrame,
-  useValue,
-  vec,
-} from "./components";
+import { mix, polar2Canvas, useLoop, useOnFrame, vec } from "./components";
 
 const pd = window.devicePixelRatio;
 const c1 = "#61bea2";
@@ -22,6 +15,8 @@ interface Size {
   height: number;
 }
 
+const totalRings = 6;
+
 const drawRing = (
   progress: AnimationValue,
   canvas: Canvas,
@@ -30,7 +25,7 @@ const drawRing = (
 ) => {
   const r = height / 4;
   const center = vec(width / 2, height / 2);
-  const theta = (index * (2 * Math.PI)) / 6;
+  const theta = (index * (2 * Math.PI)) / totalRings;
   const translation = polar2Canvas(
     { theta, radius: progress.value * r },
     vec(0, 0)
@@ -59,7 +54,7 @@ const drawRings = (
   const rotate = mix(progress.value, 0, Math.PI);
   canvas.save();
   canvas.rotate(rotate, info.center[0], info.center[1]);
-  new Array(6).fill(0).map((_, index) => {
+  new Array(totalRings).fill(0).map((_, index) => {
     drawRing(progress, canvas, info, index);
   });
   canvas.restore();
@@ -83,11 +78,11 @@ export const RedrawDemo = () => {
       const { width, height } = surface.current;
       const canvas = surface.current.getCanvas();
       canvas.save();
-      //canvas.scale(pd, pd);
+      canvas.scale(pd, pd);
       drawRings(Redraw.current!, progress, canvas, {
-        width,
-        height,
-        center: Float32Array.of(width / 2, height / 2),
+        width: width / pd,
+        height: height / pd,
+        center: Float32Array.of(width / pd / 2, height / pd / 2),
       });
       canvas.restore();
       surface.current.flush();
