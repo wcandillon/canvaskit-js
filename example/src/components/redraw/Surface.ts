@@ -35,8 +35,8 @@ export class Surface {
     });
     const commands = this.canvas.popDrawingCommands();
     // 1. Create Textures for image filters
-    commands.forEach(({ pipeline, bindGroup, vertexCount, imageFilter }) => {
-      if (imageFilter) {
+    commands.forEach(({ pipeline, bindGroup, vertexCount, paint }) => {
+      if (paint.getImageFilter()) {
         const texture = this.makeTexture();
         const passEncoder = commandEncoder.beginRenderPass(
           makeRenderPassDescriptor(texture)
@@ -45,7 +45,7 @@ export class Surface {
         passEncoder.setBindGroup(0, bindGroup);
         passEncoder.draw(vertexCount);
         passEncoder.end();
-        imageFilter.texture = texture;
+        paint.getImageFilter()!.texture = texture;
       }
     });
     const passEncoder = commandEncoder.beginRenderPass(
@@ -55,13 +55,16 @@ export class Surface {
       magFilter: "linear",
       minFilter: "linear",
     });
-    commands.forEach(({ pipeline, bindGroup, vertexCount, imageFilter }) => {
-      if (!imageFilter) {
+    commands.forEach(({ pipeline, bindGroup, vertexCount, paint }) => {
+      if (!paint.getImageFilter()) {
         passEncoder.setPipeline(pipeline);
         passEncoder.setBindGroup(0, bindGroup);
         passEncoder.draw(vertexCount);
       } else {
-        const renderPipeline = makeTexturePipeline(device, BlendMode.Screen);
+        const renderPipeline = makeTexturePipeline(
+          device,
+          paint.getBlendMode()
+        );
         passEncoder.setPipeline(renderPipeline);
         const textureBindGroup = device.createBindGroup({
           layout: renderPipeline.getBindGroupLayout(0),
@@ -72,7 +75,7 @@ export class Surface {
             },
             {
               binding: 1,
-              resource: imageFilter.texture!.createView(),
+              resource: paint.getImageFilter()!.texture!.createView(),
             },
           ],
         });
