@@ -1,6 +1,4 @@
 import { Canvas } from "./Canvas";
-import { makeTexturePipeline } from "./drawings/Texture";
-import { BlendMode } from "./Paint/BlendMode";
 
 export class Surface {
   private canvas: Canvas;
@@ -35,66 +33,44 @@ export class Surface {
     });
     const commands = this.canvas.popDrawingCommands();
     // 1. Create Textures for image filters
-    commands.forEach(({ pipeline, bindGroup, vertexCount, paint }) => {
-      if (paint.getImageFilter()) {
-        const texture = this.makeTexture();
-        const passEncoder = commandEncoder.beginRenderPass(
-          makeRenderPassDescriptor(texture)
-        );
-        passEncoder.setPipeline(pipeline);
-        passEncoder.setBindGroup(0, bindGroup);
-        passEncoder.draw(vertexCount);
-        passEncoder.end();
-        paint.getImageFilter()!.texture = texture;
-      }
-    });
+
     const passEncoder = commandEncoder.beginRenderPass(
       makeRenderPassDescriptor(this.getCurrentTexture())
     );
-    const sampler = device.createSampler({
-      magFilter: "linear",
-      minFilter: "linear",
-    });
-    commands.forEach(({ pipeline, bindGroup, vertexCount, paint }) => {
-      if (!paint.getImageFilter()) {
-        passEncoder.setPipeline(pipeline);
-        passEncoder.setBindGroup(0, bindGroup);
-        passEncoder.draw(vertexCount);
-      } else {
-        const renderPipeline = makeTexturePipeline(
-          device,
-          paint.getBlendMode()
-        );
-        passEncoder.setPipeline(renderPipeline);
-        const textureBindGroup = device.createBindGroup({
-          layout: renderPipeline.getBindGroupLayout(0),
-          entries: [
-            {
-              binding: 0,
-              resource: sampler,
-            },
-            {
-              binding: 1,
-              resource: paint.getImageFilter()!.texture!.createView(),
-            },
-          ],
-        });
-        passEncoder.setBindGroup(0, textureBindGroup);
-        passEncoder.draw(6);
-      }
+
+    commands.forEach(({ pipeline, bindGroup, vertexCount }) => {
+      passEncoder.setPipeline(pipeline);
+      passEncoder.setBindGroup(0, bindGroup);
+      passEncoder.draw(vertexCount);
     });
     passEncoder.end();
     device.queue.submit([commandEncoder.finish()]);
   }
 
-  private makeTexture() {
-    return this.device.createTexture({
-      size: [this.width, this.height],
-      format: this.getCurrentTexture().format,
-      usage:
-        GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING,
-    });
-  }
+  // private makeStorageTexture() {
+  //   return this.device.createTexture({
+  //     size: [this.width, this.height],
+  //     format: "rgba8unorm",
+  //     usage:
+  //       GPUTextureUsage.STORAGE_BINDING |
+  //       GPUTextureUsage.TEXTURE_BINDING |
+  //       GPUTextureUsage.COPY_DST |
+  //       GPUTextureUsage.COPY_SRC,
+  //   });
+  // }
+
+  // private makeTexture() {
+  //   const format = navigator.gpu.getPreferredCanvasFormat();
+  //   return this.device.createTexture({
+  //     size: [this.width, this.height],
+  //     format,
+  //     usage:
+  //       GPUTextureUsage.RENDER_ATTACHMENT |
+  //       GPUTextureUsage.TEXTURE_BINDING |
+  //       GPUTextureUsage.COPY_DST |
+  //       GPUTextureUsage.COPY_SRC,
+  //   });
+  // }
 }
 
 const makeRenderPassDescriptor = (texture: GPUTexture) => {

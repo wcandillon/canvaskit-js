@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 
 import type { Canvas, Surface } from "./components/redraw";
-import { Instance, Paint, BlendMode, ImageFilter } from "./components/redraw";
+import { Instance, Paint, BlendMode } from "./components/redraw";
 import type { AnimationValue, Info } from "./components";
 import { mix, polar2Canvas, useLoop, useOnFrame, vec } from "./components";
 
@@ -39,7 +39,12 @@ const drawRing = (
   const paint = new Paint();
   paint.setBlendMode(BlendMode.Screen);
   paint.setColor(index % 2 ? c1 : c2);
-  paint.setImageFilter(new ImageFilter());
+  // paint.setImageFilter(
+  //   makeImageFilter({
+  //     iterations: 4,
+  //     size: 10,
+  //   })
+  // );
   canvas.drawCircle(center, r, paint);
   canvas.restore();
 };

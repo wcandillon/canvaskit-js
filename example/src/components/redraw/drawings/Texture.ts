@@ -1,4 +1,3 @@
-import type { Paint } from "../Paint";
 import type { BlendMode } from "../Paint/BlendMode";
 import { GPUBlendModes } from "../Paint/BlendMode";
 

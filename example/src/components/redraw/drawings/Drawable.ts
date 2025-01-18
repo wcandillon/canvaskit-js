@@ -13,6 +13,7 @@ export interface DrawingCommand {
 export class GPUResources {
   public modules: Map<string, GPUShaderModule> = new Map();
   public pipelines: Map<string, GPURenderPipeline> = new Map();
+  public computePipelines: Map<string, GPUComputePipeline> = new Map();
   private static instances: Map<GPUDevice, GPUResources> = new Map();
 
   private constructor() {}
