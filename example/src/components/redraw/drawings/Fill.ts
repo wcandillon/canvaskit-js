@@ -5,27 +5,24 @@ import type { Paint } from "../Paint/Paint";
 
 import { makeDrawable } from "./Drawable";
 
-interface FillProps {
-  color: Color;
-}
-
 export const FillShader = /* wgsl */ `
 
 struct VertexOutput {
   @builtin(position) position: vec4f,
-  @location(0) originalPos: vec2f,
+  @location(0) color: vec4f,
 };
 
 struct Props {
   color: vec4f,
 };
 
-@group(0) @binding(0) var<uniform> props: Props;
+@group(0) @binding(0) var<storage> instancesProps: array<Props>;
 
 @vertex
 fn vs(
+  @builtin(instance_index) instanceIdx : u32,
   @builtin(vertex_index) VertexIndex : u32
-) -> @builtin(position) vec4f {
+) -> VertexOutput {
   var pos = array<vec2f, 6>(
     vec2(-1.0, 1.0),   // Top-left
     vec2(1.0, 1.0),    // Top-right
@@ -35,8 +32,10 @@ fn vs(
     vec2(1.0, 1.0),    // Top-right
     vec2(1.0, -1.0)    // Bottom-right
   );
-  
-  return vec4f(pos[VertexIndex], 0.0, 1.0);
+  var output: VertexOutput;
+  output.position = vec4f(pos[VertexIndex], 0.0, 1.0);
+  output.color = instancesProps[instanceIdx].color;
+  return output;
 }
 
 struct FragOut {
@@ -45,15 +44,19 @@ struct FragOut {
 };
 
 @fragment
-fn fs() -> FragOut {
+fn fs(in: VertexOutput) -> FragOut {
   var out: FragOut;
-  out.color = props.color;
+  out.color = in.color;
   return out;
 }`;
 
-const defs = makeShaderDataDefinitions(FillShader);
-const propsView = makeStructuredView(defs.uniforms.props);
+export interface FillProps {
+  color: Color;
+}
 
-export const makeFill = (device: GPUDevice, paint: Paint, props: FillProps) => {
-  return makeDrawable(device, "fill", FillShader, paint, propsView, props, 6);
+const defs = makeShaderDataDefinitions(FillShader);
+export const FillPropsDefinition = defs.storages.instancesProps;
+
+export const makeFill = (device: GPUDevice, paint: Paint) => {
+  return makeDrawable(device, "fill", FillShader, paint, 6);
 };

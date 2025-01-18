@@ -38,10 +38,10 @@ export class Surface {
       makeRenderPassDescriptor(this.getCurrentTexture())
     );
 
-    commands.forEach(({ pipeline, bindGroup, vertexCount }) => {
+    commands.forEach(({ pipeline, bindGroup, instance, vertexCount }) => {
       passEncoder.setPipeline(pipeline);
       passEncoder.setBindGroup(0, bindGroup);
-      passEncoder.draw(vertexCount);
+      passEncoder.draw(vertexCount, 1, 0, instance);
     });
     passEncoder.end();
     device.queue.submit([commandEncoder.finish()]);

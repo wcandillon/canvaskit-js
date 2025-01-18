@@ -1,15 +1,39 @@
 import { mat4 } from "wgpu-matrix";
+import {
+  getSizeAndAlignmentOfUnsizedArrayElement,
+  makeStructuredView,
+  type StructuredView,
+  type VariableDefinition,
+} from "webgpu-utils";
 
 import type { Matrix, Point } from "./Data";
 import type { Paint } from "./Paint/Paint";
-import { makeCircle, makeFill } from "./drawings";
+import {
+  CirclePropsDefinition,
+  FillPropsDefinition,
+  makeCircle,
+  makeFill,
+} from "./drawings";
 import type { DrawingCommand } from "./drawings/Drawable";
+
+interface InstanciatedDrawingCommand extends DrawingCommand {
+  instance: number;
+  bindGroup: GPUBindGroup;
+}
+
+interface Instances {
+  props: Record<string, unknown>[];
+  propsDefinition: VariableDefinition;
+  bindGroup: GPUBindGroup | null;
+  currentCount: number;
+}
 
 interface Context {
   matrix: Matrix;
 }
 
 export class Canvas {
+  private pipelines: Map<GPURenderPipeline, Instances> = new Map();
   private drawingCommands: DrawingCommand[] = [];
 
   private contextes: Context[] = [{ matrix: mat4.identity() }];
@@ -49,27 +73,87 @@ export class Canvas {
 
   fill(paint: Paint) {
     const { device } = this;
-    this.drawingCommands.push(
-      makeFill(device, paint, {
-        color: paint.getColor()!,
-      })
-    );
+    const props = {
+      color: paint.getColor()!,
+    };
+    this.addDrawingCommand(makeFill(device, paint), FillPropsDefinition, props);
   }
 
   drawCircle(pos: Point, radius: number, paint: Paint) {
     const { device } = this;
-    this.drawingCommands.push(
-      makeCircle(device, paint, {
-        resolution: this.resolution,
-        center: pos,
-        radius,
-        matrix: this.ctx.matrix,
-        color: paint.getColor()!,
-      })
+    const props = {
+      resolution: this.resolution,
+      center: pos,
+      radius,
+      matrix: this.ctx.matrix,
+      color: paint.getColor()!,
+    };
+    this.addDrawingCommand(
+      makeCircle(device, paint),
+      CirclePropsDefinition,
+      props
     );
   }
 
-  popDrawingCommands() {
-    return this.drawingCommands.splice(0, this.drawingCommands.length);
+  private addDrawingCommand(
+    command: DrawingCommand,
+    propsDefinition: VariableDefinition,
+    props: Record<string, unknown>
+  ) {
+    const { pipeline } = command;
+    if (!this.pipelines.has(pipeline)) {
+      this.pipelines.set(pipeline, {
+        props: [],
+        propsDefinition,
+        bindGroup: null,
+        currentCount: 0,
+      });
+    }
+    const allProps = this.pipelines.get(pipeline)!;
+    allProps.props.push(props);
+    this.drawingCommands.push(command);
+  }
+
+  popDrawingCommands(): InstanciatedDrawingCommand[] {
+    this.pipelines.forEach((resources, pipeline) => {
+      const { props, propsDefinition } = resources;
+      const { size } =
+        getSizeAndAlignmentOfUnsizedArrayElement(propsDefinition);
+      const storage = makeStructuredView(
+        propsDefinition,
+        new ArrayBuffer(props.length * size)
+      );
+      const storageBuffer = this.device.createBuffer({
+        size: storage.arrayBuffer.byteLength,
+        usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+      });
+      storage.set(props);
+      this.device.queue.writeBuffer(storageBuffer, 0, storage.arrayBuffer);
+      resources.bindGroup = this.device.createBindGroup({
+        layout: pipeline.getBindGroupLayout(0),
+        entries: [
+          {
+            binding: 0,
+            resource: {
+              buffer: storageBuffer,
+            },
+          },
+        ],
+      });
+    });
+    const commands = this.drawingCommands
+      .splice(0, this.drawingCommands.length)
+      .map((command) => {
+        const pipeline = this.pipelines.get(command.pipeline)!;
+        const result = {
+          ...command,
+          instance: pipeline.currentCount,
+          bindGroup: pipeline.bindGroup!,
+        };
+        pipeline.currentCount++;
+        return result;
+      });
+    this.pipelines.clear();
+    return commands;
   }
 }

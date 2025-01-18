@@ -1,13 +1,10 @@
-import type { StructuredView } from "webgpu-utils";
-
 import type { Paint } from "../Paint";
 import { GPUBlendModes } from "../Paint";
 
 export interface DrawingCommand {
-  pipeline: GPURenderPipeline;
-  bindGroup: GPUBindGroup;
-  vertexCount: number;
   paint: Paint;
+  pipeline: GPURenderPipeline;
+  vertexCount: number;
 }
 
 export class GPUResources {
@@ -26,31 +23,13 @@ export class GPUResources {
   }
 }
 
-const createBindGroup = (
-  device: GPUDevice,
-  layout: GPUBindGroupLayout,
-  propsView: StructuredView
-) => {
-  const buffer = device.createBuffer({
-    size: propsView.arrayBuffer.byteLength,
-    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-  });
-  device.queue.writeBuffer(buffer, 0, propsView.arrayBuffer);
-  return device.createBindGroup({
-    layout,
-    entries: [{ binding: 0, resource: { buffer } }],
-  });
-};
-
-export const makeDrawable = <T>(
+export const makeDrawable = (
   device: GPUDevice,
   key: string,
   module: string,
   paint: Paint,
-  propsView: StructuredView,
-  props: T,
   vertexCount: number
-) => {
+): DrawingCommand => {
   const resources = GPUResources.getInstance(device);
   if (!resources.modules.has(key)) {
     resources.modules.set(key, device.createShaderModule({ code: module }));
@@ -84,10 +63,8 @@ export const makeDrawable = <T>(
   const pipeline = resources.pipelines.get(pipelineKey)!;
   const layout = pipeline.getBindGroupLayout(0);
   layout.label = "Circle Bind Group Layout";
-  propsView.set(props);
   return {
     pipeline,
-    bindGroup: createBindGroup(device, layout, propsView),
     vertexCount,
     paint,
   };

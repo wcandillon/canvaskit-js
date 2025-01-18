@@ -1,4 +1,4 @@
-import { makeShaderDataDefinitions, makeStructuredView } from "webgpu-utils";
+import { makeShaderDataDefinitions } from "webgpu-utils";
 
 import type { Matrix, Point } from "../Data";
 import type { Paint } from "../Paint/Paint";
@@ -9,6 +9,8 @@ const CircleShader = /* wgsl */ `
 struct VertexOutput {
   @builtin(position) position: vec4f,
   @location(0) localPos: vec2f,
+  @location(1) color: vec4f,
+  @location(2) radius: f32,
 };
 
 struct Props {
@@ -19,12 +21,14 @@ struct Props {
   color: vec4f,
 };
 
-@group(0) @binding(0) var<uniform> props: Props;
+@group(0) @binding(0) var<storage> instancesProps: array<Props>;
 
 @vertex
 fn vs(
+  @builtin(instance_index) instanceIdx : u32,
   @builtin(vertex_index) VertexIndex : u32
 ) -> VertexOutput {
+  let props = instancesProps[instanceIdx];
   let c = props.center;
   let r = props.radius;
   let pos = array<vec2f, 6>(
@@ -52,6 +56,8 @@ fn vs(
   var output: VertexOutput;
   output.position = vec4f(clipSpace, 0.0, 1.0);
   output.localPos = localPos;
+  output.color = props.color;
+  output.radius = props.radius;
   return output;
 }
 
@@ -63,15 +69,16 @@ struct FragOut {
 fn fs(in: VertexOutput) -> FragOut {
   var out: FragOut;
   let dist = length(in.localPos);
-  if (dist <= props.radius) {
-    out.color = props.color;
+  if (dist <= in.radius) {
+    out.color = in.color;
   } else {
     discard;
+    //out.color = vec4(0.0, 0.0, 0.0, 0.0);
   }
   return out;
 }`;
 
-interface CircleProps {
+export interface CircleProps {
   resolution: Point;
   center: Point;
   radius: number;
@@ -80,20 +87,8 @@ interface CircleProps {
 }
 
 const defs = makeShaderDataDefinitions(CircleShader);
-const propsView = makeStructuredView(defs.uniforms.props);
+export const CirclePropsDefinition = defs.storages.instancesProps;
 
-export const makeCircle = (
-  device: GPUDevice,
-  paint: Paint,
-  props: CircleProps
-) => {
-  return makeDrawable(
-    device,
-    "circle",
-    CircleShader,
-    paint,
-    propsView,
-    props,
-    6
-  );
+export const makeCircle = (device: GPUDevice, paint: Paint) => {
+  return makeDrawable(device, "circle", CircleShader, paint, 6);
 };
