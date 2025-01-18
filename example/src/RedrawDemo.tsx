@@ -1,14 +1,16 @@
 import { useEffect, useRef } from "react";
 
 import type { Canvas, Surface } from "./components/redraw";
-import { Instance, Paint, BlendMode } from "./components/redraw";
+import {
+  Instance,
+  Paint,
+  BlendMode,
+  makeImageFilter,
+} from "./components/redraw";
 import type { AnimationValue, Info } from "./components";
 import { mix, polar2Canvas, useLoop, useOnFrame, vec } from "./components";
 
 const pd = window.devicePixelRatio;
-const c1 = "#61bea2";
-const c2 = "#529ca0";
-const bgColor = "#242b38";
 
 interface Size {
   width: number;
@@ -16,6 +18,21 @@ interface Size {
 }
 
 const totalRings = 6;
+const bg = new Paint();
+bg.setColor("#242b38");
+
+const c1 = new Paint();
+c1.setColor("#61bea2");
+c1.setBlendMode(BlendMode.Screen);
+c1.setImageFilter(
+  makeImageFilter({
+    iterations: 4,
+    size: 10,
+  })
+);
+
+const c2 = c1.copy();
+c2.setColor("#529ca0");
 
 const drawRing = (
   progress: AnimationValue,
@@ -36,23 +53,12 @@ const drawRing = (
   canvas.translate(translation[0], translation[1]);
   canvas.scale(scale, scale);
   canvas.translate(-center[0], -center[1]);
-  const paint = new Paint();
-  paint.setBlendMode(BlendMode.Screen);
-  paint.setColor(index % 2 ? c1 : c2);
-  // paint.setImageFilter(
-  //   makeImageFilter({
-  //     iterations: 4,
-  //     size: 10,
-  //   })
-  // );
-  canvas.drawCircle(center, r, paint);
+  canvas.drawCircle(center, r, index % 2 ? c1 : c2);
   canvas.restore();
 };
 
 const drawRings = (progress: AnimationValue, canvas: Canvas, info: Info) => {
-  const paint = new Paint();
-  paint.setColor(bgColor);
-  canvas.fill(paint);
+  canvas.fill(bg);
   const rotate = mix(progress.value, 0, Math.PI);
   canvas.save();
   canvas.rotate(rotate, info.center[0], info.center[1]);

@@ -32,12 +32,12 @@ export class Surface {
       label: "Redraw encoder",
     });
     const commands = this.canvas.popDrawingCommands();
-    // 1. Create Textures for image filters
+    // 1. All commands that have an image filter are drawn on an offscreen texture
 
+    // 2. Draw all the commands
     const passEncoder = commandEncoder.beginRenderPass(
       makeRenderPassDescriptor(this.getCurrentTexture())
     );
-
     commands.forEach(({ pipeline, bindGroup, instance, vertexCount }) => {
       passEncoder.setPipeline(pipeline);
       passEncoder.setBindGroup(0, bindGroup);
