@@ -16,18 +16,13 @@ const totalRings = 6;
 const bg = new Paint();
 bg.setColor("#242b38");
 
-const c1 = new Paint();
-c1.setColor("#61bea2");
-c1.setBlendMode(BlendMode.Screen);
-
-const c2 = c1.copy();
-c2.setColor("#529ca0");
-
 const drawRing = (
   progress: AnimationValue,
   canvas: Canvas,
   { width, height }: Size,
-  index: number
+  index: number,
+  c1: Paint,
+  c2: Paint
 ) => {
   const r = height / 4;
   const center = vec(width / 2, height / 2);
@@ -46,13 +41,19 @@ const drawRing = (
   canvas.restore();
 };
 
-const drawRings = (progress: AnimationValue, canvas: Canvas, info: Info) => {
+const drawRings = (
+  progress: AnimationValue,
+  canvas: Canvas,
+  info: Info,
+  c1: Paint,
+  c2: Paint
+) => {
   canvas.fill(bg);
   const rotate = mix(progress.value, 0, Math.PI);
   canvas.save();
   canvas.rotate(rotate, info.center[0], info.center[1]);
   new Array(totalRings).fill(0).map((_, index) => {
-    drawRing(progress, canvas, info, index);
+    drawRing(progress, canvas, info, index, c1, c2);
   });
   canvas.restore();
 };
@@ -66,25 +67,53 @@ export const RedrawDemo = () => {
     (async () => {
       Redraw.current = await Instance.get();
       surface.current = Redraw.current.Surface.MakeFromCanvas(ref.current!);
+    })();
+  });
+  useOnFrame(() => {
+    if (surface.current && Redraw.current) {
+      const { width, height } = surface.current;
+      const canvas = surface.current.getCanvas();
+      canvas.save();
+      canvas.scale(pd, pd);
+      const c1 = new Paint();
+      c1.setColor("#61bea2");
+      c1.setBlendMode(BlendMode.Screen);
+
+      const c2 = c1.copy();
+      c2.setColor("#529ca0");
       const imageFilter = Redraw.current.ImageFilter.makeBlur({
         size: 10,
         iterations: 4,
       });
       c1.setImageFilter(imageFilter);
       c2.setImageFilter(imageFilter);
-    })();
-  });
-  useOnFrame(() => {
-    if (surface.current) {
-      const { width, height } = surface.current;
-      const canvas = surface.current.getCanvas();
-      canvas.save();
-      canvas.scale(pd, pd);
-      drawRings(progress, canvas, {
-        width: width / pd,
-        height: height / pd,
-        center: Float32Array.of(width / pd / 2, height / pd / 2),
-      });
+
+      const c1b = c1.copy();
+      c1b.setImageFilter(null);
+      const c2b = c2.copy();
+      c2b.setImageFilter(null);
+      drawRings(
+        progress,
+        canvas,
+        {
+          width: width / pd,
+          height: height / pd,
+          center: Float32Array.of(width / pd / 2, height / pd / 2),
+        },
+        c1,
+        c2
+      );
+      // drawRings(
+      //   progress,
+      //   canvas,
+      //   {
+      //     width: width / pd,
+      //     height: height / pd,
+      //     center: Float32Array.of(width / pd / 2, height / pd / 2),
+      //   },
+      //   c1b,
+      //   c2b
+      // );
       canvas.restore();
       surface.current.flush();
     }

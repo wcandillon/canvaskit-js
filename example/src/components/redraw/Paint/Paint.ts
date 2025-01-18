@@ -11,7 +11,7 @@ export class Paint {
 
   constructor() {}
 
-  setImageFilter(imageFilter: ImageFilter) {
+  setImageFilter(imageFilter: ImageFilter | null) {
     this.imageFilter = imageFilter;
   }
 
