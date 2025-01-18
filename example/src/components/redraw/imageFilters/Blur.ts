@@ -235,6 +235,6 @@ export class BlurImageFilter implements ImageFilter {
   }
 
   getResult() {
-    return this.result;
+    return this.result!;
   }
 }
