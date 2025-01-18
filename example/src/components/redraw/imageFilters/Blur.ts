@@ -1,5 +1,7 @@
 import { GPUResources } from "../drawings/Drawable";
 
+import type { ImageFilter } from "./ImageFilter";
+
 export interface BlurProps {
   iterations: number;
   size: number;
@@ -93,105 +95,113 @@ struct Params {
 
 const key = "BlurImageFilter";
 
-export const makeBlurImageFilter = (
-  device: GPUDevice,
-  input: GPUTexture,
-  textureA: GPUTexture,
-  textureB: GPUTexture,
-  { iterations, size }: BlurProps
-) => {
-  const resources = GPUResources.getInstance(device);
-  if (!resources.computePipelines.has(key)) {
-    const pipeline = device.createComputePipeline({
-      layout: "auto",
-      compute: {
-        module: device.createShaderModule({
-          code: BlurShader,
-        }),
-      },
-    });
-    resources.computePipelines.set(key, pipeline);
-  }
-  const pipeline = resources.computePipelines.get(key)!;
-  const sampler = device.createSampler({
-    magFilter: "linear",
-    minFilter: "linear",
-  });
-  const blurParamsBuffer = device.createBuffer({
-    size: 8,
-    usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.UNIFORM,
-  });
+export class BlurImageFilter implements ImageFilter {
+  private pipeline: GPUComputePipeline;
+  private constants: GPUBindGroup;
+  private blurParamsBuffer: GPUBuffer;
 
-  const computeConstants = device.createBindGroup({
-    layout: pipeline.getBindGroupLayout(0),
-    entries: [
-      {
-        binding: 0,
-        resource: sampler,
-      },
-      {
-        binding: 1,
-        resource: {
-          buffer: blurParamsBuffer,
+  constructor(private device: GPUDevice, private props: BlurProps) {
+    const resources = GPUResources.getInstance(device);
+    if (!resources.computePipelines.has(key)) {
+      const pipeline = device.createComputePipeline({
+        layout: "auto",
+        compute: {
+          module: device.createShaderModule({
+            code: BlurShader,
+          }),
         },
-      },
-    ],
-  });
-  const computeBindGroup0 = device.createBindGroup({
-    layout: pipeline.getBindGroupLayout(1),
-    entries: [
-      {
-        binding: 1,
-        resource: input.createView(),
-      },
-      {
-        binding: 2,
-        resource: textureA.createView(),
-      },
-    ],
-  });
+      });
+      resources.computePipelines.set(key, pipeline);
+    }
+    this.pipeline = resources.computePipelines.get(key)!;
+    const sampler = device.createSampler({
+      magFilter: "linear",
+      minFilter: "linear",
+    });
+    this.blurParamsBuffer = device.createBuffer({
+      size: 8,
+      usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.UNIFORM,
+    });
+    this.constants = device.createBindGroup({
+      layout: this.pipeline.getBindGroupLayout(0),
+      entries: [
+        {
+          binding: 0,
+          resource: sampler,
+        },
+        {
+          binding: 1,
+          resource: {
+            buffer: this.blurParamsBuffer,
+          },
+        },
+      ],
+    });
+  }
 
-  const computeBindGroup1 = device.createBindGroup({
-    layout: pipeline.getBindGroupLayout(1),
-    entries: [
-      {
-        binding: 1,
-        resource: textureA.createView(),
-      },
-      {
-        binding: 2,
-        resource: textureB.createView(),
-      },
-    ],
-  });
+  apply(
+    commandEncoder: GPUCommandEncoder,
+    input: GPUTexture,
+    textureA: GPUTexture,
+    textureB: GPUTexture
+  ) {
+    const { device, pipeline } = this;
+    const { size, iterations } = this.props;
+    const computeBindGroup0 = device.createBindGroup({
+      layout: pipeline.getBindGroupLayout(1),
+      entries: [
+        {
+          binding: 1,
+          resource: input.createView(),
+        },
+        {
+          binding: 2,
+          resource: textureA.createView(),
+        },
+      ],
+    });
 
-  const computeBindGroup2 = device.createBindGroup({
-    layout: pipeline.getBindGroupLayout(1),
-    entries: [
-      {
-        binding: 1,
-        resource: textureB.createView(),
-      },
-      {
-        binding: 2,
-        resource: textureA.createView(),
-      },
-    ],
-  });
-  const tileDim = 128;
-  const batch = [4, 4];
-  const blockDim = tileDim - (size - 1);
-  device.queue.writeBuffer(
-    blurParamsBuffer,
-    0,
-    new Uint32Array([size, blockDim])
-  );
-  return (commandEncoder: GPUCommandEncoder) => {
+    const computeBindGroup1 = device.createBindGroup({
+      layout: pipeline.getBindGroupLayout(1),
+      entries: [
+        {
+          binding: 1,
+          resource: textureA.createView(),
+        },
+        {
+          binding: 2,
+          resource: textureB.createView(),
+        },
+      ],
+    });
+
+    const computeBindGroup2 = device.createBindGroup({
+      layout: pipeline.getBindGroupLayout(1),
+      entries: [
+        {
+          binding: 1,
+          resource: textureB.createView(),
+        },
+        {
+          binding: 2,
+          resource: textureA.createView(),
+        },
+      ],
+    });
+    const tileDim = 128;
+    const batch = [4, 4];
+    const blockDim = tileDim - (size - 1);
+    device.queue.writeBuffer(
+      this.blurParamsBuffer,
+      0,
+      new Uint32Array([size, blockDim])
+    );
+
     const srcWidth = input.width;
     const srcHeight = input.height;
     const computePass = commandEncoder.beginComputePass();
     computePass.setPipeline(pipeline);
-    computePass.setBindGroup(0, computeConstants);
+    computePass.setBindGroup(0, this.constants);
 
     computePass.setBindGroup(1, computeBindGroup0);
     computePass.dispatchWorkgroups(
@@ -220,5 +230,6 @@ export const makeBlurImageFilter = (
     }
 
     computePass.end();
-  };
-};
+    return textureB;
+  }
+}

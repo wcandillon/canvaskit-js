@@ -36,9 +36,9 @@ export class Surface {
     groups.forEach((group) => {
       const imageFilter = group[0].paint.getImageFilter();
       if (imageFilter) {
-        const texture = this.makeTexture();
+        const input = this.makeTexture();
         const passEncoder = commandEncoder.beginRenderPass(
-          makeRenderPassDescriptor(texture)
+          makeRenderPassDescriptor(input)
         );
         group.forEach(({ pipeline, bindGroup, instance, vertexCount }) => {
           passEncoder.setPipeline(pipeline);
@@ -46,6 +46,9 @@ export class Surface {
           passEncoder.draw(vertexCount, 1, 0, instance);
         });
         passEncoder.end();
+        const textureA = this.makeStorageTexture();
+        const textureB = this.makeStorageTexture();
+        imageFilter.apply(commandEncoder, input, textureA, textureB);
       }
     });
     // 2. Draw all the commands
@@ -67,17 +70,17 @@ export class Surface {
     device.queue.submit([commandEncoder.finish()]);
   }
 
-  // private makeStorageTexture() {
-  //   return this.device.createTexture({
-  //     size: [this.width, this.height],
-  //     format: "rgba8unorm",
-  //     usage:
-  //       GPUTextureUsage.STORAGE_BINDING |
-  //       GPUTextureUsage.TEXTURE_BINDING |
-  //       GPUTextureUsage.COPY_DST |
-  //       GPUTextureUsage.COPY_SRC,
-  //   });
-  // }
+  private makeStorageTexture() {
+    return this.device.createTexture({
+      size: [this.width, this.height],
+      format: "rgba8unorm",
+      usage:
+        GPUTextureUsage.STORAGE_BINDING |
+        GPUTextureUsage.TEXTURE_BINDING |
+        GPUTextureUsage.COPY_DST |
+        GPUTextureUsage.COPY_SRC,
+    });
+  }
 
   private makeTexture() {
     const format = navigator.gpu.getPreferredCanvasFormat();

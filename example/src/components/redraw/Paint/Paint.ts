@@ -1,7 +1,7 @@
 import { ColorFactory, type Color } from "../Data";
+import type { ImageFilter } from "../imageFilters";
 
 import { BlendMode } from "./BlendMode";
-import type { ImageFilter } from "./ImageFilter";
 
 export class Paint {
   private color: Color | null = null;

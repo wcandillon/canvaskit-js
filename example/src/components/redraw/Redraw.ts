@@ -1,4 +1,6 @@
 import { ColorFactory } from "./Data";
+import type { BlurProps } from "./imageFilters";
+import { BlurImageFilter } from "./imageFilters";
 import { Surface } from "./Surface";
 
 class SurfaceFactory {
@@ -33,12 +35,22 @@ class SurfaceFactory {
   }
 }
 
+class ImageFilterFactory {
+  constructor(private device: GPUDevice) {}
+
+  makeBlur(props: BlurProps) {
+    return new BlurImageFilter(this.device, props);
+  }
+}
+
 export class Instance {
+  public ImageFilter: ImageFilterFactory;
   public Surface: SurfaceFactory;
   public Color = ColorFactory;
 
   constructor(device: GPUDevice) {
     this.Surface = new SurfaceFactory(device);
+    this.ImageFilter = new ImageFilterFactory(device);
   }
 
   static async get() {

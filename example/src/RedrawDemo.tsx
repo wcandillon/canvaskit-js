@@ -1,12 +1,7 @@
 import { useEffect, useRef } from "react";
 
 import type { Canvas, Surface } from "./components/redraw";
-import {
-  Instance,
-  Paint,
-  BlendMode,
-  makeImageFilter,
-} from "./components/redraw";
+import { Instance, Paint, BlendMode } from "./components/redraw";
 import type { AnimationValue, Info } from "./components";
 import { mix, polar2Canvas, useLoop, useOnFrame, vec } from "./components";
 
@@ -24,12 +19,6 @@ bg.setColor("#242b38");
 const c1 = new Paint();
 c1.setColor("#61bea2");
 c1.setBlendMode(BlendMode.Screen);
-// c1.setImageFilter(
-//   makeImageFilter({
-//     iterations: 4,
-//     size: 10,
-//   })
-// );
 
 const c2 = c1.copy();
 c2.setColor("#529ca0");
@@ -77,7 +66,12 @@ export const RedrawDemo = () => {
     (async () => {
       Redraw.current = await Instance.get();
       surface.current = Redraw.current.Surface.MakeFromCanvas(ref.current!);
-      progress.value = 0.5;
+      const imageFilter = Redraw.current.ImageFilter.makeBlur({
+        size: 10,
+        iterations: 4,
+      });
+      c1.setImageFilter(imageFilter);
+      c2.setImageFilter(imageFilter);
     })();
   });
   useOnFrame(() => {
