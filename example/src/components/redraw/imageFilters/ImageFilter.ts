@@ -4,5 +4,7 @@ export interface ImageFilter {
     input: GPUTexture,
     textureA: GPUTexture,
     textureB: GPUTexture
-  ): GPUTexture;
+  ): void;
+
+  getResult(): GPUTexture;
 }

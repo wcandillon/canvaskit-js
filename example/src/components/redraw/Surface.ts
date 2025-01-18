@@ -1,7 +1,9 @@
 import { Canvas } from "./Canvas";
+import { makeTexturePipeline } from "./drawings/Texture";
 
 export class Surface {
   private canvas: Canvas;
+  private sampler: GPUSampler;
 
   constructor(
     private device: GPUDevice,
@@ -12,6 +14,10 @@ export class Surface {
       this.getCurrentTexture().height
     );
     this.canvas = new Canvas(device, resolution);
+    this.sampler = device.createSampler({
+      magFilter: "linear",
+      minFilter: "linear",
+    });
   }
 
   get width() {
@@ -56,8 +62,27 @@ export class Surface {
       makeRenderPassDescriptor(this.getCurrentTexture())
     );
     groups.forEach((group) => {
-      const imageFilter = group[0].paint.getImageFilter();
+      const [{ paint }] = group;
+      const imageFilter = paint.getImageFilter();
       if (imageFilter) {
+        const result = imageFilter.getResult();
+        const pipeline = makeTexturePipeline(device, paint.getBlendMode());
+        const showResultBindGroup = device.createBindGroup({
+          layout: pipeline.getBindGroupLayout(0),
+          entries: [
+            {
+              binding: 0,
+              resource: this.sampler,
+            },
+            {
+              binding: 1,
+              resource: result.createView(),
+            },
+          ],
+        });
+        passEncoder.setPipeline(pipeline);
+        passEncoder.setBindGroup(0, showResultBindGroup);
+        passEncoder.draw(6);
       } else {
         group.forEach(({ pipeline, bindGroup, instance, vertexCount }) => {
           passEncoder.setPipeline(pipeline);

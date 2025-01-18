@@ -99,6 +99,7 @@ export class BlurImageFilter implements ImageFilter {
   private pipeline: GPUComputePipeline;
   private constants: GPUBindGroup;
   private blurParamsBuffer: GPUBuffer;
+  private result: GPUTexture | null = null;
 
   constructor(private device: GPUDevice, private props: BlurProps) {
     const resources = GPUResources.getInstance(device);
@@ -230,6 +231,10 @@ export class BlurImageFilter implements ImageFilter {
     }
 
     computePass.end();
-    return textureB;
+    this.result = textureB;
+  }
+
+  getResult() {
+    return this.result;
   }
 }
