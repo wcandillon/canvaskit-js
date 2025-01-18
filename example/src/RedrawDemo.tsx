@@ -24,12 +24,12 @@ bg.setColor("#242b38");
 const c1 = new Paint();
 c1.setColor("#61bea2");
 c1.setBlendMode(BlendMode.Screen);
-c1.setImageFilter(
-  makeImageFilter({
-    iterations: 4,
-    size: 10,
-  })
-);
+// c1.setImageFilter(
+//   makeImageFilter({
+//     iterations: 4,
+//     size: 10,
+//   })
+// );
 
 const c2 = c1.copy();
 c2.setColor("#529ca0");

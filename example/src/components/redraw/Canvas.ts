@@ -33,7 +33,7 @@ interface Context {
 
 export class Canvas {
   private pipelines: Map<GPURenderPipeline, Instances> = new Map();
-  private drawingCommands: DrawingCommand[] = [];
+  private groups: DrawingCommand[][] = [[]];
 
   private contextes: Context[] = [{ matrix: mat4.identity() }];
 
@@ -110,10 +110,19 @@ export class Canvas {
     }
     const allProps = this.pipelines.get(pipeline)!;
     allProps.props.push(props);
-    this.drawingCommands.push(command);
+    let currentGroup = this.groups[this.groups.length - 1];
+    if (currentGroup.length > 0) {
+      const imageFilter = command.paint.getImageFilter();
+      const groupImageFilter = currentGroup[0].paint.getImageFilter();
+      if (imageFilter !== groupImageFilter) {
+        this.groups.push([]);
+        currentGroup = this.groups[this.groups.length - 1];
+      }
+    }
+    currentGroup.push(command);
   }
 
-  popDrawingCommands(): InstanciatedDrawingCommand[] {
+  popDrawingCommands(): InstanciatedDrawingCommand[][] {
     this.pipelines.forEach((resources, pipeline) => {
       const { props, propsDefinition } = resources;
       const { size } =
@@ -140,9 +149,8 @@ export class Canvas {
         ],
       });
     });
-    const commands = this.drawingCommands
-      .splice(0, this.drawingCommands.length)
-      .map((command) => {
+    const commands = this.groups.map((group) =>
+      group.map((command) => {
         const pipeline = this.pipelines.get(command.pipeline)!;
         const result = {
           ...command,
@@ -151,8 +159,10 @@ export class Canvas {
         };
         pipeline.currentCount++;
         return result;
-      });
+      })
+    );
     this.pipelines.clear();
+    this.groups = [[]];
     return commands;
   }
 }

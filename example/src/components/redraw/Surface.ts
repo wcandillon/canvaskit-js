@@ -31,40 +31,38 @@ export class Surface {
     const commandEncoder = device.createCommandEncoder({
       label: "Redraw encoder",
     });
-    const commands = this.canvas.popDrawingCommands();
+    const groups = this.canvas.popDrawingCommands();
     // 1. All commands that have an image filter are drawn on an offscreen texture
-    commands.forEach(
-      ({ pipeline, bindGroup, instance, vertexCount, paint }) => {
-        const imageFilter = paint.getImageFilter();
-        if (imageFilter) {
-          const texture = this.makeTexture();
-          const passEncoder = commandEncoder.beginRenderPass(
-            makeRenderPassDescriptor(texture)
-          );
+    groups.forEach((group) => {
+      const imageFilter = group[0].paint.getImageFilter();
+      if (imageFilter) {
+        const texture = this.makeTexture();
+        const passEncoder = commandEncoder.beginRenderPass(
+          makeRenderPassDescriptor(texture)
+        );
+        group.forEach(({ pipeline, bindGroup, instance, vertexCount }) => {
           passEncoder.setPipeline(pipeline);
           passEncoder.setBindGroup(0, bindGroup);
           passEncoder.draw(vertexCount, 1, 0, instance);
-          passEncoder.end();
-          // 1.1 Apply the filter chain
-        }
+        });
+        passEncoder.end();
       }
-    );
+    });
     // 2. Draw all the commands
     const passEncoder = commandEncoder.beginRenderPass(
       makeRenderPassDescriptor(this.getCurrentTexture())
     );
-    commands.forEach(
-      ({ pipeline, bindGroup, instance, vertexCount, paint }) => {
-        // 2.1 if the command has an image filter, draw the offscreen texture instead
-        const imageFilter = paint.getImageFilter();
-        if (imageFilter) {
-        } else {
+    groups.forEach((group) => {
+      const imageFilter = group[0].paint.getImageFilter();
+      if (imageFilter) {
+      } else {
+        group.forEach(({ pipeline, bindGroup, instance, vertexCount }) => {
           passEncoder.setPipeline(pipeline);
           passEncoder.setBindGroup(0, bindGroup);
           passEncoder.draw(vertexCount, 1, 0, instance);
-        }
+        });
       }
-    );
+    });
     passEncoder.end();
     device.queue.submit([commandEncoder.finish()]);
   }
