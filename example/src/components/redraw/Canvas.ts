@@ -2,7 +2,6 @@ import { mat4 } from "wgpu-matrix";
 import {
   getSizeAndAlignmentOfUnsizedArrayElement,
   makeStructuredView,
-  type StructuredView,
   type VariableDefinition,
 } from "webgpu-utils";
 
