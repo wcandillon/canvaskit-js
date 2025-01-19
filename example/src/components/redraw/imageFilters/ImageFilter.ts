@@ -6,5 +6,5 @@ export interface ImageFilter {
     textureB: GPUTexture
   ): void;
 
-  getResult(): GPUTexture;
+  shiftResult(): GPUTexture;
 }

@@ -74,7 +74,7 @@ fn frag_main(@location(0) fragUV : vec2f) -> @location(0) vec4f {
 const key = "ColorMatrixImageFilter";
 
 export class ColorMatrixImageFilter implements ImageFilter {
-  private result: GPUTexture | null = null;
+  private results: GPUTexture[] = [];
   private pipeline: GPURenderPipeline;
   private uniforms: GPUBuffer;
 
@@ -154,10 +154,14 @@ export class ColorMatrixImageFilter implements ImageFilter {
     renderPass.setBindGroup(0, bindGroup);
     renderPass.draw(6);
     renderPass.end();
-    this.result = textureA;
+    this.results.push(textureA);
   }
 
-  getResult(): GPUTexture {
-    return this.result!;
+  shiftResult(): GPUTexture {
+    const result = this.results.shift();
+    if (!result) {
+      throw new Error("No image filter result available");
+    }
+    return result;
   }
 }
