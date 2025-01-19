@@ -4,6 +4,8 @@ import { makeTexturePipeline } from "./drawings/Texture";
 export class Surface {
   private canvas: Canvas;
   private sampler: GPUSampler;
+  private textureCount = 0;
+  private texturePool: GPUTexture[] = [];
 
   constructor(
     private device: GPUDevice,
@@ -96,16 +98,23 @@ export class Surface {
   }
 
   private makeTexture() {
-    const format = navigator.gpu.getPreferredCanvasFormat();
-    return this.device.createTexture({
-      size: [this.width, this.height],
-      format,
-      usage:
-        GPUTextureUsage.RENDER_ATTACHMENT |
-        GPUTextureUsage.TEXTURE_BINDING |
-        GPUTextureUsage.COPY_DST |
-        GPUTextureUsage.COPY_SRC,
-    });
+    if (this.texturePool[this.textureCount]) {
+      return this.texturePool[this.textureCount++];
+    } else {
+      const format = navigator.gpu.getPreferredCanvasFormat();
+      const texture = this.device.createTexture({
+        size: [this.width, this.height],
+        format,
+        usage:
+          GPUTextureUsage.RENDER_ATTACHMENT |
+          GPUTextureUsage.TEXTURE_BINDING |
+          GPUTextureUsage.COPY_DST |
+          GPUTextureUsage.COPY_SRC,
+      });
+      this.texturePool.push(texture);
+      this.textureCount++;
+      return texture;
+    }
   }
 }
 
