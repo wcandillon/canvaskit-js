@@ -52,8 +52,8 @@ export class Surface {
           passEncoder.draw(vertexCount, 1, 0, instance);
         });
         passEncoder.end();
-        const textureA = this.makeStorageTexture();
-        const textureB = this.makeStorageTexture();
+        const textureA = this.makeTexture();
+        const textureB = this.makeTexture();
         imageFilter.apply(commandEncoder, input, textureA, textureB);
       }
     });
@@ -93,18 +93,6 @@ export class Surface {
     });
     passEncoder.end();
     device.queue.submit([commandEncoder.finish()]);
-  }
-
-  private makeStorageTexture() {
-    return this.device.createTexture({
-      size: [this.width, this.height],
-      format: "rgba8unorm",
-      usage:
-        GPUTextureUsage.STORAGE_BINDING |
-        GPUTextureUsage.TEXTURE_BINDING |
-        GPUTextureUsage.COPY_DST |
-        GPUTextureUsage.COPY_SRC,
-    });
   }
 
   private makeTexture() {

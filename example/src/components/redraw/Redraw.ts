@@ -1,6 +1,8 @@
 import { ColorFactory } from "./Data";
 import type { BlurProps } from "./imageFilters";
 import { BlurImageFilter } from "./imageFilters";
+import type { ColorMatrixImageFilterProps } from "./imageFilters/ColorMatrix";
+import { ColorMatrixImageFilter } from "./imageFilters/ColorMatrix";
 import { Surface } from "./Surface";
 
 class SurfaceFactory {
@@ -38,8 +40,12 @@ class SurfaceFactory {
 class ImageFilterFactory {
   constructor(private device: GPUDevice) {}
 
-  makeBlur(props: BlurProps) {
+  MakeBlur(props: BlurProps) {
     return new BlurImageFilter(this.device, props);
+  }
+
+  MakeColorMatrix(props: ColorMatrixImageFilterProps) {
+    return new ColorMatrixImageFilter(this.device, props);
   }
 }
 

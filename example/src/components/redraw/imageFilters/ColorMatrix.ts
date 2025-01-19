@@ -10,28 +10,27 @@ export interface ColorMatrixImageFilterProps {
 
 export const ColorMatrixShader = /* wgsl */ `
 
-type ColorMatrix = array<vec4<f32>, 5>;
-
 struct Props {
-  matrix: ColorMatrix,
+  matrix: array<vec4<f32>, 5>,
 };
 
-fn applyColorTransform(color: vec4<f32>, colorMatrix: ColorMatrix) -> vec4<f32> {
+fn applyColorTransform(color: vec4<f32>, colorMatrix: array<vec4<f32>, 5>) -> vec4<f32> {
     return vec4<f32>(
-        dot(colorMatrix[0], color),
-        dot(colorMatrix[1], color),
-        dot(colorMatrix[2], color),
-        dot(colorMatrix[3], color)
+        dot(colorMatrix[0], color) + colorMatrix[4].x,
+        dot(colorMatrix[1], color) + colorMatrix[4].y,
+        dot(colorMatrix[2], color) + colorMatrix[4].z,
+        dot(colorMatrix[3], color) + colorMatrix[4].w
     );
 }
   
 @group(0) @binding(0) var<uniform> props: Props;
-@group(0) @binding(1) var input : texture_2d<f32>;
-@group(0) @binding(2) var sampler : sampler;
+@group(0) @binding(1) var input: texture_2d<f32>;
+@group(0) @binding(2) var texSampler: sampler;
 
 struct VertexOutput {
   @builtin(position) position : vec4f,
-  @location(0) color : vec4f,
+  @location(0) fragUV : vec2f,
+  @location(1) color : vec4f,
 }
 
 @vertex
@@ -62,14 +61,14 @@ fn vert_main(@builtin(vertex_index) VertexIndex : u32) -> VertexOutput {
 
 @fragment
 fn frag_main(@location(0) fragUV : vec2f) -> @location(0) vec4f {
-  let color = textureSample(input, sampler, fragUV);
+  let color = textureSample(input, texSampler, fragUV);
   return applyColorTransform(color, props.matrix);
 }
 `;
 
 const key = "ColorMatrixImageFilter";
 const defs = makeShaderDataDefinitions(ColorMatrixShader);
-export const propsView = makeStructuredView(defs.uniforms.props);
+const propsView = makeStructuredView(defs.uniforms.props);
 
 export class ColorMatrixImageFilter implements ImageFilter {
   private result: GPUTexture | null = null;
@@ -113,10 +112,11 @@ export class ColorMatrixImageFilter implements ImageFilter {
     _textureB: GPUTexture
   ): void {
     const { device } = this;
-    const matrixBuffer = device.createBuffer({
+    const uniforms = device.createBuffer({
       size: propsView.arrayBuffer.byteLength,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
+    device.queue.writeBuffer(uniforms, 0, propsView.arrayBuffer);
     const sampler = device.createSampler({
       magFilter: "linear",
       minFilter: "linear",
@@ -127,7 +127,7 @@ export class ColorMatrixImageFilter implements ImageFilter {
         {
           binding: 0,
           resource: {
-            buffer: matrixBuffer,
+            buffer: uniforms,
           },
         },
         {
