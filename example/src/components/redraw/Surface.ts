@@ -84,7 +84,7 @@ export class Surface {
         });
         passEncoder.setPipeline(pipeline);
         passEncoder.setBindGroup(0, showResultBindGroup);
-        passEncoder.draw(6);
+        passEncoder.draw(3);
       } else {
         group.forEach(({ pipeline, bindGroup, instance, vertexCount }) => {
           passEncoder.setPipeline(pipeline);
