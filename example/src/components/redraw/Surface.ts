@@ -95,6 +95,7 @@ export class Surface {
     });
     passEncoder.end();
     device.queue.submit([commandEncoder.finish()]);
+    this.textureCount = 0;
   }
 
   private makeTexture() {
