@@ -56,6 +56,7 @@ export class Surface {
         passEncoder.end();
         const textureA = this.makeTexture();
         const textureB = this.makeTexture();
+        console.log("Applying image filter");
         imageFilter.apply(commandEncoder, input, textureA, textureB);
       }
     });
