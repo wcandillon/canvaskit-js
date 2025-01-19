@@ -23,14 +23,10 @@ fn vs(
   @builtin(instance_index) instanceIdx : u32,
   @builtin(vertex_index) VertexIndex : u32
 ) -> VertexOutput {
-  var pos = array<vec2f, 6>(
-    vec2(-1.0, 1.0),   // Top-left
-    vec2(1.0, 1.0),    // Top-right
-    vec2(-1.0, -1.0),  // Bottom-left
-    
-    vec2(-1.0, -1.0),  // Bottom-left
-    vec2(1.0, 1.0),    // Top-right
-    vec2(1.0, -1.0)    // Bottom-right
+  var pos = array<vec2f, 3>(
+    vec2f(-1.0,  3.0),
+    vec2f(3.0, -1.0),
+    vec2f(-1.0, -1.0),
   );
   var output: VertexOutput;
   output.position = vec4f(pos[VertexIndex], 0.0, 1.0);
@@ -58,5 +54,5 @@ const defs = makeShaderDataDefinitions(FillShader);
 export const FillPropsDefinition = defs.storages.instancesProps;
 
 export const makeFill = (device: GPUDevice, paint: Paint) => {
-  return makeDrawable(device, "fill", FillShader, paint, 6);
+  return makeDrawable(device, "fill", FillShader, paint, 3);
 };
