@@ -1,5 +1,3 @@
-import { makeShaderDataDefinitions, makeStructuredView } from "webgpu-utils";
-
 import { GPUResources } from "../drawings/Drawable";
 
 import type { ImageFilter } from "./ImageFilter";
@@ -74,18 +72,13 @@ fn frag_main(@location(0) fragUV : vec2f) -> @location(0) vec4f {
 `;
 
 const key = "ColorMatrixImageFilter";
-const defs = makeShaderDataDefinitions(ColorMatrixShader);
-const propsView = makeStructuredView(defs.uniforms.props);
 
 export class ColorMatrixImageFilter implements ImageFilter {
   private result: GPUTexture | null = null;
   private pipeline: GPURenderPipeline;
   private uniforms: GPUBuffer;
 
-  constructor(
-    private device: GPUDevice,
-    private props: ColorMatrixImageFilterProps
-  ) {
+  constructor(private device: GPUDevice, props: ColorMatrixImageFilterProps) {
     const resources = GPUResources.getInstance(device);
     if (!resources.pipelines.has(key)) {
       const pipeline = device.createRenderPipeline({
@@ -109,35 +102,12 @@ export class ColorMatrixImageFilter implements ImageFilter {
       resources.pipelines.set(key, pipeline);
     }
     this.pipeline = resources.pipelines.get(key)!;
-    propsView.set({
-      matrix: {
-        r1: props.matrix[0],
-        r2: props.matrix[1],
-        r3: props.matrix[2],
-        r4: props.matrix[3],
-        r5: props.matrix[4],
-        g1: props.matrix[5],
-        g2: props.matrix[6],
-        g3: props.matrix[7],
-        g4: props.matrix[8],
-        g5: props.matrix[9],
-        b1: props.matrix[10],
-        b2: props.matrix[11],
-        b3: props.matrix[12],
-        b4: props.matrix[13],
-        b5: props.matrix[14],
-        a1: props.matrix[15],
-        a2: props.matrix[16],
-        a3: props.matrix[17],
-        a4: props.matrix[18],
-        a5: props.matrix[19],
-      },
-    });
+    const matrix = new Float32Array(props.matrix);
     this.uniforms = device.createBuffer({
-      size: propsView.arrayBuffer.byteLength,
+      size: matrix.byteLength,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
-    device.queue.writeBuffer(this.uniforms, 0, propsView.arrayBuffer);
+    device.queue.writeBuffer(this.uniforms, 0, matrix);
   }
 
   apply(
