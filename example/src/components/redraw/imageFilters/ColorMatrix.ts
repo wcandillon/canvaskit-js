@@ -10,16 +10,23 @@ export interface ColorMatrixImageFilterProps {
 
 export const ColorMatrixShader = /* wgsl */ `
 
-struct Props {
-  matrix: array<vec4<f32>, 5>,
+struct ColorMatrix {
+    r1: f32, r2: f32, r3: f32, r4: f32, r5: f32,
+    g1: f32, g2: f32, g3: f32, g4: f32, g5: f32,
+    b1: f32, b2: f32, b3: f32, b4: f32, b5: f32,
+    a1: f32, a2: f32, a3: f32, a4: f32, a5: f32,
 };
 
-fn applyColorTransform(color: vec4<f32>, colorMatrix: array<vec4<f32>, 5>) -> vec4<f32> {
-    return vec4<f32>(
-        dot(colorMatrix[0], color) + colorMatrix[4].x,
-        dot(colorMatrix[1], color) + colorMatrix[4].y,
-        dot(colorMatrix[2], color) + colorMatrix[4].z,
-        dot(colorMatrix[3], color) + colorMatrix[4].w
+struct Props {
+  matrix: ColorMatrix,
+};
+
+fn applyColorTransform(c: vec4f, cm: ColorMatrix) -> vec4f {
+    return vec4f(
+        cm.r1*c.r + cm.r2*c.g + cm.r3*c.b + cm.r4*c.a + cm.r5,
+        cm.g1*c.r + cm.g2*c.g + cm.g3*c.b + cm.g4*c.a + cm.g5,
+        cm.b1*c.r + cm.b2*c.g + cm.b3*c.b + cm.b4*c.a + cm.b5,
+        cm.a1*c.r + cm.a2*c.g + cm.a3*c.b + cm.a4*c.a + cm.a5
     );
 }
   
@@ -73,6 +80,7 @@ const propsView = makeStructuredView(defs.uniforms.props);
 export class ColorMatrixImageFilter implements ImageFilter {
   private result: GPUTexture | null = null;
   private pipeline: GPURenderPipeline;
+  private uniforms: GPUBuffer;
 
   constructor(
     private device: GPUDevice,
@@ -101,8 +109,11 @@ export class ColorMatrixImageFilter implements ImageFilter {
       resources.pipelines.set(key, pipeline);
     }
     this.pipeline = resources.pipelines.get(key)!;
-    propsView.set(this.props);
-    // create the correct sized buffer
+    this.uniforms = device.createBuffer({
+      size: propsView.arrayBuffer.byteLength,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    });
+    device.queue.writeBuffer(this.uniforms, 0, propsView.arrayBuffer);
   }
 
   apply(
@@ -112,11 +123,6 @@ export class ColorMatrixImageFilter implements ImageFilter {
     _textureB: GPUTexture
   ): void {
     const { device } = this;
-    const uniforms = device.createBuffer({
-      size: propsView.arrayBuffer.byteLength,
-      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-    });
-    device.queue.writeBuffer(uniforms, 0, propsView.arrayBuffer);
     const sampler = device.createSampler({
       magFilter: "linear",
       minFilter: "linear",
@@ -127,7 +133,7 @@ export class ColorMatrixImageFilter implements ImageFilter {
         {
           binding: 0,
           resource: {
-            buffer: uniforms,
+            buffer: this.uniforms,
           },
         },
         {

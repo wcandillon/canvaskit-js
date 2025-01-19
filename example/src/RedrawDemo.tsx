@@ -82,10 +82,7 @@ export const RedrawDemo = () => {
       const c2 = c1.copy();
       c2.setColor("#529ca0");
       const imageFilter = Redraw.current.ImageFilter.MakeColorMatrix({
-        matrix: [
-          1.438, -0.062, -0.062, 0, 0, -0.122, 1.378, -0.122, 0, 0, -0.016,
-          -0.016, 1.483, 0, 0, 0, 0, 0, 1, 0,
-        ],
+        matrix: [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0],
       });
       c1.setImageFilter(imageFilter);
       c2.setImageFilter(imageFilter);
