@@ -11,6 +11,7 @@ import { CanvasKitProvider } from "./components/CanvasKitContext";
 import { Shader1 } from "./Shader1";
 import { Shader2 } from "./Shader2";
 import { Hello } from "./Hello";
+import { RedrawDemo as RedrawDemoOld } from "./RedrawDemoOld";
 import { RedrawDemo } from "./RedrawDemo";
 
 const strictMode = false;
@@ -23,6 +24,10 @@ const router = createBrowserRouter([
   {
     path: "/redraw",
     element: <RedrawDemo />,
+  },
+  {
+    path: "/redraw-old",
+    element: <RedrawDemoOld />,
   },
   {
     path: "/breathe",

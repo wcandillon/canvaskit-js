@@ -7,6 +7,9 @@ export const Menu = () => {
         <Link to="redraw">Redraw</Link>
       </li>
       <li>
+        <Link to="redraw-old">RedrawOld</Link>
+      </li>
+      <li>
         <Link to="breathe">Breathe</Link>
       </li>
       <li>
