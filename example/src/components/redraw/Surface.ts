@@ -11,7 +11,6 @@ export class Surface {
   private texturePool: GPUTexture[] = [];
   private shaders: Map<Shader, GPUTexture> = new Map();
   // Bind group for texture sampling when not needed
-  private dummyBindGroup: GPUBindGroup;
   private dummyTexture: GPUTexture;
 
   constructor(
@@ -27,37 +26,10 @@ export class Surface {
       magFilter: "linear",
       minFilter: "linear",
     });
-    const layout = device.createBindGroupLayout({
-      entries: [
-        {
-          binding: 0,
-          visibility: GPUShaderStage.FRAGMENT,
-          sampler: { type: "filtering" },
-        },
-        {
-          binding: 1,
-          visibility: GPUShaderStage.FRAGMENT,
-          texture: { sampleType: "float" },
-        },
-      ] as const,
-    });
     this.dummyTexture = device.createTexture({
       size: { width: 1, height: 1 },
       format: "rgba8unorm",
       usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
-    });
-    this.dummyBindGroup = device.createBindGroup({
-      layout,
-      entries: [
-        {
-          binding: 0,
-          resource: this.sampler,
-        },
-        {
-          binding: 1,
-          resource: this.dummyTexture.createView(),
-        },
-      ],
     });
   }
 
