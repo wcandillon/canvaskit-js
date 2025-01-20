@@ -14,5 +14,26 @@ export class Surface {
     this.recorder = new Recorder(device, resolution);
   }
 
-  flush() {}
+  getRecorder() {
+    return this.recorder;
+  }
+
+  flush() {
+    const commandEncoder = this.device.createCommandEncoder({
+      label: "Surface encoder",
+    });
+    const view = this.getCurrentTexture().createView();
+    const passEncoder = commandEncoder.beginRenderPass({
+      colorAttachments: [
+        {
+          view,
+          clearValue: [0, 0, 0, 0], // Clear to transparent
+          loadOp: "clear",
+          storeOp: "store",
+        } as const,
+      ],
+    });
+    passEncoder.end();
+    this.device.queue.submit([commandEncoder.finish()]);
+  }
 }

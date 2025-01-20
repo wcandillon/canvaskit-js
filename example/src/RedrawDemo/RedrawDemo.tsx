@@ -25,6 +25,7 @@ export const RedrawDemo = () => {
   useOnFrame(() => {
     if (surface.current && Redraw.current) {
       const recorder = surface.current.getRecorder();
+      surface.current.flush();
     }
   }, [progress]);
   return (
