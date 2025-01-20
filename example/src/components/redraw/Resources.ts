@@ -1,6 +1,5 @@
 export class Resources {
-  private vertex: Map<string, GPUShaderModule> = new Map();
-  private fragment: Map<string, GPUShaderModule> = new Map();
+  private modules: Map<string, GPUShaderModule> = new Map();
   private pipelines: Map<string, GPURenderPipeline> = new Map();
   //private computePipelines: Map<string, GPUComputePipeline> = new Map();
 
@@ -8,18 +7,11 @@ export class Resources {
 
   private constructor(private device: GPUDevice) {}
 
-  createVertexModule(id: string, code: string) {
-    if (!this.vertex.has(id)) {
-      this.vertex.set(id, this.device.createShaderModule({ code }));
+  createModule(id: string, code: string) {
+    if (!this.modules.has(id)) {
+      this.modules.set(id, this.device.createShaderModule({ code }));
     }
-    return this.vertex.get(id)!;
-  }
-
-  createFragmentModule(id: string, code: string) {
-    if (!this.fragment.has(id)) {
-      this.fragment.set(id, this.device.createShaderModule({ code }));
-    }
-    return this.fragment.get(id)!;
+    return this.modules.get(id)!;
   }
 
   createPipeline(
