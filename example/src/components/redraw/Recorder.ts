@@ -21,7 +21,7 @@ export class Recorder {
   }
 
   draw(
-    pipeline: GPURenderPipeline,
+    vertex: GPURenderPipeline,
     paint: PaintProps,
     matrix: Matrix,
     uniforms: Record<string, unknown>,
