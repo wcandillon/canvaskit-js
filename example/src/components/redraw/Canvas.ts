@@ -15,7 +15,7 @@ import {
 } from "./drawings";
 import type { DrawingCommand } from "./drawings/Drawable";
 
-interface InstanciatedDrawingCommand extends DrawingCommand {
+export interface InstanciatedDrawingCommand extends DrawingCommand {
   instance: number;
   bindGroup: GPUBindGroup;
 }
@@ -74,6 +74,7 @@ export class Canvas {
     const { device } = this;
     const props = {
       color: paint.getColor()!,
+      useColor: !paint.getShader() ? 1 : 0,
     };
     this.addDrawingCommand(makeFill(device, paint), FillPropsDefinition, props);
   }
@@ -86,6 +87,7 @@ export class Canvas {
       radius,
       matrix: this.ctx.matrix,
       color: paint.getColor()!,
+      useColor: !paint.getShader() ? 1 : 0,
     };
     this.addDrawingCommand(
       makeCircle(device, paint),

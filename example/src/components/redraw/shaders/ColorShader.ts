@@ -52,7 +52,6 @@ const key = "ColorShader";
 
 export class ColorShader implements Shader {
   public pipeline: GPURenderPipeline;
-  private result: GPUTexture | null = null;
   private uniforms: GPUBuffer | null = null;
 
   constructor(private device: GPUDevice, color: Color) {
@@ -124,13 +123,5 @@ export class ColorShader implements Shader {
     renderPass.setBindGroup(0, bindGroup);
     renderPass.draw(3);
     renderPass.end();
-    this.result = input;
-  }
-
-  getResult(): GPUTexture {
-    if (!this.result) {
-      throw new Error("No image filter result available");
-    }
-    return this.result;
   }
 }

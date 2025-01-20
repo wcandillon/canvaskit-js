@@ -26,7 +26,7 @@ export const makeDrawable = (
     const format = navigator.gpu.getPreferredCanvasFormat();
     const pipeline = device.createRenderPipeline({
       layout: "auto",
-      label: "Fill",
+      label: key,
       vertex: {
         module: mod,
       },

@@ -1,11 +1,18 @@
+import type { InstanciatedDrawingCommand } from "./Canvas";
 import { Canvas } from "./Canvas";
 import { makeTexturePipeline } from "./drawings/Texture";
+import type { Shader } from "./shaders";
 
 export class Surface {
   private canvas: Canvas;
   private sampler: GPUSampler;
+
   private textureCount = 0;
   private texturePool: GPUTexture[] = [];
+  private shaders: Map<Shader, GPUTexture> = new Map();
+  // Bind group for texture sampling when not needed
+  private dummyBindGroup: GPUBindGroup;
+  private dummyTexture: GPUTexture;
 
   constructor(
     private device: GPUDevice,
@@ -19,6 +26,38 @@ export class Surface {
     this.sampler = device.createSampler({
       magFilter: "linear",
       minFilter: "linear",
+    });
+    const layout = device.createBindGroupLayout({
+      entries: [
+        {
+          binding: 0,
+          visibility: GPUShaderStage.FRAGMENT,
+          sampler: { type: "filtering" },
+        },
+        {
+          binding: 1,
+          visibility: GPUShaderStage.FRAGMENT,
+          texture: { sampleType: "float" },
+        },
+      ] as const,
+    });
+    this.dummyTexture = device.createTexture({
+      size: { width: 1, height: 1 },
+      format: "rgba8unorm",
+      usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
+    });
+    this.dummyBindGroup = device.createBindGroup({
+      layout,
+      entries: [
+        {
+          binding: 0,
+          resource: this.sampler,
+        },
+        {
+          binding: 1,
+          resource: this.dummyTexture.createView(),
+        },
+      ],
     });
   }
 
@@ -40,24 +79,30 @@ export class Surface {
       label: "Redraw encoder",
     });
     const groups = this.canvas.popDrawingCommands();
+    // 0. All shaders are drawn on an offscreen texture
     // 1. All commands that have an image filter are drawn on an offscreen texture
     groups.forEach((group) => {
-      const imageFilter = group[0].paint.getImageFilter();
+      const [{ paint }] = group;
+      const imageFilter = paint.getImageFilter();
       if (imageFilter) {
         const input = this.makeTexture();
         const passEncoder = commandEncoder.beginRenderPass(
           makeRenderPassDescriptor(input)
         );
-        group.forEach(({ pipeline, bindGroup, instance, vertexCount }) => {
-          passEncoder.setPipeline(pipeline);
-          passEncoder.setBindGroup(0, bindGroup);
-          passEncoder.draw(vertexCount, 1, 0, instance);
-        });
+        this.drawGroup(passEncoder, group);
         passEncoder.end();
         const textureA = this.makeTexture();
         const textureB = this.makeTexture();
         imageFilter.apply(commandEncoder, input, textureA, textureB);
       }
+      group.forEach((command) => {
+        const shader = command.paint.getShader();
+        if (shader) {
+          const input = this.makeTexture();
+          shader.apply(commandEncoder, input);
+          this.shaders.set(shader, input);
+        }
+      });
     });
     // 2. Draw all the commands
     const passEncoder = commandEncoder.beginRenderPass(
@@ -86,16 +131,65 @@ export class Surface {
         passEncoder.setBindGroup(0, showResultBindGroup);
         passEncoder.draw(3);
       } else {
-        group.forEach(({ pipeline, bindGroup, instance, vertexCount }) => {
-          passEncoder.setPipeline(pipeline);
-          passEncoder.setBindGroup(0, bindGroup);
-          passEncoder.draw(vertexCount, 1, 0, instance);
-        });
+        this.drawGroup(passEncoder, group);
       }
     });
     passEncoder.end();
     device.queue.submit([commandEncoder.finish()]);
     this.textureCount = 0;
+    this.shaders.clear();
+  }
+
+  private drawGroup(
+    passEncoder: GPURenderPassEncoder,
+    group: InstanciatedDrawingCommand[]
+  ) {
+    group.forEach(({ pipeline, bindGroup, instance, vertexCount, paint }) => {
+      passEncoder.setPipeline(pipeline);
+      passEncoder.setBindGroup(0, bindGroup);
+      const shader = paint.getShader();
+      if (shader) {
+        const texture = this.shaders.get(shader);
+        if (!texture) {
+          throw new Error("Shader texture not found");
+        }
+        const view = texture.createView();
+        const layout = pipeline.getBindGroupLayout(1);
+        const shaderBindGroup = this.device.createBindGroup({
+          label: "shaderBindGroup for " + pipeline.label,
+          layout,
+          entries: [
+            {
+              binding: 0,
+              resource: this.sampler,
+            },
+            {
+              binding: 1,
+              resource: view,
+            },
+          ],
+        });
+        passEncoder.setBindGroup(1, shaderBindGroup);
+      } else {
+        const layout = pipeline.getBindGroupLayout(1);
+        const view = this.dummyTexture.createView();
+        const dummyBindGroup = this.device.createBindGroup({
+          layout,
+          entries: [
+            {
+              binding: 0,
+              resource: this.sampler,
+            },
+            {
+              binding: 1,
+              resource: view,
+            },
+          ],
+        });
+        passEncoder.setBindGroup(1, dummyBindGroup);
+      }
+      passEncoder.draw(vertexCount, 1, 0, instance);
+    });
   }
 
   private makeTexture() {
