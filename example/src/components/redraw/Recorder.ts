@@ -1,6 +1,7 @@
 import type { BlendMode } from "../redraw-old";
 import type { Matrix } from "../redraw-old/Data";
 
+import { GPUBlendModes } from "./Paint";
 import { Resources } from "./Resources";
 
 interface PaintProps {
@@ -23,15 +24,26 @@ export class Recorder {
   }
 
   draw(
-    vet: GPUShaderModule,
-    frag: GPUShaderModule,
+    id: string,
+    vert: string,
+    frag: string,
     blendMode: BlendMode,
     paint: PaintProps,
     matrix: Matrix,
     uniforms: Record<string, unknown>,
     children: Child[],
     vertexCount: number
-  ) {}
+  ) {
+    const vertexModule = this.resources.createVertexModule(id, vert);
+    const fragmentModule = this.resources.createFragmentModule(id, frag);
+    const pipelineKey = `${id}-${blendMode}`;
+    const pipeline = this.resources.createPipeline(
+      pipelineKey,
+      vertexModule,
+      fragmentModule,
+      GPUBlendModes[blendMode]
+    );
+  }
 
   flush(view: GPUTextureView) {}
 }
