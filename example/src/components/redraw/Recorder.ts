@@ -1,5 +1,7 @@
-import type { Matrix } from "./Data";
-import { GPUResources } from "./GPUResources";
+import type { BlendMode } from "../redraw-old";
+import type { Matrix } from "../redraw-old/Data";
+
+import { Resources } from "./Resources";
 
 interface PaintProps {
   useColor: number;
@@ -14,14 +16,16 @@ interface Child {
 }
 
 export class Recorder {
-  private resources: GPUResources;
+  private resources: Resources;
 
   constructor(private device: GPUDevice, private resolution: Float32Array) {
-    this.resources = GPUResources.getInstance(this.device);
+    this.resources = Resources.getInstance(this.device);
   }
 
   draw(
-    vertex: GPURenderPipeline,
+    vet: GPUShaderModule,
+    frag: GPUShaderModule,
+    blendMode: BlendMode,
     paint: PaintProps,
     matrix: Matrix,
     uniforms: Record<string, unknown>,
