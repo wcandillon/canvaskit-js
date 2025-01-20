@@ -1,3 +1,10 @@
+import {
+  getSizeAndAlignmentOfUnsizedArrayElement,
+  makeShaderDataDefinitions,
+  makeStructuredView,
+} from "webgpu-utils";
+import type { VariableDefinition } from "webgpu-utils";
+
 import type { BlendMode } from "../redraw-old";
 import type { Matrix } from "../redraw-old/Data";
 
@@ -6,9 +13,9 @@ import { Resources } from "./Resources";
 
 interface PaintProps {
   useColor: number;
-  useStroke: number;
-  strokeWidth: number;
+  style: number;
   color: Float32Array;
+  strokeWidth: number;
 }
 
 interface Child {
@@ -20,28 +27,22 @@ interface Command {
   pipeline: GPURenderPipeline;
   bindGroups: GPUBindGroup[];
   vertexCount: number;
-  instanceCount: number;
+  instanceIndex: number;
+}
+
+interface Instance {
+  props: Record<string, unknown>[];
+  propsView: VariableDefinition;
+  bindGroup: GPUBindGroup | null;
 }
 
 export class Recorder {
   private resources: Resources;
-  private instances: Map<GPURenderPipeline, Record<string, unknown>[]> =
-    new Map();
+  private instances: Map<GPURenderPipeline, Instance> = new Map();
   private commands: Command[] = [];
-  private dummyChild: Child;
 
   constructor(private device: GPUDevice, private resolution: Float32Array) {
     this.resources = Resources.getInstance(this.device);
-    this.dummyChild = {
-      sampler: this.device.createSampler({}),
-      textureView: this.device
-        .createTexture({
-          size: { width: 1, height: 1 },
-          format: "rgba8unorm",
-          usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
-        })
-        .createView(),
-    };
   }
 
   draw(
@@ -55,6 +56,8 @@ export class Recorder {
     vertexCount: number
   ) {
     const mod = this.resources.createModule(id, shader);
+    const defs = makeShaderDataDefinitions(shader);
+    const propsView = defs.storages.instancesProps;
     const pipelineKey = `${id}-${blendMode}`;
     const pipeline = this.resources.createPipeline(
       pipelineKey,
@@ -62,19 +65,27 @@ export class Recorder {
       mod,
       GPUBlendModes[blendMode]
     );
-    if (!paint.useColor) {
-      children.unshift(this.dummyChild);
+    if (paint.useColor) {
+      children.unshift(this.resources.getDummyTexture());
     }
     if (!this.instances.has(pipeline)) {
-      this.instances.set(pipeline, [
-        { paint, matrix, resolution: this.resolution, ...props },
-      ]);
+      this.instances.set(pipeline, {
+        props: [],
+        propsView,
+        bindGroup: null,
+      });
     }
     const instances = this.instances.get(pipeline)!;
+    instances.props.push({
+      ...paint,
+      matrix,
+      resolution: this.resolution,
+      ...props,
+    });
     this.commands.push({
       pipeline,
       vertexCount,
-      instanceCount: instances.length,
+      instanceIndex: instances.props.length - 1,
       bindGroups: children.map((child, index) => {
         return this.device.createBindGroup({
           layout: pipeline.getBindGroupLayout(index + 1),
@@ -94,6 +105,31 @@ export class Recorder {
   }
 
   flush(texture: GPUTexture) {
+    this.instances.forEach((instances, pipeline) => {
+      const { props, propsView } = instances;
+      const { size } = getSizeAndAlignmentOfUnsizedArrayElement(propsView);
+      const storage = makeStructuredView(
+        propsView,
+        new ArrayBuffer(props.length * size)
+      );
+      const storageBuffer = this.device.createBuffer({
+        size: storage.arrayBuffer.byteLength,
+        usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+      });
+      storage.set(props);
+      this.device.queue.writeBuffer(storageBuffer, 0, storage.arrayBuffer);
+      instances.bindGroup = this.device.createBindGroup({
+        layout: pipeline.getBindGroupLayout(0),
+        entries: [
+          {
+            binding: 0,
+            resource: {
+              buffer: storageBuffer,
+            },
+          },
+        ],
+      });
+    });
     const commandEncoder = this.device.createCommandEncoder({
       label: "Surface encoder",
     });
@@ -109,15 +145,20 @@ export class Recorder {
       ],
     });
     this.commands.forEach(
-      ({ pipeline, vertexCount, instanceCount, bindGroups }) => {
+      ({ pipeline, vertexCount, instanceIndex, bindGroups }) => {
         passEncoder.setPipeline(pipeline);
+        const instance = this.instances.get(pipeline)!;
+        passEncoder.setBindGroup(0, instance.bindGroup!);
         bindGroups.forEach((bindGroup, index) => {
-          passEncoder.setBindGroup(index, bindGroup);
+          passEncoder.setBindGroup(index + 1, bindGroup);
         });
-        passEncoder.draw(vertexCount, 1, 0, instanceCount);
+        passEncoder.draw(vertexCount, 1, 0, instanceIndex);
       }
     );
     passEncoder.end();
     this.device.queue.submit([commandEncoder.finish()]);
+    console.log("submitted");
+    this.instances.clear();
+    this.commands = [];
   }
 }

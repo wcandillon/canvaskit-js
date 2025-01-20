@@ -21,6 +21,9 @@ struct Props {
 
 @group(0) @binding(0) var<storage> instancesProps: array<Props>;
 
+@group(1) @binding(0) var mySampler : sampler;
+@group(1) @binding(1) var myTexture : texture_2d<f32>;
+
 @vertex
 fn vs(
   @builtin(instance_index) instanceIdx : u32,
@@ -71,9 +74,6 @@ fn vs(
   output.useColor = props.useColor;
   return output;
 }
-
-@group(1) @binding(0) var mySampler : sampler;
-@group(1) @binding(1) var myTexture : texture_2d<f32>;
 
 struct FragOut {
   @location(0) color : vec4f,

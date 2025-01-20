@@ -1,11 +1,25 @@
 export class Resources {
   private modules: Map<string, GPUShaderModule> = new Map();
   private pipelines: Map<string, GPURenderPipeline> = new Map();
-  //private computePipelines: Map<string, GPUComputePipeline> = new Map();
+  private dummyTexture: {
+    sampler: GPUSampler;
+    textureView: GPUTextureView;
+  };
 
   private static instances: Map<GPUDevice, Resources> = new Map();
 
-  private constructor(private device: GPUDevice) {}
+  private constructor(private device: GPUDevice) {
+    this.dummyTexture = {
+      sampler: this.device.createSampler({}),
+      textureView: this.device
+        .createTexture({
+          size: { width: 1, height: 1 },
+          format: "rgba8unorm",
+          usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
+        })
+        .createView(),
+    };
+  }
 
   createModule(id: string, code: string) {
     if (!this.modules.has(id)) {
@@ -44,6 +58,10 @@ export class Resources {
       this.pipelines.set(id, pipeline);
     }
     return this.pipelines.get(id)!;
+  }
+
+  getDummyTexture() {
+    return this.dummyTexture;
   }
 
   static getInstance(device: GPUDevice) {
