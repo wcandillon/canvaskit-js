@@ -3,6 +3,7 @@ import type { BlurProps } from "./imageFilters";
 import { BlurImageFilter } from "./imageFilters";
 import type { ColorMatrixImageFilterProps } from "./imageFilters/ColorMatrix";
 import { ColorMatrixImageFilter } from "./imageFilters/ColorMatrix";
+import { ColorShader } from "./shaders";
 import { Surface } from "./Surface";
 
 class SurfaceFactory {
@@ -49,14 +50,27 @@ class ImageFilterFactory {
   }
 }
 
+class ShaderFactory {
+  constructor(
+    private device: GPUDevice,
+    private colorFactory: typeof ColorFactory
+  ) {}
+
+  MakeColor(color: Float32Array | string) {
+    return new ColorShader(this.device, this.colorFactory(color));
+  }
+}
+
 export class Instance {
   public ImageFilter: ImageFilterFactory;
   public Surface: SurfaceFactory;
+  public Shader: ShaderFactory;
   public Color = ColorFactory;
 
   constructor(device: GPUDevice) {
     this.Surface = new SurfaceFactory(device);
     this.ImageFilter = new ImageFilterFactory(device);
+    this.Shader = new ShaderFactory(device, this.Color);
   }
 
   static async get() {

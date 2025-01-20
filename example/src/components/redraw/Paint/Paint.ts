@@ -1,13 +1,15 @@
 import { ColorFactory, type Color } from "../Data";
 import type { ImageFilter } from "../imageFilters";
+import type { Shader } from "../shaders";
 
 import { BlendMode } from "./BlendMode";
 
 export class Paint {
-  private color: Color | null = null;
+  private color: Color = Float32Array.of(0, 0, 0, 1);
   private alpha = 1;
   private blendMode = BlendMode.SrcOver;
   private imageFilter: ImageFilter | null = null;
+  private shader: Shader | null = null;
 
   constructor() {}
 
@@ -17,6 +19,14 @@ export class Paint {
 
   getImageFilter() {
     return this.imageFilter;
+  }
+
+  setShader(shader: Shader | null) {
+    this.shader = shader;
+  }
+
+  getShader() {
+    return this.shader;
   }
 
   setColor(color: Float32Array | string) {

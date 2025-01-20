@@ -5,7 +5,7 @@ import type { Paint } from "../Paint/Paint";
 
 import { makeDrawable } from "./Drawable";
 
-export const FillShader = /* wgsl */ `
+const FillShader = /* wgsl */ `
 
 struct VertexOutput {
   @builtin(position) position: vec4f,

@@ -310,7 +310,10 @@ export function parseCSSColor(css_str: string) {
   return null;
 }
 
-export const ColorFactory = (color: string) => {
+export const ColorFactory = (color: string | Float32Array) => {
+  if (color instanceof Float32Array) {
+    return color;
+  }
   const cl = parseCSSColor(color);
   if (!cl) {
     throw new Error(`Invalid color: ${color}`);

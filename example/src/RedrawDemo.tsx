@@ -77,6 +77,7 @@ export const RedrawDemo = () => {
       canvas.scale(pd, pd);
       const c1 = new Paint();
       c1.setColor("#61bea2");
+      c1.setShader(Redraw.current.Shader.MakeColor("red"));
       c1.setBlendMode(BlendMode.Screen);
 
       const c2 = c1.copy();
