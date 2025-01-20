@@ -1,7 +1,6 @@
+import { GPUResources } from "../GPUResources";
 import type { BlendMode } from "../Paint/BlendMode";
 import { GPUBlendModes } from "../Paint/BlendMode";
-
-import { GPUResources } from "./Drawable";
 
 export const TextureShader = /* wgsl */ `
 @group(0) @binding(0) var mySampler : sampler;

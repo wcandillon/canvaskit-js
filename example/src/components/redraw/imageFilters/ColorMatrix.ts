@@ -1,4 +1,4 @@
-import { GPUResources } from "../drawings/Drawable";
+import { GPUResources } from "../GPUResources";
 
 import type { ImageFilter } from "./ImageFilter";
 

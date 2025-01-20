@@ -1,10 +1,9 @@
-import { GPUResources } from "../drawings/Drawable";
+import { GPUResources } from "../GPUResources";
 
 import type { ImageFilter } from "./ImageFilter";
 
 export interface BlurProps {
-  iterations: number;
-  size: number;
+  radius: number;
 }
 
 const BlurShader = /* wgsl */ `
@@ -21,7 +20,8 @@ struct Params {
   struct Flip {
     value : u32,
   }
-  // @group(1) @binding(3) var<uniform> flip : Flip;
+
+  @group(1) @binding(3) var<uniform> flip : Flip;
   
   // This shader blurs the input texture in one direction, depending on whether
   // |flip.value| is 0 or 1.
@@ -44,8 +44,6 @@ struct Params {
     @builtin(workgroup_id) WorkGroupID : vec3u,
     @builtin(local_invocation_id) LocalInvocationID : vec3u
   ) {
-    var flip: Flip;
-    flip.value = 0u;
     let filterOffset = (params.filterDim - 1) / 2;
     let dims = vec2i(textureDimensions(inputTex, 0));
     let baseIndex = vec2i(WorkGroupID.xy * vec2(params.blockDim, 4) +
@@ -99,7 +97,7 @@ export class BlurImageFilter implements ImageFilter {
   private pipeline: GPUComputePipeline;
   private constants: GPUBindGroup;
   private blurParamsBuffer: GPUBuffer;
-  private result: GPUTexture | null = null;
+  private results: GPUTexture[] = [];
 
   constructor(private device: GPUDevice, private props: BlurProps) {
     const resources = GPUResources.getInstance(device);
@@ -147,7 +145,30 @@ export class BlurImageFilter implements ImageFilter {
     textureB: GPUTexture
   ) {
     const { device, pipeline } = this;
-    const { size, iterations } = this.props;
+    const { radius: size } = this.props;
+    const iterations = 10;
+    const buffer0 = (() => {
+      const buffer = device.createBuffer({
+        size: 4,
+        mappedAtCreation: true,
+        usage: GPUBufferUsage.UNIFORM,
+      });
+      new Uint32Array(buffer.getMappedRange())[0] = 0;
+      buffer.unmap();
+      return buffer;
+    })();
+
+    // A buffer with 1 in it. Binding this buffer is used to set `flip` to 1
+    const buffer1 = (() => {
+      const buffer = device.createBuffer({
+        size: 4,
+        mappedAtCreation: true,
+        usage: GPUBufferUsage.UNIFORM,
+      });
+      new Uint32Array(buffer.getMappedRange())[0] = 1;
+      buffer.unmap();
+      return buffer;
+    })();
     const computeBindGroup0 = device.createBindGroup({
       layout: pipeline.getBindGroupLayout(1),
       entries: [
@@ -158,6 +179,12 @@ export class BlurImageFilter implements ImageFilter {
         {
           binding: 2,
           resource: textureA.createView(),
+        },
+        {
+          binding: 3,
+          resource: {
+            buffer: buffer0,
+          },
         },
       ],
     });
@@ -173,6 +200,12 @@ export class BlurImageFilter implements ImageFilter {
           binding: 2,
           resource: textureB.createView(),
         },
+        {
+          binding: 3,
+          resource: {
+            buffer: buffer1,
+          },
+        },
       ],
     });
 
@@ -186,6 +219,12 @@ export class BlurImageFilter implements ImageFilter {
         {
           binding: 2,
           resource: textureA.createView(),
+        },
+        {
+          binding: 3,
+          resource: {
+            buffer: buffer0,
+          },
         },
       ],
     });
@@ -231,10 +270,14 @@ export class BlurImageFilter implements ImageFilter {
     }
 
     computePass.end();
-    this.result = textureB;
+    this.results.push(textureB);
   }
 
-  getResult() {
-    return this.result!;
+  shiftResult(): GPUTexture {
+    const result = this.results.shift();
+    if (!result) {
+      throw new Error("No image filter result available");
+    }
+    return result;
   }
 }
