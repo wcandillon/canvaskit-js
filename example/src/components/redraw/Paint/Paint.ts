@@ -10,15 +10,13 @@ export enum PaintStyle {
 }
 
 export class Paint {
-  private style = PaintStyle.Fill;
-  private strokeWidth = 1;
-  private color: Color = Float32Array.of(0, 0, 0, 1);
-  private alpha = 1;
-  private blendMode = BlendMode.SrcOver;
   private imageFilter: ImageFilter | null = null;
   private shader: Shader | null = null;
-
-  constructor() {}
+  private blendMode = BlendMode.SrcOver;
+  protected style = PaintStyle.Fill;
+  protected strokeWidth = 1;
+  protected color: Color = Float32Array.of(0, 0, 0, 1);
+  protected alpha = 1;
 
   setImageFilter(imageFilter: ImageFilter | null) {
     this.imageFilter = imageFilter;

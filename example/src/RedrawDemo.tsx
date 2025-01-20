@@ -77,10 +77,11 @@ export const RedrawDemo = () => {
       canvas.scale(pd, pd);
       const c1 = new Paint();
       c1.setColor("#61bea2");
-      c1.setShader(Redraw.current.Shader.MakeColor("purple"));
       c1.setBlendMode(BlendMode.Screen);
 
       const c2 = c1.copy();
+      c2.setShader(Redraw.current.Shader.MakeColor("purple"));
+
       c2.setColor("#529ca0");
       //const imageFilter = Redraw.current.ImageFilter.MakeBlur({ radius: 10 });
       // const imageFilter = Redraw.current.ImageFilter.MakeColorMatrix({
