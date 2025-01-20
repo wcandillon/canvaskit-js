@@ -6,6 +6,7 @@ import type { Surface } from "../components/redraw";
 import { RedrawInstance } from "../components/redraw";
 import { CircleShader } from "../components/redraw/Drawings";
 import { BlendMode } from "../components/redraw/Paint";
+import { FillShader } from "../components/redraw/Drawings/Fill";
 
 const pd = window.devicePixelRatio;
 
@@ -29,13 +30,32 @@ export const RedrawDemo = () => {
   useOnFrame(() => {
     if (surface.current && Redraw.current) {
       const recorder = surface.current.getRecorder();
-      const paint = {
+      let paint = {
+        useColor: 1,
+        style: 0,
+        color: Float32Array.of(0, 0, 0, 1),
+        strokeWidth: 0,
+      };
+      const matrix = mat4.identity();
+      recorder.draw(
+        "fill",
+        FillShader,
+        BlendMode.SrcOver,
+        paint,
+        matrix,
+        {
+          radius: 720,
+          center: [1080, 720],
+        },
+        [],
+        6
+      );
+      paint = {
         useColor: 1,
         style: 0,
         color: Float32Array.of(1, 0, 1, 1),
         strokeWidth: 0,
       };
-      const matrix = mat4.identity();
       recorder.draw(
         "circle",
         CircleShader,

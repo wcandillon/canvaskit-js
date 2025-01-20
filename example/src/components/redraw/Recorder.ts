@@ -45,6 +45,14 @@ export class Recorder {
     this.resources = Resources.getInstance(this.device);
   }
 
+  fill(
+    id: string,
+    shader: string,
+    blendMode: BlendMode,
+    props: Record<string, unknown>,
+    children: Child[]
+  ) {}
+
   draw(
     id: string,
     shader: string,
