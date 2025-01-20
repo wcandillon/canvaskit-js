@@ -4,7 +4,14 @@ import type { Shader } from "../shaders";
 
 import { BlendMode } from "./BlendMode";
 
+export enum PaintStyle {
+  Fill,
+  Stroke,
+}
+
 export class Paint {
+  private style = PaintStyle.Fill;
+  private strokeWidth = 1;
   private color: Color = Float32Array.of(0, 0, 0, 1);
   private alpha = 1;
   private blendMode = BlendMode.SrcOver;
@@ -48,6 +55,22 @@ export class Paint {
     return this.alpha;
   }
 
+  setPaintStyle(style: PaintStyle) {
+    this.style = style;
+  }
+
+  getPaintStyle() {
+    return this.style;
+  }
+
+  setStrokeWidth(width: number) {
+    this.strokeWidth = width;
+  }
+
+  getStrokeWidth() {
+    return this.strokeWidth;
+  }
+
   setBlendMode(blendMode: BlendMode) {
     this.blendMode = blendMode;
   }
@@ -62,6 +85,9 @@ export class Paint {
     paint.alpha = this.alpha;
     paint.blendMode = this.blendMode;
     paint.imageFilter = this.imageFilter;
+    paint.shader = this.shader;
+    paint.style = this.style;
+    paint.strokeWidth = this.strokeWidth;
     return paint;
   }
 }
