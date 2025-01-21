@@ -35,13 +35,14 @@ interface Instance {
 export abstract class Drawable {
   abstract setup(device: GPUDevice, resources: Resources): void;
   abstract compute(commandEncoder: GPUCommandEncoder): void;
-  abstract draw(passEncoder: GPURenderPassEncoder, texture: GPUTexture): void;
+  abstract draw(passEncoder: GPURenderPassEncoder): void;
 }
 
 export class Recorder {
   private resources: Resources;
   private sampler: GPUSampler;
   private instances: Map<GPURenderPipeline, Instance> = new Map();
+  private drawables: Drawable[] = [];
   private commands: (Command | Drawable)[] = [];
 
   constructor(private device: GPUDevice, private resolution: Float32Array) {
@@ -54,6 +55,7 @@ export class Recorder {
 
   execute(drawable: Drawable) {
     drawable.setup(this.device, this.resources);
+    this.drawables.push(drawable);
     this.commands.push(drawable);
   }
 
@@ -209,11 +211,8 @@ export class Recorder {
     const commandEncoder = this.device.createCommandEncoder({
       label: "Surface encoder",
     });
-    // TODO: pre-filter
-    this.commands.forEach((cmdOrDrawable) => {
-      if (cmdOrDrawable instanceof Drawable) {
-        cmdOrDrawable.compute(commandEncoder);
-      }
+    this.drawables.forEach((drawable) => {
+      drawable.compute(commandEncoder);
     });
     const view = texture.createView();
     const passEncoder = commandEncoder.beginRenderPass({

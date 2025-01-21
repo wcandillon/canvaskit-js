@@ -89,7 +89,7 @@ export const RedrawDemo = () => {
       recorder.execute(
         new BlurImageFilter(
           {
-            iterations: 10,
+            iterations: 4,
             size: 10,
             resolution: Float32Array.of(1080 * 2, 720 * 2),
           },
