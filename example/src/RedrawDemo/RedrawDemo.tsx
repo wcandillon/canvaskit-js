@@ -36,7 +36,7 @@ export const RedrawDemo = () => {
       offscreen.current = Redraw.current.Surface.MakeOffscreen(width, height);
       blur.current = new BlurImageFilter(device, {
         iterations: 4,
-        size: mix(progress.value, 50, 100),
+        size: 4,
         inputTexture: offscreen.current.getCurrentTexture(),
       });
     })();
@@ -44,29 +44,23 @@ export const RedrawDemo = () => {
   useOnFrame(() => {
     if (surface.current && Redraw.current && offscreen.current) {
       let recorder = offscreen.current.getRecorder();
-      let paint = {
-        useColor: 1,
-        style: 0,
-        color: Float32Array.of(0, 0, 0, 1),
-        strokeWidth: 0,
-      };
-      const matrix = mat4.identity();
-      recorder.draw(
-        "fill",
-        FillShader,
-        BlendMode.SrcOver,
-        paint,
-        matrix,
-        {},
-        [],
-        6
-      );
-      paint = {
+      const paint = {
         useColor: 1,
         style: 0,
         color: Float32Array.of(1, 0, 1, 1),
         strokeWidth: 0,
       };
+      const matrix = mat4.identity();
+      // recorder.draw(
+      //   "fill",
+      //   FillShader,
+      //   BlendMode.SrcOver,
+      //   paint,
+      //   matrix,
+      //   {},
+      //   [],
+      //   6
+      // );
       // recorder.fill(
       //   "fillColor",
       //   FillColor,
@@ -93,10 +87,10 @@ export const RedrawDemo = () => {
       //   offscreen.current.getCurrentTexture(),
       // ]);
       blur.current!.setSize(mix(progress.value, 4, 34));
-      //recorder.execute(blur.current!);
-      recorder.fill("fillTexture", FillTexture, null, null, [
-        offscreen.current.getCurrentTexture(),
-      ]);
+      recorder.execute(blur.current!);
+      // recorder.fill("fillTexture", FillTexture, null, null, [
+      //   offscreen.current.getCurrentTexture(),
+      // ]);
       surface.current.flush();
     }
   }, [progress]);

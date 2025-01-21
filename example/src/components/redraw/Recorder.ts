@@ -62,7 +62,6 @@ export class Recorder {
     this.commands.push(drawable);
   }
 
-  // TODO: this can be removed
   fill(
     id: string,
     shader: string,
