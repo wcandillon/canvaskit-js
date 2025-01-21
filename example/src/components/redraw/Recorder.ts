@@ -10,6 +10,7 @@ import type { Matrix } from "../redraw-old/Data";
 
 import { GPUBlendModes } from "./Paint";
 import { Resources } from "./Resources";
+import { FillVertex } from "./Drawings/Fill";
 
 interface PaintProps {
   useColor: number;
@@ -51,7 +52,60 @@ export class Recorder {
     blendMode: BlendMode,
     props: Record<string, unknown>,
     children: Child[]
-  ) {}
+  ) {
+    const vertex = this.resources.createModule("fill-vertex", FillVertex);
+    const fragment = this.resources.createModule(`${id}-frag`, shader);
+    const defs = makeShaderDataDefinitions(shader);
+    const propsView = makeStructuredView(defs.uniforms.props);
+    const pipelineKey = `${id}-${blendMode}`;
+    const pipeline = this.resources.createPipeline(
+      pipelineKey,
+      vertex,
+      fragment,
+      GPUBlendModes[blendMode]
+    );
+    propsView.set(props);
+    const buffer = this.device.createBuffer({
+      size: propsView.arrayBuffer.byteLength,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    });
+    this.device.queue.writeBuffer(buffer, 0, propsView.arrayBuffer);
+    const uniformBindGroup = this.device.createBindGroup({
+      layout: pipeline.getBindGroupLayout(0),
+      entries: [
+        {
+          binding: 0,
+          resource: {
+            buffer,
+          },
+        },
+      ],
+    });
+    this.commands.push({
+      pipeline,
+      vertexCount: 3,
+      // no instanciation here
+      instanceIndex: -1,
+      bindGroups: [
+        uniformBindGroup,
+        ...children.map((child, index) => {
+          return this.device.createBindGroup({
+            layout: pipeline.getBindGroupLayout(index + 1),
+            entries: [
+              {
+                binding: 0,
+                resource: child.sampler,
+              },
+              {
+                binding: 1,
+                resource: child.textureView,
+              },
+            ],
+          });
+        }),
+      ],
+    });
+  }
 
   draw(
     id: string,
@@ -154,18 +208,25 @@ export class Recorder {
     });
     this.commands.forEach(
       ({ pipeline, vertexCount, instanceIndex, bindGroups }) => {
+        // Whether the command is using instanciation or not
         passEncoder.setPipeline(pipeline);
-        const instance = this.instances.get(pipeline)!;
-        passEncoder.setBindGroup(0, instance.bindGroup!);
-        bindGroups.forEach((bindGroup, index) => {
-          passEncoder.setBindGroup(index + 1, bindGroup);
-        });
-        passEncoder.draw(vertexCount, 1, 0, instanceIndex);
+        if (instanceIndex === -1) {
+          bindGroups.forEach((bindGroup, index) => {
+            passEncoder.setBindGroup(index, bindGroup);
+          });
+          passEncoder.draw(vertexCount);
+        } else {
+          const instance = this.instances.get(pipeline)!;
+          passEncoder.setBindGroup(0, instance.bindGroup!);
+          bindGroups.forEach((bindGroup, index) => {
+            passEncoder.setBindGroup(index + 1, bindGroup);
+          });
+          passEncoder.draw(vertexCount, 1, 0, instanceIndex);
+        }
       }
     );
     passEncoder.end();
     this.device.queue.submit([commandEncoder.finish()]);
-    console.log("submitted");
     this.instances.clear();
     this.commands = [];
   }

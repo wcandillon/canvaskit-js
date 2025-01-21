@@ -6,7 +6,11 @@ import type { Surface } from "../components/redraw";
 import { RedrawInstance } from "../components/redraw";
 import { CircleShader } from "../components/redraw/Drawings";
 import { BlendMode } from "../components/redraw/Paint";
-import { FillShader } from "../components/redraw/Drawings/Fill";
+import {
+  BlurFillShader,
+  FillColor,
+  FillShader,
+} from "../components/redraw/Drawings/Fill";
 
 const pd = window.devicePixelRatio;
 
@@ -68,6 +72,13 @@ export const RedrawDemo = () => {
         },
         [],
         6
+      );
+      recorder.fill(
+        "fillColor",
+        FillColor,
+        BlendMode.SrcOver,
+        { color: [0.3, 0.6, 1, 1] },
+        []
       );
       surface.current.flush();
     }

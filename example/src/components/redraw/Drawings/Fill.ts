@@ -1,5 +1,44 @@
-export const FillShader = /* wgsl */ `
+export const FillColor = /* wgsl */ `
+struct Props {
+  color: vec4<f32>,
+};
 
+@binding(0) @group(0) var<uniform> props : Props;
+
+@fragment
+fn main() -> @location(0) vec4f {
+  return props.color;
+}
+`;
+
+export const FillVertex = /* wgsl */ `
+struct VertexOutput {
+  @builtin(position) position: vec4f,
+  @location(0) uv: vec2f,
+};
+
+@vertex
+fn vs(
+  @builtin(vertex_index) VertexIndex : u32
+) -> VertexOutput {
+  var pos = array<vec2f, 3>(
+    vec2f(-1.0,  3.0),
+    vec2f(3.0, -1.0),
+    vec2f(-1.0, -1.0),
+  );
+  var uv = array<vec2f, 3>(
+    vec2f(0.0, -1.0),
+    vec2f(2.0, 1.0),
+    vec2f(0.0, 1.0)
+  );
+  var output: VertexOutput;
+  output.position = vec4f(pos[VertexIndex], 0.0, 1.0);
+  output.uv = uv[VertexIndex];
+  return output;
+}
+`;
+
+export const FillShader = /* wgsl */ `
 struct VertexOutput {
     @builtin(position) position: vec4f,
     @location(0) color: vec4f,
