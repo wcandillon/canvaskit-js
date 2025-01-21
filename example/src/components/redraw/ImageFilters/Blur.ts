@@ -93,8 +93,8 @@ interface BlurProps {
 
 export class BlurImageFilter extends Drawable {
   private tileDim = 128;
-  private size = 5;
-  private iterations = 4;
+  private size = 2;
+  private iterations = 2;
 
   private inputTexture: GPUTexture | null = null;
   private blurParamsBuffer: GPUBuffer | null = null;
