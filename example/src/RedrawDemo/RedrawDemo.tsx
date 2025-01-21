@@ -64,16 +64,16 @@ export const RedrawDemo = () => {
       paint = {
         useColor: 1,
         style: 0,
-        color: Float32Array.of(0, 0, 0, 1),
+        color: Float32Array.of(1, 0, 1, 1),
         strokeWidth: 0,
       };
-      recorder.fill(
-        "fillColor",
-        FillColor,
-        BlendMode.SrcOver,
-        { color: [0.3, 0.6, 1, 1] },
-        []
-      );
+      // recorder.fill(
+      //   "fillColor",
+      //   FillColor,
+      //   BlendMode.SrcOver,
+      //   { color: [0.3, 0.6, 1, 1] },
+      //   []
+      // );
       recorder.draw(
         "circle",
         CircleShader,
@@ -81,7 +81,7 @@ export const RedrawDemo = () => {
         paint,
         matrix,
         {
-          radius: 200, //mix(progress.value, 50, height / 2),
+          radius: mix(progress.value, 50, height / 2),
           center: [width / 2, height / 2],
         },
         [],
@@ -93,8 +93,8 @@ export const RedrawDemo = () => {
       //   offscreen.current.getCurrentTexture(),
       // ]);
       blur.current!.setSize(mix(progress.value, 4, 34));
-      recorder.execute(blur.current!);
-      recorder.fill("fillTexture", FillTexture, BlendMode.SrcOver, null, [
+      //recorder.execute(blur.current!);
+      recorder.fill("fillTexture", FillTexture, null, null, [
         offscreen.current.getCurrentTexture(),
       ]);
       surface.current.flush();

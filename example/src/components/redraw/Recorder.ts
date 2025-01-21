@@ -66,7 +66,7 @@ export class Recorder {
   fill(
     id: string,
     shader: string,
-    blendMode: BlendMode,
+    blendMode: BlendMode | null,
     props: Record<string, unknown> | null,
     children: GPUTexture[] = []
   ) {
@@ -78,7 +78,7 @@ export class Recorder {
       pipelineKey,
       vertex,
       fragment,
-      GPUBlendModes[blendMode]
+      blendMode ? GPUBlendModes[blendMode] : undefined
     );
     const bindGroups: GPUBindGroup[] = [];
     if (props) {

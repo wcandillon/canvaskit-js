@@ -9,7 +9,8 @@ struct VertexOutput {
 
 @fragment
 fn frag_main(in : VertexOutput) -> @location(0) vec4f {
-  return textureSample(aTexture, aSampler, in.uv);
+  let color = textureSample(aTexture, aSampler, in.uv);
+  return color;
 }
 `;
 
