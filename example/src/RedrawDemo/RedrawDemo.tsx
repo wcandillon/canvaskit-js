@@ -15,7 +15,7 @@ import {
 const pd = window.devicePixelRatio;
 
 export const RedrawDemo = () => {
-  const progress = useValue(1);
+  const progress = useLoop();
   const ref = useRef<HTMLCanvasElement>(null);
   const Redraw = useRef<RedrawInstance>();
   const surface = useRef<Surface>();
@@ -28,7 +28,6 @@ export const RedrawDemo = () => {
       const device = await adapter.requestDevice();
       Redraw.current = new RedrawInstance(device);
       surface.current = Redraw.current.Surface.MakeFromCanvas(ref.current!);
-      progress.value = 0;
     })();
   });
   useOnFrame(() => {
@@ -60,6 +59,13 @@ export const RedrawDemo = () => {
         color: Float32Array.of(1, 0, 1, 1),
         strokeWidth: 0,
       };
+      recorder.fill(
+        "fillColor",
+        FillColor,
+        BlendMode.SrcOver,
+        { color: [0.3, 0.6, 1, 1] },
+        []
+      );
       recorder.draw(
         "circle",
         CircleShader,
@@ -72,13 +78,6 @@ export const RedrawDemo = () => {
         },
         [],
         6
-      );
-      recorder.fill(
-        "fillColor",
-        FillColor,
-        BlendMode.SrcOver,
-        { color: [0.3, 0.6, 1, 1] },
-        []
       );
       surface.current.flush();
     }
