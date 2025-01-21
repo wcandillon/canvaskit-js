@@ -3,7 +3,7 @@ import { Recorder } from "./Recorder";
 export class Surface {
   private recorder: Recorder;
 
-  constructor(device: GPUDevice, private getCurrentTexture: () => GPUTexture) {
+  constructor(device: GPUDevice, public getCurrentTexture: () => GPUTexture) {
     const resolution = Float32Array.of(
       this.getCurrentTexture().width,
       this.getCurrentTexture().height

@@ -1,15 +1,15 @@
 import { useEffect, useRef } from "react";
 import { mat4 } from "wgpu-matrix";
 
-import { useLoop, useOnFrame, useValue } from "../components";
+import { useLoop, useOnFrame } from "../components";
 import type { Surface } from "../components/redraw";
 import { RedrawInstance } from "../components/redraw";
 import { CircleShader } from "../components/redraw/Drawings";
 import { BlendMode } from "../components/redraw/Paint";
 import {
-  BlurFillShader,
   FillColor,
   FillShader,
+  FillTexture,
 } from "../components/redraw/Drawings/Fill";
 
 const pd = window.devicePixelRatio;
@@ -32,7 +32,8 @@ export const RedrawDemo = () => {
   });
   useOnFrame(() => {
     if (surface.current && Redraw.current) {
-      const recorder = surface.current.getRecorder();
+      const offscreen = Redraw.current.Surface.MakeOffscreen(1080 * 2, 720 * 2);
+      let recorder = offscreen.getRecorder();
       let paint = {
         useColor: 1,
         style: 0,
@@ -79,6 +80,21 @@ export const RedrawDemo = () => {
         [],
         6
       );
+      offscreen.flush();
+      recorder = surface.current.getRecorder();
+      recorder.fill("fillTexture", FillTexture, BlendMode.SrcOver, null, [
+        offscreen.getCurrentTexture(),
+      ]);
+      // recorder.execute(
+      //   new BlurImageFilter(
+      //     {
+      //       iterations: 10,
+      //       size: 10,
+      //       resolution: Float32Array.of(1080 * 2, 720 * 2),
+      //     },
+      //     offscreen.getCurrentTexture()
+      //   )
+      // );
       surface.current.flush();
     }
   }, [progress]);

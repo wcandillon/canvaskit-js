@@ -26,7 +26,10 @@ class SurfaceFactory {
     const texture = this.device.createTexture({
       size: { width, height },
       format: presentationFormat,
-      usage: GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT,
+      usage:
+        GPUTextureUsage.COPY_DST |
+        GPUTextureUsage.RENDER_ATTACHMENT |
+        GPUTextureUsage.TEXTURE_BINDING,
     });
     return new Surface(this.device, () => texture);
   }

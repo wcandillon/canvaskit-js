@@ -19,11 +19,6 @@ interface PaintProps {
   strokeWidth: number;
 }
 
-interface Child {
-  sampler: GPUSampler;
-  textureView: GPUTextureView;
-}
-
 interface Command {
   pipeline: GPURenderPipeline;
   bindGroups: GPUBindGroup[];
@@ -37,26 +32,40 @@ interface Instance {
   bindGroup: GPUBindGroup | null;
 }
 
+export abstract class Drawable {
+  abstract setup(device: GPUDevice, resources: Resources): void;
+  abstract draw(texture: GPUTexture): void;
+}
+
 export class Recorder {
   private resources: Resources;
+  private sampler: GPUSampler;
   private instances: Map<GPURenderPipeline, Instance> = new Map();
-  private commands: Command[] = [];
+  private commands: (Command | Drawable)[] = [];
 
   constructor(private device: GPUDevice, private resolution: Float32Array) {
     this.resources = Resources.getInstance(this.device);
+    this.sampler = this.device.createSampler({
+      magFilter: "linear",
+      minFilter: "linear",
+    });
+  }
+
+  execute(drawable: Drawable) {
+    drawable.setup(this.device, this.resources);
+    this.commands.push(drawable);
   }
 
   fill(
     id: string,
     shader: string,
     blendMode: BlendMode,
-    props: Record<string, unknown>,
-    children: Child[]
+    props: Record<string, unknown> | null,
+    children: GPUTexture[] = []
   ) {
     const vertex = this.resources.createModule("fill-vertex", FillVertex);
     const fragment = this.resources.createModule(`${id}-frag`, shader);
     const defs = makeShaderDataDefinitions(shader);
-    const propsView = makeStructuredView(defs.uniforms.props);
     const pipelineKey = `${id}-${blendMode}`;
     const pipeline = this.resources.createPipeline(
       pipelineKey,
@@ -64,46 +73,50 @@ export class Recorder {
       fragment,
       GPUBlendModes[blendMode]
     );
-    propsView.set(props);
-    const buffer = this.device.createBuffer({
-      size: propsView.arrayBuffer.byteLength,
-      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-    });
-    this.device.queue.writeBuffer(buffer, 0, propsView.arrayBuffer);
-    const uniformBindGroup = this.device.createBindGroup({
-      layout: pipeline.getBindGroupLayout(0),
-      entries: [
-        {
-          binding: 0,
-          resource: {
-            buffer,
+    const bindGroups: GPUBindGroup[] = [];
+    if (props) {
+      const propsView = makeStructuredView(defs.uniforms.props);
+      propsView.set(props);
+      const buffer = this.device.createBuffer({
+        size: propsView.arrayBuffer.byteLength,
+        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+      });
+      this.device.queue.writeBuffer(buffer, 0, propsView.arrayBuffer);
+      const uniformBindGroup = this.device.createBindGroup({
+        layout: pipeline.getBindGroupLayout(0),
+        entries: [
+          {
+            binding: 0,
+            resource: {
+              buffer,
+            },
           },
-        },
-      ],
+        ],
+      });
+      bindGroups.push(uniformBindGroup);
+    }
+    children.map((child) => {
+      const bindGroup = this.device.createBindGroup({
+        layout: pipeline.getBindGroupLayout(bindGroups.length),
+        entries: [
+          {
+            binding: 0,
+            resource: this.sampler,
+          },
+          {
+            binding: 1,
+            resource: child.createView(),
+          },
+        ],
+      });
+      bindGroups.push(bindGroup);
     });
     this.commands.push({
       pipeline,
       vertexCount: 3,
       // no instanciation here
       instanceIndex: -1,
-      bindGroups: [
-        uniformBindGroup,
-        ...children.map((child, index) => {
-          return this.device.createBindGroup({
-            layout: pipeline.getBindGroupLayout(index + 1),
-            entries: [
-              {
-                binding: 0,
-                resource: child.sampler,
-              },
-              {
-                binding: 1,
-                resource: child.textureView,
-              },
-            ],
-          });
-        }),
-      ],
+      bindGroups,
     });
   }
 
@@ -114,7 +127,7 @@ export class Recorder {
     paint: PaintProps,
     matrix: Matrix,
     props: Record<string, unknown>,
-    children: Child[],
+    children: GPUTexture[],
     vertexCount: number
   ) {
     const mod = this.resources.createModule(id, shader);
@@ -154,11 +167,11 @@ export class Recorder {
           entries: [
             {
               binding: 0,
-              resource: child.sampler,
+              resource: this.sampler,
             },
             {
               binding: 1,
-              resource: child.textureView,
+              resource: child.createView(),
             },
           ],
         });
@@ -206,8 +219,12 @@ export class Recorder {
         } as const,
       ],
     });
-    this.commands.forEach(
-      ({ pipeline, vertexCount, instanceIndex, bindGroups }) => {
+    this.commands.forEach((cmdOrDrawable) => {
+      if (cmdOrDrawable instanceof Drawable) {
+        cmdOrDrawable.draw(texture);
+      } else {
+        const { pipeline, vertexCount, instanceIndex, bindGroups } =
+          cmdOrDrawable;
         // Whether the command is using instanciation or not
         passEncoder.setPipeline(pipeline);
         if (instanceIndex === -1) {
@@ -224,7 +241,7 @@ export class Recorder {
           passEncoder.draw(vertexCount, 1, 0, instanceIndex);
         }
       }
-    );
+    });
     passEncoder.end();
     this.device.queue.submit([commandEncoder.finish()]);
     this.instances.clear();

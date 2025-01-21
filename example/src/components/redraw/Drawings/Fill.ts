@@ -1,3 +1,18 @@
+export const FillTexture = /* wgsl */ `
+struct VertexOutput {
+  @builtin(position) position: vec4f,
+  @location(0) uv: vec2f,
+};
+
+@group(0) @binding(0) var aSampler : sampler;
+@group(0) @binding(1) var aTexture : texture_2d<f32>;
+
+@fragment
+fn frag_main(in : VertexOutput) -> @location(0) vec4f {
+  return textureSample(aTexture, aSampler, in.uv);
+}
+`;
+
 export const FillColor = /* wgsl */ `
 struct Props {
   color: vec4<f32>,
