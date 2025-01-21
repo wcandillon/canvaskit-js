@@ -1,7 +1,7 @@
 import { FillTexture, FillVertex } from "../Drawings/Fill";
 import { Drawable } from "../Recorder";
 
-const BlurShader = /* wgsl */ `
+const ComputeBlurShader = /* wgsl */ `
 struct Params {
   filterDim : i32,
   blockDim : u32,
@@ -92,7 +92,7 @@ interface BlurProps {
   inputTexture: GPUTexture;
 }
 
-export class BlurImageFilter extends Drawable {
+export class ComputeBlurImageFilter extends Drawable {
   private tileDim = 128;
   private size = 2;
   private iterations = 2;
@@ -138,12 +138,12 @@ export class BlurImageFilter extends Drawable {
     const srcWidth = texture.width;
     const srcHeight = texture.height;
     const computeShader = this.resources.createModule(
-      "blur-image-filter-shader",
-      BlurShader
+      "compute-blur-image-filter-shader",
+      ComputeBlurShader
     );
 
     this.blurPipeline = this.resources.createComputePipeline(
-      "blur-image-filter-compute-pipeline",
+      "compute-blur-image-filter-compute-pipeline",
       computeShader
     );
     const fillVertex = this.resources.createModule("fill-vertex", FillVertex);
@@ -180,12 +180,12 @@ export class BlurImageFilter extends Drawable {
     });
 
     const buffer0 = this.resources.createBuffer(
-      "image-filter-buffer-0",
+      "compute-blur-image-filter-buffer-0",
       Uint32Array.of(0),
       GPUBufferUsage.UNIFORM
     );
     const buffer1 = this.resources.createBuffer(
-      "image-filter-buffer-1",
+      "compute-blur-image-filter-buffer-1",
       Uint32Array.of(1),
       GPUBufferUsage.UNIFORM
     );

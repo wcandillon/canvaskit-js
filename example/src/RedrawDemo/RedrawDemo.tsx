@@ -6,12 +6,7 @@ import type { Surface } from "../components/redraw";
 import { RedrawInstance } from "../components/redraw";
 import { CircleShader } from "../components/redraw/Drawings";
 import { BlendMode } from "../components/redraw/Paint";
-import {
-  FillColor,
-  FillShader,
-  FillTexture,
-} from "../components/redraw/Drawings/Fill";
-import { BlurImageFilter } from "../components/redraw/ImageFilters/Blur";
+import { ComputeBlurImageFilter } from "../components/redraw/ImageFilters/Blur";
 
 const pd = window.devicePixelRatio;
 const width = 1080 * pd;
@@ -23,7 +18,7 @@ export const RedrawDemo = () => {
   const Redraw = useRef<RedrawInstance>();
   const surface = useRef<Surface>();
   const offscreen = useRef<Surface>();
-  const blur = useRef<BlurImageFilter>();
+  const blur = useRef<ComputeBlurImageFilter>();
   useEffect(() => {
     (async () => {
       const adapter = await navigator.gpu.requestAdapter();
@@ -34,7 +29,7 @@ export const RedrawDemo = () => {
       Redraw.current = new RedrawInstance(device);
       surface.current = Redraw.current.Surface.MakeFromCanvas(ref.current!);
       offscreen.current = Redraw.current.Surface.MakeOffscreen(width, height);
-      blur.current = new BlurImageFilter(device, {
+      blur.current = new ComputeBlurImageFilter(device, {
         iterations: 4,
         size: 4,
         inputTexture: offscreen.current.getCurrentTexture(),
