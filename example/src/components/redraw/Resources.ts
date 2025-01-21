@@ -1,6 +1,9 @@
 export class Resources {
-  private modules: Map<string, GPUShaderModule> = new Map();
-  private pipelines: Map<string, GPURenderPipeline> = new Map();
+  private modules = new Map<string, GPUShaderModule>();
+  private pipelines = new Map<string, GPURenderPipeline>();
+  private computePipelines = new Map<string, GPUComputePipeline>();
+  private textures = new Map<string, GPUTexture>();
+  private buffers = new Map<string, GPUBuffer>();
   private dummyTexture: GPUTexture;
 
   private static instances: Map<GPUDevice, Resources> = new Map();
@@ -15,18 +18,43 @@ export class Resources {
 
   createModule(id: string, code: string) {
     if (!this.modules.has(id)) {
+      console.log("createModule", id);
       this.modules.set(id, this.device.createShaderModule({ code }));
     }
     return this.modules.get(id)!;
+  }
+
+  createComputePipeline(id: string, mod: GPUShaderModule) {
+    if (!this.computePipelines.has(id)) {
+      console.log("createComputePipeline", id);
+      const pipeline = this.device.createComputePipeline({
+        layout: "auto",
+        compute: {
+          module: mod,
+        },
+      });
+      this.computePipelines.set(id, pipeline);
+    }
+    return this.computePipelines.get(id)!;
+  }
+
+  createTexture(id: string, descriptor: GPUTextureDescriptor) {
+    if (!this.textures.has(id)) {
+      console.log("Creating texture", id);
+      const texture = this.device.createTexture(descriptor);
+      this.textures.set(id, texture);
+    }
+    return this.textures.get(id)!;
   }
 
   createPipeline(
     id: string,
     vertex: GPUShaderModule,
     fragment: GPUShaderModule,
-    blendMode: GPUBlendState
+    blend?: GPUBlendState
   ) {
     if (!this.pipelines.has(id)) {
+      console.log("createPipeline", id);
       const format = navigator.gpu.getPreferredCanvasFormat();
       const pipeline = this.device.createRenderPipeline({
         layout: "auto",
@@ -39,7 +67,7 @@ export class Resources {
           targets: [
             {
               format,
-              blend: blendMode,
+              blend,
             },
           ],
         },
@@ -50,6 +78,20 @@ export class Resources {
       this.pipelines.set(id, pipeline);
     }
     return this.pipelines.get(id)!;
+  }
+
+  createBuffer(id: string, data: Uint32Array, usage: GPUBufferUsageFlags) {
+    if (!this.buffers.has(id)) {
+      const buffer = this.device.createBuffer({
+        size: data.byteLength,
+        usage,
+        mappedAtCreation: true,
+      });
+      new Uint8Array(buffer.getMappedRange()).set(data);
+      buffer.unmap();
+      this.buffers.set(id, buffer);
+    }
+    return this.buffers.get(id)!;
   }
 
   getDummyTexture() {

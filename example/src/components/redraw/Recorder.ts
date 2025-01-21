@@ -33,7 +33,7 @@ interface Instance {
 }
 
 export abstract class Drawable {
-  abstract setup(device: GPUDevice, resources: Resources): void;
+  abstract setup(device: GPUDevice): void;
   abstract compute(commandEncoder: GPUCommandEncoder): void;
   abstract draw(passEncoder: GPURenderPassEncoder): void;
 }
@@ -54,9 +54,9 @@ export class Recorder {
   }
 
   execute(drawable: Drawable) {
-    drawable.setup(this.device, this.resources);
     this.drawables.push(drawable);
     this.commands.push(drawable);
+    drawable.setup(this.device);
   }
 
   fill(
@@ -251,6 +251,7 @@ export class Recorder {
     passEncoder.end();
     this.device.queue.submit([commandEncoder.finish()]);
     this.instances.clear();
-    this.commands = [];
+    this.commands.splice(0, this.commands.length);
+    this.drawables.splice(0, this.drawables.length);
   }
 }

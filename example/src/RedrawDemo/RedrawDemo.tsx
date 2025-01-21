@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { mat4 } from "wgpu-matrix";
 
-import { useLoop, useOnFrame } from "../components";
+import { mix, useLoop, useOnFrame } from "../components";
 import type { Surface } from "../components/redraw";
 import { RedrawInstance } from "../components/redraw";
 import { CircleShader } from "../components/redraw/Drawings";
@@ -14,12 +14,16 @@ import {
 import { BlurImageFilter } from "../components/redraw/ImageFilters/Blur";
 
 const pd = window.devicePixelRatio;
+const width = 1080 * pd;
+const height = 720 * pd;
 
 export const RedrawDemo = () => {
   const progress = useLoop();
   const ref = useRef<HTMLCanvasElement>(null);
   const Redraw = useRef<RedrawInstance>();
   const surface = useRef<Surface>();
+  const offscreen = useRef<Surface>();
+  const blur = useRef<BlurImageFilter>();
   useEffect(() => {
     (async () => {
       const adapter = await navigator.gpu.requestAdapter();
@@ -29,12 +33,20 @@ export const RedrawDemo = () => {
       const device = await adapter.requestDevice();
       Redraw.current = new RedrawInstance(device);
       surface.current = Redraw.current.Surface.MakeFromCanvas(ref.current!);
+      offscreen.current = Redraw.current.Surface.MakeOffscreen(width, height);
+      blur.current = new BlurImageFilter(
+        {
+          iterations: 4,
+          size: mix(progress.value, 2, 34),
+          resolution: Float32Array.of(width, height),
+        },
+        offscreen.current!.getCurrentTexture()
+      );
     })();
   });
   useOnFrame(() => {
-    if (surface.current && Redraw.current) {
-      const offscreen = Redraw.current.Surface.MakeOffscreen(1080 * 2, 720 * 2);
-      let recorder = offscreen.getRecorder();
+    if (surface.current && Redraw.current && offscreen.current) {
+      let recorder = offscreen.current.getRecorder();
       let paint = {
         useColor: 1,
         style: 0,
@@ -48,10 +60,7 @@ export const RedrawDemo = () => {
         BlendMode.SrcOver,
         paint,
         matrix,
-        {
-          radius: 720,
-          center: [1080, 720],
-        },
+        {},
         [],
         6
       );
@@ -75,35 +84,27 @@ export const RedrawDemo = () => {
         paint,
         matrix,
         {
-          radius: 720,
-          center: [1080, 720],
+          radius: height / 2,
+          center: [width / 2, height / 2],
         },
         [],
         6
       );
-      offscreen.flush();
+      offscreen.current.flush();
       recorder = surface.current.getRecorder();
       // recorder.fill("fillTexture", FillTexture, BlendMode.SrcOver, null, [
-      //   offscreen.getCurrentTexture(),
+      //   offscreen.current.getCurrentTexture(),
       // ]);
-      recorder.execute(
-        new BlurImageFilter(
-          {
-            iterations: 4,
-            size: 10,
-            resolution: Float32Array.of(1080 * 2, 720 * 2),
-          },
-          offscreen.getCurrentTexture()
-        )
-      );
+
+      recorder.execute(blur.current!);
       surface.current.flush();
     }
   }, [progress]);
   return (
     <div
       style={{
-        width: 1080,
-        height: 720,
+        width: width / pd,
+        height: height / pd,
         backgroundColor: "cyan",
       }}
     >

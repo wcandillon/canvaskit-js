@@ -1,7 +1,7 @@
 /* eslint-disable prefer-destructuring */
 import { FillTexture, FillVertex } from "../Drawings/Fill";
 import { Drawable } from "../Recorder";
-import type { Resources } from "../Resources";
+import { Resources } from "../Resources";
 
 const BlurShader = /* wgsl */ `struct Params {
     filterDim : i32,
@@ -110,83 +110,59 @@ export class BlurImageFilter extends Drawable {
     this.blockDim = this.tileDim - (this.props.size - 1);
   }
 
-  // TODO: cache pipeline in resources
-  setup(device: GPUDevice, _resource: Resources) {
+  setup(device: GPUDevice) {
+    const resources = Resources.getInstance(device);
     this.device = device;
-    const format = navigator.gpu.getPreferredCanvasFormat();
     const srcWidth = this.props.resolution[0];
     const srcHeight = this.props.resolution[1];
-    this.blurPipeline = device.createComputePipeline({
-      layout: "auto",
-      compute: {
-        module: device.createShaderModule({
-          code: BlurShader,
-        }),
-      },
-    });
-    this.renderPipeline = device.createRenderPipeline({
-      layout: "auto",
-      vertex: {
-        module: device.createShaderModule({
-          code: FillVertex,
-        }),
-      },
-      fragment: {
-        module: device.createShaderModule({
-          code: FillTexture,
-        }),
-        targets: [
-          {
-            format,
-          },
-        ],
-      },
-      primitive: {
-        topology: "triangle-list",
-      },
-    });
+    const computeShader = resources.createModule(
+      "blur-image-filter-shader",
+      BlurShader
+    );
+
+    this.blurPipeline = resources.createComputePipeline(
+      "blur-image-filter-compute-pipeline",
+      computeShader
+    );
+    const fillVertex = resources.createModule("fill-vertex", FillVertex);
+    const fillFragment = resources.createModule("fill-texture", FillTexture);
+    this.renderPipeline = resources.createPipeline(
+      "fill-texture",
+      fillVertex,
+      fillFragment
+    );
 
     const sampler = device.createSampler({
       magFilter: "linear",
       minFilter: "linear",
     });
 
-    const textures = [0, 1].map(() => {
-      return device.createTexture({
-        size: {
-          width: srcWidth,
-          height: srcHeight,
-        },
-        format: "rgba8unorm",
-        usage:
-          GPUTextureUsage.COPY_DST |
-          GPUTextureUsage.STORAGE_BINDING |
-          GPUTextureUsage.TEXTURE_BINDING,
-      });
+    const textures = [0, 1].map((index) => {
+      return resources.createTexture(
+        `ping-pong-storage-texture-${srcWidth}-${srcHeight}-${index}`,
+        {
+          size: {
+            width: srcWidth,
+            height: srcHeight,
+          },
+          format: "rgba8unorm",
+          usage:
+            GPUTextureUsage.COPY_DST |
+            GPUTextureUsage.STORAGE_BINDING |
+            GPUTextureUsage.TEXTURE_BINDING,
+        }
+      );
     });
-
-    const buffer0 = (() => {
-      const buffer = device.createBuffer({
-        size: 4,
-        mappedAtCreation: true,
-        usage: GPUBufferUsage.UNIFORM,
-      });
-      new Uint32Array(buffer.getMappedRange())[0] = 0;
-      buffer.unmap();
-      return buffer;
-    })();
-
-    // A buffer with 1 in it. Binding this buffer is used to set `flip` to 1
-    const buffer1 = (() => {
-      const buffer = device.createBuffer({
-        size: 4,
-        mappedAtCreation: true,
-        usage: GPUBufferUsage.UNIFORM,
-      });
-      new Uint32Array(buffer.getMappedRange())[0] = 1;
-      buffer.unmap();
-      return buffer;
-    })();
+    const buffer0 = resources.createBuffer(
+      "image-filter-buffer-0",
+      Uint32Array.of(0),
+      GPUBufferUsage.UNIFORM
+    );
+    const buffer1 = resources.createBuffer(
+      "image-filter-buffer-1",
+      Uint32Array.of(1),
+      GPUBufferUsage.UNIFORM
+    );
 
     const blurParamsBuffer = device.createBuffer({
       size: 8,
@@ -339,6 +315,6 @@ export class BlurImageFilter extends Drawable {
     }
     passEncoder.setPipeline(this.renderPipeline);
     passEncoder.setBindGroup(0, this.showResultBindGroup);
-    passEncoder.draw(6);
+    passEncoder.draw(3);
   }
 }
