@@ -83,6 +83,7 @@ fn main(
     }
   }
 }
+
 `;
 
 interface BlurProps {
