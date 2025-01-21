@@ -7,6 +7,7 @@ import { RedrawInstance } from "../components/redraw";
 import { CircleShader } from "../components/redraw/Drawings";
 import { BlendMode } from "../components/redraw/Paint";
 import { ComputeBlurImageFilter } from "../components/redraw/ImageFilters/Blur";
+import { FillTexture } from "../components/redraw/Drawings/Fill";
 
 const pd = window.devicePixelRatio;
 const width = 1080 * pd;
@@ -81,11 +82,11 @@ export const RedrawDemo = () => {
       // recorder.fill("fillTexture", FillTexture, BlendMode.SrcOver, null, [
       //   offscreen.current.getCurrentTexture(),
       // ]);
-      blur.current!.setSize(mix(progress.value, 4, 34));
+      blur.current!.setSize(mix(progress.value, 4, 50));
       recorder.execute(blur.current!);
-      // recorder.fill("fillTexture", FillTexture, null, null, [
-      //   offscreen.current.getCurrentTexture(),
-      // ]);
+      recorder.fill("fillTexture", FillTexture, BlendMode.SrcOver, null, [
+        offscreen.current.getCurrentTexture(),
+      ]);
       surface.current.flush();
     }
   }, [progress]);

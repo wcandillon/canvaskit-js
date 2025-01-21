@@ -1,4 +1,5 @@
 import { FillTexture, FillVertex } from "../Drawings/Fill";
+import { BlendMode, GPUBlendModes } from "../Paint";
 import { Drawable } from "../Recorder";
 
 const ComputeBlurShader = /* wgsl */ `
@@ -73,7 +74,7 @@ fn main(
       if (center >= filterOffset &&
           center < 128 - filterOffset &&
           all(writeIndex < dims)) {
-        var acc = vec4(0.0, 0.0, 0.0, 0.0);
+        var acc = vec4(0.0, 0.0, 0.0, 1.0);
         for (var f = 0; f < params.filterDim; f++) {
           var i = center + f - filterOffset;
           acc = acc + (1.0 / f32(params.filterDim)) * tile[r][i];
@@ -154,7 +155,8 @@ export class ComputeBlurImageFilter extends Drawable {
     this.renderPipeline = this.resources.createPipeline(
       "fill-texture",
       fillVertex,
-      fillFragment
+      fillFragment,
+      GPUBlendModes[BlendMode.SrcOver]
     );
 
     const sampler = this.device.createSampler({
