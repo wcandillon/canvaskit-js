@@ -36,7 +36,7 @@ export const RedrawDemo = () => {
       offscreen.current = Redraw.current.Surface.MakeOffscreen(width, height);
       blur.current = new BlurImageFilter(device, {
         iterations: 4,
-        size: mix(progress.value, 2, 34),
+        size: mix(progress.value, 50, 100),
         inputTexture: offscreen.current.getCurrentTexture(),
       });
     })();
@@ -64,7 +64,7 @@ export const RedrawDemo = () => {
       paint = {
         useColor: 1,
         style: 0,
-        color: Float32Array.of(1, 0, 1, 1),
+        color: Float32Array.of(0, 0, 0, 1),
         strokeWidth: 0,
       };
       recorder.fill(
@@ -81,7 +81,7 @@ export const RedrawDemo = () => {
         paint,
         matrix,
         {
-          radius: mix(progress.value, 50, height / 2),
+          radius: 200, //mix(progress.value, 50, height / 2),
           center: [width / 2, height / 2],
         },
         [],
@@ -92,8 +92,11 @@ export const RedrawDemo = () => {
       // recorder.fill("fillTexture", FillTexture, BlendMode.SrcOver, null, [
       //   offscreen.current.getCurrentTexture(),
       // ]);
-      blur.current!.setSize(mix(progress.value, 2, 10));
+      blur.current!.setSize(mix(progress.value, 4, 34));
       recorder.execute(blur.current!);
+      recorder.fill("fillTexture", FillTexture, BlendMode.SrcOver, null, [
+        offscreen.current.getCurrentTexture(),
+      ]);
       surface.current.flush();
     }
   }, [progress]);

@@ -18,7 +18,6 @@ export class Resources {
 
   createModule(id: string, code: string) {
     if (!this.modules.has(id)) {
-      console.log("createModule", id);
       this.modules.set(id, this.device.createShaderModule({ code }));
     }
     return this.modules.get(id)!;
@@ -40,7 +39,6 @@ export class Resources {
 
   createTexture(id: string, descriptor: GPUTextureDescriptor) {
     if (!this.textures.has(id)) {
-      console.log("Creating texture", id);
       const texture = this.device.createTexture(descriptor);
       this.textures.set(id, texture);
     }
@@ -54,7 +52,6 @@ export class Resources {
     blend?: GPUBlendState
   ) {
     if (!this.pipelines.has(id)) {
-      console.log("createPipeline", id);
       const format = navigator.gpu.getPreferredCanvasFormat();
       const pipeline = this.device.createRenderPipeline({
         layout: "auto",
