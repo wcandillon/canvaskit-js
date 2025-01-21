@@ -1,4 +1,3 @@
-/* eslint-disable prefer-destructuring */
 import { FillTexture, FillVertex } from "../Drawings/Fill";
 import { Drawable } from "../Recorder";
 import { Resources } from "../Resources";
@@ -89,14 +88,16 @@ const BlurShader = /* wgsl */ `struct Params {
 interface BlurProps {
   size: number;
   iterations: number;
-  resolution: Float32Array;
+  inputTexture: GPUTexture;
 }
 
 export class BlurImageFilter extends Drawable {
   private tileDim = 128;
-  private blockDim: number;
+  private size = 5;
+  private iterations = 4;
 
-  private device: GPUDevice | null = null;
+  private inputTexture: GPUTexture | null = null;
+  private blurParamsBuffer: GPUBuffer | null = null;
   private renderPipeline: GPURenderPipeline | null = null;
   private blurPipeline: GPUComputePipeline | null = null;
   private showResultBindGroup: GPUBindGroup | null = null;
@@ -105,40 +106,63 @@ export class BlurImageFilter extends Drawable {
   private computeBindGroup1: GPUBindGroup | null = null;
   private computeBindGroup2: GPUBindGroup | null = null;
 
-  constructor(private props: BlurProps, private input: GPUTexture) {
-    super();
-    this.blockDim = this.tileDim - (this.props.size - 1);
+  constructor(device: GPUDevice, props: BlurProps) {
+    super(device);
+    this.setInputTexture(props.inputTexture);
+    this.setSize(props.size);
+    this.setIterations(props.iterations);
   }
 
-  setup(device: GPUDevice) {
-    const resources = Resources.getInstance(device);
-    this.device = device;
-    const srcWidth = this.props.resolution[0];
-    const srcHeight = this.props.resolution[1];
-    const computeShader = resources.createModule(
+  setSize(size: number) {
+    if (!this.blurParamsBuffer) {
+      throw new Error("Blur Image filter blurParamsBuffer not initialized");
+    }
+    this.size = size;
+    this.device.queue.writeBuffer(
+      this.blurParamsBuffer,
+      0,
+      new Uint32Array([this.size, this.getBlockDim()])
+    );
+  }
+
+  setIterations(iterations: number) {
+    this.iterations = iterations;
+  }
+
+  setInputTexture(texture: GPUTexture) {
+    if (this.inputTexture === texture) {
+      return;
+    }
+    this.inputTexture = texture;
+    const srcWidth = texture.width;
+    const srcHeight = texture.height;
+    const computeShader = this.resources.createModule(
       "blur-image-filter-shader",
       BlurShader
     );
 
-    this.blurPipeline = resources.createComputePipeline(
+    this.blurPipeline = this.resources.createComputePipeline(
       "blur-image-filter-compute-pipeline",
       computeShader
     );
-    const fillVertex = resources.createModule("fill-vertex", FillVertex);
-    const fillFragment = resources.createModule("fill-texture", FillTexture);
-    this.renderPipeline = resources.createPipeline(
+    const fillVertex = this.resources.createModule("fill-vertex", FillVertex);
+    const fillFragment = this.resources.createModule(
+      "fill-texture",
+      FillTexture
+    );
+    this.renderPipeline = this.resources.createPipeline(
       "fill-texture",
       fillVertex,
       fillFragment
     );
 
-    const sampler = device.createSampler({
+    const sampler = this.device.createSampler({
       magFilter: "linear",
       minFilter: "linear",
     });
 
     const textures = [0, 1].map((index) => {
-      return resources.createTexture(
+      return this.resources.createTexture(
         `ping-pong-storage-texture-${srcWidth}-${srcHeight}-${index}`,
         {
           size: {
@@ -153,24 +177,25 @@ export class BlurImageFilter extends Drawable {
         }
       );
     });
-    const buffer0 = resources.createBuffer(
+
+    const buffer0 = this.resources.createBuffer(
       "image-filter-buffer-0",
       Uint32Array.of(0),
       GPUBufferUsage.UNIFORM
     );
-    const buffer1 = resources.createBuffer(
+    const buffer1 = this.resources.createBuffer(
       "image-filter-buffer-1",
       Uint32Array.of(1),
       GPUBufferUsage.UNIFORM
     );
 
-    const blurParamsBuffer = device.createBuffer({
+    this.blurParamsBuffer = this.device.createBuffer({
       size: 8,
       usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.UNIFORM,
     });
     const layout0 = this.blurPipeline.getBindGroupLayout(0);
     layout0.label = "Compute Constants";
-    this.computeConstants = device.createBindGroup({
+    this.computeConstants = this.device.createBindGroup({
       layout: layout0,
       entries: [
         {
@@ -180,19 +205,19 @@ export class BlurImageFilter extends Drawable {
         {
           binding: 1,
           resource: {
-            buffer: blurParamsBuffer,
+            buffer: this.blurParamsBuffer,
           },
         },
       ],
     });
     const layout1 = this.blurPipeline.getBindGroupLayout(1);
     layout1.label = "Compute Bind Group";
-    this.computeBindGroup0 = device.createBindGroup({
+    this.computeBindGroup0 = this.device.createBindGroup({
       layout: layout1,
       entries: [
         {
           binding: 1,
-          resource: this.input.createView(),
+          resource: texture.createView(),
         },
         {
           binding: 2,
@@ -207,7 +232,7 @@ export class BlurImageFilter extends Drawable {
       ],
     });
 
-    this.computeBindGroup1 = device.createBindGroup({
+    this.computeBindGroup1 = this.device.createBindGroup({
       layout: layout1,
       entries: [
         {
@@ -227,7 +252,7 @@ export class BlurImageFilter extends Drawable {
       ],
     });
 
-    this.computeBindGroup2 = device.createBindGroup({
+    this.computeBindGroup2 = this.device.createBindGroup({
       layout: layout1,
       entries: [
         {
@@ -248,7 +273,7 @@ export class BlurImageFilter extends Drawable {
     });
     const renderLayout = this.renderPipeline.getBindGroupLayout(0);
     renderLayout.label = "Render Layout";
-    this.showResultBindGroup = device.createBindGroup({
+    this.showResultBindGroup = this.device.createBindGroup({
       layout: renderLayout,
       entries: [
         {
@@ -261,20 +286,24 @@ export class BlurImageFilter extends Drawable {
         },
       ],
     });
-    device.queue.writeBuffer(
-      blurParamsBuffer,
-      0,
-      new Uint32Array([this.props.size, this.blockDim])
-    );
+  }
+
+  getBlockDim() {
+    return this.tileDim - (this.size - 1);
   }
 
   compute(commandEncoder: GPUCommandEncoder) {
-    if (!this.device || !this.blurPipeline || !this.renderPipeline) {
-      return;
+    if (
+      !this.device ||
+      !this.blurPipeline ||
+      !this.renderPipeline ||
+      !this.inputTexture
+    ) {
+      throw new Error("Blur Image filter not initialized");
     }
     const batch = [4, 4];
-    const srcWidth = this.props.resolution[0];
-    const srcHeight = this.props.resolution[1];
+    const srcWidth = this.inputTexture.width;
+    const srcHeight = this.inputTexture.height;
 
     const computePass = commandEncoder.beginComputePass();
     computePass.setPipeline(this.blurPipeline);
@@ -282,26 +311,26 @@ export class BlurImageFilter extends Drawable {
 
     computePass.setBindGroup(1, this.computeBindGroup0);
     computePass.dispatchWorkgroups(
-      Math.ceil(srcWidth / this.blockDim),
+      Math.ceil(srcWidth / this.getBlockDim()),
       Math.ceil(srcHeight / batch[1])
     );
 
     computePass.setBindGroup(1, this.computeBindGroup1);
     computePass.dispatchWorkgroups(
-      Math.ceil(srcHeight / this.blockDim),
+      Math.ceil(srcHeight / this.getBlockDim()),
       Math.ceil(srcWidth / batch[1])
     );
 
-    for (let i = 0; i < this.props.iterations - 1; ++i) {
+    for (let i = 0; i < this.iterations - 1; ++i) {
       computePass.setBindGroup(1, this.computeBindGroup2);
       computePass.dispatchWorkgroups(
-        Math.ceil(srcWidth / this.blockDim),
+        Math.ceil(srcWidth / this.getBlockDim()),
         Math.ceil(srcHeight / batch[1])
       );
 
       computePass.setBindGroup(1, this.computeBindGroup1);
       computePass.dispatchWorkgroups(
-        Math.ceil(srcHeight / this.blockDim),
+        Math.ceil(srcHeight / this.getBlockDim()),
         Math.ceil(srcWidth / batch[1])
       );
     }
@@ -311,7 +340,7 @@ export class BlurImageFilter extends Drawable {
 
   draw(passEncoder: GPURenderPassEncoder) {
     if (!this.renderPipeline) {
-      return;
+      throw new Error("Blur Image filter not initialized");
     }
     passEncoder.setPipeline(this.renderPipeline);
     passEncoder.setBindGroup(0, this.showResultBindGroup);

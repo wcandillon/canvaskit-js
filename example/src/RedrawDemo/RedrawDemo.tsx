@@ -34,14 +34,11 @@ export const RedrawDemo = () => {
       Redraw.current = new RedrawInstance(device);
       surface.current = Redraw.current.Surface.MakeFromCanvas(ref.current!);
       offscreen.current = Redraw.current.Surface.MakeOffscreen(width, height);
-      blur.current = new BlurImageFilter(
-        {
-          iterations: 4,
-          size: mix(progress.value, 2, 34),
-          resolution: Float32Array.of(width, height),
-        },
-        offscreen.current!.getCurrentTexture()
-      );
+      blur.current = new BlurImageFilter(device, {
+        iterations: 4,
+        size: mix(progress.value, 2, 34),
+        inputTexture: offscreen.current.getCurrentTexture(),
+      });
     })();
   });
   useOnFrame(() => {
@@ -95,7 +92,7 @@ export const RedrawDemo = () => {
       // recorder.fill("fillTexture", FillTexture, BlendMode.SrcOver, null, [
       //   offscreen.current.getCurrentTexture(),
       // ]);
-
+      blur.current!.setSize(mix(progress.value, 2, 30));
       recorder.execute(blur.current!);
       surface.current.flush();
     }

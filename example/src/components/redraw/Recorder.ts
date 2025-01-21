@@ -33,7 +33,11 @@ interface Instance {
 }
 
 export abstract class Drawable {
-  abstract setup(device: GPUDevice): void;
+  protected resources: Resources;
+
+  constructor(protected device: GPUDevice) {
+    this.resources = Resources.getInstance(this.device);
+  }
   abstract compute(commandEncoder: GPUCommandEncoder): void;
   abstract draw(passEncoder: GPURenderPassEncoder): void;
 }
@@ -56,9 +60,9 @@ export class Recorder {
   execute(drawable: Drawable) {
     this.drawables.push(drawable);
     this.commands.push(drawable);
-    drawable.setup(this.device);
   }
 
+  // TODO: this can be removed
   fill(
     id: string,
     shader: string,
