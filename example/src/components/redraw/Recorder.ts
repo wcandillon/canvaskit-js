@@ -34,7 +34,8 @@ interface Instance {
 
 export abstract class Drawable {
   abstract setup(device: GPUDevice, resources: Resources): void;
-  abstract draw(texture: GPUTexture): void;
+  abstract compute(commandEncoder: GPUCommandEncoder): void;
+  abstract draw(passEncoder: GPURenderPassEncoder, texture: GPUTexture): void;
 }
 
 export class Recorder {
@@ -208,6 +209,12 @@ export class Recorder {
     const commandEncoder = this.device.createCommandEncoder({
       label: "Surface encoder",
     });
+    // TODO: pre-filter
+    this.commands.forEach((cmdOrDrawable) => {
+      if (cmdOrDrawable instanceof Drawable) {
+        cmdOrDrawable.compute(commandEncoder);
+      }
+    });
     const view = texture.createView();
     const passEncoder = commandEncoder.beginRenderPass({
       colorAttachments: [
@@ -221,7 +228,7 @@ export class Recorder {
     });
     this.commands.forEach((cmdOrDrawable) => {
       if (cmdOrDrawable instanceof Drawable) {
-        cmdOrDrawable.draw(texture);
+        cmdOrDrawable.draw(passEncoder);
       } else {
         const { pipeline, vertexCount, instanceIndex, bindGroups } =
           cmdOrDrawable;

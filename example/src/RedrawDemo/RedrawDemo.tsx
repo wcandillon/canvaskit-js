@@ -11,6 +11,7 @@ import {
   FillShader,
   FillTexture,
 } from "../components/redraw/Drawings/Fill";
+import { BlurImageFilter } from "../components/redraw/ImageFilters/Blur";
 
 const pd = window.devicePixelRatio;
 
@@ -82,19 +83,19 @@ export const RedrawDemo = () => {
       );
       offscreen.flush();
       recorder = surface.current.getRecorder();
-      recorder.fill("fillTexture", FillTexture, BlendMode.SrcOver, null, [
-        offscreen.getCurrentTexture(),
-      ]);
-      // recorder.execute(
-      //   new BlurImageFilter(
-      //     {
-      //       iterations: 10,
-      //       size: 10,
-      //       resolution: Float32Array.of(1080 * 2, 720 * 2),
-      //     },
-      //     offscreen.getCurrentTexture()
-      //   )
-      // );
+      // recorder.fill("fillTexture", FillTexture, BlendMode.SrcOver, null, [
+      //   offscreen.getCurrentTexture(),
+      // ]);
+      recorder.execute(
+        new BlurImageFilter(
+          {
+            iterations: 10,
+            size: 10,
+            resolution: Float32Array.of(1080 * 2, 720 * 2),
+          },
+          offscreen.getCurrentTexture()
+        )
+      );
       surface.current.flush();
     }
   }, [progress]);

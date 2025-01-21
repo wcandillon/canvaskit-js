@@ -292,14 +292,13 @@ export class BlurImageFilter extends Drawable {
     );
   }
 
-  draw(texture: GPUTexture) {
+  compute(commandEncoder: GPUCommandEncoder) {
     if (!this.device || !this.blurPipeline || !this.renderPipeline) {
       return;
     }
     const batch = [4, 4];
     const srcWidth = this.props.resolution[0];
     const srcHeight = this.props.resolution[1];
-    const commandEncoder = this.device.createCommandEncoder();
 
     const computePass = commandEncoder.beginComputePass();
     computePass.setPipeline(this.blurPipeline);
@@ -332,22 +331,14 @@ export class BlurImageFilter extends Drawable {
     }
 
     computePass.end();
+  }
 
-    const passEncoder = commandEncoder.beginRenderPass({
-      colorAttachments: [
-        {
-          view: texture.createView(),
-          clearValue: [0, 0, 0, 1],
-          loadOp: "clear",
-          storeOp: "store",
-        },
-      ] as const,
-    });
-
+  draw(passEncoder: GPURenderPassEncoder) {
+    if (!this.renderPipeline) {
+      return;
+    }
     passEncoder.setPipeline(this.renderPipeline);
     passEncoder.setBindGroup(0, this.showResultBindGroup);
     passEncoder.draw(6);
-    passEncoder.end();
-    this.device.queue.submit([commandEncoder.finish()]);
   }
 }
