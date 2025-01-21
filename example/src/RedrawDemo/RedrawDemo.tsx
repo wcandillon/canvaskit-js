@@ -14,8 +14,8 @@ import {
 import { BlurImageFilter } from "../components/redraw/ImageFilters/Blur";
 
 const pd = window.devicePixelRatio;
-const width = 256 * pd;
-const height = 256 * pd;
+const width = 1080 * pd;
+const height = 720 * pd;
 
 export const RedrawDemo = () => {
   const progress = useLoop();
@@ -64,7 +64,7 @@ export const RedrawDemo = () => {
       paint = {
         useColor: 1,
         style: 0,
-        color: Float32Array.of(progress.value, progress.value, 1, 1),
+        color: Float32Array.of(1, 0, 1, 1),
         strokeWidth: 0,
       };
       recorder.fill(
@@ -81,7 +81,7 @@ export const RedrawDemo = () => {
         paint,
         matrix,
         {
-          radius: height / 2,
+          radius: mix(progress.value, 50, height / 2),
           center: [width / 2, height / 2],
         },
         [],
@@ -92,7 +92,7 @@ export const RedrawDemo = () => {
       // recorder.fill("fillTexture", FillTexture, BlendMode.SrcOver, null, [
       //   offscreen.current.getCurrentTexture(),
       // ]);
-      blur.current!.setSize(mix(progress.value, 2, 30));
+      blur.current!.setSize(mix(progress.value, 2, 10));
       recorder.execute(blur.current!);
       surface.current.flush();
     }
